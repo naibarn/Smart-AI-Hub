@@ -1,6 +1,9 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
+import creditRoutes from './routes/credit.routes';
+import { errorHandler } from './middlewares/errorHandler.middleware';
+import { connectRedis, disconnectRedis } from './config/redis';
 
 const prisma = new PrismaClient();
 const app: Application = express();
@@ -9,6 +12,12 @@ const PORT = process.env.PORT || 3002;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use('/api', creditRoutes);
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 // Health check with DB connection
 app.get('/health', async (req: Request, res: Response) => {
@@ -32,9 +41,9 @@ app.get('/users', async (req: Request, res: Response) => {
 
 app.post('/users', async (req: Request, res: Response) => {
   try {
-    const { email, name } = req.body;
+    const { email } = req.body;
     const user = await prisma.user.create({
-      data: { email, name },
+      data: { email },
     });
     res.json(user);
   } catch (error) {
@@ -44,7 +53,24 @@ app.post('/users', async (req: Request, res: Response) => {
 
 app.listen(PORT, async () => {
   await prisma.$connect();
+  // Initialize Redis connection
+  await connectRedis();
   console.log(`Core Service running on port ${PORT}`);
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down gracefully...');
+  await disconnectRedis();
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Shutting down gracefully...');
+  await disconnectRedis();
+  await prisma.$disconnect();
+  process.exit(0);
 });
 
 export default app;
