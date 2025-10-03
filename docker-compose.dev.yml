@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+    volumes:
+      - redis_data:/data
+
+  nginx:
+    extends:
+      file: docker-compose.yml
+      service: nginx
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+
+  api-gateway:
+    build:
+      context: ./packages/api-gateway
+      target: builder
+    volumes:
+      - ./packages/api-gateway/src:/app/src
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3000:3000"
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      core-service:
+        condition: service_healthy
+      mcp-server:
+        condition: service_healthy
+
+  auth-service:
+    build:
+      context: ./packages/auth-service
+      target: builder
+    volumes:
+      - ./packages/auth-service/src:/app/src
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=secret
+      - OAUTH_CLIENT_ID=client_id
+      - OAUTH_CLIENT_SECRET=client_secret
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3001:3001"
+    networks:
+      - smart-ai-hub
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  core-service:
+    build:
+      context: ./packages/core-service
+      target: builder
+    volumes:
+      - ./packages/core-service/src:/app/src
+      - ./packages/core-service/prisma:/app/prisma
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/smart_ai_hub
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3002:3002"
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mcp-server:
+    build:
+      context: ./packages/mcp-server
+      target: builder
+    volumes:
+      - ./packages/mcp-server/src:/app/src
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3003:3003"
+    networks:
+      - smart-ai-hub
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./packages/frontend/src:/app/src
+      - ./packages/frontend/public:/app/public
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:80
+    ports:
+      - "3004:3000"
+    networks:
+      - smart-ai-hub
+    depends_on:
+      nginx:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  smart-ai-hub:
+    driver: bridge
