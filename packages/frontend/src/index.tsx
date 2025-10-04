@@ -1,10 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
+import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import App from './App';
-
-const theme = createTheme();
+import theme from './theme/theme';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -12,5 +11,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <CssBaseline />
       <App />
     </ThemeProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

@@ -5,12 +5,20 @@ const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(express.json());
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'OK' });
+});
+
+// API Health check
+app.get('/api/health', (req: Request, res: Response) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // Placeholder proxy routes

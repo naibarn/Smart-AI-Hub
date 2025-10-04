@@ -1,0 +1,21 @@
+# Default code owners for the entire repository
+* @owner
+
+# Specific code owners for different packages
+/packages/auth-service/* @auth-team
+/packages/core-service/* @core-team
+/packages/api-gateway/* @infra-team
+/packages/frontend/* @frontend-team
+/packages/notification-service/* @infra-team
+/packages/mcp-server/* @core-team
+/packages/shared/* @core-team
+
+# Documentation
+/docs/* @owner
+
+# Configuration files
+/.github/* @owner
+docker-compose*.yml @infra-team
+*.json @owner
+*.js @owner
+*.ts @owner

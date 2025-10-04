@@ -1,14 +1,56 @@
 // src/utils/jwt.js
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const ACCESS_TOKEN_EXPIRES_IN = '15m';
+const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
 /**
- * สร้าง JWT Token
+ * Generate a random string for JWT ID
+ */
+const generateJTI = () => {
+  return crypto.randomBytes(16).toString('hex');
+};
+
+/**
+ * สร้าง Access Token (อายุ 15 นาที)
+ */
+const generateAccessToken = (payload) => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+    jwtid: generateJTI() // Add unique JWT ID
+  });
+};
+
+/**
+ * สร้าง Refresh Token (อายุ 7 วัน)
+ */
+const generateRefreshToken = (payload) => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+    jwtid: generateJTI() // Add unique JWT ID
+  });
+};
+
+/**
+ * สร้าง JWT Token (เก็บไว้เพื่อความเข้ากันได้กับโค้ดเก่า)
  */
 const generateToken = (payload) => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return generateAccessToken(payload);
+};
+
+/**
+ * สร้างทั้ง Access Token และ Refresh Token พร้อมกัน
+ */
+const generateTokens = (userId) => {
+  const accessToken = generateAccessToken({ userId });
+  const refreshToken = generateRefreshToken({ userId });
+  
+  return {
+    accessToken,
+    refreshToken
+  };
 };
 
 /**
@@ -22,16 +64,13 @@ const verifyToken = (token) => {
   }
 };
 
-/**
- * สร้าง Refresh Token (อายุ 30 วัน)
- */
-const generateRefreshToken = (payload) => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
-};
-
 module.exports = {
   generateToken,
-  verifyToken,
+  generateAccessToken,
   generateRefreshToken,
-  JWT_SECRET
+  generateTokens,
+  verifyToken,
+  JWT_SECRET,
+  ACCESS_TOKEN_EXPIRES_IN,
+  REFRESH_TOKEN_EXPIRES_IN
 };

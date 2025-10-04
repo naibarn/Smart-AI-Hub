@@ -11,7 +11,7 @@
    - Professional visual assets
    - Brand identity elements
 
-📸 Freepik: มีอยู่แล้ว  
+📸 Freepik: มีอยู่แล้ว
    - Professional stock photos
    - Vector illustrations
    - Icons และ UI elements
@@ -29,7 +29,7 @@
 🆓 เครื่องมือฟรี:
    - Figma Free (backup design)
    - Google Analytics 4 (analytics)
-   - Three.js (3D elements)  
+   - Three.js (3D elements)
    - Framer Motion (animations)
    - Recharts (data visualization)
 
@@ -43,6 +43,7 @@
 ### 🎨 **Midjourney Asset Strategy**
 
 #### **AI Dashboard Backgrounds**
+
 ```
 Prompts สำหรับ Smart AI Hub:
 
@@ -63,6 +64,7 @@ Prompts สำหรับ Smart AI Hub:
 ```
 
 #### **UI Element Assets**
+
 ```
 🔸 Icons และ Illustrations:
 "/imagine AI robot assistant icon, friendly design, purple gradient, flat illustration style, white background --ar 1:1"
@@ -77,10 +79,11 @@ Prompts สำหรับ Smart AI Hub:
 ### 📸 **Freepik Asset Strategy**
 
 #### **Professional UI Elements**
+
 ```
 🔹 Search Keywords สำหรับ Smart AI Hub:
 - "AI dashboard interface vector"
-- "Glassmorphism UI components"  
+- "Glassmorphism UI components"
 - "Neural network background"
 - "Tech dashboard mockup"
 - "AI chatbot interface"
@@ -90,6 +93,7 @@ Prompts สำหรับ Smart AI Hub:
 ```
 
 #### **Stock Photos สำหรับ Marketing**
+
 ```
 🔸 Landing Page:
 - "Professional team using AI technology"
@@ -141,34 +145,35 @@ Smart AI Hub Assets/
 ### 2. **Analytics (ฟรี 100%)**
 
 #### **Google Analytics 4**
+
 ```javascript
 // Setup GA4 ฟรี
 import { gtag } from 'ga-gtag';
 
 gtag('config', 'GA_MEASUREMENT_ID', {
   page_title: 'Smart AI Hub',
-  page_location: window.location.href
+  page_location: window.location.href,
 });
 
 // Custom events
 gtag('event', 'ai_request', {
   event_category: 'AI',
   event_label: 'GPT Usage',
-  value: 1
+  value: 1,
 });
 ```
 
 #### **Plausible Analytics (Free tier)**
+
 ```html
 <!-- Alternative lightweight analytics -->
-<script defer data-domain="smartaihub.com" 
-        src="https://plausible.io/js/plausible.js">
-</script>
+<script defer data-domain="smartaihub.com" src="https://plausible.io/js/plausible.js"></script>
 ```
 
 ### 3. **Animations (ฟรี 100%)**
 
 #### **Framer Motion (Free Library)**
+
 ```bash
 npm install framer-motion
 ```
@@ -182,14 +187,14 @@ const AICard = () => (
     initial={{ opacity: 0, scale: 0.8 }}
     animate={{ opacity: 1, scale: 1 }}
     exit={{ opacity: 0, scale: 0.8 }}
-    whileHover={{ 
+    whileHover={{
       scale: 1.05,
-      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     }}
-    transition={{ 
-      type: "spring",
+    transition={{
+      type: 'spring',
       stiffness: 300,
-      damping: 30
+      damping: 30,
     }}
   >
     AI Content
@@ -198,10 +203,11 @@ const AICard = () => (
 ```
 
 #### **CSS Animations (Built-in)**
+
 ```css
 /* Advanced CSS animations ฟรี */
 @keyframes neuralPulse {
-  0% { 
+  0% {
     box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
     transform: scale(1);
   }
@@ -209,7 +215,7 @@ const AICard = () => (
     box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
     transform: scale(1.05);
   }
-  100% { 
+  100% {
     box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
     transform: scale(1);
   }
@@ -223,6 +229,7 @@ const AICard = () => (
 ### 4. **3D Elements (ฟรี 100%)**
 
 #### **Three.js + React Three Fiber**
+
 ```bash
 npm install three @react-three/fiber @react-three/drei
 ```
@@ -236,22 +243,18 @@ const NeuralNetwork = () => (
   <Canvas>
     <ambientLight intensity={0.5} />
     <pointLight position={[10, 10, 10]} />
-    
+
     {/* Neural nodes */}
     {Array.from({ length: 20 }).map((_, i) => (
       <Sphere
         key={i}
-        position={[
-          Math.random() * 10 - 5,
-          Math.random() * 10 - 5,
-          Math.random() * 10 - 5
-        ]}
+        position={[Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5]}
         args={[0.1, 32, 32]}
       >
         <meshStandardMaterial color="#667eea" />
       </Sphere>
     ))}
-    
+
     <OrbitControls />
   </Canvas>
 );
@@ -260,6 +263,7 @@ const NeuralNetwork = () => (
 ### 5. **Data Visualization (ฟรี 100%)**
 
 #### **Recharts (Free Library)**
+
 ```bash
 npm install recharts
 ```
@@ -272,16 +276,11 @@ const AIUsageChart = ({ data }) => (
     <LineChart data={data}>
       <XAxis dataKey="date" />
       <YAxis />
-      <Line 
-        type="monotone" 
-        dataKey="usage" 
-        stroke="url(#aiGradient)"
-        strokeWidth={3}
-      />
+      <Line type="monotone" dataKey="usage" stroke="url(#aiGradient)" strokeWidth={3} />
       <defs>
         <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style={{stopColor:'#667eea', stopOpacity:1}} />
-          <stop offset="100%" style={{stopColor:'#764ba2', stopOpacity:1}} />
+          <stop offset="0%" style={{ stopColor: '#667eea', stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: '#764ba2', stopOpacity: 1 }} />
         </linearGradient>
       </defs>
     </LineChart>
@@ -292,6 +291,7 @@ const AIUsageChart = ({ data }) => (
 ### 6. **Testing (ฟรี 100%)**
 
 #### **React Testing Library + Jest**
+
 ```bash
 # ฟรีและมาพร้อม Create React App
 npm test
@@ -308,8 +308,10 @@ test('component renders correctly', () => {
 ```
 
 #### **Manual Testing Checklist**
+
 ```markdown
 ## UI Testing Checklist (ฟรี)
+
 - [ ] Desktop responsive (1920px, 1440px, 1024px)
 - [ ] Tablet responsive (768px)
 - [ ] Mobile responsive (375px, 414px)
@@ -328,14 +330,14 @@ test('component renders correctly', () => {
 ```typescript
 // 1. All UI Components from Plasmic
 export const Dashboard = () => (
-  <PlasmicDashboard 
+  <PlasmicDashboard
     // Custom animations
     className="animated-entrance"
   />
 );
 
 export const CreditCard = () => (
-  <PlasmicCreditCard 
+  <PlasmicCreditCard
     // Custom 3D background
     backgroundComponent={<NeuralBackground />}
   />
@@ -348,7 +350,7 @@ const EnhancedDashboard = () => (
     animate={{ opacity: 1 }}
   >
     <PlasmicDashboard />
-    
+
     {/* Custom 3D background */}
     <div className="absolute inset-0 -z-10">
       <NeuralNetwork />
@@ -364,6 +366,7 @@ const EnhancedDashboard = () => (
 ### **เครื่องมือฟรีที่ใช้ได้ดี**
 
 #### **Design System Management**
+
 ```javascript
 // Style Dictionary (ฟรี) - แทน Design Tokens Studio
 module.exports = {
@@ -372,22 +375,26 @@ module.exports = {
     css: {
       transformGroup: 'css',
       buildPath: 'dist/',
-      files: [{
-        destination: 'variables.css',
-        format: 'css/variables'
-      }]
-    }
-  }
+      files: [
+        {
+          destination: 'variables.css',
+          format: 'css/variables',
+        },
+      ],
+    },
+  },
 };
 ```
 
 #### **Component Documentation**
+
 ```bash
 # Storybook (ฟรี) - แทน Zeroheight
 npx storybook@latest init
 ```
 
 #### **Performance Monitoring**
+
 ```javascript
 // Web Vitals (ฟรี) - แทน paid monitoring
 import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
@@ -411,18 +418,19 @@ getTTFB(sendToAnalytics);
 
 ### 📈 **คุณภาพที่เพิ่มขึ้น:**
 
-| ด้าน | ก่อน (ใช้ฟรี) | หลัง (มี MJ+FP) | เปลี่ยนแปลง |
-|------|---------------|-----------------|-------------|
-| **Visual Quality** | 🌟🌟🌟⭐⭐ | 🌟🌟🌟🌟🌟 | **+40%** |
-| **Brand Consistency** | 🌟🌟⭐⭐⭐ | 🌟🌟🌟🌟🌟 | **+60%** |
-| **Professional Look** | 🌟🌟🌟⭐⭐ | 🌟🌟🌟🌟🌟 | **+40%** |
-| **Development Speed** | 🌟🌟🌟⭐⭐ | 🌟🌟🌟🌟⭐ | **+25%** |
+| ด้าน                  | ก่อน (ใช้ฟรี) | หลัง (มี MJ+FP) | เปลี่ยนแปลง |
+| --------------------- | ------------- | --------------- | ----------- |
+| **Visual Quality**    | 🌟🌟🌟⭐⭐    | 🌟🌟🌟🌟🌟      | **+40%**    |
+| **Brand Consistency** | 🌟🌟⭐⭐⭐    | 🌟🌟🌟🌟🌟      | **+60%**    |
+| **Professional Look** | 🌟🌟🌟⭐⭐    | 🌟🌟🌟🌟🌟      | **+40%**    |
+| **Development Speed** | 🌟🌟🌟⭐⭐    | 🌟🌟🌟🌟⭐      | **+25%**    |
 
 ### 🎯 **Competitive Advantage:**
 
 **ด้วย Midjourney + Freepik + Plasmic:**
+
 - ✅ **Visual quality เทียบเท่า Notion, Linear**
-- ✅ **Brand consistency ระดับ enterprise**  
+- ✅ **Brand consistency ระดับ enterprise**
 - ✅ **Development speed เพิ่ม 25%**
 - ✅ **User retention เพิ่ม 40%** (จาก visual appeal)
 
@@ -431,18 +439,20 @@ getTTFB(sendToAnalytics);
 ## 💡 **Implementation Workflow**
 
 ### **Week 1: Asset Creation**
+
 ```bash
 # 1. Midjourney Asset Generation
 Day 1-2: สร้าง dashboard backgrounds
 Day 3-4: สร้าง AI illustrations และ icons
 Day 5: สร้าง loading animations และ effects
 
-# 2. Freepik Asset Collection  
+# 2. Freepik Asset Collection
 Day 6: Download UI component vectors
 Day 7: Collect stock photos สำหรับ marketing
 ```
 
 ### **Week 2: Plasmic Integration**
+
 ```bash
 # 1. Upload assets เข้า Plasmic
 - Import Midjourney backgrounds
@@ -451,19 +461,20 @@ Day 7: Collect stock photos สำหรับ marketing
 
 # 2. Build design system
 - Setup color tokens (AI-inspired)
-- Create typography scale  
+- Create typography scale
 - Build component library
 ```
 
 ### **Week 3: Development Integration**
+
 ```javascript
 // Integration example
 const AICard = () => (
-  <div 
+  <div
     className="plasmic-card"
     style={{
       backgroundImage: 'url(/assets/neural-bg-midjourney.png)',
-      backgroundBlendMode: 'overlay'
+      backgroundBlendMode: 'overlay',
     }}
   >
     <PlasmicCardContent />
@@ -476,6 +487,7 @@ const AICard = () => (
 ## 🚀 **Quick Start Action Plan**
 
 ### **ขั้นตอนที่ 1: Asset Preparation (วันนี้)**
+
 ```
 📋 Midjourney Tasks:
 □ สร้าง main dashboard background
@@ -483,7 +495,7 @@ const AICard = () => (
 □ สร้าง neural network pattern
 □ สร้าง loading animation frames
 
-📋 Freepik Tasks:  
+📋 Freepik Tasks:
 □ Download glassmorphism UI kit
 □ Download tech icon set
 □ Download gradient background pack
@@ -491,6 +503,7 @@ const AICard = () => (
 ```
 
 ### **ขั้นตอนที่ 2: Plasmic Setup (สัปดาห์หน้า)**
+
 ```
 □ สร้าง Plasmic project
 □ Upload ทุก assets
@@ -500,6 +513,7 @@ const AICard = () => (
 ```
 
 ### **ขั้นตอนที่ 3: Development (2 สัปดาห์ถัดไป)**
+
 ```
 □ Generate React components จาก Plasmic
 □ เพิ่ม Framer Motion animations
@@ -514,13 +528,14 @@ const AICard = () => (
 
 ### **เปรียบเทียบทุกแผน:**
 
-| แผน | เครื่องมือ | ต้นทุน/เดือน | คุณภาพ |
-|-----|------------|-------------|--------|
-| **แผนเดิม** | Figma Pro + ทุกเครื่องมือ | **$650** | 🌟🌟🌟🌟🌟 |
-| **Plasmic Hybrid** | Plasmic + เครื่องมือเสริม | **$200** | 🌟🌟🌟🌟⭐ |
-| **Minimal Budget** | Plasmic + Free tools | **$39** | 🌟🌟🌟⭐⭐ |
+| แผน                | เครื่องมือ                | ต้นทุน/เดือน | คุณภาพ     |
+| ------------------ | ------------------------- | ------------ | ---------- |
+| **แผนเดิม**        | Figma Pro + ทุกเครื่องมือ | **$650**     | 🌟🌟🌟🌟🌟 |
+| **Plasmic Hybrid** | Plasmic + เครื่องมือเสริม | **$200**     | 🌟🌟🌟🌟⭐ |
+| **Minimal Budget** | Plasmic + Free tools      | **$39**      | 🌟🌟🌟⭐⭐ |
 
 ### **สิ่งที่ยังได้เหมือนเดิม:**
+
 - ✅ Modern UI design (Plasmic)
 - ✅ Responsive design
 - ✅ Component library
@@ -530,6 +545,7 @@ const AICard = () => (
 - ✅ AI-generated assets (Stable Diffusion)
 
 ### **สิ่งที่เสียไป:**
+
 - ❌ Advanced prototyping features
 - ❌ Professional asset generation (Midjourney quality)
 - ❌ Advanced analytics (heatmaps, session recordings)
@@ -554,7 +570,7 @@ const AICard = () => (
 ```
 🎨 Design & Assets:
 ✅ Plasmic Pro ($39/month) - Visual development
-✅ Midjourney (มีอยู่) - AI image generation  
+✅ Midjourney (มีอยู่) - AI image generation
 ✅ Freepik (มีอยู่) - Professional assets
 
 🚀 Development:
@@ -572,6 +588,7 @@ const AICard = () => (
 ```
 
 ### 🎯 **ได้ผลลัพธ์ระดับ:**
+
 - **Notion** - Clean, professional interface
 - **Linear** - Modern, responsive design
 - **Vercel** - Premium user experience
@@ -580,8 +597,9 @@ const AICard = () => (
 ### 🚀 **Ready to Launch!**
 
 **การมี Midjourney + Freepik ทำให้:**
+
 - **Visual quality เพิ่ม 40%**
-- **Brand consistency เพิ่ม 60%**  
+- **Brand consistency เพิ่ม 60%**
 - **Development time ลด 25%**
 - **User retention เพิ่ม 40%**
 
@@ -593,12 +611,14 @@ const AICard = () => (
 ## 📋 **Next Steps - เริ่มได้เลย!**
 
 ### **สิ่งที่ต้องทำวันนี้:**
+
 1. ✅ สมัคร Plasmic Pro account
 2. ✅ เตรียม Midjourney prompts สำหรับ Smart AI Hub
 3. ✅ รวบรวม Freepik assets ที่เกี่ยวข้อง
 4. ✅ Setup development environment
 
 ### **สิ่งที่ต้องทำสัปดาห์หน้า:**
+
 1. ✅ สร้าง design system ใน Plasmic
 2. ✅ Generate assets จาก Midjourney
 3. ✅ Integrate Freepik components

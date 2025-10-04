@@ -38,10 +38,17 @@ const errorHandler = (err, req, res, next) => {
     message = 'Referenced resource does not exist';
   }
 
+  // Prisma Errors
+  if (err.code === 'P2023') { // Invalid UUID
+    statusCode = 400;
+    message = 'Invalid user ID format';
+  }
+
   res.status(statusCode).json({
     success: false,
     error: {
       message,
+      code: err.code || 'INTERNAL_ERROR',
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     }
   });

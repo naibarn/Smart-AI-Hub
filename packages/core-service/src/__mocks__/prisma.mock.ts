@@ -206,6 +206,12 @@ export const createMockPrismaClient = () => {
       create: jest.fn() as any,
     },
 
+    // Payment operations
+    payment: {
+      findUnique: jest.fn() as any,
+      create: jest.fn() as any,
+    },
+
     // Database operations
     $transaction: jest.fn() as any,
     $connect: jest.fn() as any,

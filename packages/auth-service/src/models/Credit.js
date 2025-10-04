@@ -7,8 +7,8 @@ const Credit = {
    */
   async createAccount(user_id) {
     const { rows } = await db.query(
-      `INSERT INTO credit_accounts (user_id, current_balance, total_purchased, total_used)
-       VALUES ($1, 1, 0, 0)
+      `INSERT INTO credit_accounts (user_id, current_balance, total_purchased, total_used, updated_at)
+       VALUES ($1, 1, 0, 0, CURRENT_TIMESTAMP)
        RETURNING *`,
       [user_id]
     );

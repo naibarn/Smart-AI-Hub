@@ -12,7 +12,7 @@ model Role {
   name        String   @unique @db.VarChar(50)
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   userRoles   UserRole[]
   permissions RolePermission[]
 
@@ -38,12 +38,14 @@ model User {
   googleId           String?             @unique @map("google_id") @db.VarChar(255)
   emailVerified      Boolean             @default(false) @map("email_verified")
   createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @updatedAt @map("updated_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+  credits            Int      @default(0)
   creditAccount      CreditAccount?
   creditTransactions CreditTransaction[]
   profile            UserProfile?
   userRoles          UserRole[]
   promoCodeUsages    PromoCodeUsage[]
+  payments           Payment[]
 
   @@map("users")
 }
@@ -139,8 +141,24 @@ model Permission {
   action      String   @db.VarChar(50)
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   rolePermissions RolePermission[]
 
   @@map("permissions")
+}
+
+model Payment {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                  String   @map("user_id") @db.Uuid
+  amount                  Int
+  credits                 Int
+  status                  String
+  stripeSessionId         String   @unique @map("stripe_session_id")
+  stripePaymentIntentId   String?  @map("stripe_payment_intent_id")
+  metadata                Json?
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
 }

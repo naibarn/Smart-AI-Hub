@@ -3,6 +3,7 @@
 ## 📋 สถานะปัจจุบัน - ตรวจสอบก่อน
 
 ### ✅ สิ่งที่ควรมีอยู่แล้ว:
+
 ```bash
 # 1. โครงสร้างโปรเจกต์
 smart-ai-hub/
@@ -22,6 +23,7 @@ smart-ai-hub/
 ```
 
 ### 🔍 **Quick Check - รันคำสั่งเหล่านี้เพื่อตรวจสอบ:**
+
 ```bash
 # ตรวจสอบ Docker
 docker --version
@@ -48,6 +50,7 @@ docker-compose ps
 #### **Step 1: ทำ Database Schema ให้สมบูรณ์**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo create complete PostgreSQL database schema for Smart AI Hub authentication and credit management system with these exact tables and relationships:
 
@@ -99,6 +102,7 @@ Include proper indexes, foreign key constraints, and Knex.js migration files wit
 #### **Step 2: Setup Environment Configuration**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo create comprehensive environment configuration for Smart AI Hub with:
 
@@ -125,6 +129,7 @@ Environment validation with Joi schema and TypeScript types for all environment 
 #### **Step 3: สร้าง Authentication Service สมบูรณ์**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo create complete authentication service for Smart AI Hub with:
 
@@ -163,6 +168,7 @@ Include comprehensive error handling, input validation with Joi, TypeScript inte
 #### **Step 4: Setup API Gateway**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo create API Gateway for Smart AI Hub microservices with:
 
@@ -202,6 +208,7 @@ Include Swagger/OpenAPI documentation, comprehensive logging, and monitoring hoo
 ### **Step 5: Setup Plasmic Project**
 
 **ทำใน Plasmic Studio:**
+
 ```
 1. ไปที่ https://studio.plasmic.app
 2. Create new project: "Smart AI Hub"
@@ -221,6 +228,7 @@ Include Swagger/OpenAPI documentation, comprehensive logging, and monitoring hoo
 ```
 
 **คำสั่ง Kilo Code สำหรับ integration:**
+
 ```
 @kilo setup Plasmic integration for Smart AI Hub React frontend with:
 
@@ -270,6 +278,7 @@ Include proper TypeScript types, component documentation, and integration exampl
 ### **Step 7: รวบรวม Freepik Assets**
 
 **Download จาก Freepik:**
+
 ```
 🔍 Search Keywords:
 - "Glassmorphism UI components vector"
@@ -295,6 +304,7 @@ smart-ai-hub/assets/
 ### **Step 8: สร้าง React Frontend Foundation**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo create React frontend foundation for Smart AI Hub with:
 
@@ -331,6 +341,7 @@ Include dark/light theme support, loading states, error boundaries, and accessib
 ### **Step 9: เพิ่ม Animations และ Effects**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo add advanced animations and visual effects to Smart AI Hub frontend:
 
@@ -370,6 +381,7 @@ Include animation configuration, performance monitoring, and accessibility consi
 ### **Step 10: Setup Testing Framework**
 
 **คำสั่ง Kilo Code:**
+
 ```
 @kilo setup comprehensive testing framework for Smart AI Hub:
 
@@ -402,24 +414,28 @@ Include test data factories, custom testing utilities, and comprehensive test do
 ## 📋 **Daily Checklist - Week 1**
 
 ### **Day 1-2 (วันนี้-พรุ่งนี้):**
+
 - [ ] ✅ Database schema creation และ migration
 - [ ] ✅ Environment configuration setup
 - [ ] ✅ Basic authentication service
 - [ ] ✅ Plasmic project creation
 
 ### **Day 3-4:**
+
 - [ ] ✅ API Gateway setup และ testing
 - [ ] ✅ Authentication endpoints completion
 - [ ] ✅ Midjourney asset generation
 - [ ] ✅ Freepik asset collection
 
 ### **Day 5-6:**
+
 - [ ] ✅ React frontend foundation
 - [ ] ✅ Plasmic integration
 - [ ] ✅ Basic UI components
 - [ ] ✅ Authentication flow frontend
 
 ### **Day 7:**
+
 - [ ] ✅ Testing framework setup
 - [ ] ✅ End-to-end testing
 - [ ] ✅ Performance optimization
@@ -430,6 +446,7 @@ Include test data factories, custom testing utilities, and comprehensive test do
 ## 🎯 **Success Criteria for Week 1:**
 
 ### **Functional Requirements:**
+
 - [ ] ✅ User registration และ login working
 - [ ] ✅ Database schema complete และ migrated
 - [ ] ✅ API Gateway routing correctly
@@ -437,6 +454,7 @@ Include test data factories, custom testing utilities, and comprehensive test do
 - [ ] ✅ Authentication flow end-to-end
 
 ### **Quality Requirements:**
+
 - [ ] ✅ Unit tests passing (70%+ coverage)
 - [ ] ✅ API documentation complete
 - [ ] ✅ Responsive design working
@@ -444,6 +462,7 @@ Include test data factories, custom testing utilities, and comprehensive test do
 - [ ] ✅ Security basics implemented
 
 ### **Asset Requirements:**
+
 - [ ] ✅ Midjourney assets generated และ optimized
 - [ ] ✅ Freepik components integrated
 - [ ] ✅ Design system established

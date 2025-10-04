@@ -13,19 +13,23 @@ import { authenticateWebSocket } from './utils/jwt.util';
 import { connectionService } from './services/connection.service';
 import { creditService } from './services/credit.service';
 import { loggingService } from './services/logging.service';
-import { MCPRequest, MCPResponse, MCPProvider, LLMRequest } from './types/mcp.types';
+import { MCPRequest, MCPResponse, LLMRequest } from './types/mcp.types';
 import { OpenAIProvider } from './providers/openai.provider';
-import { LLMProvider } from './providers/base.provider';
+import { ClaudeProvider } from './providers/claude.provider';
+import { ProviderManager } from './services/provider.manager';
 
 // Validate configuration on startup
 validateConfig();
 
 // Initialize Providers
 const openAIProvider = new OpenAIProvider(config.openaiApiKey);
+const claudeProvider = new ClaudeProvider(config.anthropicApiKey);
 
-const providers: { [key in MCPProvider]?: LLMProvider } = {
-  openai: openAIProvider,
-};
+// Initialize Provider Manager
+const providerManager = new ProviderManager([
+  { name: 'openai', instance: openAIProvider },
+  { name: 'claude', instance: claudeProvider },
+]);
 
 const app: Application = express();
 const PORT = config.PORT;
@@ -43,6 +47,7 @@ app.get('/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     version: '1.0.0',
     connections: stats,
+    providers: providerManager.getStatus(),
   });
 });
 
@@ -164,70 +169,91 @@ wss.on('connection', (ws: WebSocket, req: any) => {
   connectionService.sendMessage(connection.id, welcomeMessage);
 });
 
+function isAsyncIterable<T>(obj: any): obj is AsyncIterable<T> {
+  return obj != null && typeof obj[Symbol.asyncIterator] === 'function';
+}
+
 async function handleMessage(connection: any, request: MCPRequest): Promise<void> {
   const startTime = Date.now();
-  const { id: requestId, model, provider: providerName = 'openai' } = request;
+  const { id: requestId } = request;
   const { userId } = connection.metadata;
 
   try {
-    const provider = providers[providerName];
-    if (!provider) {
-      return sendError(connection.ws, 'INVALID_PROVIDER', `Provider '${providerName}' is not supported.`, requestId);
-    }
-
-    if (!provider.getSupportedModels().includes(model)) {
-      return sendError(connection.ws, 'UNSUPPORTED_MODEL', `Model '${model}' is not supported by ${providerName}.`, requestId);
-    }
-
     const hasCredits = await creditService.checkSufficientCredits(userId, request);
-
     if (!hasCredits) {
       return sendError(connection.ws, 'INSUFFICIENT_CREDITS', 'Insufficient credits for this request.', requestId);
     }
 
-    if (request.stream) {
-      // Streaming logic to be implemented
-      return sendError(connection.ws, 'NOT_IMPLEMENTED', 'Streaming is not yet implemented.', requestId);
+    const llmRequest: LLMRequest = { ...request };
+    const llmResponse = await providerManager.handleRequest(llmRequest);
+
+    if (isAsyncIterable(llmResponse)) {
+      let fullContent = '';
+      let finalResponse: MCPResponse | null = null;
+
+      for await (const chunk of llmResponse) {
+        fullContent += chunk.content;
+        const response: MCPResponse = {
+          id: requestId,
+          type: 'chunk',
+          data: chunk.content,
+          timestamp: new Date().toISOString(),
+        };
+        connectionService.sendMessage(connection.id, response);
+        if (chunk.finishReason) {
+          finalResponse = {
+            id: requestId,
+            type: 'done',
+            usage: chunk.usage,
+            timestamp: new Date().toISOString(),
+          };
+        }
+      }
+
+      if (finalResponse) {
+        connectionService.sendMessage(connection.id, finalResponse);
+        const duration = Date.now() - startTime;
+        if (finalResponse.usage) {
+          await creditService.deductCredits(userId, requestId, finalResponse.usage.totalTokens, request.model);
+          const creditsUsed = creditService.calculateCredits(request.model, finalResponse.usage.totalTokens);
+          const usageLog = loggingService.createUsageLog(
+            userId,
+            requestId,
+            request,
+            finalResponse,
+            duration,
+            creditsUsed
+          );
+          await loggingService.logUsage(usageLog);
+        }
+      }
+    } else {
+      const duration = Date.now() - startTime;
+
+      if (llmResponse.usage) {
+        await creditService.deductCredits(userId, requestId, llmResponse.usage.totalTokens, llmResponse.model);
+        const creditsUsed = creditService.calculateCredits(llmResponse.model, llmResponse.usage.totalTokens);
+        const response: MCPResponse = {
+          id: requestId,
+          type: 'done',
+          data: llmResponse.content,
+          usage: llmResponse.usage,
+          timestamp: new Date().toISOString(),
+        };
+
+        connectionService.sendMessage(connection.id, response);
+
+        const usageLog = loggingService.createUsageLog(
+          userId,
+          requestId,
+          request,
+          response,
+          duration,
+          creditsUsed
+        );
+        await loggingService.logUsage(usageLog);
+      }
     }
-
-    const llmRequest: LLMRequest = {
-      type: request.type,
-      model: request.model,
-      messages: request.messages,
-      maxTokens: request.maxTokens,
-      temperature: request.temperature,
-      topP: request.topP,
-      frequencyPenalty: request.frequencyPenalty,
-      presencePenalty: request.presencePenalty,
-      stop: request.stop,
-    };
-
-    const llmResponse = await provider.execute(llmRequest);
-    const duration = Date.now() - startTime;
-
-    const creditsUsed = (provider as OpenAIProvider).calculateCredits(llmResponse.model, llmResponse.usage.totalTokens);
-    await creditService.deductCredits(userId, requestId, llmResponse.usage.totalTokens, llmResponse.model);
-
-    const response: MCPResponse = {
-      id: requestId,
-      type: 'done',
-      data: llmResponse.content,
-      usage: llmResponse.usage,
-      timestamp: new Date().toISOString(),
-    };
-
-    connectionService.sendMessage(connection.id, response);
-
-    const usageLog = loggingService.createUsageLog(
-      userId,
-      requestId,
-      request,
-      response,
-      duration,
-      creditsUsed
-    );
-    await loggingService.logUsage(usageLog);
-
   } catch (error: any) {
     logger.error('Error handling message:', { error: error.message, requestId });
     sendError(connection.ws, 'EXECUTION_ERROR', error.message || 'Failed to execute request.', requestId);

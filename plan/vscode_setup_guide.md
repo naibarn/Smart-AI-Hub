@@ -5,6 +5,7 @@
 ### 1. การตั้งค่า VS Code Environment
 
 #### 📦 Extensions ที่จำเป็น
+
 ```bash
 # ติดตั้ง extensions ผ่าน VS Code หรือ command line
 code --install-extension ms-vscode.vscode-typescript-next
@@ -18,6 +19,7 @@ code --install-extension ms-vscode-remote.remote-containers
 ```
 
 #### ⚙️ VS Code Settings สำหรับโปรเจกต์
+
 ```json
 // .vscode/settings.json
 {
@@ -46,6 +48,7 @@ code --install-extension ms-vscode-remote.remote-containers
 #### 🎯 คำสั่งเริ่มต้นสำหรับ Kilo Code
 
 **สร้างโครงสร้างโปรเจกต์**:
+
 ```
 @kilo create monorepo structure for Smart AI Hub with these services:
 - api-gateway (Express.js + TypeScript)
@@ -59,6 +62,7 @@ Include Docker configuration, TypeScript setup, and package.json for each servic
 ```
 
 **สร้าง Database Schema**:
+
 ```
 @kilo generate PostgreSQL database schema for Smart AI Hub with these tables:
 - users (id, email, password_hash, google_id, email_verified, role_id, created_at, updated_at)
@@ -73,6 +77,7 @@ Include indexes, foreign keys, and migration scripts using Knex.js
 ```
 
 **สร้าง Authentication Service**:
+
 ```
 @kilo create authentication service for Smart AI Hub with:
 - JWT token generation and validation (RS256)
@@ -334,26 +339,31 @@ Include TypeScript interfaces, error handling, and comprehensive testing with Je
 #### 💡 Tips สำหรับคำสั่ง Kilo Code
 
 **1. ใช้ Context ที่ชัดเจน**:
+
 ```
 @kilo [action] [component] for Smart AI Hub with [specific requirements]
 ```
 
 **2. ระบุ Technology Stack**:
+
 ```
 @kilo create [component] using Node.js + TypeScript + PostgreSQL + Redis
 ```
 
 **3. รวม Testing Requirements**:
+
 ```
 @kilo [action] including unit tests, integration tests, and TypeScript types
 ```
 
 **4. ระบุ Security Requirements**:
+
 ```
 @kilo [action] with JWT authentication, input validation, and rate limiting
 ```
 
 **5. ขอ Documentation**:
+
 ```
 @kilo [action] with comprehensive JSDoc comments and API documentation
 ```
@@ -366,13 +376,13 @@ Include TypeScript interfaces, error handling, and comprehensive testing with Je
 // smart-ai-hub.code-workspace
 {
   "folders": [
-    {"name": "API Gateway", "path": "./api-gateway"},
-    {"name": "Auth Service", "path": "./auth-service"},
-    {"name": "Core Service", "path": "./core-service"},
-    {"name": "MCP Server", "path": "./mcp-server"},
-    {"name": "Frontend", "path": "./frontend"},
-    {"name": "Shared", "path": "./shared"},
-    {"name": "Docs", "path": "./docs"}
+    { "name": "API Gateway", "path": "./api-gateway" },
+    { "name": "Auth Service", "path": "./auth-service" },
+    { "name": "Core Service", "path": "./core-service" },
+    { "name": "MCP Server", "path": "./mcp-server" },
+    { "name": "Frontend", "path": "./frontend" },
+    { "name": "Shared", "path": "./shared" },
+    { "name": "Docs", "path": "./docs" }
   ],
   "settings": {
     "typescript.preferences.includePackageJsonAutoImports": "on",

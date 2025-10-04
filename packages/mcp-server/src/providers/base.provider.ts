@@ -1,14 +1,14 @@
 import { LLMRequest, LLMResponse } from '../types/mcp.types';
 
 export interface LLMProvider {
-  execute(request: LLMRequest): Promise<LLMResponse>;
+  execute(request: LLMRequest): Promise<LLMResponse | AsyncIterable<LLMResponse>>;
   estimateTokens(text: string): number;
   getSupportedModels(): string[];
   calculateCredits(model: string, tokens: number): number;
 }
 
 export abstract class BaseLLMProvider implements LLMProvider {
-  abstract execute(request: LLMRequest): Promise<LLMResponse>;
+  abstract execute(request: LLMRequest): Promise<LLMResponse | AsyncIterable<LLMResponse>>;
   abstract getSupportedModels(): string[];
 
   estimateTokens(text: string): number {

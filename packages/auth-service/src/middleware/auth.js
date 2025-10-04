@@ -1,5 +1,6 @@
 // src/middleware/auth.js
 const { verifyToken } = require('../utils/jwt');
+const { isTokenBlacklisted } = require('../config/redis');
 const User = require('../models/User');
 
 /**
@@ -22,6 +23,15 @@ const authenticate = async (req, res, next) => {
     // ตรวจสอบ token
     const decoded = verifyToken(token);
 
+    // ตรวจสอบว่า token ถูก blacklist หรือไม่
+    const isBlacklisted = await isTokenBlacklisted(decoded.jti);
+    if (isBlacklisted) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token has been revoked' }
+      });
+    }
+
     // ดึงข้อมูล user
     const user = await User.findById(decoded.userId);
 
@@ -39,8 +49,12 @@ const authenticate = async (req, res, next) => {
       });
     }
 
-    // เก็บข้อมูล user ใน request
+    // เก็บข้อมูล user และ token ใน request
     req.user = user;
+    req.token = {
+      jti: decoded.jti,
+      exp: decoded.exp
+    };
     next();
   } catch (error) {
     return res.status(401).json({

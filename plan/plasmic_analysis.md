@@ -7,6 +7,7 @@
 ### ✅ สิ่งที่ Plasmic ทำได้:
 
 #### 1. **Design & Prototyping**
+
 - Visual design editor (คล้าย Figma)
 - Component-based design system
 - Responsive design tools
@@ -14,6 +15,7 @@
 - Real-time collaboration
 
 #### 2. **Code Generation**
+
 - Export เป็น React components
 - TypeScript support
 - CSS-in-JS หรือ CSS modules
@@ -21,12 +23,14 @@
 - Integration กับ existing codebase
 
 #### 3. **Content Management**
+
 - Built-in CMS capabilities
 - Dynamic content editing
 - Multi-language support
 - Role-based permissions
 
 #### 4. **Development Integration**
+
 - Git integration
 - CI/CD compatibility
 - Custom component imports
@@ -37,19 +41,19 @@
 
 ## 📊 Plasmic vs แผนเดิม - Comparison Matrix
 
-| ฟีเจอร์ | Plasmic ✅/❌ | แผนเดิม | ผลลัพธ์ |
-|---------|---------------|----------|---------|
-| **Visual Design** | ✅ Built-in | Figma | **Plasmic ครอบคลุมได้** |
-| **Component Library** | ✅ Built-in | Storybook | **Plasmic ครอบคลุมได้** |
-| **Design System** | ✅ Native support | Manual setup | **Plasmic ดีกว่า** |
-| **Responsive Design** | ✅ Built-in | Manual CSS | **Plasmic ดีกว่า** |
-| **Code Generation** | ✅ Automatic | Manual coding | **Plasmic ดีกว่า** |
-| **Animations** | ⚠️ Limited | Framer Motion | **แผนเดิมดีกว่า** |
-| **3D Elements** | ❌ ไม่มี | Spline/Three.js | **แผนเดิมดีกว่า** |
-| **AI-Generated Assets** | ❌ ไม่มี | Midjourney | **แผนเดิมดีกว่า** |
-| **Advanced Analytics** | ❌ ไม่มี | Hotjar/Analytics | **แผนเดิมดีกว่า** |
-| **Visual Testing** | ❌ ไม่มี | Chromatic | **แผนเดิมดีกว่า** |
-| **Performance Optimization** | ⚠️ Limited | Manual optimization | **แผนเดิมดีกว่า** |
+| ฟีเจอร์                      | Plasmic ✅/❌     | แผนเดิม             | ผลลัพธ์                 |
+| ---------------------------- | ----------------- | ------------------- | ----------------------- |
+| **Visual Design**            | ✅ Built-in       | Figma               | **Plasmic ครอบคลุมได้** |
+| **Component Library**        | ✅ Built-in       | Storybook           | **Plasmic ครอบคลุมได้** |
+| **Design System**            | ✅ Native support | Manual setup        | **Plasmic ดีกว่า**      |
+| **Responsive Design**        | ✅ Built-in       | Manual CSS          | **Plasmic ดีกว่า**      |
+| **Code Generation**          | ✅ Automatic      | Manual coding       | **Plasmic ดีกว่า**      |
+| **Animations**               | ⚠️ Limited        | Framer Motion       | **แผนเดิมดีกว่า**       |
+| **3D Elements**              | ❌ ไม่มี          | Spline/Three.js     | **แผนเดิมดีกว่า**       |
+| **AI-Generated Assets**      | ❌ ไม่มี          | Midjourney          | **แผนเดิมดีกว่า**       |
+| **Advanced Analytics**       | ❌ ไม่มี          | Hotjar/Analytics    | **แผนเดิมดีกว่า**       |
+| **Visual Testing**           | ❌ ไม่มี          | Chromatic           | **แผนเดิมดีกว่า**       |
+| **Performance Optimization** | ⚠️ Limited        | Manual optimization | **แผนเดิมดีกว่า**       |
 
 ---
 
@@ -58,14 +62,16 @@
 ### ✅ **Plasmic สามารถ Replace ได้:**
 
 #### 1. **Design Tools (100%)**
+
 ```
 ❌ Figma Pro ($15/month)
-❌ Design Tokens Studio ($10/month)  
+❌ Design Tokens Studio ($10/month)
 ❌ Zeroheight ($35/month)
 ✅ Plasmic ($39/month) - ครอบคลุมทั้งหมด
 ```
 
 #### 2. **Component Development (80%)**
+
 ```
 ❌ Storybook setup
 ❌ Manual component coding
@@ -74,6 +80,7 @@
 ```
 
 #### 3. **Responsive Design (100%)**
+
 ```
 ❌ Manual responsive CSS
 ❌ Breakpoint management
@@ -82,6 +89,7 @@
 ```
 
 #### 4. **Basic Prototyping (70%)**
+
 ```
 ❌ Framer ($20/month) - สำหรับ basic prototypes
 ✅ Interactive prototypes ใน Plasmic
@@ -91,6 +99,7 @@
 ### ❌ **Plasmic ไม่สามารถ Replace ได้:**
 
 #### 1. **Advanced Animations & Interactions**
+
 ```
 ❌ Framer Motion complex animations
 ❌ Physics-based animations
@@ -99,14 +108,16 @@
 ```
 
 #### 2. **AI-Specific Features**
+
 ```
 ❌ AI-generated backgrounds (Midjourney)
-❌ 3D AI visualizations (Spline/Three.js)  
+❌ 3D AI visualizations (Spline/Three.js)
 ❌ Neural network animations
 ❌ Custom AI data visualizations
 ```
 
 #### 3. **Analytics & Testing**
+
 ```
 ❌ User behavior analytics (Hotjar)
 ❌ Visual regression testing (Chromatic)
@@ -115,6 +126,7 @@
 ```
 
 #### 4. **Advanced Development Tools**
+
 ```
 ❌ Custom build optimization
 ❌ Advanced state management
@@ -129,6 +141,7 @@
 ### 🎯 **ใช้ Plasmic เป็น Core + เครื่องมือเสริม**
 
 #### **Plasmic เป็นหลัก (70% ของงาน):**
+
 ```typescript
 // 1. Main UI Components
 export const DashboardLayout = () => (
@@ -146,6 +159,7 @@ export const LoginForm = () => (
 ```
 
 #### **เครื่องมือเสริมสำหรับ Advanced Features (30%):**
+
 ```typescript
 // 1. Advanced Animations
 import { motion } from 'framer-motion';
@@ -188,10 +202,11 @@ export const UsageChart = ({ data }) => (
 ## 📊 Cost Comparison
 
 ### **แผนเดิม (All Tools):**
+
 ```
 🔴 Total: ~$650/month
 - Figma Pro: $15
-- Framer: $20  
+- Framer: $20
 - Midjourney: $30
 - After Effects: $21
 - Hotjar: $39
@@ -201,6 +216,7 @@ export const UsageChart = ({ data }) => (
 ```
 
 ### **Plasmic Hybrid Approach:**
+
 ```
 🟢 Total: ~$200/month (ประหยัด 69%)
 - Plasmic Pro: $39
@@ -217,6 +233,7 @@ export const UsageChart = ({ data }) => (
 ### **Phase 1: Plasmic Foundation (Week 1-4)**
 
 #### Setup Plasmic Project:
+
 ```bash
 # 1. Install Plasmic
 npm install @plasmicapp/loader-nextjs
@@ -228,6 +245,7 @@ npx plasmic init
 ```
 
 #### Plasmic Project Structure:
+
 ```
 Smart AI Hub Plasmic Project
 ├── 🎨 Design System
@@ -253,6 +271,7 @@ Smart AI Hub Plasmic Project
 ### **Phase 2: Advanced Features Integration (Week 5-8)**
 
 #### เพิ่ม Custom Components:
+
 ```typescript
 // 1. Register custom components ใน Plasmic
 import { registerComponent } from '@plasmicapp/host';
@@ -264,23 +283,24 @@ registerComponent(AIUsageChart, {
     data: 'object',
     theme: {
       type: 'choice',
-      options: ['light', 'dark']
-    }
-  }
+      options: ['light', 'dark'],
+    },
+  },
 });
 
 registerComponent(NeuralBackground, {
   name: 'NeuralBackground',
   props: {
     speed: 'number',
-    complexity: 'number'
-  }
+    complexity: 'number',
+  },
 });
 ```
 
 ### **Phase 3: Production Optimization (Week 9-10)**
 
 #### Code Integration:
+
 ```typescript
 // Next.js with Plasmic
 import { PlasmicRootProvider } from '@plasmicapp/loader-nextjs';
@@ -310,12 +330,14 @@ export default function App({ Component, pageProps }) {
 ### ⚠️ **แต่ต้องเพิ่มเครื่องมือเสริม:**
 
 #### **จำเป็นต้องมี (ไม่สามารถหลีกเลี่ยงได้):**
+
 1. **Framer Motion** - สำหรับ AI animations
-2. **Midjourney** - สำหรับ AI-generated assets  
+2. **Midjourney** - สำหรับ AI-generated assets
 3. **Hotjar** - สำหรับ user analytics
 4. **Three.js/React Three Fiber** - สำหรับ 3D elements
 
 #### **อาจจะต้องมี (ขึ้นกับ requirements):**
+
 1. **Chromatic** - สำหรับ visual testing
 2. **Lottie** - สำหรับ complex animations
 3. **D3.js** - สำหรับ advanced data visualizations
@@ -329,21 +351,23 @@ export default function App({ Component, pageProps }) {
 **Plasmic + เครื่องมือเสริม = Solution ที่เหมาะสมที่สุด**
 
 #### **เหตุผล:**
+
 1. **ลดต้นทุน 69%** (จาก $650 เหลือ $200/month)
 2. **Development speed เพิ่ม 60%**
 3. **Maintenance ง่ายกว่า**
 4. **Team collaboration ดีกว่า**
 
 #### **Architecture แนะนำ:**
+
 ```
 🎨 Plasmic (70% ของ UI)
 ├── Design system
-├── Layout components  
+├── Layout components
 ├── Form components
 ├── Basic interactions
 └── Content management
 
-🚀 Custom Code (30% ของ UI)  
+🚀 Custom Code (30% ของ UI)
 ├── AI animations (Framer Motion)
 ├── 3D elements (Three.js)
 ├── Data visualizations (D3.js)

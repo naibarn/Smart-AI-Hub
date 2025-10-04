@@ -1,0 +1,291 @@
+### ========================================
+### Credit API Testing File
+### ========================================
+### This file contains HTTP requests for testing the Credit APIs
+### Use with VS Code REST Client extension
+### ========================================
+
+### Variables Section
+@token = {{login.response.body.data.token}}
+@refreshToken = {{login.response.body.data.refreshToken}}
+@userId = {{login.response.body.data.user.id}}
+@adminToken = {{adminLogin.response.body.data.token}}
+@adminUserId = {{adminLogin.response.body.data.user.id}}
+
+### ========================================
+### Authentication Requests
+### ========================================
+
+### 1. Register new user (if needed)
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123456",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+### 2. Login to get token
+# @name login
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123456"
+}
+
+### 3. Admin Login (for admin operations)
+# @name adminLogin
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123456"
+}
+
+### ========================================
+### Credit API Requests
+### ========================================
+
+### 4. Get credit balance
+GET http://localhost:3002/api/credits/balance
+Authorization: Bearer {{token}}
+
+### 5. Get credit history with pagination
+GET http://localhost:3002/api/credits/history?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### 6. Get credit history with date range
+GET http://localhost:3002/api/credits/history?page=1&limit=10&startDate=2024-01-01&endDate=2024-12-31
+Authorization: Bearer {{token}}
+
+### 7. Get credit history with transaction type filter
+GET http://localhost:3002/api/credits/history?page=1&limit=10&type=REDEEM
+Authorization: Bearer {{token}}
+
+### 8. Redeem promo code
+POST http://localhost:3002/api/credits/redeem
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "code": "WELCOME10"
+}
+
+### 9. Redeem another promo code
+POST http://localhost:3002/api/credits/redeem
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "code": "SPECIAL20"
+}
+
+### ========================================
+### Admin Credit Management Requests
+### ========================================
+
+### 10. Admin: Add credits to user
+POST http://localhost:3002/api/admin/credits/adjust/{{userId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "amount": 100,
+  "reason": "Testing credit addition",
+  "type": "ADD"
+}
+
+### 11. Admin: Deduct credits from user
+POST http://localhost:3002/api/admin/credits/adjust/{{userId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "amount": 50,
+  "reason": "Testing credit deduction",
+  "type": "DEDUCT"
+}
+
+### 12. Admin: Get all users credit balances
+GET http://localhost:3002/api/admin/credits/balances?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### 13. Admin: Get specific user credit history
+GET http://localhost:3002/api/admin/credits/history/{{userId}}?page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+### 14. Admin: Create promo code
+POST http://localhost:3002/api/admin/promo-codes
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "code": "TEST50",
+  "amount": 50,
+  "type": "FIXED",
+  "maxUses": 100,
+  "expiresAt": "2024-12-31T23:59:59.000Z",
+  "description": "Test promo code for API testing"
+}
+
+### 15. Admin: Get all promo codes
+GET http://localhost:3002/api/admin/promo-codes?page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+### 16. Admin: Update promo code
+PUT http://localhost:3002/api/admin/promo-codes/TEST50
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "maxUses": 200,
+  "isActive": true
+}
+
+### 17. Admin: Delete promo code
+DELETE http://localhost:3002/api/admin/promo-codes/TEST50
+Authorization: Bearer {{adminToken}}
+
+### ========================================
+### Credit Transaction Requests
+### ========================================
+
+### 18. Use credits for service
+POST http://localhost:3002/api/credits/use
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 10,
+  "description": "Using credits for premium feature",
+  "serviceType": "PREMIUM_FEATURE"
+}
+
+### 19. Get credit usage statistics
+GET http://localhost:3002/api/credits/stats?period=monthly
+Authorization: Bearer {{token}}
+
+### 20. Get credit usage statistics (admin view for all users)
+GET http://localhost:3002/api/admin/credits/stats?period=monthly&userId={{userId}}
+Authorization: Bearer {{adminToken}}
+
+### ========================================
+### Error Testing Requests
+### ========================================
+
+### 21. Test invalid promo code
+POST http://localhost:3002/api/credits/redeem
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "code": "INVALID_CODE"
+}
+
+### 22. Test insufficient credits
+POST http://localhost:3002/api/credits/use
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 999999,
+  "description": "Attempting to use more credits than available",
+  "serviceType": "PREMIUM_FEATURE"
+}
+
+### 23. Test unauthorized access (no token)
+GET http://localhost:3002/api/credits/balance
+
+### 24. Test unauthorized access (invalid token)
+GET http://localhost:3002/api/credits/balance
+Authorization: Bearer invalid_token_here
+
+### 25. Test admin endpoint with user token
+POST http://localhost:3002/api/admin/credits/adjust/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 100,
+  "reason": "This should fail"
+}
+
+### ========================================
+### Refresh Token Testing
+### ========================================
+
+### 26. Refresh access token
+POST http://localhost:3001/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### ========================================
+### Batch Operations
+### ========================================
+
+### 27. Batch credit adjustment (admin only)
+POST http://localhost:3002/api/admin/credits/batch-adjust
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "adjustments": [
+    {
+      "userId": "{{userId}}",
+      "amount": 25,
+      "reason": "Batch adjustment test",
+      "type": "ADD"
+    }
+  ]
+}
+
+### ========================================
+### Utility Requests
+### ========================================
+
+### 28. Health check for credit service
+GET http://localhost:3002/api/health
+
+### 29. Get API version
+GET http://localhost:3002/api/version
+
+### 30. Logout (invalidate token)
+POST http://localhost:3001/api/auth/logout
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### ========================================
+### Notes:
+### ========================================
+### 1. Make sure services are running:
+###    - Auth Service on port 3001
+###    - Credit Service on port 3002
+### 
+### 2. Execute requests in order:
+###    - First run register (if needed)
+###    - Then login to get tokens
+###    - Then test credit APIs
+### 
+### 3. Variables are automatically captured from responses:
+###    - @token from login response
+###    - @refreshToken from login response
+###    - @userId from login response
+###    - @adminToken from adminLogin response
+### 
+### 4. Use VS Code REST Client extension to execute these requests
+###    - Install extension: "REST Client" by Huachao Mao
+###    - Click "Send Request" above each request or use Ctrl+Alt+R
+### 
+### 5. Check environment variables in .env files if ports differ

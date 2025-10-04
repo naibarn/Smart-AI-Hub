@@ -100,11 +100,13 @@ export interface UsageLog {
 }
 
 // Abstracted LLM Provider types
-export type LLMRequest = Omit<MCPRequest, 'id' | 'provider' | 'stream'>;
+export interface LLMRequest extends Omit<MCPRequest, 'id'> {
+  provider?: MCPProvider;
+}
 
 export interface LLMResponse {
   content: string;
-  usage: TokenUsage;
+  usage?: TokenUsage;
   model: string;
   finishReason: string;
 }

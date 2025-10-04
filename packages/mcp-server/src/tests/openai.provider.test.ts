@@ -64,6 +64,7 @@ describe('OpenAIProvider', () => {
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: 'Hello' }],
       type: 'chat',
+      stream: false,
     };
 
     const mockResponse = {
@@ -114,6 +115,7 @@ describe('OpenAIProvider', () => {
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: 'Hello' }],
       type: 'chat',
+      stream: false,
     };
 
     const apiError = new Error('API Error');

@@ -17,13 +17,15 @@ jest.mock('../services/redis.service', () => ({
 
 // Mock Credit and Permission Services
 jest.mock('../services/credit.service', () => {
-  const { mockCreditService } = require('../__mocks__/services.mock');
-  return { CreditService: mockCreditService };
+  import('../__mocks__/services.mock').then(({ mockCreditService }) => {
+    return { CreditService: mockCreditService };
+  });
 });
 
 jest.mock('../services/permission.service', () => {
-  const { mockPermissionService } = require('../__mocks__/services.mock');
-  return { PermissionService: mockPermissionService };
+  import('../__mocks__/services.mock').then(({ mockPermissionService }) => {
+    return { PermissionService: mockPermissionService };
+  });
 });
 
 // Mock JWT

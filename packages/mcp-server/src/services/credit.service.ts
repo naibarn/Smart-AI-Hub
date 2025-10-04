@@ -139,6 +139,14 @@ export class CreditService {
       throw new Error('Failed to deduct credits');
     }
   }
+  
+  /**
+   * Calculate credit cost for a given model and token count
+   */
+  public calculateCredits(model: string, tokens: number): number {
+    const pricePerToken = this.getModelPrice(model);
+    return Math.ceil(tokens * pricePerToken * 1000);
+  }
 
   /**
    * Get user's current credit balance

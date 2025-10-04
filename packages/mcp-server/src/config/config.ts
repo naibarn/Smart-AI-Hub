@@ -42,6 +42,7 @@ export const config = {
   
   // AI Provider configuration
   openaiApiKey: process.env.OPENAI_API_KEY || '',
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   CLAUDE_API_KEY: process.env.CLAUDE_API_KEY || '',
   

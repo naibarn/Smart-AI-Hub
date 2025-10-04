@@ -16,8 +16,41 @@ export class OpenAIProvider extends BaseLLMProvider {
     return this.supportedModels;
   }
 
-  async execute(request: LLMRequest): Promise<LLMResponse> {
+  async execute(request: LLMRequest): Promise<LLMResponse | AsyncIterable<LLMResponse>> {
+    if (request.stream) {
+      return this.executeStreaming(request);
+    }
     return this.executeNonStreaming(request);
+  }
+
+  private async *executeStreaming(request: LLMRequest): AsyncIterable<LLMResponse> {
+    try {
+      const stream = await this.openai.chat.completions.create({
+        model: request.model,
+        messages: request.messages,
+        max_tokens: request.maxTokens,
+        temperature: request.temperature,
+        top_p: request.topP,
+        frequency_penalty: request.frequencyPenalty,
+        presence_penalty: request.presencePenalty,
+        stop: request.stop,
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        const finishReason = chunk.choices[0]?.finish_reason || '';
+        yield {
+          content,
+          model: request.model, // Or chunk.model
+          finishReason,
+          usage: undefined,
+        };
+      }
+    } catch (error: any) {
+      logger.error('Error executing OpenAI streaming request:', error);
+      throw new Error(`OpenAI API error: ${error.message}`);
+    }
   }
 
   private async executeNonStreaming(request: LLMRequest): Promise<LLMResponse> {

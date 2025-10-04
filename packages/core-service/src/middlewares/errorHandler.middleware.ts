@@ -64,7 +64,9 @@ export const errorHandler = (
 /**
  * Async error wrapper to catch errors in async routes
  */
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = (
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void> | void
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };

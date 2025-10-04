@@ -5,8 +5,15 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
+// Import Redis connection
+const { connectRedis } = require('./config/redis');
+
+// Import Passport configuration
+const passport = require('./config/passport');
+
 // Import routes
 const authRoutes = require('./routes/auth.routes');
+const oauthRoutes = require('./routes/oauth.routes');
 const userRoutes = require('./routes/user.routes');
 const creditRoutes = require('./routes/credit.routes');
 
@@ -29,6 +36,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Initialize Passport
+app.use(passport.initialize());
+
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -45,6 +55,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', oauthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/credits', creditRoutes);
 
@@ -53,5 +64,19 @@ app.use(notFoundHandler);
 
 // Global error handler
 app.use(errorHandler);
+
+// Initialize Redis connection
+const initializeApp = async () => {
+  try {
+    await connectRedis();
+    console.log('✅ Redis connected successfully');
+  } catch (error) {
+    console.error('❌ Failed to connect to Redis:', error);
+    // Continue running even if Redis fails
+  }
+};
+
+// Call initialization
+initializeApp();
 
 module.exports = app;
