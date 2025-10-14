@@ -296,18 +296,20 @@ export const processStripeWebhook = async (payload: string, sig: string): Promis
 
   // Handle the event
   switch (event.type) {
-    case 'checkout.session.completed':
+    case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
       await processSuccessfulPayment(session);
       break;
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    }
+    case 'payment_intent.succeeded': {
       console.log('PaymentIntent was successful!');
       break;
-    case 'payment_intent.payment_failed':
+    }
+    case 'payment_intent.payment_failed': {
       const failedPayment = event.data.object as Stripe.PaymentIntent;
       console.log('Payment failed:', failedPayment.last_payment_error?.message);
       break;
+    }
     default:
       console.log(`Unhandled event type ${event.type}`);
   }
