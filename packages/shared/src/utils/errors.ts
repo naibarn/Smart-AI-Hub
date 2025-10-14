@@ -15,6 +15,23 @@ export class AppError extends Error {
 }
 
 /**
+ * Custom ValidationError class for validation-specific errors
+ */
+export class ValidationError extends Error {
+  public statusCode: number;
+  public isOperational: boolean;
+
+  constructor(message: string, statusCode: number = 400) {
+    super(message);
+    this.name = 'ValidationError';
+    this.statusCode = statusCode;
+    this.isOperational = true;
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+/**
  * Create a new AppError with 400 status code (Bad Request)
  */
 export const createBadRequestError = (message: string): AppError => {

@@ -6,7 +6,7 @@ import RedisService from '../services/redis.service';
 
 /**
  * Get user's credit balance
- * 
+ *
  * @route GET /credits/balance
  * @access Private (JWT required)
  * @param req - Express request object with authenticated user
@@ -56,7 +56,7 @@ export const getBalance = async (
 
 /**
  * Get user's credit transaction history
- * 
+ *
  * @route GET /credits/history
  * @access Private (JWT required)
  * @param req - Express request object with authenticated user and query params
@@ -109,7 +109,7 @@ export const getHistory = async (
 
 /**
  * Redeem a promo code for credits
- * 
+ *
  * @route POST /credits/redeem
  * @access Private (JWT required)
  * @param req - Express request object with authenticated user and promo code in body
@@ -161,7 +161,7 @@ export const redeemPromoCode = async (
 
 /**
  * Adjust user credits (admin only)
- * 
+ *
  * @route POST /admin/credits/adjust
  * @access Private (admin only)
  * @param req - Express request object with userId in params and adjustment details in body
@@ -214,7 +214,7 @@ export const adjustCredits = async (
 
 /**
  * Get user credit information (admin only)
- * 
+ *
  * @route GET /admin/credits/:userId
  * @access Private (admin only)
  * @param req - Express request object with userId in params
@@ -248,6 +248,106 @@ export const getUserCredits = async (
       error: null,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Check if user has sufficient credits for a service
+ *
+ * @route POST /api/mcp/v1/credits/check
+ * @access Public (requires X-User-ID header)
+ * @param req - Express request object with userId in header and service/cost in body
+ * @param res - Express response object
+ * @param next - Express next function for error handling
+ */
+export const checkCredits = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    // Get userId from header
+    const userId = req.headers['x-user-id'] as string;
+    if (!userId) {
+      return next(new AppError('X-User-ID header is required', 401));
+    }
+
+    // Get service and cost from request body
+    const { service, cost } = req.body;
+    if (!service) {
+      return next(new AppError('Service is required', 400));
+    }
+    if (cost === undefined || cost === null) {
+      return next(new AppError('Cost is required', 400));
+    }
+    if (typeof cost !== 'number' || cost < 0) {
+      return next(new AppError('Cost must be a non-negative number', 400));
+    }
+
+    // Check credits
+    const result = await creditService.checkCredits(userId, service, cost);
+
+    res.status(200).json({
+      data: result,
+      meta: null,
+      error: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Deduct credits from user account with transaction record
+ *
+ * @route POST /api/mcp/v1/credits/deduct
+ * @access Public (requires X-User-ID header)
+ * @param req - Express request object with userId in header and service/cost/metadata in body
+ * @param res - Express response object
+ * @param next - Express next function for error handling
+ */
+export const deductCredits = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    // Get userId from header
+    const userId = req.headers['x-user-id'] as string;
+    if (!userId) {
+      return next(new AppError('X-User-ID header is required', 401));
+    }
+
+    // Get service, cost, and metadata from request body
+    const { service, cost, metadata } = req.body;
+    if (!service) {
+      return next(new AppError('Service is required', 400));
+    }
+    if (cost === undefined || cost === null) {
+      return next(new AppError('Cost is required', 400));
+    }
+    if (typeof cost !== 'number' || cost <= 0) {
+      return next(new AppError('Cost must be a positive number', 400));
+    }
+
+    // Deduct credits
+    const result = await creditService.deductCredits(userId, service, cost, metadata);
+
+    // Clear balance cache for this user
+    const cacheKey = `credit_balance:${userId}`;
+    await RedisService.del(cacheKey);
+
+    res.status(200).json({
+      data: result,
+      meta: null,
+      error: null,
+    });
+  } catch (error) {
+    // Handle specific error for insufficient credits
+    if (error instanceof Error && error.message === 'Insufficient credits') {
+      return next(new AppError('Insufficient credits', 402));
+    }
     next(error);
   }
 };

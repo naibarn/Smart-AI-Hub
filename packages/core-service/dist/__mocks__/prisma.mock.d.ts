@@ -129,6 +129,10 @@ export declare const createMockPrismaClient: () => {
         findUnique: any;
         create: any;
     };
+    payment: {
+        findUnique: any;
+        create: any;
+    };
     $transaction: any;
     $connect: any;
     $disconnect: any;

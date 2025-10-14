@@ -68,5 +68,17 @@ router.post('/admin/credits/adjust', auth_middleware_1.authenticateJWT, (0, rbac
  * @access  Private (requires credits:read permission)
  */
 router.get('/admin/credits/:userId', auth_middleware_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getUserCredits);
+/**
+ * @route   POST /api/mcp/v1/credits/check
+ * @desc    Check if user has sufficient credits for a service
+ * @access  Public (requires X-User-ID header)
+ */
+router.post('/mcp/v1/credits/check', creditController.checkCredits);
+/**
+ * @route   POST /api/mcp/v1/credits/deduct
+ * @desc    Deduct credits from user account with transaction record
+ * @access  Public (requires X-User-ID header)
+ */
+router.post('/mcp/v1/credits/deduct', creditController.deductCredits);
 exports.default = router;
 //# sourceMappingURL=credit.routes.js.map

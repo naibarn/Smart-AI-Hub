@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { authenticateJWT } from '../middlewares/auth.middleware';
-import { requirePermission, requireSelfOrRole } from '@smart-ai-hub/shared';
+import { authenticateJWT, requirePermission, requireSelfOrRole } from '@smart-ai-hub/shared';
 
 // Placeholder controllers - these should be implemented based on your business logic
 const getUserProfile = (req: any, res: any) => {

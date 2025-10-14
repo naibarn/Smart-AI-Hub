@@ -26,6 +26,9 @@ const { redisClient } = require('../config/redis');
  */
 router.get('/google', oauthLimiter, async (req, res, next) => {
   try {
+    // Get session and return_to parameters from query
+    const { session, return_to } = req.query;
+    
     // Generate state parameter for CSRF protection
     const state = uuidv4();
     
@@ -33,11 +36,13 @@ router.get('/google', oauthLimiter, async (req, res, next) => {
     await redisClient.setEx(`oauth_state:${state}`, 600, JSON.stringify({
       ip: req.ip,
       userAgent: req.get('User-Agent'),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      session: session || null,
+      return_to: return_to || 'chatgpt' // Default to chatgpt if not provided
     }));
     
     // Log OAuth initiation
-    console.log(`Google OAuth initiated from IP: ${req.ip}, State: ${state}`);
+    console.log(`Google OAuth initiated from IP: ${req.ip}, State: ${state}, Session: ${session}, Return To: ${return_to}`);
     
     // Redirect to Google with state parameter
     passport.authenticate('google', {
@@ -105,16 +110,38 @@ router.get('/google/callback', oauthLimiter, async (req, res, next) => {
   // This is the success callback after authentication
   try {
     const { user } = req;
-    const { tokens } = user;
+    const { tokens, stateData } = user;
     
-    // Log successful authentication
-    console.log(`Google OAuth successful for user: ${user.email}`);
-    
-    // Redirect to frontend with tokens
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const redirectUrl = `${frontendUrl}/auth/success?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
-    
-    res.redirect(redirectUrl);
+    // Check if this is a session-based OAuth flow
+    if (stateData && stateData.session) {
+      // Generate verification code
+      const { generateVerificationCode } = require('../config/redis');
+      const verificationCode = generateVerificationCode();
+      
+      // Store verification code in Redis with 10-minute expiration
+      redisClient.setEx(`verification_code:${verificationCode}`, 600, JSON.stringify({
+        userId: user.id,
+        email: user.email,
+        sessionId: stateData.session,
+        timestamp: new Date().toISOString()
+      }));
+
+      // Log successful OAuth with verification code
+      console.log(`Google OAuth successful for user ${user.email} with verification code: ${verificationCode}`);
+
+      // Redirect to success page with verification code
+      const redirectUrl = `/oauth-success.html?verification_code=${verificationCode}&return_to=${stateData.return_to}`;
+      
+      res.redirect(redirectUrl);
+    } else {
+      // Traditional OAuth flow - redirect with tokens
+      console.log(`Google OAuth successful for user: ${user.email}`);
+      
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const redirectUrl = `${frontendUrl}/auth/success?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
+      
+      res.redirect(redirectUrl);
+    }
   } catch (error) {
     console.error('Error in OAuth success callback:', error);
     res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/error?error=success_callback_failed`);

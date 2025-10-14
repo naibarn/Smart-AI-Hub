@@ -7,6 +7,7 @@ import axios from 'axios';
 import { MCPRequest, CreditEstimation } from '../types/mcp.types';
 import { config } from '../config/config';
 import { logger, logCreditCheck } from '../utils/logger';
+import { getServiceToken } from '../utils/service-auth.util';
 
 export class CreditService {
   private creditServiceUrl: string;
@@ -101,6 +102,9 @@ export class CreditService {
       const pricePerToken = this.getModelPrice(model);
       const creditsToDeduct = Math.ceil(actualTokens * pricePerToken * 1000);
 
+      // Get service token for authentication
+      const serviceToken = getServiceToken();
+
       // Call credit service to deduct credits
       const response = await axios.post(
         `${this.creditServiceUrl}/api/credits/use`,
@@ -112,6 +116,7 @@ export class CreditService {
           headers: {
             'Content-Type': 'application/json',
             'X-User-ID': userId,
+            'X-Service-Token': serviceToken,
           },
         }
       );
@@ -153,11 +158,15 @@ export class CreditService {
    */
   private async getUserBalance(userId: string): Promise<number> {
     try {
+      // Get service token for authentication
+      const serviceToken = getServiceToken();
+
       const response = await axios.get(
         `${this.creditServiceUrl}/api/credits/balance`,
         {
           headers: {
             'X-User-ID': userId,
+            'X-Service-Token': serviceToken,
           },
         }
       );

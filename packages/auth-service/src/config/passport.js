@@ -34,6 +34,19 @@ passport.use(new GoogleStrategy({
   passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
   try {
+    // Get state data from request if available
+    let stateData = null;
+    if (req.query.state) {
+      const { redisClient } = require('./redis');
+      try {
+        const stateJson = await redisClient.get(`oauth_state:${req.query.state}`);
+        if (stateJson) {
+          stateData = JSON.parse(stateJson);
+        }
+      } catch (error) {
+        console.error('Error retrieving state data:', error);
+      }
+    }
     // Extract profile information
     const { id, emails, name, photos } = profile;
     const email = emails[0].value;
@@ -116,8 +129,9 @@ passport.use(new GoogleStrategy({
     // Generate JWT tokens
     const tokens = generateTokens(user.id);
     
-    // Attach tokens to user object for callback
+    // Attach tokens and state data to user object for callback
     user.tokens = tokens;
+    user.stateData = stateData;
     
     return done(null, user);
   } catch (error) {

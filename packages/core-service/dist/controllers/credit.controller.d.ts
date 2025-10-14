@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 /**
  * Get user's credit balance
@@ -50,4 +50,24 @@ export declare const adjustCredits: (req: AuthenticatedRequest, res: Response, n
  * @param next - Express next function for error handling
  */
 export declare const getUserCredits: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void>;
+/**
+ * Check if user has sufficient credits for a service
+ *
+ * @route POST /api/mcp/v1/credits/check
+ * @access Public (requires X-User-ID header)
+ * @param req - Express request object with userId in header and service/cost in body
+ * @param res - Express response object
+ * @param next - Express next function for error handling
+ */
+export declare const checkCredits: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+/**
+ * Deduct credits from user account with transaction record
+ *
+ * @route POST /api/mcp/v1/credits/deduct
+ * @access Public (requires X-User-ID header)
+ * @param req - Express request object with userId in header and service/cost/metadata in body
+ * @param res - Express response object
+ * @param next - Express next function for error handling
+ */
+export declare const deductCredits: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=credit.controller.d.ts.map

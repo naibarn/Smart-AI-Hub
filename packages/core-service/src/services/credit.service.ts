@@ -1,16 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
-
-// Custom error class for this service
-class NotFoundError extends Error {
-  public statusCode: number;
-  
-  constructor(message: string) {
-    super(message);
-    this.name = 'NotFoundError';
-    this.statusCode = 404;
-  }
-}
+import { createNotFoundError, createInternalServerError } from '@smart-ai-hub/shared';
 
 const prisma = new PrismaClient();
 
@@ -69,7 +59,7 @@ export const getBalance = async (userId: string): Promise<number> => {
 
     // Throw NotFoundError if no account exists
     if (!creditAccount) {
-      throw new NotFoundError(`Credit account not found for user: ${userId}`);
+      throw createNotFoundError(`Credit account not found for user: ${userId}`);
     }
 
     // Return balance
@@ -110,7 +100,7 @@ export const getHistory = async (
     };
   } catch (error) {
     console.error('Error getting credit history:', error);
-    throw new Error('Failed to get credit history');
+    throw createInternalServerError('Failed to get credit history');
   }
 };
 
@@ -252,8 +242,10 @@ export const adjustCredits = async (
           where: { userId },
           data: {
             currentBalance: creditAccount.currentBalance + amount,
-            totalPurchased: amount > 0 ? creditAccount.totalPurchased + amount : creditAccount.totalPurchased,
-            totalUsed: amount < 0 ? creditAccount.totalUsed + Math.abs(amount) : creditAccount.totalUsed,
+            totalPurchased:
+              amount > 0 ? creditAccount.totalPurchased + amount : creditAccount.totalPurchased,
+            totalUsed:
+              amount < 0 ? creditAccount.totalUsed + Math.abs(amount) : creditAccount.totalUsed,
           },
         });
       }
@@ -275,6 +267,101 @@ export const adjustCredits = async (
     return newBalance as number;
   } catch (error) {
     console.error('Error adjusting credits:', error);
+    throw error;
+  }
+};
+
+/**
+ * Check if user has sufficient credits for a service
+ */
+export const checkCredits = async (
+  userId: string,
+  service: string,
+  cost: number
+): Promise<{ sufficient: boolean; balance: number }> => {
+  try {
+    // Get current balance
+    const balance = await getBalance(userId);
+
+    // Check if balance is sufficient
+    const sufficient = balance >= cost;
+
+    return {
+      sufficient,
+      balance,
+    };
+  } catch (error) {
+    console.error('Error checking credits:', error);
+    throw error;
+  }
+};
+
+/**
+ * Deduct credits from user account with transaction record
+ */
+export const deductCredits = async (
+  userId: string,
+  service: string,
+  cost: number,
+  metadata?: any
+): Promise<{ status: string; new_balance: number; transaction_id: string }> => {
+  try {
+    if (!service || typeof service !== 'string') {
+      throw new Error('Service is required and must be a string');
+    }
+    if (typeof cost !== 'number' || cost <= 0) {
+      throw new Error('Cost must be a positive number');
+    }
+
+    // Use Prisma transaction for atomic operation
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Get credit account
+      const creditAccount = await tx.creditAccount.findUnique({
+        where: { userId },
+      });
+
+      if (!creditAccount) {
+        throw new Error(`Credit account not found for user: ${userId}`);
+      }
+
+      // Check sufficient balance
+      if (creditAccount.currentBalance < cost) {
+        throw new Error('Insufficient credits');
+      }
+
+      // Update credit account balance
+      const updatedAccount = await tx.creditAccount.update({
+        where: { userId },
+        data: {
+          currentBalance: creditAccount.currentBalance - cost,
+          totalUsed: creditAccount.totalUsed + cost,
+        },
+      });
+
+      // Create transaction record with unique ID
+      const transaction = await tx.creditTransaction.create({
+        data: {
+          userId,
+          amount: -cost, // Negative for deduction
+          type: 'usage',
+          balanceAfter: updatedAccount.currentBalance,
+          description: `Service usage: ${service}`,
+          metadata: metadata || {},
+        },
+      });
+
+      return {
+        new_balance: updatedAccount.currentBalance,
+        transaction_id: transaction.id,
+      };
+    });
+
+    return {
+      status: 'ok',
+      ...result,
+    };
+  } catch (error) {
+    console.error('Error deducting credits:', error);
     throw error;
   }
 };

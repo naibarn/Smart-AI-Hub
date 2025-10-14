@@ -193,6 +193,11 @@ const createMockPrismaClient = () => {
             findUnique: globals_1.jest.fn(),
             create: globals_1.jest.fn(),
         },
+        // Payment operations
+        payment: {
+            findUnique: globals_1.jest.fn(),
+            create: globals_1.jest.fn(),
+        },
         // Database operations
         $transaction: globals_1.jest.fn(),
         $connect: globals_1.jest.fn(),

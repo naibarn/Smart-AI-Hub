@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.disconnectRedis = exports.adjustCredits = exports.redeemPromo = exports.getHistory = exports.getBalance = void 0;
+exports.disconnectRedis = exports.deductCredits = exports.checkCredits = exports.adjustCredits = exports.redeemPromo = exports.getHistory = exports.getBalance = void 0;
 const client_1 = require("@prisma/client");
 const redis_1 = require("redis");
 // Custom error class for this service
@@ -224,6 +224,85 @@ const adjustCredits = async (userId, amount, reason) => {
     }
 };
 exports.adjustCredits = adjustCredits;
+/**
+ * Check if user has sufficient credits for a service
+ */
+const checkCredits = async (userId, service, cost) => {
+    try {
+        // Get current balance
+        const balance = await (0, exports.getBalance)(userId);
+        // Check if balance is sufficient
+        const sufficient = balance >= cost;
+        return {
+            sufficient,
+            balance,
+        };
+    }
+    catch (error) {
+        console.error('Error checking credits:', error);
+        throw error;
+    }
+};
+exports.checkCredits = checkCredits;
+/**
+ * Deduct credits from user account with transaction record
+ */
+const deductCredits = async (userId, service, cost, metadata) => {
+    try {
+        if (!service || typeof service !== 'string') {
+            throw new Error('Service is required and must be a string');
+        }
+        if (typeof cost !== 'number' || cost <= 0) {
+            throw new Error('Cost must be a positive number');
+        }
+        // Use Prisma transaction for atomic operation
+        const result = await prisma.$transaction(async (tx) => {
+            // Get credit account
+            const creditAccount = await tx.creditAccount.findUnique({
+                where: { userId },
+            });
+            if (!creditAccount) {
+                throw new Error(`Credit account not found for user: ${userId}`);
+            }
+            // Check sufficient balance
+            if (creditAccount.currentBalance < cost) {
+                throw new Error('Insufficient credits');
+            }
+            // Update credit account balance
+            const updatedAccount = await tx.creditAccount.update({
+                where: { userId },
+                data: {
+                    currentBalance: creditAccount.currentBalance - cost,
+                    totalUsed: creditAccount.totalUsed + cost,
+                },
+            });
+            // Create transaction record with unique ID
+            const transaction = await tx.creditTransaction.create({
+                data: {
+                    userId,
+                    amount: -cost, // Negative for deduction
+                    type: 'usage',
+                    balanceAfter: updatedAccount.currentBalance,
+                    description: `Service usage: ${service}`,
+                    metadata: metadata || {},
+                },
+            });
+            return {
+                new_balance: updatedAccount.currentBalance,
+                transaction_id: transaction.id,
+            };
+        });
+        return {
+            status: 'ok',
+            ...result,
+        };
+    }
+    catch (error) {
+        console.error('Error deducting credits:', error);
+        throw error;
+    }
+};
+exports.deductCredits = deductCredits;
 /**
  * Disconnect Redis client (call this when shutting down the application)
  */

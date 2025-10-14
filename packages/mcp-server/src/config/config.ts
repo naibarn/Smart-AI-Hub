@@ -21,6 +21,10 @@ export const config = {
   JWT_SECRET: process.env.JWT_SECRET || 'your-super-secret-key-change-in-production',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '15m',
   
+  // Service authentication
+  SERVICE_TOKEN_SECRET: process.env.SERVICE_TOKEN_SECRET || 'service-secret-key-change-in-production',
+  SERVICE_TOKEN_EXPIRES_IN: process.env.SERVICE_TOKEN_EXPIRES_IN || '24h',
+  
   // Redis configuration
   REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
   REDIS_TTL: parseInt(process.env.REDIS_TTL || '3600', 10), // 1 hour

@@ -17,6 +17,7 @@ import {
   Fab,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   TrendingDown,
@@ -147,6 +148,7 @@ interface ActivityItem {
 
 const Dashboard: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -317,7 +319,7 @@ const Dashboard: React.FC = () => {
                     showParticles
                     size="large"
                     variant="card"
-                    onTopUp={() => console.log('Top up clicked')}
+                    onTopUp={() => navigate('/billing')}
                   />
 
                   <Box sx={{ mt: 3 }}>

@@ -64,10 +64,17 @@ jest.mock('../services/redis.service', () => ({
     },
 }));
 // Now we can safely get references to the mocked functions
-const { executeRedisCommand } = require('../config/redis');
-const { getBalance: mockGetBalance, redeemPromo: mockRedeemPromo, adjustCredits: mockAdjustCredits, getHistory: mockGetHistory } = require('../services/credit.service');
-const mockRedisService = require('../services/redis.service').default;
-const { RedisService: MockRedisServiceClass } = require('../services/redis.service');
+// Get references to mocked functions using jest.mocked
+const redis_1 = require("../config/redis");
+const creditServiceModule = __importStar(require("../services/credit.service"));
+const redis_service_1 = __importDefault(require("../services/redis.service"));
+const mockGetBalance = jest.mocked(creditServiceModule.getBalance);
+const mockRedeemPromo = jest.mocked(creditServiceModule.redeemPromo);
+const mockAdjustCredits = jest.mocked(creditServiceModule.adjustCredits);
+const mockGetHistory = jest.mocked(creditServiceModule.getHistory);
+const mockRedisService = jest.mocked(redis_service_1.default);
+const MockRedisServiceClass = jest.mocked(redis_service_1.default);
+const mockExecuteRedisCommand = jest.mocked(redis_1.executeRedisCommand);
 // Create a test app with our controller
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -117,7 +124,8 @@ app.post('/credits/redeem', mockAuth, mockRequirePermission('credits', 'write'),
 app.post('/admin/credits/adjust', mockAuth, mockRequireRoles(['admin', 'superadmin']), creditController.adjustCredits);
 // Mock error handler with debugging
 app.use((err, req, res, next) => {
-    console.error('Test Error Handler:', err);
+    // Suppress error logging in tests to keep output clean
+    // console.error('Test Error Handler:', err);
     res.status(err.statusCode || 500).json({
         error: err.message || 'Internal server error',
         message: err.message || 'Internal server error',
@@ -141,7 +149,7 @@ describe('Credit Controller (Simple)', () => {
     describe('GET /credits/balance', () => {
         test('should return balance for authenticated user', async () => {
             // Mock Redis cache miss
-            executeRedisCommand.mockResolvedValue(null);
+            mockExecuteRedisCommand.mockResolvedValue(null);
             mockRedisService.get.mockResolvedValue(null);
             // Mock service response
             mockGetBalance.mockResolvedValue(100);

@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const client_1 = require("@prisma/client");
 const credit_routes_1 = __importDefault(require("./routes/credit.routes"));
+const payment_routes_1 = __importDefault(require("./routes/payment.routes"));
 const errorHandler_middleware_1 = require("./middlewares/errorHandler.middleware");
 const redis_1 = require("./config/redis");
 const prisma = new client_1.PrismaClient();
@@ -17,6 +18,7 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Routes
 app.use('/api', credit_routes_1.default);
+app.use('/api/payments', payment_routes_1.default);
 // Error handling middleware (must be last)
 app.use(errorHandler_middleware_1.errorHandler);
 // Health check with DB connection

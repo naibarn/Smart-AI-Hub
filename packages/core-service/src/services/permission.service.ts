@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
 
 const prisma = new PrismaClient();
@@ -167,47 +167,50 @@ export const getUserPermissions = async (userId: string): Promise<Permission[]> 
  */
 export const assignRole = async (userId: string, roleId: string, assignedBy?: string): Promise<void> => {
   try {
-    // Check if role exists
-    const role = await prisma.role.findUnique({
-      where: { id: roleId },
-    });
+    // Use Prisma transaction for atomic operation
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Check if role exists
+      const role = await tx.role.findUnique({
+        where: { id: roleId },
+      });
 
-    if (!role) {
-      throw new Error('Role not found');
-    }
+      if (!role) {
+        throw new Error('Role not found');
+      }
 
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+      // Check if user exists
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+      });
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+      if (!user) {
+        throw new Error('User not found');
+      }
 
-    // Check if user already has this role
-    const existingUserRole = await prisma.userRole.findUnique({
-      where: {
-        userId_roleId: {
+      // Check if user already has this role
+      const existingUserRole = await tx.userRole.findUnique({
+        where: {
+          userId_roleId: {
+            userId,
+            roleId,
+          },
+        },
+      });
+
+      if (existingUserRole) {
+        throw new Error('User already has this role');
+      }
+
+      // Assign the role
+      await tx.userRole.create({
+        data: {
           userId,
           roleId,
         },
-      },
+      });
     });
 
-    if (existingUserRole) {
-      throw new Error('User already has this role');
-    }
-
-    // Assign the role
-    await prisma.userRole.create({
-      data: {
-        userId,
-        roleId,
-      },
-    });
-
-    // Clear permission cache for this user
+    // Clear permission cache for this user (outside transaction)
     await clearUserPermissionCache(userId);
   } catch (error) {
     console.error('Error assigning role:', error);
@@ -220,31 +223,34 @@ export const assignRole = async (userId: string, roleId: string, assignedBy?: st
  */
 export const removeRole = async (userId: string, roleId: string): Promise<void> => {
   try {
-    // Check if user has this role
-    const existingUserRole = await prisma.userRole.findUnique({
-      where: {
-        userId_roleId: {
-          userId,
-          roleId,
+    // Use Prisma transaction for atomic operation
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Check if user has this role
+      const existingUserRole = await tx.userRole.findUnique({
+        where: {
+          userId_roleId: {
+            userId,
+            roleId,
+          },
         },
-      },
+      });
+
+      if (!existingUserRole) {
+        throw new Error('User does not have this role');
+      }
+
+      // Remove the role
+      await tx.userRole.delete({
+        where: {
+          userId_roleId: {
+            userId,
+            roleId,
+          },
+        },
+      });
     });
 
-    if (!existingUserRole) {
-      throw new Error('User does not have this role');
-    }
-
-    // Remove the role
-    await prisma.userRole.delete({
-      where: {
-        userId_roleId: {
-          userId,
-          roleId,
-        },
-      },
-    });
-
-    // Clear permission cache for this user
+    // Clear permission cache for this user (outside transaction)
     await clearUserPermissionCache(userId);
   } catch (error) {
     console.error('Error removing role:', error);
@@ -292,32 +298,37 @@ export const getAllPermissions = async (): Promise<Permission[]> => {
  */
 export const createRole = async (name: string, description?: string, permissionIds?: string[]): Promise<Role> => {
   try {
-    // Check if role name already exists
-    const existingRole = await prisma.role.findUnique({
-      where: { name },
-    });
-
-    if (existingRole) {
-      throw new Error('Role with this name already exists');
-    }
-
-    // Create the role
-    const role = await prisma.role.create({
-      data: {
-        name,
-        description,
-      },
-    });
-
-    // Assign permissions if provided
-    if (permissionIds && permissionIds.length > 0) {
-      await prisma.rolePermission.createMany({
-        data: permissionIds.map(permissionId => ({
-          roleId: role.id,
-          permissionId,
-        })),
+    // Use Prisma transaction for atomic operation
+    const role = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Check if role name already exists
+      const existingRole = await tx.role.findUnique({
+        where: { name },
       });
-    }
+
+      if (existingRole) {
+        throw new Error('Role with this name already exists');
+      }
+
+      // Create the role
+      const newRole = await tx.role.create({
+        data: {
+          name,
+          description,
+        },
+      });
+
+      // Assign permissions if provided
+      if (permissionIds && permissionIds.length > 0) {
+        await tx.rolePermission.createMany({
+          data: permissionIds.map(permissionId => ({
+            roleId: newRole.id,
+            permissionId,
+          })),
+        });
+      }
+
+      return newRole;
+    });
 
     return role as Role;
   } catch (error) {

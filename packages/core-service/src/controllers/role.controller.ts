@@ -23,8 +23,12 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
     // Validate input
     if (!userId || !roleId) {
       res.status(400).json({
-        error: 'Bad Request',
-        message: 'userId and roleId are required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'userId and roleId are required',
+        },
       });
       return;
     }
@@ -32,8 +36,12 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
     // Check if the current user has permission to assign roles
     if (req.user && !(await hasPermission(req.user.id, 'roles', 'assign'))) {
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to assign roles',
+        data: null,
+        meta: null,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to assign roles',
+        },
       });
       return;
     }
@@ -41,8 +49,11 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
     await assignRole(userId, roleId, assignedBy);
 
     res.status(200).json({
-      success: true,
-      message: 'Role assigned successfully',
+      data: {
+        message: 'Role assigned successfully',
+      },
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error assigning role:', error);
@@ -50,30 +61,46 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
     if (error instanceof Error) {
       if (error.message === 'Role not found') {
         res.status(404).json({
-          error: 'Not Found',
-          message: 'Role not found',
+          data: null,
+          meta: null,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'Role not found',
+          },
         });
         return;
       }
       if (error.message === 'User not found') {
         res.status(404).json({
-          error: 'Not Found',
-          message: 'User not found',
+          data: null,
+          meta: null,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'User not found',
+          },
         });
         return;
       }
       if (error.message === 'User already has this role') {
         res.status(409).json({
-          error: 'Conflict',
-          message: 'User already has this role',
+          data: null,
+          meta: null,
+          error: {
+            code: 'CONFLICT',
+            message: 'User already has this role',
+          },
         });
         return;
       }
     }
 
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to assign role',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to assign role',
+      },
     });
   }
 };
@@ -90,8 +117,12 @@ export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Respons
     // Validate input
     if (!userId || !roleId) {
       res.status(400).json({
-        error: 'Bad Request',
-        message: 'userId and roleId are required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'userId and roleId are required',
+        },
       });
       return;
     }
@@ -99,8 +130,12 @@ export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Respons
     // Check if the current user has permission to assign roles
     if (req.user && !(await hasPermission(req.user.id, 'roles', 'assign'))) {
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to remove roles',
+        data: null,
+        meta: null,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to remove roles',
+        },
       });
       return;
     }
@@ -108,8 +143,11 @@ export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Respons
     await removeRole(userId, roleId);
 
     res.status(200).json({
-      success: true,
-      message: 'Role removed successfully',
+      data: {
+        message: 'Role removed successfully',
+      },
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error removing role:', error);
@@ -117,16 +155,24 @@ export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Respons
     if (error instanceof Error) {
       if (error.message === 'User does not have this role') {
         res.status(404).json({
-          error: 'Not Found',
-          message: 'User does not have this role',
+          data: null,
+          meta: null,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'User does not have this role',
+          },
         });
         return;
       }
     }
 
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to remove role',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to remove role',
+      },
     });
   }
 };
@@ -143,8 +189,12 @@ export const getUserRolesHandler = async (req: AuthenticatedRequest, res: Respon
 
     if (!currentUserId) {
       res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Authentication required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
       });
       return;
     }
@@ -156,8 +206,12 @@ export const getUserRolesHandler = async (req: AuthenticatedRequest, res: Respon
 
     if (!isSelfAccess && !hasReadPermission) {
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to read user roles',
+        data: null,
+        meta: null,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to read user roles',
+        },
       });
       return;
     }
@@ -165,17 +219,22 @@ export const getUserRolesHandler = async (req: AuthenticatedRequest, res: Respon
     const roles = await getUserRoles(id);
 
     res.status(200).json({
-      success: true,
       data: {
         userId: id,
         roles,
       },
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error getting user roles:', error);
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get user roles',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get user roles',
+      },
     });
   }
 };
@@ -191,8 +250,12 @@ export const getAllRolesHandler = async (req: AuthenticatedRequest, res: Respons
 
     if (!currentUserId) {
       res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Authentication required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
       });
       return;
     }
@@ -200,8 +263,12 @@ export const getAllRolesHandler = async (req: AuthenticatedRequest, res: Respons
     // Check if user has permission to read roles
     if (!(await hasPermission(currentUserId, 'roles', 'read'))) {
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to read roles',
+        data: null,
+        meta: null,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to read roles',
+        },
       });
       return;
     }
@@ -209,16 +276,21 @@ export const getAllRolesHandler = async (req: AuthenticatedRequest, res: Respons
     const roles = await getAllRoles();
 
     res.status(200).json({
-      success: true,
       data: {
         roles,
       },
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error getting all roles:', error);
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get roles',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get roles',
+      },
     });
   }
 };
@@ -234,8 +306,12 @@ export const getAllPermissionsHandler = async (req: AuthenticatedRequest, res: R
 
     if (!currentUserId) {
       res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Authentication required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
       });
       return;
     }
@@ -243,8 +319,12 @@ export const getAllPermissionsHandler = async (req: AuthenticatedRequest, res: R
     // Check if user has permission to read roles
     if (!(await hasPermission(currentUserId, 'roles', 'read'))) {
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to read permissions',
+        data: null,
+        meta: null,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to read permissions',
+        },
       });
       return;
     }
@@ -252,16 +332,21 @@ export const getAllPermissionsHandler = async (req: AuthenticatedRequest, res: R
     const permissions = await getAllPermissions();
 
     res.status(200).json({
-      success: true,
       data: {
         permissions,
       },
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error getting all permissions:', error);
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get permissions',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get permissions',
+      },
     });
   }
 };
@@ -278,8 +363,12 @@ export const createRoleHandler = async (req: AuthenticatedRequest, res: Response
 
     if (!currentUserId) {
       res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Authentication required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
       });
       return;
     }
@@ -287,8 +376,12 @@ export const createRoleHandler = async (req: AuthenticatedRequest, res: Response
     // Validate input
     if (!name) {
       res.status(400).json({
-        error: 'Bad Request',
-        message: 'Role name is required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'Role name is required',
+        },
       });
       return;
     }
@@ -296,8 +389,12 @@ export const createRoleHandler = async (req: AuthenticatedRequest, res: Response
     // Check if user has permission to assign roles
     if (!(await hasPermission(currentUserId, 'roles', 'assign'))) {
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to create roles',
+        data: null,
+        meta: null,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to create roles',
+        },
       });
       return;
     }
@@ -305,11 +402,12 @@ export const createRoleHandler = async (req: AuthenticatedRequest, res: Response
     const role = await createRole(name, description, permissionIds);
 
     res.status(201).json({
-      success: true,
       data: {
         role,
+        message: 'Role created successfully',
       },
-      message: 'Role created successfully',
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error creating role:', error);
@@ -317,16 +415,24 @@ export const createRoleHandler = async (req: AuthenticatedRequest, res: Response
     if (error instanceof Error) {
       if (error.message === 'Role with this name already exists') {
         res.status(409).json({
-          error: 'Conflict',
-          message: 'Role with this name already exists',
+          data: null,
+          meta: null,
+          error: {
+            code: 'CONFLICT',
+            message: 'Role with this name already exists',
+          },
         });
         return;
       }
     }
 
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to create role',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to create role',
+      },
     });
   }
 };
@@ -343,8 +449,12 @@ export const checkPermissionHandler = async (req: Request, res: Response): Promi
     // Validate input
     if (!userId || !resource || !action) {
       res.status(400).json({
-        error: 'Bad Request',
-        message: 'userId, resource, and action are required',
+        data: null,
+        meta: null,
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'userId, resource, and action are required',
+        },
       });
       return;
     }
@@ -352,13 +462,21 @@ export const checkPermissionHandler = async (req: Request, res: Response): Promi
     const hasRequiredPermission = await hasPermission(userId, resource, action);
 
     res.status(200).json({
-      hasPermission: hasRequiredPermission,
+      data: {
+        hasPermission: hasRequiredPermission,
+      },
+      meta: null,
+      error: null,
     });
   } catch (error) {
     console.error('Error checking permission:', error);
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to check permission',
+      data: null,
+      meta: null,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to check permission',
+      },
     });
   }
 };

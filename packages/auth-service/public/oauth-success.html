@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Successful</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        .success-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 32px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .verification-code {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #495057;
+            letter-spacing: 1px;
+        }
+        .instructions {
+            margin-bottom: 1.5rem;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        .return-info {
+            background-color: #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        .close-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.2s;
+        }
+        .close-button:hover {
+            background-color: #0069d9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon"></div>
+        <h1>Authentication Successful!</h1>
+        
+        <div id="token-section" style="display: none;">
+            <p class="instructions">You have been successfully authenticated. You can now close this window and return to the application.</p>
+            <button class="close-button" onclick="window.close()">Close Window</button>
+        </div>
+        
+        <div id="verification-section" style="display: none;">
+            <p class="instructions">Your verification code is ready. Please copy this code and return to the application to complete the authentication process.</p>
+            <div class="verification-code" id="verification-code"></div>
+            <div class="return-info">
+                <strong>Return to:</strong> <span id="return-to"></span>
+            </div>
+            <button class="close-button" onclick="copyCode()">Copy Code</button>
+            <button class="close-button" onclick="window.close()">Close Window</button>
+        </div>
+        
+        <div id="error-section" style="display: none;">
+            <p class="instructions" style="color: #dc3545;">There was an issue with the authentication process. Please try again.</p>
+            <button class="close-button" onclick="window.close()">Close Window</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const verificationCode = urlParams.get('verification_code');
+            const accessToken = urlParams.get('accessToken');
+            const refreshToken = urlParams.get('refreshToken');
+            const returnTo = urlParams.get('return_to') || 'the application';
+            
+            if (verificationCode) {
+                // Show verification code section
+                document.getElementById('verification-section').style.display = 'block';
+                document.getElementById('verification-code').textContent = verificationCode;
+                document.getElementById('return-to').textContent = returnTo;
+                
+                // Auto-copy to clipboard
+                copyCode();
+            } else if (accessToken && refreshToken) {
+                // Show token section
+                document.getElementById('token-section').style.display = 'block';
+            } else {
+                // Show error section
+                document.getElementById('error-section').style.display = 'block';
+            }
+        });
+        
+        function copyCode() {
+            const codeElement = document.getElementById('verification-code');
+            const codeText = codeElement.textContent;
+            
+            navigator.clipboard.writeText(codeText).then(function() {
+                // Show success feedback
+                const originalText = codeElement.textContent;
+                codeElement.textContent = 'Copied to clipboard!';
+                codeElement.style.backgroundColor = '#d4edda';
+                codeElement.style.color = '#155724';
+                
+                setTimeout(function() {
+                    codeElement.textContent = originalText;
+                    codeElement.style.backgroundColor = '#f8f9fa';
+                    codeElement.style.color = '#495057';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy code. Please copy it manually.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -14,6 +14,7 @@ const passport = require('./config/passport');
 // Import routes
 const authRoutes = require('./routes/auth.routes');
 const oauthRoutes = require('./routes/oauth.routes');
+const sessionRoutes = require('./routes/session.routes');
 const userRoutes = require('./routes/user.routes');
 const creditRoutes = require('./routes/credit.routes');
 
@@ -36,6 +37,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Static file serving
+app.use(express.static('public'));
+
 // Initialize Passport
 app.use(passport.initialize());
 
@@ -56,6 +60,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', oauthRoutes);
+app.use('/api/auth', sessionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/credits', creditRoutes);
 

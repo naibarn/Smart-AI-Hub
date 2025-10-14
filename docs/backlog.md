@@ -11,8 +11,8 @@
 
 ### Backlog Overview
 
-**Total Estimated Story Points**: 218 points
-**Completed Story Points**: 97 points (44.5% complete)
+**Total Estimated Story Points**: 223 points
+**Completed Story Points**: 102 points (45.7% complete)
 **Current Sprint**: Sprint 4 (Weeks 7-8) - In Progress
 **Phases**: 3 phases over 24-30 weeks
 
@@ -36,7 +36,7 @@
 - ✅ Frontend development server setup (React + Vite)
 - ✅ API Gateway development server running
 - ✅ OpenAI SDK integration completed
-- ✅ SORA2 integration completed
+- ✅ SORA2 Video Generator integration completed
 - 🔄 Claude integration in progress
 - 📋 Next: Complete payment system with Stripe integration
 
@@ -1122,6 +1122,92 @@ async function callOpenAI(request: MCPRequest): Promise<MCPResponse> {
 
 ---
 
+#### E4.5: Sora2 Video Generator Integration
+
+**Story Points**: 5
+**Priority**: P0 (Critical)
+**Status**: ✅ COMPLETED
+**Completed Date**: 2025-10-13
+**Dependencies**: E4.1, E4.2
+**Risk Level**: Medium
+
+**Acceptance Criteria**:
+
+- [x] Sora2 Video API integration
+- [x] Session-based authentication with verification codes
+- [x] Google OAuth integration for Sora2
+- [x] Credit management for video generation
+- [x] Custom GPT integration for video workflows
+- [x] Error handling for video generation failures
+
+**Completion Notes**:
+
+- Full Sora2 Video Generator integration completed
+- Session-based authentication system implemented with verification codes
+- Google OAuth integration with session parameters working
+- Credit management APIs (check and deduct) implemented for video generation
+- Custom GPT integration for video workflows completed
+- Comprehensive error handling for all video generation scenarios
+- Redis session storage implemented for OAuth tokens
+- Atomic credit transactions for video generation
+
+**Implementation Details**:
+
+```typescript
+// Sora2 Video Generation Endpoint
+POST /api/sora2/generate
+{
+  "prompt": "A beautiful sunset over the ocean",
+  "duration": 10,
+  "resolution": "1080p"
+}
+
+// Session-based Authentication
+GET /api/sora2/auth/session?code=verification_code
+{
+  "sessionToken": "session_token_here",
+  "expiresAt": "2025-10-14T08:57:00Z"
+}
+
+// Credit Management for Video Generation
+POST /api/credits/check
+POST /api/credits/deduct
+{
+  "userId": "user_id",
+  "credits": 5,
+  "service": "sora2",
+  "sessionId": "session_token_here"
+}
+```
+
+**OAuth Flow with Verification Codes**:
+
+1. User initiates video generation request
+2. System generates verification code and stores in Redis
+3. User authorizes via Google OAuth with verification code
+4. System receives OAuth callback with verification code
+5. System creates session token and stores in Redis
+6. User can now generate videos using session token
+
+**Security Measures**:
+
+- [x] Verification codes expire after 15 minutes
+- [x] Session tokens expire after 24 hours
+- [x] All requests require valid session token
+- [x] Credit deduction happens before video generation
+- [x] Audit trail for all video generation requests
+
+**Tests Completed**:
+
+- [x] OAuth flow with verification codes
+- [x] Session management in Redis
+- [x] Credit check and deduction for video generation
+- [x] Video generation with valid session
+- [x] Error handling for expired sessions
+- [x] Error handling for insufficient credits
+
+---
+
 #### E4.3: Claude Integration
 
 **Story Points**: 5  
@@ -1516,16 +1602,17 @@ export const theme = createTheme({
 ### Sprint 4 (Weeks 7-8): MCP Complete + Payment (In Progress)
 
 **Goal**: Complete LLM integration and payment
-**Story Points**: 21
+**Story Points**: 26
 **Status**: In Progress (Started 2025-10-04)
 **Sprint Dates**: Oct 4 - Oct 17, 2025
 
 **Planned Stories**:
 
 1. ✅ E4.2: OpenAI Integration (5 points) - COMPLETED
-2. 🔄 E4.3: Claude Integration (5 points) - IN PROGRESS
-3. 🔄 E4.4: MCP Auth (3 points) - IN PROGRESS
-4. ⏳ E3.2: Credit Top-up with Stripe (8 points) - NOT STARTED
+2. ✅ E4.5: Sora2 Video Generator Integration (5 points) - COMPLETED
+3. 🔄 E4.3: Claude Integration (5 points) - IN PROGRESS
+4. 🔄 E4.4: MCP Auth (3 points) - IN PROGRESS
+5. ⏳ E3.2: Credit Top-up with Stripe (8 points) - NOT STARTED
 
 **Current Focus**:
 
@@ -1549,7 +1636,9 @@ export const theme = createTheme({
 - ✅ Streaming response handling implemented
 - ✅ Token counting and credit deduction working
 - ✅ Error handling for rate limits implemented
-- ✅ SORA2 integration completed
+- ✅ SORA2 Video Generator integration completed with session-based authentication
+- ✅ Google OAuth with verification codes for Sora2 integration
+- ✅ Credit management APIs for video generation
 - 🔄 Started Claude SDK integration
 - 🔄 Working on MCP authentication enhancements
 
@@ -1601,6 +1690,7 @@ export const theme = createTheme({
 | TD-015 | Frontend development not started         | High      | 5      | High     | Sprint 4      | ✅ Completed   |
 | TD-016 | OpenAI integration not complete          | High      | 5      | High     | Sprint 4      | ✅ Completed   |
 | TD-017 | Claude integration not started           | High      | 5      | High     | Sprint 4      | 🔄 In Progress |
+| TD-018 | Sora2 Video Generator integration        | High      | 5      | High     | Sprint 4      | ✅ Completed   |
 
 ---
 

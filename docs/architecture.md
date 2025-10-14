@@ -2,9 +2,9 @@
 
 ## Document Information
 
-**Version**: 2.0  
-**Last Updated**: 2025-10-03  
-**Status**: Active Development  
+**Version**: 2.1
+**Last Updated**: 2025-10-13
+**Status**: Active Development
 **Maintainers**: Architecture Team
 
 ## Table of Contents
@@ -14,11 +14,12 @@
 3. [Monorepo Structure](#monorepo-structure)
 4. [Services Details](#services-details)
 5. [Data Architecture](#data-architecture)
-6. [Security Architecture](#security-architecture)
-7. [Error Handling & Resilience](#error-handling--resilience)
-8. [Observability](#observability)
-9. [Deployment Architecture](#deployment-architecture)
-10. [Diagrams](#diagrams)
+6. [Session Storage (Redis)](#session-storage-redis)
+7. [Security Architecture](#security-architecture)
+8. [Error Handling & Resilience](#error-handling--resilience)
+9. [Observability](#observability)
+10. [Deployment Architecture](#deployment-architecture)
+11. [Diagrams](#diagrams)
 
 ---
 
@@ -101,6 +102,10 @@ Infrastructure:
 │  │  │PostgreSQL│      │  Redis   │   │                   │
 │  │  │  (Main)  │      │ (Cache)  │   │                   │
 │  │  └──────────┘      └──────────┘   │                   │
+│  │                      ┌──────────┐ │                   │
+│  │                      │Session   │ │                   │
+│  │                      │Storage   │ │                   │
+│  │                      └──────────┘ │                   │
 │  └──────────────────────────────────┘                   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -146,8 +151,10 @@ Infrastructure:
 │                                                               │
 │  External Dependencies:                                       │
 │  • PostgreSQL (user data)                                    │
-│  • Redis (token blacklist, rate limiting)                    │
+│  • Redis (token blacklist, rate limiting, sessions)          │
 │  • SendGrid (email service)                                  │
+│  • Google OAuth 2.0                                          │
+│  • Sora2 Video API                                           │
 └───────────────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────────────┐
@@ -464,16 +471,20 @@ const proxyConfig = {
 **Endpoints**:
 
 ```typescript
-POST / register; // User registration
-POST / login; // User login
-POST / logout; // User logout (blacklist token)
-POST / refresh; // Refresh access token
-POST / verify - email; // Email verification
-POST / forgot - password; // Request password reset
-POST / reset - password; // Reset password
-GET / me; // Current user info
-GET / oauth / google; // Google OAuth initiate
-GET / oauth / google / callback; // Google OAuth callback
+POST /register; // User registration
+POST /login; // User login
+POST /logout; // User logout (blacklist token)
+POST /refresh; // Refresh access token
+POST /verify-email; // Email verification
+POST /forgot-password; // Request password reset
+POST /reset-password; // Reset password
+GET /me; // Current user info
+GET /oauth/google; // Google OAuth initiate
+GET /oauth/google/callback; // Google OAuth callback
+GET /oauth/sora2; // Sora2 OAuth initiate
+GET /oauth/sora2/callback; // Sora2 OAuth callback
+POST /oauth/session/verify; // Verify session code
+POST /oauth/session/confirm; // Confirm session with parameters
 ```
 
 **JWT Configuration**:
@@ -523,6 +534,8 @@ interface JWTPayload {
 - Transaction processing
 - Usage analytics
 - Promotional codes
+- Sora2 Video Generator integration
+- Session-based authentication for video generation
 
 **Database Schema** (Prisma):
 
@@ -677,6 +690,57 @@ model UsageLog {
 }
 ```
 
+**Credit Management APIs**:
+
+```typescript
+// Check credit balance
+GET /api/credits/balance
+Response: {
+  "userId": "uuid",
+  "balance": 1000,
+  "currency": "credits",
+  "lastUpdated": "2025-01-01T00:00:00Z"
+}
+
+// Deduct credits for video generation
+POST /api/credits/deduct
+Request: {
+  "userId": "uuid",
+  "amount": 100,
+  "reason": "sora2_video_generation",
+  "metadata": {
+    "videoId": "uuid",
+    "duration": 30,
+    "resolution": "1080p"
+  }
+}
+Response: {
+  "success": true,
+  "newBalance": 900,
+  "transactionId": "uuid"
+}
+
+// Get credit transaction history
+GET /api/credits/transactions?userId=uuid&limit=10&offset=0
+Response: {
+  "transactions": [
+    {
+      "id": "uuid",
+      "amount": -100,
+      "type": "debit",
+      "reason": "sora2_video_generation",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "metadata": {
+        "videoId": "uuid",
+        "duration": 30
+      }
+    }
+  ],
+  "total": 25,
+  "hasMore": true
+}
+```
+
 **Credit Deduction Flow**:
 
 ```typescript
@@ -724,8 +788,8 @@ async function deductCredits(
 
 ### MCP Server
 
-**Technology**: Express.js + WebSocket (ws) + BullMQ  
-**Port**: 3003  
+**Technology**: Express.js + WebSocket (ws) + BullMQ
+**Port**: 3003
 **Responsibilities**:
 
 - LLM provider integration
@@ -734,6 +798,8 @@ async function deductCredits(
 - Response streaming
 - Usage tracking
 - Provider fallback
+- Sora2 Video Generator API integration
+- Custom GPT integration for video generation workflows
 
 **WebSocket Protocol**:
 
@@ -810,6 +876,143 @@ async function executeWithFallback(request: MCPRequest): Promise<MCPResponse> {
 
   throw new AppError('ALL_PROVIDERS_FAILED', 'All LLM providers failed', { lastError });
 }
+```
+
+**Sora2 Video Generator Integration**:
+
+```typescript
+// Sora2 API integration
+interface Sora2VideoRequest {
+  prompt: string;
+  duration: number; // seconds
+  resolution: '720p' | '1080p' | '4K';
+  style?: string;
+  aspectRatio?: string;
+  userId: string;
+  sessionId: string;
+}
+
+interface Sora2VideoResponse {
+  videoId: string;
+  status: 'processing' | 'completed' | 'failed';
+  url?: string;
+  thumbnailUrl?: string;
+  duration: number;
+  creditsUsed: number;
+  createdAt: string;
+  completedAt?: string;
+}
+
+// MCP Server Sora2 endpoints
+app.post('/api/mcp/sora2/generate', authenticate, checkCredits, async (req, res) => {
+  const { prompt, duration, resolution, style, aspectRatio } = req.body;
+  const userId = req.user.id;
+  const sessionId = req.session.id;
+  
+  // Check credits before generation
+  const creditsRequired = calculateCreditsRequired(duration, resolution);
+  const hasCredits = await creditService.checkBalance(userId, creditsRequired);
+  
+  if (!hasCredits) {
+    return res.status(402).json({ error: 'Insufficient credits' });
+  }
+  
+  // Create video generation request
+  const videoRequest = await sora2Service.createVideoRequest({
+    prompt,
+    duration,
+    resolution,
+    style,
+    aspectRatio,
+    userId,
+    sessionId
+  });
+  
+  // Deduct credits (atomic transaction)
+  await creditService.deductCredits(userId, creditsRequired, 'sora2_video_generation', {
+    videoId: videoRequest.id,
+    duration,
+    resolution
+  });
+  
+  res.json({
+    videoId: videoRequest.id,
+    status: 'processing',
+    creditsUsed: creditsRequired,
+    estimatedTime: estimateProcessingTime(duration, resolution)
+  });
+});
+
+app.get('/api/mcp/sora2/status/:videoId', authenticate, async (req, res) => {
+  const { videoId } = req.params;
+  const userId = req.user.id;
+  
+  // Check if user owns this video
+  const video = await sora2Service.getVideo(videoId);
+  if (video.userId !== userId) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  
+  res.json({
+    videoId: video.id,
+    status: video.status,
+    url: video.url,
+    thumbnailUrl: video.thumbnailUrl,
+    progress: video.progress,
+    createdAt: video.createdAt
+  });
+});
+```
+
+**Custom GPT Integration for Video Workflows**:
+
+```typescript
+// Custom GPT integration for enhanced video generation
+interface VideoWorkflowRequest {
+  workflow: 'text-to-video' | 'image-to-video' | 'video-enhancement';
+  input: {
+    text?: string;
+    imageUrl?: string;
+    videoUrl?: string;
+  };
+  parameters: {
+    style?: string;
+    duration?: number;
+    resolution?: string;
+    enhancementType?: string;
+  };
+  sessionId: string;
+}
+
+// Custom GPT-assisted video generation
+app.post('/api/mcp/gpt/video-workflow', authenticate, async (req, res) => {
+  const { workflow, input, parameters, sessionId } = req.body;
+  
+  // Step 1: Use Custom GPT to analyze and enhance the request
+  const enhancedPrompt = await gptService.enhanceVideoPrompt({
+    originalPrompt: input.text,
+    workflow,
+    parameters,
+    sessionId
+  });
+  
+  // Step 2: Generate video with Sora2 using enhanced prompt
+  const videoRequest = await sora2Service.createVideoRequest({
+    prompt: enhancedPrompt,
+    duration: parameters.duration || 30,
+    resolution: parameters.resolution || '1080p',
+    style: parameters.style,
+    userId: req.user.id,
+    sessionId
+  });
+  
+  res.json({
+    workflowId: generateId(),
+    videoId: videoRequest.id,
+    enhancedPrompt,
+    status: 'processing'
+  });
+});
 ```
 
 **Circuit Breaker Pattern**:
@@ -1014,6 +1217,134 @@ npx prisma migrate deploy
 
 # Rollback (manual)
 npx prisma migrate reset --force
+```
+
+---
+
+## Session Storage (Redis)
+
+### Session Management for Sora2 Integration
+
+```typescript
+// Session storage structure in Redis
+interface SessionData {
+  sessionId: string;
+  userId: string;
+  oauthProvider: 'google' | 'sora2';
+  oauthState: string;
+  verificationCode: string;
+  verifiedAt?: Date;
+  expiresAt: Date;
+  metadata: {
+    userAgent: string;
+    ipAddress: string;
+    originalRequest: string;
+  };
+}
+
+// Session service implementation
+class SessionService {
+  private redis: Redis;
+  private readonly SESSION_TTL = 3600; // 1 hour
+
+  async createSession(data: Omit<SessionData, 'sessionId' | 'expiresAt'>): Promise<string> {
+    const sessionId = generateUUID();
+    const sessionData: SessionData = {
+      ...data,
+      sessionId,
+      expiresAt: new Date(Date.now() + this.SESSION_TTL * 1000)
+    };
+
+    await this.redis.setex(
+      `session:${sessionId}`,
+      this.SESSION_TTL,
+      JSON.stringify(sessionData)
+    );
+
+    return sessionId;
+  }
+
+  async getSession(sessionId: string): Promise<SessionData | null> {
+    const data = await this.redis.get(`session:${sessionId}`);
+    if (!data) return null;
+
+    const session = JSON.parse(data) as SessionData;
+    
+    // Check if expired
+    if (new Date(session.expiresAt) < new Date()) {
+      await this.deleteSession(sessionId);
+      return null;
+    }
+
+    return session;
+  }
+
+  async verifySession(sessionId: string, verificationCode: string): Promise<boolean> {
+    const session = await this.getSession(sessionId);
+    if (!session) return false;
+
+    if (session.verificationCode !== verificationCode) {
+      return false;
+    }
+
+    // Mark session as verified
+    session.verifiedAt = new Date();
+    await this.redis.setex(
+      `session:${sessionId}`,
+      this.SESSION_TTL,
+      JSON.stringify(session)
+    );
+
+    return true;
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    await this.redis.del(`session:${sessionId}`);
+  }
+}
+```
+
+### OAuth Flow with Verification Codes
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant AG as API Gateway
+    participant AS as Auth Service
+    participant S as Session Storage (Redis)
+    participant OAuth as OAuth Provider (Google/Sora2)
+    participant V as Verification Service
+
+    C->>AG: Initiate OAuth
+    AG->>AS: POST /oauth/google or /oauth/sora2
+    AS->>S: Create session with verification code
+    S-->>AS: sessionId
+    AS->>V: Send verification code via email
+    AS-->>AG: Return sessionId
+    AG-->>C: 200 OK + sessionId
+
+    C->>V: User enters verification code
+    V->>C: Verify code
+
+    C->>AG: POST /oauth/session/verify
+    AG->>AS: { sessionId, verificationCode }
+    AS->>S: Get session data
+    S-->>AS: Session info
+    AS->>AS: Verify code matches
+    AS->>S: Mark session as verified
+    AS-->>AG: Session verified
+    AG-->>C: 200 OK + verification status
+
+    C->>AG: POST /oauth/session/confirm
+    AG->>AS: { sessionId, parameters }
+    AS->>S: Get verified session
+    S-->>AS: Session with OAuth state
+    AS->>OAuth: Exchange code for tokens
+    OAuth-->>AS: OAuth tokens
+    AS->>AS: Create/update user account
+    AS->>S: Delete session
+    AS-->>AG: JWT tokens + user info
+    AG-->>C: 200 OK + authentication complete
 ```
 
 ---

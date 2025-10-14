@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserCredits = exports.adjustCredits = exports.redeemPromoCode = exports.getHistory = exports.getBalance = void 0;
+exports.deductCredits = exports.checkCredits = exports.getUserCredits = exports.adjustCredits = exports.redeemPromoCode = exports.getHistory = exports.getBalance = void 0;
 const errorHandler_middleware_1 = require("../middlewares/errorHandler.middleware");
 const creditService = __importStar(require("../services/credit.service"));
 const redis_service_1 = __importDefault(require("../services/redis.service"));
@@ -72,7 +72,6 @@ const getBalance = async (req, res, next) => {
         const balance = await creditService.getBalance(userId);
         // Cache the result for 60 seconds
         await redis_service_1.default.set(cacheKey, JSON.stringify(balance), 60);
-        console.log('Sending response with balance:', balance);
         res.status(200).json({
             data: balance,
             meta: { cached: false },
@@ -126,7 +125,6 @@ const getHistory = async (req, res, next) => {
         });
     }
     catch (error) {
-        console.error('Error in getBalance:', error);
         next(error);
     }
 };
@@ -256,4 +254,91 @@ const getUserCredits = async (req, res, next) => {
     }
 };
 exports.getUserCredits = getUserCredits;
+/**
+ * Check if user has sufficient credits for a service
+ *
+ * @route POST /api/mcp/v1/credits/check
+ * @access Public (requires X-User-ID header)
+ * @param req - Express request object with userId in header and service/cost in body
+ * @param res - Express response object
+ * @param next - Express next function for error handling
+ */
+const checkCredits = async (req, res, next) => {
+    try {
+        // Get userId from header
+        const userId = req.headers['x-user-id'];
+        if (!userId) {
+            return next(new errorHandler_middleware_1.AppError('X-User-ID header is required', 401));
+        }
+        // Get service and cost from request body
+        const { service, cost } = req.body;
+        if (!service) {
+            return next(new errorHandler_middleware_1.AppError('Service is required', 400));
+        }
+        if (cost === undefined || cost === null) {
+            return next(new errorHandler_middleware_1.AppError('Cost is required', 400));
+        }
+        if (typeof cost !== 'number' || cost < 0) {
+            return next(new errorHandler_middleware_1.AppError('Cost must be a non-negative number', 400));
+        }
+        // Check credits
+        const result = await creditService.checkCredits(userId, service, cost);
+        res.status(200).json({
+            data: result,
+            meta: null,
+            error: null,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.checkCredits = checkCredits;
+/**
+ * Deduct credits from user account with transaction record
+ *
+ * @route POST /api/mcp/v1/credits/deduct
+ * @access Public (requires X-User-ID header)
+ * @param req - Express request object with userId in header and service/cost/metadata in body
+ * @param res - Express response object
+ * @param next - Express next function for error handling
+ */
+const deductCredits = async (req, res, next) => {
+    try {
+        // Get userId from header
+        const userId = req.headers['x-user-id'];
+        if (!userId) {
+            return next(new errorHandler_middleware_1.AppError('X-User-ID header is required', 401));
+        }
+        // Get service, cost, and metadata from request body
+        const { service, cost, metadata } = req.body;
+        if (!service) {
+            return next(new errorHandler_middleware_1.AppError('Service is required', 400));
+        }
+        if (cost === undefined || cost === null) {
+            return next(new errorHandler_middleware_1.AppError('Cost is required', 400));
+        }
+        if (typeof cost !== 'number' || cost <= 0) {
+            return next(new errorHandler_middleware_1.AppError('Cost must be a positive number', 400));
+        }
+        // Deduct credits
+        const result = await creditService.deductCredits(userId, service, cost, metadata);
+        // Clear balance cache for this user
+        const cacheKey = `credit_balance:${userId}`;
+        await redis_service_1.default.del(cacheKey);
+        res.status(200).json({
+            data: result,
+            meta: null,
+            error: null,
+        });
+    }
+    catch (error) {
+        // Handle specific error for insufficient credits
+        if (error instanceof Error && error.message === 'Insufficient credits') {
+            return next(new errorHandler_middleware_1.AppError('Insufficient credits', 402));
+        }
+        next(error);
+    }
+};
+exports.deductCredits = deductCredits;
 //# sourceMappingURL=credit.controller.js.map

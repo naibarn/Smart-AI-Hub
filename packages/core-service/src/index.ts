@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import creditRoutes from './routes/credit.routes';
+import paymentRoutes from './routes/payment.routes';
 import { errorHandler } from './middlewares/errorHandler.middleware';
 import { connectRedis, disconnectRedis } from './config/redis';
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api', creditRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

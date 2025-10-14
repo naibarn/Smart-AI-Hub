@@ -14,6 +14,6 @@ export declare const errorHandler: (error: Error, req: Request, res: Response, n
 /**
  * Async error wrapper to catch errors in async routes
  */
-export declare const asyncHandler: (fn: Function) => (req: Request, res: Response, next: NextFunction) => void;
+export declare const asyncHandler: (fn: (req: Request, res: Response, next: NextFunction) => Promise<void> | void) => (req: Request, res: Response, next: NextFunction) => void;
 export { AppError };
 //# sourceMappingURL=errorHandler.middleware.d.ts.map

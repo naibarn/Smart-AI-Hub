@@ -4,17 +4,19 @@ import { useSelector, useDispatch } from 'react-redux';
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, Box } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { ToastProvider } from './components/common';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import TestConnection from './pages/TestConnection';
-import NavBar from './components/common/NavBar';
-import Sidebar from './components/common/Sidebar';
+import ChatInterface from './pages/ChatInterface';
+import Billing from './pages/Billing';
 import CommandPalette from './components/common/CommandPalette';
-import PageTransition from './components/common/PageTransition';
+import { api } from './services/api';
 
 // Redux store setup
 interface AppState {
@@ -75,13 +77,16 @@ export const { login, logout, toggleSidebar, setSidebarOpen, toggleCommandPalett
 const store = configureStore({
   reducer: {
     app: appSlice.reducer,
+    [api.reducerPath]: api.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
 });
 
 // Main App component
 const AppContent: React.FC = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, user } = useSelector((state: { app: AppState }) => state.app.auth);
+  const { user } = useSelector((state: { app: AppState }) => state.app.auth);
   const { sidebarOpen, commandPaletteOpen } = useSelector((state: { app: AppState }) => state.app.ui);
 
   React.useEffect(() => {
@@ -120,71 +125,33 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [dispatch, commandPaletteOpen]);
 
-  const handleLogin = (userData: { name: string; email: string; avatar?: string }) => {
-    localStorage.setItem('token', 'mock-jwt-token');
-    localStorage.setItem('user', JSON.stringify(userData));
-    dispatch(login(userData));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    dispatch(logout());
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
-    );
-  }
 
   return (
     <Router>
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <NavBar
-          user={user || undefined}
-          onMenuToggle={() => dispatch(toggleSidebar())}
-          showMenuButton={true}
-          transparent={true}
-        />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
-        <Sidebar
-          open={sidebarOpen}
-          onClose={() => dispatch(setSidebarOpen(false))}
-          variant="persistent"
-          collapsed={false}
-          onToggleCollapse={() => dispatch(toggleSidebar())}
-        />
-        
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            width: { sm: `calc(100% - ${sidebarOpen ? 280 : 80}px)` },
-            ml: { sm: sidebarOpen ? '280px' : '80px' },
-            transition: 'width 0.3s ease, margin 0.3s ease',
-          }}
-        >
-          <PageTransition>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/credits" element={<Dashboard />} />
-              <Route path="/team" element={<Dashboard />} />
-              <Route path="/services/*" element={<Dashboard />} />
-              <Route path="/settings" element={<Dashboard />} />
-              <Route path="/test-connection" element={<TestConnection />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </PageTransition>
-        </Box>
-      </Box>
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout user={user || undefined} sidebarOpen={sidebarOpen} />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/credits" element={<Dashboard />} />
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/team" element={<Dashboard />} />
+            <Route path="/services/*" element={<Dashboard />} />
+            <Route path="/settings" element={<Dashboard />} />
+            <Route path="/test-connection" element={<TestConnection />} />
+            <Route path="/chat" element={<ChatInterface />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Route>
+
+        {/* Catch all route - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
       
       <CommandPalette
         open={commandPaletteOpen}

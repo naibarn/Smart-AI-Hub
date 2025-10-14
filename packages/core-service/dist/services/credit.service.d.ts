@@ -39,6 +39,21 @@ export declare const redeemPromo: (userId: string, code: string) => Promise<numb
  */
 export declare const adjustCredits: (userId: string, amount: number, reason: string) => Promise<number>;
 /**
+ * Check if user has sufficient credits for a service
+ */
+export declare const checkCredits: (userId: string, service: string, cost: number) => Promise<{
+    sufficient: boolean;
+    balance: number;
+}>;
+/**
+ * Deduct credits from user account with transaction record
+ */
+export declare const deductCredits: (userId: string, service: string, cost: number, metadata?: any) => Promise<{
+    status: string;
+    new_balance: number;
+    transaction_id: string;
+}>;
+/**
  * Disconnect Redis client (call this when shutting down the application)
  */
 export declare const disconnectRedis: () => Promise<void>;

@@ -4,12 +4,12 @@
 
 ### Document Control
 
-**Product Name**: Smart AI Hub  
-**Version**: 1.1  
-**Date**: October 2025  
-**Status**: Active Development  
-**Owner**: Product Team  
-**Last Updated**: 2025-10-03
+**Product Name**: Smart AI Hub
+**Version**: 1.2
+**Date**: October 2025
+**Status**: Active Development
+**Owner**: Product Team
+**Last Updated**: 2025-10-13
 
 ### Revision History
 
@@ -17,6 +17,7 @@
 | ------- | ------- | ------------ | -------------------------------------------- |
 | 1.0     | 2025-09 | Product Team | Initial draft                                |
 | 1.1     | 2025-10 | Product Team | Added security, observability, API standards |
+| 1.2     | 2025-10 | Product Team | Added Sora2 integration features and APIs    |
 
 ---
 
@@ -181,7 +182,106 @@ GPT-3.5: 1 credit per 1000 tokens
 Claude-3: 8 credits per 1000 tokens
 Image Generation: 50 credits per image
 Video Generation: 200 credits per minute
+Sora2 Video Generation: 30 credits per video
 ```
+
+#### FR-AUTH-05: Session-Based Authentication
+**Priority**: High
+**Description**: Support session-based authentication for third-party integrations
+
+**Requirements**:
+- Generate secure session tokens (format: VERIFIED-{random_string})
+- Store sessions in Redis with configurable expiration (default: 7 days)
+- Provide API endpoint to verify session tokens
+- Return user identity (ID, email, name) for valid sessions
+- Support session revocation
+- Handle session expiration gracefully
+
+**Acceptance Criteria**:
+- Session tokens are cryptographically secure
+- Session verification responds within 100ms
+- Expired sessions return 401 Unauthorized
+- Invalid sessions return 404 Not Found
+
+#### FR-CREDIT-03: User-Specific Credit Check API
+**Priority**: High
+**Description**: Provide API for third-party services to check user credit balance
+
+**Requirements**:
+- Accept user ID via X-User-ID header
+- Accept service name and cost in request body
+- Return whether user has sufficient credits
+- Return current credit balance
+- Support different service types and costs
+- Respond within 200ms
+
+**API Specification**:
+```
+POST /api/mcp/v1/credits/check
+Headers: X-User-ID: {user_id}
+Body: { service: string, cost: number }
+Response: { sufficient: boolean, balance: number }
+```
+
+**Acceptance Criteria**:
+- Accurately checks user credit balance
+- Returns 402 if insufficient credits
+- Returns 404 if user not found
+- Handles concurrent requests correctly
+
+#### FR-CREDIT-04: User-Specific Credit Deduction API
+**Priority**: High
+**Description**: Provide API for third-party services to deduct credits from user balance
+
+**Requirements**:
+- Accept user ID via X-User-ID header
+- Accept service name, cost, and metadata in request body
+- Atomically deduct credits from user balance
+- Create transaction record with metadata
+- Return new balance and transaction ID
+- Support rollback on failure
+
+**API Specification**:
+```
+POST /api/mcp/v1/credits/deduct
+Headers: X-User-ID: {user_id}
+Body: { service: string, cost: number, metadata: object }
+Response: { status: "ok", new_balance: number, transaction_id: string }
+```
+
+**Acceptance Criteria**:
+- Deduction is atomic (no race conditions)
+- Transaction record is created
+- Returns 402 if insufficient credits
+- Supports concurrent deductions safely
+
+#### FR-AUTH-06: OAuth with Verification Codes
+**Priority**: High
+**Description**: Support OAuth flow with verification codes for Custom GPT integration
+
+**Requirements**:
+- Accept session parameter in OAuth initiation URL
+- Generate verification code on successful authentication
+- Display verification code on success page
+- Map verification code to user session
+- Support "return_to" parameter for different integration types
+- Maintain backward compatibility with traditional OAuth flow
+
+**Flow**:
+1. Third-party service generates unique session ID
+2. User is redirected to /auth/google?session={id}&return_to=chatgpt
+3. User authenticates with Google
+4. System generates verification code (VERIFIED-{random})
+5. Success page displays verification code with copy button
+6. User copies code and provides to third-party service
+7. Third-party service uses code as session token
+
+**Acceptance Criteria**:
+- Verification codes are unique and secure
+- Success page is user-friendly with Thai language
+- Copy button works on all major browsers
+- Session mapping is created correctly
+- Traditional OAuth flow still works
 
 #### 4.2 Custom GPT Integration
 
@@ -355,6 +455,25 @@ Content-Security-Policy: default-src 'self'
 - Rate limiting per IP and per user
 - DDoS protection (Cloudflare/AWS WAF)
 - IP whitelisting for admin endpoints
+
+#### NFR-SEC-04: Session Security
+**Priority**: High
+**Requirements**:
+- Session tokens must be cryptographically random (minimum 128-bit entropy)
+- Sessions must expire after configurable period (default: 7 days)
+- Session storage must be secure (Redis with authentication)
+- Session verification must validate expiration
+- Support session revocation for security incidents
+- Log all session creation and verification events
+
+#### NFR-SEC-05: Credit Transaction Integrity
+**Priority**: Critical
+**Requirements**:
+- Credit deductions must be atomic
+- Prevent double-spending through database transactions
+- Create audit trail for all credit operations
+- Support transaction rollback on failure
+- Log all credit operations with user ID and metadata
 
 #### 5.3 Reliability
 
@@ -677,6 +796,44 @@ Enterprise: Custom pricing
   - Token usage breakdown
   - Cost analysis
   - Exportable reports (CSV)
+
+#### Epic 4: Third-Party AI Service Integration
+
+**US-9: Sora2 Video Generator Integration**
+
+- **As a** user of Custom GPT
+- **I want to** authenticate with Smart AI Hub to use Sora2 Video Generator
+- **So that** I can generate videos using my centralized credit account
+- **Acceptance Criteria**:
+  - OAuth authentication with Google account
+  - Verification code generation for session-based access
+  - Credit balance checking before video generation
+  - Automatic credit deduction after video generation
+  - Transaction logging for audit purposes
+
+**US-10: Session-Based Authentication for External Services**
+
+- **As a** third-party AI service provider
+- **I want to** integrate with Smart AI Hub authentication
+- **So that** my users can authenticate without managing separate credentials
+- **Acceptance Criteria**:
+  - Session token generation (VERIFIED-{code} format)
+  - Session verification API endpoint
+  - 7-day session expiration
+  - Redis-based session storage
+  - Session revocation capability
+
+**US-11: Credit Management APIs for External Services**
+
+- **As a** third-party AI service provider
+- **I want to** check and deduct user credits via API
+- **So that** I can charge for service usage through Smart AI Hub
+- **Acceptance Criteria**:
+  - Credit check API with user ID and service cost
+  - Credit deduction API with transaction metadata
+  - Atomic transactions to prevent race conditions
+  - Insufficient credit handling
+  - Transaction record creation for audit trail
 
 ---
 

@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { authenticateJWT } from '../middlewares/auth.middleware';
-import { requirePermission, requireRoles } from '@smart-ai-hub/shared';
+import { authenticateJWT, requirePermission, requireRoles } from '@smart-ai-hub/shared';
 import {
   assignRoleToUser,
   removeRoleFromUser,

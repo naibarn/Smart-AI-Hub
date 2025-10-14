@@ -124,6 +124,47 @@ const isTokenBlacklisted = async (jti) => {
 };
 
 /**
+ * Store session data in Redis
+ * @param {string} sessionToken - Session token (VERIFIED-{code})
+ * @param {object} sessionData - Session data
+ * @param {number} expiresIn - Expiration time in seconds (7 days = 604800 seconds)
+ */
+const storeSession = async (sessionToken, sessionData, expiresIn = 604800) => {
+  const key = `session:${sessionToken}`;
+  await redisClient.setEx(key, expiresIn, JSON.stringify(sessionData));
+};
+
+/**
+ * Get session data from Redis
+ * @param {string} sessionToken - Session token
+ * @returns {object|null} Session data or null if not found
+ */
+const getSession = async (sessionToken) => {
+  const key = `session:${sessionToken}`;
+  const sessionData = await redisClient.get(key);
+  return sessionData ? JSON.parse(sessionData) : null;
+};
+
+/**
+ * Remove session from Redis
+ * @param {string} sessionToken - Session token
+ */
+const removeSession = async (sessionToken) => {
+  const key = `session:${sessionToken}`;
+  await redisClient.del(key);
+};
+
+/**
+ * Generate verification code
+ * @returns {string} Verification code in format VERIFIED-{random_string}
+ */
+const generateVerificationCode = () => {
+  const randomString = Math.random().toString(36).substring(2, 15) +
+                      Math.random().toString(36).substring(2, 15);
+  return `VERIFIED-${randomString}`;
+};
+
+/**
  * Disconnect Redis client
  */
 const disconnectRedis = async () => {
@@ -140,5 +181,9 @@ module.exports = {
   isTokenBlacklisted,
   logFailedLogin,
   getFailedLoginAttempts,
+  storeSession,
+  getSession,
+  removeSession,
+  generateVerificationCode,
   disconnectRedis
 };

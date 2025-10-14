@@ -1,5 +1,5 @@
 {
-  "name": "@shared/redis-client",
+  "name": "@smart-ai-hub/shared",
   "version": "1.0.0",
   "description": "Shared TypeScript utilities and types for Smart AI Hub",
   "main": "dist/index.js",
