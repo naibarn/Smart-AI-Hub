@@ -1,3 +1,8 @@
+---
+title: "prd"
+author: "Development Team"
+version: "1.0.0"
+---
 # Product Requirements Document (PRD)
 
 ## Smart AI Hub - Custom GPT Authorization & Multi-Service Platform

@@ -1,3 +1,8 @@
+---
+title: "backlog"
+author: "Development Team"
+version: "1.0.0"
+---
 # Product Backlog
 
 ## Smart AI Hub - Development Tasks

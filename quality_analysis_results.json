@@ -1,0 +1,111 @@
+{
+  "summary": {
+    "totalFiles": 66,
+    "totalFailed": 66,
+    "passRate": "0.00"
+  },
+  "groups": {
+    "Functional Requirements": {
+      "totalFiles": 20,
+      "failed": 20,
+      "passRate": "0.00",
+      "avgScore": "82.70",
+      "errorTypes": 2,
+      "commonErrors": [
+        {
+          "error": "pattern_mismatch: Content must be at least 10 characters long",
+          "count": 20
+        },
+        {
+          "error": "pattern_mismatch: Version must follow semantic versioning (x.y.z)",
+          "count": 9
+        }
+      ]
+    },
+    "Data Models": {
+      "totalFiles": 8,
+      "failed": 8,
+      "passRate": "0.00",
+      "avgScore": "86.50",
+      "errorTypes": 1,
+      "commonErrors": [
+        {
+          "error": "pattern_mismatch: Content must be at least 10 characters long",
+          "count": 8
+        }
+      ]
+    },
+    "Frontend Specs": {
+      "totalFiles": 0,
+      "failed": 0,
+      "passRate": "N/A",
+      "avgScore": "N/A",
+      "errorTypes": 0,
+      "commonErrors": []
+    },
+    "Documentation": {
+      "totalFiles": 38,
+      "failed": 38,
+      "passRate": "0.00",
+      "avgScore": "86.74",
+      "errorTypes": 2,
+      "commonErrors": [
+        {
+          "error": "pattern_mismatch: Content must be at least 10 characters long",
+          "count": 38
+        },
+        {
+          "error": "pattern_mismatch: Version must follow semantic versioning (x.y.z)",
+          "count": 6
+        }
+      ]
+    }
+  },
+  "topErrors": [
+    {
+      "error": "pattern_mismatch: Content must be at least 10 characters long",
+      "count": 66,
+      "examples": [
+        "fr_1",
+        "fr_2",
+        "fr_3"
+      ]
+    },
+    {
+      "error": "WARNING: incomplete_content: Specification missing author information",
+      "count": 44,
+      "examples": [
+        "fr_1",
+        "fr_2",
+        "fr_3"
+      ]
+    },
+    {
+      "error": "pattern_mismatch: Version must follow semantic versioning (x.y.z)",
+      "count": 15,
+      "examples": [
+        "credit_account",
+        "fr_1",
+        "fr_2"
+      ]
+    },
+    {
+      "error": "WARNING: incomplete_content: Functional requirement should use clear language (shall, must, should, will)",
+      "count": 10,
+      "examples": [
+        "fr_1",
+        "fr_2",
+        "fr_3"
+      ]
+    },
+    {
+      "error": "WARNING: unclear_requirement: Functional requirement should use clear language (shall, must, should, will)",
+      "count": 10,
+      "examples": [
+        "fr_1",
+        "fr_2",
+        "fr_3"
+      ]
+    }
+  ]
+}

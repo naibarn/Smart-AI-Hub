@@ -1,3 +1,8 @@
+---
+title: "branch-protection"
+author: "Development Team"
+version: "1.0.0"
+---
 # Branch Protection Rules Setup
 
 This document provides recommendations for setting up branch protection rules in your GitHub repository to ensure code quality and security.

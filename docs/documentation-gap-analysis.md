@@ -1,3 +1,8 @@
+---
+title: "documentation-gap-analysis"
+author: "Development Team"
+version: "1.0.0"
+---
 # Documentation Gap Analysis - Sora2 Integration
 
 ## Executive Summary

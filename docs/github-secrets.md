@@ -1,3 +1,8 @@
+---
+title: "github-secrets"
+author: "Development Team"
+version: "1.0.0"
+---
 # GitHub Repository Secrets Setup
 
 This document explains how to set up the required secrets in your GitHub repository for the CI/CD pipeline to work properly.

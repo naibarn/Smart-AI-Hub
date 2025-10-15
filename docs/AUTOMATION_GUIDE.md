@@ -1,3 +1,8 @@
+---
+title: "AUTOMATION_GUIDE"
+author: "Development Team"
+version: "1.0.0"
+---
 # Smart AI Hub Automation Guide
 
 [![License](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)

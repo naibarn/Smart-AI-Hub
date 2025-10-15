@@ -1,3 +1,8 @@
+---
+title: "architecture"
+author: "Development Team"
+version: "1.0.0"
+---
 # Smart AI Hub Architecture
 
 ## Document Information

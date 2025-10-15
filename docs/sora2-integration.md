@@ -1,3 +1,8 @@
+---
+title: "sora2-integration"
+author: "Development Team"
+version: "1.0.0"
+---
 # Sora2 Integration Documentation
 
 This document provides comprehensive information about the Sora2 Video Generator integration endpoints implemented in the Smart AI Hub.
