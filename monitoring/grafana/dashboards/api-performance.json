@@ -1,0 +1,631 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 1,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(auth_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Auth Service",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(core_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Core Service",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(mcp_server_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "MCP Server",
+          "refId": "C"
+        },
+        {
+          "expr": "rate(webhook_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Webhook Service",
+          "refId": "D"
+        },
+        {
+          "expr": "rate(notification_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Notification Service",
+          "refId": "E"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Request Rate (req/sec)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "reqps",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(auth_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Auth Service P50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(auth_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Auth Service P95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(core_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Core Service P50",
+          "refId": "C"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(core_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Core Service P95",
+          "refId": "D"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(notification_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Notification Service P50",
+          "refId": "E"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(notification_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Notification Service P95",
+          "refId": "F"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Response Time (seconds)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "s",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "hiddenSeries": false,
+      "id": 3,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(auth_service_http_requests_total{status_code=~\"4..\"}[5m]) / rate(auth_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Auth Service 4xx",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(auth_service_http_requests_total{status_code=~\"5..\"}[5m]) / rate(auth_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Auth Service 5xx",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(core_service_http_requests_total{status_code=~\"4..\"}[5m]) / rate(core_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Core Service 4xx",
+          "refId": "C"
+        },
+        {
+          "expr": "rate(core_service_http_requests_total{status_code=~\"5..\"}[5m]) / rate(core_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Core Service 5xx",
+          "refId": "D"
+        },
+        {
+          "expr": "rate(notification_service_http_requests_total{status_code=~\"4..\"}[5m]) / rate(notification_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Notification Service 4xx",
+          "refId": "E"
+        },
+        {
+          "expr": "rate(notification_service_http_requests_total{status_code=~\"5..\"}[5m]) / rate(notification_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Notification Service 5xx",
+          "refId": "F"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Error Rate (%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percentunit",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "hiddenSeries": false,
+      "id": 4,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "auth_service_active_connections",
+          "interval": "",
+          "legendFormat": "Auth Service",
+          "refId": "A"
+        },
+        {
+          "expr": "core_service_active_connections",
+          "interval": "",
+          "legendFormat": "Core Service",
+          "refId": "B"
+        },
+        {
+          "expr": "mcp_server_active_connections",
+          "interval": "",
+          "legendFormat": "MCP Server",
+          "refId": "C"
+        },
+        {
+          "expr": "webhook_service_active_connections",
+          "interval": "",
+          "legendFormat": "Webhook Service",
+          "refId": "D"
+        },
+        {
+          "expr": "notification_service_active_connections",
+          "interval": "",
+          "legendFormat": "Notification Service",
+          "refId": "E"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Active Connections",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        }
+      },
+      "pluginVersion": "7.5.7",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(auth_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Auth Service",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(core_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Core Service",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(mcp_server_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "MCP Server",
+          "refId": "C"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(webhook_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Webhook Service",
+          "refId": "D"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(notification_service_http_request_duration_seconds_bucket[5m]))",
+          "interval": "",
+          "legendFormat": "Notification Service",
+          "refId": "E"
+        }
+      ],
+      "title": "95th Percentile Response Time",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        }
+      },
+      "pluginVersion": "7.5.7",
+      "targets": [
+        {
+          "expr": "rate(auth_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Auth Service",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(core_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Core Service",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(mcp_server_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "MCP Server",
+          "refId": "C"
+        },
+        {
+          "expr": "rate(webhook_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Webhook Service",
+          "refId": "D"
+        },
+        {
+          "expr": "rate(notification_service_http_requests_total[5m])",
+          "interval": "",
+          "legendFormat": "Notification Service",
+          "refId": "E"
+        }
+      ],
+      "title": "Request Rate",
+      "type": "stat"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [
+    "smart-ai-hub",
+    "api",
+    "performance"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Smart AI Hub - API Performance",
+  "uid": "api-performance",
+  "version": 1
+}

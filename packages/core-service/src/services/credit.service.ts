@@ -167,7 +167,7 @@ export const redeemPromo = async (userId: string, code: string): Promise<number>
           where: { userId },
           data: { balance: (creditAccount.balance || 0) + promoCode.credits },
         });
-        
+
         // Refresh the account to get updated values
         creditAccount = await tx.creditAccount.findUnique({
           where: { userId },
@@ -242,7 +242,7 @@ export const adjustCredits = async (
           where: { userId },
           data: { balance: (creditAccount.balance || 0) + amount },
         });
-        
+
         // Refresh the account to get updated values
         creditAccount = await tx.creditAccount.findUnique({
           where: { userId },
@@ -333,7 +333,7 @@ export const deductCredits = async (
         where: { userId },
         data: { balance: (creditAccount.balance || 0) - cost },
       });
-      
+
       // Refresh the account to get updated values
       const updatedAccount = await tx.creditAccount.findUnique({
         where: { userId },
@@ -352,7 +352,7 @@ export const deductCredits = async (
       });
 
       // Record usage for analytics
-      recordUsage(userId, service, undefined, undefined, cost, metadata).catch(error => {
+      recordUsage(userId, service, undefined, undefined, cost, metadata).catch((error) => {
         console.error('Error recording usage:', error);
       });
 

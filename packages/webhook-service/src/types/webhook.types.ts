@@ -31,7 +31,7 @@ export enum WebhookStatus {
   PENDING = 'pending',
   DELIVERED = 'delivered',
   FAILED = 'failed',
-  RETRYING = 'retrying'
+  RETRYING = 'retrying',
 }
 
 export interface CreateWebhookRequest {
@@ -103,10 +103,10 @@ export const WEBHOOK_EVENT_TYPES: WebhookEventTypes = {
   CREDIT_DEPLETED: 'credit.depleted',
   CREDIT_LOW: 'credit.low',
   SERVICE_COMPLETED: 'service.completed',
-  SERVICE_FAILED: 'service.failed'
+  SERVICE_FAILED: 'service.failed',
 } as const;
 
-export type WebhookEventType = typeof WEBHOOK_EVENT_TYPES[keyof typeof WEBHOOK_EVENT_TYPES];
+export type WebhookEventType = (typeof WEBHOOK_EVENT_TYPES)[keyof typeof WEBHOOK_EVENT_TYPES];
 
 export interface WebhookQueueJob {
   id: string;

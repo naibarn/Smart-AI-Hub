@@ -76,12 +76,22 @@ export const webhookService = {
   },
 
   // Test a webhook
-  async testWebhook(id: string, data: TestWebhookData): Promise<{ success: boolean; message: string }> {
-    return apiService.post<{ success: boolean; message: string }>(`/api/v1/webhooks/${id}/test`, data);
+  async testWebhook(
+    id: string,
+    data: TestWebhookData
+  ): Promise<{ success: boolean; message: string }> {
+    return apiService.post<{ success: boolean; message: string }>(
+      `/api/v1/webhooks/${id}/test`,
+      data
+    );
   },
 
   // Get webhook delivery logs
-  async getWebhookLogs(id: string, page = 1, limit = 20): Promise<{
+  async getWebhookLogs(
+    id: string,
+    page = 1,
+    limit = 20
+  ): Promise<{
     logs: WebhookLog[];
     total: number;
     page: number;
@@ -154,22 +164,22 @@ export const EVENT_TYPE_DESCRIPTIONS: Record<string, string> = {
 export const validateWebhookUrl = (url: string): { isValid: boolean; error?: string } => {
   try {
     const urlObj = new URL(url);
-    
+
     // Must be HTTPS in production
     if (import.meta.env.PROD && urlObj.protocol !== 'https:') {
       return { isValid: false, error: 'Webhook URL must use HTTPS in production' };
     }
-    
+
     // Check for valid protocols
     if (!['http:', 'https:'].includes(urlObj.protocol)) {
       return { isValid: false, error: 'Webhook URL must use HTTP or HTTPS protocol' };
     }
-    
+
     // Check for localhost in production
     if (import.meta.env.PROD && ['localhost', '127.0.0.1'].includes(urlObj.hostname)) {
       return { isValid: false, error: 'Localhost URLs are not allowed in production' };
     }
-    
+
     return { isValid: true };
   } catch (error) {
     return { isValid: false, error: 'Invalid URL format' };

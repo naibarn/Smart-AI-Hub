@@ -8,6 +8,30 @@
     <meta name="keywords" content="AI, Machine Learning, API, Credits, Dashboard" />
     <meta name="author" content="Smart AI Hub" />
     
+    <!-- Security Meta Tags -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-DNS-Prefetch-Control" content="off" />
+    <meta http-equiv="X-Download-Options" content="noopen" />
+    <meta name="robots" content="noindex, nofollow" />
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'nonce-${CSP_NONCE}';
+      style-src 'self' 'nonce-${CSP_NONCE}' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https:;
+      connect-src 'self' https://api.smarthub.ai;
+      frame-ancestors 'none';
+      form-action 'self';
+      base-uri 'self';
+      block-all-mixed-content;
+      upgrade-insecure-requests;
+    " />
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://smarthub.ai/" />

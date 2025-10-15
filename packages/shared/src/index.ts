@@ -4,3 +4,6 @@ export * from './middlewares/rbac.middleware';
 export * from './utils/validators';
 export * from './utils/errors';
 export * from './types/payment';
+export * from '../monitoring';
+export * from '../logger';
+export * from '../security/headers';

@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { createLogger, createRequestLoggingMiddleware, createErrorLoggingMiddleware } from '@smart-ai-hub/shared-logger';
+import { initializeMetrics, createMetricsMiddleware, createMetricsEndpoint, createHealthCheckEndpoint } from '@smart-ai-hub/shared';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
@@ -12,9 +13,25 @@ const logger = createLogger({
   logDir: process.env.LOG_DIR || '/var/log/auth-service'
 });
 
+// Initialize monitoring
+const metrics = initializeMetrics({
+  serviceName: 'auth-service',
+  version: '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  port: typeof PORT === 'string' ? parseInt(PORT, 10) : PORT,
+  defaultLabels: {
+    service: 'auth-service',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  }
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Add monitoring middleware
+app.use(createMetricsMiddleware(metrics));
 
 // Add request logging middleware
 app.use(createRequestLoggingMiddleware(logger));
@@ -22,15 +39,11 @@ app.use(createRequestLoggingMiddleware(logger));
 // Add error logging middleware
 app.use(createErrorLoggingMiddleware(logger));
 
-// Health check
-app.get('/health', (req: Request, res: Response) => {
-  logger.info('Health check accessed', {
-    ip: req.ip,
-    userAgent: req.headers['user-agent'],
-    requestId: req.headers['x-request-id']
-  });
-  res.json({ status: 'OK' });
-});
+// Health check endpoint
+app.get('/health', createHealthCheckEndpoint(metrics));
+
+// Metrics endpoint
+app.get('/metrics', createMetricsEndpoint(metrics));
 
 // Placeholder auth routes
 app.post('/register', (req: Request, res: Response) => {

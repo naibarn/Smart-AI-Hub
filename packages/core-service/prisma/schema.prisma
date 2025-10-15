@@ -181,3 +181,28 @@ model UsageLog {
   @@index([model, createdAt])
   @@map("usage_logs")
 }
+
+model PerformanceBaseline {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  service       String   @db.VarChar(50)
+  route         String   @db.VarChar(255)
+  method        String   @db.VarChar(10)
+  date          DateTime @db.Date
+  p50           Float    @map("p50")
+  p90           Float    @map("p90")
+  p95           Float    @map("p95")
+  p99           Float    @map("p99")
+  avg           Float    @map("avg")
+  count         Int      @map("count")
+  slaTier       String   @map("sla_tier") @db.VarChar(20)
+  slaThreshold  Int      @map("sla_threshold")
+  slaCompliance Float    @map("sla_compliance")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([service, route, method, date], map: "service_route_method_date")
+  @@index([service, date])
+  @@index([slaTier, date])
+  @@index([date])
+  @@map("performance_baselines")
+}

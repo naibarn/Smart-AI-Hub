@@ -7,7 +7,7 @@ import {
   WebhookStatus,
   WebhookDeliveryPayload,
   WebhookDeliveryResult,
-  WebhookQueueJob
+  WebhookQueueJob,
 } from '../types/webhook.types';
 import { addSignatureHeaders } from '../utils/signature';
 import { addWebhookJob } from '../config/queue';
@@ -18,7 +18,7 @@ export class WebhookDeliveryService {
    */
   async processWebhookDelivery(job: WebhookQueueJob): Promise<WebhookDeliveryResult> {
     const { webhookId, payload, attempt, maxAttempts } = job;
-    
+
     try {
       // Get webhook details
       const webhook = await prisma.webhookEndpoint.findUnique({
@@ -35,13 +35,13 @@ export class WebhookDeliveryService {
 
       // Get or create log entry
       let log = await this.getOrCreateLog(webhookId, payload, attempt, maxAttempts);
-      
+
       // Attempt delivery
       const result = await this.deliverWebhook(webhook, payload);
-      
+
       // Update log with result
       await this.updateLogAfterDelivery(log.id, result, attempt, maxAttempts);
-      
+
       logger.info(`Webhook delivery processed: ${webhookId}`, {
         eventType: payload.eventType,
         attempt,
@@ -69,7 +69,7 @@ export class WebhookDeliveryService {
    * Deliver webhook to endpoint
    */
   private async deliverWebhook(
-    webhook: WebhookEndpoint, 
+    webhook: WebhookEndpoint,
     payload: WebhookDeliveryPayload
   ): Promise<WebhookDeliveryResult> {
     try {
@@ -85,13 +85,11 @@ export class WebhookDeliveryService {
       });
 
       const success = response.status >= 200 && response.status < 300;
-      
+
       return {
         success,
         statusCode: response.status,
-        response: typeof response.data === 'string' 
-          ? response.data 
-          : JSON.stringify(response.data),
+        response: typeof response.data === 'string' ? response.data : JSON.stringify(response.data),
         attempt: 1,
       };
     } catch (error) {
@@ -144,9 +142,10 @@ export class WebhookDeliveryService {
           status: WebhookStatus.PENDING,
           attempt,
           maxAttempts,
-          nextRetryAt: attempt < maxAttempts 
-            ? new Date(Date.now() + this.calculateRetryDelay(attempt))
-            : undefined,
+          nextRetryAt:
+            attempt < maxAttempts
+              ? new Date(Date.now() + this.calculateRetryDelay(attempt))
+              : undefined,
         },
       });
     } else {
@@ -156,9 +155,10 @@ export class WebhookDeliveryService {
         data: {
           attempt,
           status: attempt >= maxAttempts ? WebhookStatus.FAILED : WebhookStatus.RETRYING,
-          nextRetryAt: attempt < maxAttempts 
-            ? new Date(Date.now() + this.calculateRetryDelay(attempt))
-            : undefined,
+          nextRetryAt:
+            attempt < maxAttempts
+              ? new Date(Date.now() + this.calculateRetryDelay(attempt))
+              : undefined,
         },
       });
     }
@@ -205,7 +205,7 @@ export class WebhookDeliveryService {
   private calculateRetryDelay(attempt: number): number {
     const baseDelay = 5000; // 5 seconds
     const maxDelay = 300000; // 5 minutes
-    
+
     const delay = baseDelay * Math.pow(2, attempt - 1);
     return Math.min(delay, maxDelay);
   }
@@ -234,15 +234,10 @@ export class WebhookDeliveryService {
         if (log.webhook && log.webhook.isActive) {
           try {
             // Re-queue the webhook delivery
-            await addWebhookJob(
-              log.webhookId,
-              log.eventType,
-              log.payload,
-              {
-                attempts: log.maxAttempts - log.attempt + 1,
-                delay: 0,
-              }
-            );
+            await addWebhookJob(log.webhookId, log.eventType, log.payload, {
+              attempts: log.maxAttempts - log.attempt + 1,
+              delay: 0,
+            });
 
             // Update log status
             await prisma.webhookLog.update({

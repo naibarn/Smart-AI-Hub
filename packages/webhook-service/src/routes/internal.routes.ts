@@ -12,16 +12,13 @@ router.use(internalRateLimiter);
 
 // Validation schema for webhook trigger
 const triggerWebhookSchema = Joi.object({
-  eventType: Joi.string().valid(
-    'user.created',
-    'credit.depleted',
-    'credit.low',
-    'service.completed',
-    'service.failed'
-  ).required().messages({
-    'any.only': 'Invalid event type',
-    'any.required': 'Event type is required',
-  }),
+  eventType: Joi.string()
+    .valid('user.created', 'credit.depleted', 'credit.low', 'service.completed', 'service.failed')
+    .required()
+    .messages({
+      'any.only': 'Invalid event type',
+      'any.required': 'Event type is required',
+    }),
   userId: Joi.string().uuid().required().messages({
     'string.uuid': 'User ID must be a valid UUID',
     'any.required': 'User ID is required',

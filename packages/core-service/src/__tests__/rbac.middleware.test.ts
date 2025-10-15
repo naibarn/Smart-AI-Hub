@@ -24,7 +24,7 @@ describe('RBAC Middleware', () => {
     };
     nextFunction = jest.fn();
     jest.clearAllMocks();
-    
+
     // Mock the permission service
     mockHasPermission = permissionService.hasPermission as jest.MockedFunction<any>;
   });

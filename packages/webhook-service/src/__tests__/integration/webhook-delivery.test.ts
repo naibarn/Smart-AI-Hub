@@ -66,7 +66,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
 
       const scope = nock('https://example.com')
         .post('/webhook')
-        .reply(200, function(uri, requestBody) {
+        .reply(200, function (uri, requestBody) {
           receivedPayload = JSON.parse(requestBody as string);
           receivedSignature = this.req.headers['x-webhook-signature'] as string;
           return { success: true };
@@ -93,10 +93,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
       expect(receivedPayload.metadata).toHaveProperty('webhookId', 'webhook_123');
 
       // Verify signature
-      const expectedSignature = generateSignature(
-        JSON.stringify(receivedPayload),
-        webhookSecret
-      );
+      const expectedSignature = generateSignature(JSON.stringify(receivedPayload), webhookSecret);
       expect(receivedSignature).toBe(expectedSignature);
 
       expect(scope.isDone()).toBe(true);
@@ -168,9 +165,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
     });
 
     it('should handle connection refused errors', async () => {
-      const scope = nock('https://example.com')
-        .post('/webhook')
-        .replyWithError('ECONNREFUSED');
+      const scope = nock('https://example.com').post('/webhook').replyWithError('ECONNREFUSED');
 
       const jobData = {
         webhookId: 'webhook_123',
@@ -198,9 +193,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
         .reply(500, { error: 'Internal server error' });
 
       // Second attempt succeeds
-      const scope2 = nock('https://example.com')
-        .post('/webhook')
-        .reply(200, { success: true });
+      const scope2 = nock('https://example.com').post('/webhook').reply(200, { success: true });
 
       // First attempt
       const jobData1 = {
@@ -265,9 +258,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
 
   describe('Webhook Logging', () => {
     it('should log successful delivery', async () => {
-      const scope = nock('https://example.com')
-        .post('/webhook')
-        .reply(200, { success: true });
+      const scope = nock('https://example.com').post('/webhook').reply(200, { success: true });
 
       const jobData = {
         webhookId: 'webhook_123',
@@ -349,7 +340,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
 
       const scope = nock('https://example.com')
         .post('/webhook')
-        .reply(200, function(uri, requestBody) {
+        .reply(200, function (uri, requestBody) {
           receivedHeaders = this.req.headers;
           return { success: true };
         });
@@ -379,7 +370,7 @@ describe('WebhookDeliveryService Integration Tests', () => {
 
       const scope = nock('https://example.com')
         .post('/webhook')
-        .reply(200, function(uri, requestBody) {
+        .reply(200, function (uri, requestBody) {
           receivedHeaders = this.req.headers;
           return { success: true };
         });

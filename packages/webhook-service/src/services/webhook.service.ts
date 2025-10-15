@@ -13,7 +13,7 @@ import {
   WebhookDeliveryResult,
   WebhookStats,
   WEBHOOK_EVENT_TYPES,
-  WebhookEventType
+  WebhookEventType,
 } from '../types/webhook.types';
 import { createWebhookSecret, addSignatureHeaders } from '../utils/signature';
 import { addWebhookJob } from '../config/queue';
@@ -22,14 +22,11 @@ export class WebhookService {
   /**
    * Create a new webhook endpoint
    */
-  async createWebhook(
-    userId: string, 
-    data: CreateWebhookRequest
-  ): Promise<WebhookEndpoint> {
+  async createWebhook(userId: string, data: CreateWebhookRequest): Promise<WebhookEndpoint> {
     try {
       // Validate URL
       this.validateWebhookUrl(data.url);
-      
+
       // Validate events
       this.validateEvents(data.events);
 
@@ -79,13 +76,10 @@ export class WebhookService {
   /**
    * Get webhook by ID
    */
-  async getWebhookById(
-    userId: string, 
-    webhookId: string
-  ): Promise<WebhookEndpoint | null> {
+  async getWebhookById(userId: string, webhookId: string): Promise<WebhookEndpoint | null> {
     try {
       const webhook = await prisma.webhookEndpoint.findFirst({
-        where: { 
+        where: {
           id: webhookId,
           userId,
         },
@@ -102,8 +96,8 @@ export class WebhookService {
    * Update webhook endpoint
    */
   async updateWebhook(
-    userId: string, 
-    webhookId: string, 
+    userId: string,
+    webhookId: string,
     data: UpdateWebhookRequest
   ): Promise<WebhookEndpoint> {
     try {
@@ -199,8 +193,8 @@ export class WebhookService {
    * Test webhook delivery
    */
   async testWebhook(
-    userId: string, 
-    webhookId: string, 
+    userId: string,
+    webhookId: string,
     data: WebhookTestRequest
   ): Promise<WebhookLog> {
     try {
@@ -236,7 +230,7 @@ export class WebhookService {
 
       // Deliver webhook synchronously for testing
       const result = await this.deliverWebhook(webhook, payload);
-      
+
       // Update log with result
       await prisma.webhookLog.update({
         where: { id: log.id },
@@ -266,9 +260,9 @@ export class WebhookService {
    * Get webhook logs
    */
   async getWebhookLogs(
-    userId: string, 
-    webhookId: string, 
-    limit: number = 50, 
+    userId: string,
+    webhookId: string,
+    limit: number = 50,
     offset: number = 0
   ): Promise<{ logs: WebhookLog[]; total: number }> {
     try {
@@ -410,7 +404,7 @@ export class WebhookService {
    * Queue webhook delivery
    */
   private async queueWebhookDelivery(
-    webhook: WebhookEndpoint, 
+    webhook: WebhookEndpoint,
     payload: WebhookDeliveryPayload
   ): Promise<void> {
     try {
@@ -450,7 +444,7 @@ export class WebhookService {
    * Deliver webhook synchronously
    */
   private async deliverWebhook(
-    webhook: WebhookEndpoint, 
+    webhook: WebhookEndpoint,
     payload: WebhookDeliveryPayload
   ): Promise<WebhookDeliveryResult> {
     try {
@@ -485,16 +479,18 @@ export class WebhookService {
   private validateWebhookUrl(url: string): void {
     try {
       const urlObj = new URL(url);
-      
+
       if (urlObj.protocol !== 'https:') {
         throw new Error('Webhook URL must use HTTPS');
       }
-      
+
       if (!urlObj.hostname) {
         throw new Error('Invalid webhook URL');
       }
     } catch (error) {
-      throw new Error(`Invalid webhook URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Invalid webhook URL: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -503,7 +499,7 @@ export class WebhookService {
    */
   private validateEvents(events: string[]): void {
     const validEvents = Object.values(WEBHOOK_EVENT_TYPES);
-    
+
     for (const event of events) {
       if (!validEvents.includes(event as WebhookEventType)) {
         throw new Error(`Invalid event type: ${event}`);

@@ -28,29 +28,33 @@ scrape_configs:
       - targets: ['cadvisor:8080']
 
   # Smart AI Hub Services
-  - job_name: 'api-gateway'
-    static_configs:
-      - targets: ['api-gateway:3000']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
-
   - job_name: 'auth-service'
     static_configs:
       - targets: ['auth-service:3001']
     metrics_path: '/metrics'
     scrape_interval: 30s
+    scrape_timeout: 10s
 
   - job_name: 'core-service'
     static_configs:
       - targets: ['core-service:3002']
     metrics_path: '/metrics'
     scrape_interval: 30s
+    scrape_timeout: 10s
 
   - job_name: 'mcp-server'
     static_configs:
       - targets: ['mcp-server:3003']
     metrics_path: '/metrics'
     scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'webhook-service'
+    static_configs:
+      - targets: ['webhook-service:3005']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
 
   # PostgreSQL Exporter
   - job_name: 'postgres-exporter'
@@ -69,3 +73,11 @@ scrape_configs:
     static_configs:
       - targets: ['nginx-exporter:9113']
     scrape_interval: 30s
+
+  # Notification Service
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3006']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s

@@ -33,12 +33,7 @@ export const getBalance = async (
     const cachedBalance = await RedisService.get(cacheKey);
     if (cachedBalance) {
       const balanceData = JSON.parse(cachedBalance);
-      successResponse(
-        balanceData,
-        res,
-        200,
-        req.requestId
-      );
+      successResponse(balanceData, res, 200, req.requestId);
       return;
       return;
     }
@@ -49,12 +44,7 @@ export const getBalance = async (
     // Cache the result for 60 seconds
     await RedisService.set(cacheKey, JSON.stringify(balance), 60);
 
-    successResponse(
-      balance,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(balance, res, 200, req.requestId);
     return;
   } catch (error) {
     next(error);
@@ -103,7 +93,7 @@ export const getHistory = async (
         page,
         per_page: limit,
         total: history.total,
-        total_pages: Math.ceil(history.total / limit)
+        total_pages: Math.ceil(history.total / limit),
       },
       res,
       200,
@@ -156,11 +146,13 @@ export const redeemPromoCode = async (
 
     // Get updated balance for webhook
     const newBalance = await creditService.getBalance(userId);
-    
+
     // Trigger webhook for promo redemption
-    webhookService.triggerCreditPromoRedeemed(userId, code.trim(), result, newBalance).catch(error => {
-      console.error('Failed to trigger credit.promo_redeemed webhook:', error);
-    });
+    webhookService
+      .triggerCreditPromoRedeemed(userId, code.trim(), result, newBalance)
+      .catch((error) => {
+        console.error('Failed to trigger credit.promo_redeemed webhook:', error);
+      });
 
     successResponse(
       {
@@ -220,13 +212,15 @@ export const adjustCredits = async (
     // Trigger appropriate webhooks based on adjustment
     if (amount > 0) {
       // Credit added - trigger purchased webhook
-      webhookService.triggerCreditPurchased(userId, amount, result, {
-        transactionId: `admin_${Date.now()}`,
-        paymentMethod: 'admin_adjustment',
-        paymentId: null,
-      }).catch(error => {
-        console.error('Failed to trigger credit.purchased webhook:', error);
-      });
+      webhookService
+        .triggerCreditPurchased(userId, amount, result, {
+          transactionId: `admin_${Date.now()}`,
+          paymentMethod: 'admin_adjustment',
+          paymentId: null,
+        })
+        .catch((error) => {
+          console.error('Failed to trigger credit.purchased webhook:', error);
+        });
     }
 
     // Check if credit is low or depleted
@@ -332,12 +326,7 @@ export const checkCredits = async (
     // Check credits
     const result = await creditService.checkCredits(userId, service, cost);
 
-    successResponse(
-      result,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(result, res, 200, req.requestId);
     return;
   } catch (error) {
     next(error);
@@ -392,12 +381,7 @@ export const deductCredits = async (
     await webhookService.checkAndTriggerLowCredit(userId, result.new_balance, 10);
     await webhookService.checkAndTriggerCreditDepleted(userId, result.new_balance, transactionData);
 
-    successResponse(
-      result,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(result, res, 200, req.requestId);
     return;
   } catch (error) {
     // Handle specific error for insufficient credits

@@ -30,7 +30,7 @@ export const parsePaginationParams = (query: any): PaginationOptions => {
   // Default values
   const options: PaginationOptions = {
     page: 1,
-    per_page: 20
+    per_page: 20,
   };
 
   // Parse page parameter
@@ -69,7 +69,7 @@ export const calculatePagination = (
     page,
     per_page: perPage,
     total,
-    total_pages: Math.ceil(total / perPage) || 0
+    total_pages: Math.ceil(total / perPage) || 0,
   };
 };
 
@@ -97,7 +97,7 @@ export const createPaginatedResponse = <T>(
 
   return {
     data,
-    pagination: calculatePagination(page, perPage, total)
+    pagination: calculatePagination(page, perPage, total),
   };
 };
 
@@ -112,7 +112,7 @@ export const getPrismaPaginationParams = (options: PaginationOptions) => {
 
   return {
     skip: (page - 1) * perPage,
-    take: perPage
+    take: perPage,
   };
 };
 
@@ -179,6 +179,6 @@ export const getPaginationLinks = (
     first: buildUrl(1),
     prev: page > 1 ? buildUrl(page - 1) : null,
     next: page < totalPages ? buildUrl(page + 1) : null,
-    last: buildUrl(totalPages)
+    last: buildUrl(totalPages),
   };
 };

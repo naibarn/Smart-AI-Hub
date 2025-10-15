@@ -1,165 +1,114 @@
 /**
- * Logger Utility
- * Winston-based structured logging for MCP Server
+ * Simple Logger Implementation for MCP Server
+ * Basic logging without external dependencies
  */
 
-import winston from 'winston';
-import { config } from '../config/config';
+export interface LogContext {
+  timestamp?: string;
+  level: string;
+  service: string;
+  message: string;
+  userId?: string;
+  requestId?: string;
+  duration?: number;
+  [key: string]: any;
+}
 
-// Custom log format
-const logFormat = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.errors({ stack: true }),
-  winston.format.json(),
-  winston.format.printf(({ timestamp, level, message, ...meta }) => {
-    return JSON.stringify({
-      timestamp,
+export class SimpleLogger {
+  private serviceName: string;
+
+  constructor(serviceName: string) {
+    this.serviceName = serviceName;
+  }
+
+  private log(level: string, message: string, meta?: any): void {
+    const logEntry: LogContext = {
+      timestamp: new Date().toISOString(),
       level,
+      service: this.serviceName,
       message,
-      service: 'mcp-server',
       ...meta,
-    });
-  })
-);
+    };
 
-// Create logger instance
-export const logger = winston.createLogger({
-  level: config.LOG_LEVEL,
-  format: logFormat,
-  defaultMeta: {
-    service: 'mcp-server',
-    version: '1.0.0',
-  },
-  transports: [
-    // Console transport for development
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple(),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
-          return `${timestamp} [${level}]: ${message} ${metaStr}`;
-        })
-      ),
-    }),
+    // Format for console output
+    const { timestamp, service, ...rest } = logEntry;
+    const metaString = Object.keys(rest).length > 0 ? ` ${JSON.stringify(rest)}` : '';
+    console.log(`${timestamp} [${level.toUpperCase()}] ${service}: ${message}${metaString}`);
+  }
 
-    // File transport for production
-    ...(config.NODE_ENV === 'production'
-      ? [
-          new winston.transports.File({
-            filename: 'logs/error.log',
-            level: 'error',
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-          }),
-          new winston.transports.File({
-            filename: 'logs/combined.log',
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-          }),
-        ]
-      : []),
-  ],
-});
+  info(message: string, meta?: any): void {
+    this.log('info', message, meta);
+  }
 
-// Create a stream object for Morgan HTTP logging
-export const morganStream = {
-  write: (message: string) => {
-    logger.info(message.trim());
-  },
-};
+  warn(message: string, meta?: any): void {
+    this.log('warn', message, meta);
+  }
 
-// Helper functions for structured logging
-export const logConnection = (
-  userId: string,
-  connectionId: string,
-  event: string,
-  details?: any
-) => {
-  logger.info('WebSocket connection event', {
-    event,
-    userId,
-    connectionId,
-    ...details,
-  });
-};
+  error(message: string, error?: Error | any, meta?: any): void {
+    const errorMeta = error instanceof Error ? {
+      error: error.message,
+      stack: error.stack,
+    } : { error };
+    
+    this.log('error', message, { ...errorMeta, ...meta });
+  }
 
-export const logRequest = (userId: string, requestId: string, request: any) => {
-  logger.info('MCP request received', {
-    userId,
-    requestId,
-    type: request.type,
-    provider: request.provider,
-    model: request.model,
-    stream: request.stream,
-    messageCount: request.messages?.length,
-  });
-};
+  debug(message: string, meta?: any): void {
+    if (process.env.LOG_LEVEL === 'debug') {
+      this.log('debug', message, meta);
+    }
+  }
+}
 
-export const logResponse = (userId: string, requestId: string, response: any, duration: number) => {
-  logger.info('MCP response sent', {
-    userId,
-    requestId,
-    responseType: response.type,
-    duration,
-    usage: response.usage,
-    hasError: !!response.error,
-  });
-};
+export const logger = new SimpleLogger('mcp-server');
 
-export const logCreditCheck = (
+export function logCreditCheck(
   userId: string,
   requestId: string,
   balance: number,
   required: number,
-  approved: boolean
-) => {
-  logger.info('Credit check performed', {
+  hasSufficient: boolean
+): void {
+  logger.info('Credit check', {
     userId,
     requestId,
     balance,
     required,
-    approved,
+    hasSufficient,
+    deficit: hasSufficient ? 0 : required - balance,
   });
-};
-
-export const logError = (error: Error, context?: any) => {
-  logger.error('Error occurred', {
-    error: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    },
-    ...context,
-  });
-};
-
-export const logUsage = (usageLog: any) => {
-  logger.info('Usage logged', {
-    userId: usageLog.userId,
-    requestId: usageLog.requestId,
-    provider: usageLog.provider,
-    model: usageLog.model,
-    creditsUsed: usageLog.creditsUsed,
-    duration: usageLog.duration,
-    success: usageLog.success,
-  });
-};
-
-// Development logger with pretty formatting
-if (config.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.timestamp({ format: 'HH:mm:ss' }),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          const metaStr = Object.keys(meta).length ? `\n${JSON.stringify(meta, null, 2)}` : '';
-          return `${timestamp} [${level}]: ${message}${metaStr}`;
-        })
-      ),
-    })
-  );
 }
 
-export default logger;
+export function logConnection(
+  userId: string,
+  connectionId: string,
+  action: 'connected' | 'disconnected',
+  meta?: any
+): void {
+  logger.info(`WebSocket connection ${action}`, {
+    userId,
+    connectionId,
+    action,
+    ...meta,
+  });
+}
+
+export function logUsage(
+  userId: string,
+  requestId: string,
+  provider: string,
+  model: string,
+  tokens: number,
+  credits: number,
+  duration: number
+): void {
+  logger.info('API usage logged', {
+    userId,
+    requestId,
+    provider,
+    model,
+    tokens,
+    credits,
+    duration,
+  });
+}

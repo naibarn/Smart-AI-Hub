@@ -34,7 +34,7 @@ interface RoleConfiguration {
 
 // Role-based permissions configuration
 const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
-  'superadmin': {
+  superadmin: {
     permissions: ['*'], // All permissions
     rateLimit: {
       requestsPerMinute: 1000,
@@ -44,7 +44,7 @@ const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
     maxTokens: 32768,
     allowedFeatures: ['*'], // All features
   },
-  'admin': {
+  admin: {
     permissions: [
       'ai:chat',
       'ai:image',
@@ -63,14 +63,8 @@ const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
     maxTokens: 16384,
     allowedFeatures: ['chat', 'image', 'video', 'analytics'],
   },
-  'premium': {
-    permissions: [
-      'ai:chat',
-      'ai:image',
-      'credits:view',
-      'credits:use',
-      'analytics:view',
-    ],
+  premium: {
+    permissions: ['ai:chat', 'ai:image', 'credits:view', 'credits:use', 'analytics:view'],
     rateLimit: {
       requestsPerMinute: 200,
       tokensPerMinute: 200000,
@@ -79,12 +73,8 @@ const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
     maxTokens: 8192,
     allowedFeatures: ['chat', 'image'],
   },
-  'pro': {
-    permissions: [
-      'ai:chat',
-      'credits:view',
-      'credits:use',
-    ],
+  pro: {
+    permissions: ['ai:chat', 'credits:view', 'credits:use'],
     rateLimit: {
       requestsPerMinute: 100,
       tokensPerMinute: 100000,
@@ -93,12 +83,8 @@ const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
     maxTokens: 4096,
     allowedFeatures: ['chat'],
   },
-  'user': {
-    permissions: [
-      'ai:chat',
-      'credits:view',
-      'credits:use',
-    ],
+  user: {
+    permissions: ['ai:chat', 'credits:view', 'credits:use'],
     rateLimit: {
       requestsPerMinute: 60,
       tokensPerMinute: 60000,
@@ -107,12 +93,8 @@ const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
     maxTokens: 2048,
     allowedFeatures: ['chat'],
   },
-  'trial': {
-    permissions: [
-      'ai:chat',
-      'credits:view',
-      'credits:use',
-    ],
+  trial: {
+    permissions: ['ai:chat', 'credits:view', 'credits:use'],
     rateLimit: {
       requestsPerMinute: 20,
       tokensPerMinute: 20000,
@@ -129,7 +111,7 @@ const ROLE_PERMISSIONS: Record<string, RoleConfiguration> = {
 export const getRoleConfiguration = (role: string): RoleConfiguration => {
   const defaultConfig = ROLE_PERMISSIONS.trial;
   const roleConfig = ROLE_PERMISSIONS[role] || defaultConfig;
-  
+
   return roleConfig;
 };
 
@@ -138,21 +120,21 @@ export const getRoleConfiguration = (role: string): RoleConfiguration => {
  */
 export const hasPermission = (userRole: string, permission: string): boolean => {
   const config = getRoleConfiguration(userRole);
-  
+
   // Wildcard permission means access to everything
   if (config.permissions.includes('*')) {
     return true;
   }
-  
+
   // Exact match
   if (config.permissions.includes(permission)) {
     return true;
   }
-  
+
   // Check for wildcard sub-permissions (e.g., 'ai:*' matches 'ai:chat')
   const [category] = permission.split(':');
   const wildcardPermission = `${category}:*`;
-  
+
   return config.permissions.includes(wildcardPermission);
 };
 
@@ -161,12 +143,12 @@ export const hasPermission = (userRole: string, permission: string): boolean => 
  */
 export const canAccessModel = (userRole: string, model: string): boolean => {
   const config = getRoleConfiguration(userRole);
-  
+
   // Wildcard means access to all models
   if (config.allowedModels.includes('*')) {
     return true;
   }
-  
+
   return config.allowedModels.includes(model);
 };
 
@@ -175,12 +157,12 @@ export const canAccessModel = (userRole: string, model: string): boolean => {
  */
 export const canUseFeature = (userRole: string, feature: string): boolean => {
   const config = getRoleConfiguration(userRole);
-  
+
   // Wildcard means access to all features
   if (config.allowedFeatures.includes('*')) {
     return true;
   }
-  
+
   return config.allowedFeatures.includes(feature);
 };
 
@@ -216,7 +198,7 @@ export const validateRequest = (
       reason: `Model '${requestModel}' is not available for your role (${user.role})`,
     };
   }
-  
+
   // Check feature access
   if (!canUseFeature(user.role, requestedFeature)) {
     return {
@@ -224,7 +206,7 @@ export const validateRequest = (
       reason: `Feature '${requestedFeature}' is not available for your role (${user.role})`,
     };
   }
-  
+
   // Check token limit
   const maxTokens = getMaxTokens(user.role);
   if (requestedTokens > maxTokens) {
@@ -233,7 +215,7 @@ export const validateRequest = (
       reason: `Requested ${requestedTokens} tokens exceeds maximum allowed (${maxTokens}) for your role (${user.role})`,
     };
   }
-  
+
   return { valid: true };
 };
 
@@ -242,7 +224,7 @@ export const validateRequest = (
  */
 export const createConnectionMetadata = (user: UserInfo): ConnectionMetadata => {
   const config = getRoleConfiguration(user.role);
-  
+
   return {
     user,
     permissions: config.permissions,
@@ -270,7 +252,7 @@ export const authorizeWebSocket = (
     requestedTokens,
     requestedFeature
   );
-  
+
   if (!validation.valid) {
     logger.warn('WebSocket authorization failed', {
       userId: metadata.user.id,
@@ -280,13 +262,13 @@ export const authorizeWebSocket = (
       requestedFeature,
       reason: validation.reason,
     });
-    
+
     return {
       authorized: false,
       reason: validation.reason,
     };
   }
-  
+
   logger.debug('WebSocket authorization successful', {
     userId: metadata.user.id,
     role: metadata.user.role,
@@ -294,7 +276,7 @@ export const authorizeWebSocket = (
     requestedTokens,
     requestedFeature,
   });
-  
+
   return { authorized: true };
 };
 
@@ -306,7 +288,7 @@ export const checkRateLimit = (
   currentUsage: { requests: number; tokens: number }
 ): { allowed: boolean; reason?: string; resetTime?: Date } => {
   const { requestsPerMinute, tokensPerMinute } = metadata.rateLimit;
-  
+
   if (currentUsage.requests >= requestsPerMinute) {
     return {
       allowed: false,
@@ -314,7 +296,7 @@ export const checkRateLimit = (
       resetTime: new Date(Date.now() + 60000), // 1 minute from now
     };
   }
-  
+
   if (currentUsage.tokens >= tokensPerMinute) {
     return {
       allowed: false,
@@ -322,7 +304,7 @@ export const checkRateLimit = (
       resetTime: new Date(Date.now() + 60000), // 1 minute from now
     };
   }
-  
+
   return { allowed: true };
 };
 
@@ -331,7 +313,7 @@ export const checkRateLimit = (
  */
 export const getAvailableModels = (userRole: string): string[] => {
   const config = getRoleConfiguration(userRole);
-  
+
   if (config.allowedModels.includes('*')) {
     // Return all supported models
     return [
@@ -343,7 +325,7 @@ export const getAvailableModels = (userRole: string): string[] => {
       'claude-3-opus',
     ];
   }
-  
+
   return config.allowedModels;
 };
 
@@ -352,10 +334,10 @@ export const getAvailableModels = (userRole: string): string[] => {
  */
 export const getAvailableFeatures = (userRole: string): string[] => {
   const config = getRoleConfiguration(userRole);
-  
+
   if (config.allowedFeatures.includes('*')) {
     return ['chat', 'image', 'video', 'analytics'];
   }
-  
+
   return config.allowedFeatures;
 };

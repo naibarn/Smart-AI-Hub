@@ -53,10 +53,7 @@ interface WebhookLogsProps {
   onClose: () => void;
 }
 
-const WebhookLogs: React.FC<WebhookLogsProps> = ({
-  webhook,
-  onClose,
-}) => {
+const WebhookLogs: React.FC<WebhookLogsProps> = ({ webhook, onClose }) => {
   const [logs, setLogs] = useState<WebhookLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -158,11 +155,7 @@ const WebhookLogs: React.FC<WebhookLogsProps> = ({
           >
             Refresh
           </GradientButton>
-          <GradientButton
-            variant="primary"
-            startIcon={<CloseIcon />}
-            onClick={onClose}
-          >
+          <GradientButton variant="primary" startIcon={<CloseIcon />} onClick={onClose}>
             Close
           </GradientButton>
         </Box>
@@ -189,7 +182,7 @@ const WebhookLogs: React.FC<WebhookLogsProps> = ({
                 Successful
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 600, mt: 1, color: '#10b981' }}>
-                {logs.filter(log => log.status === 'delivered').length}
+                {logs.filter((log) => log.status === 'delivered').length}
               </Typography>
             </CardContent>
           </GlassCard>
@@ -201,7 +194,7 @@ const WebhookLogs: React.FC<WebhookLogsProps> = ({
                 Failed
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 600, mt: 1, color: '#ef4444' }}>
-                {logs.filter(log => log.status === 'failed').length}
+                {logs.filter((log) => log.status === 'failed').length}
               </Typography>
             </CardContent>
           </GlassCard>
@@ -213,7 +206,7 @@ const WebhookLogs: React.FC<WebhookLogsProps> = ({
                 Pending
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 600, mt: 1, color: '#f59e0b' }}>
-                {logs.filter(log => log.status === 'pending').length}
+                {logs.filter((log) => log.status === 'pending').length}
               </Typography>
             </CardContent>
           </GlassCard>
@@ -304,7 +297,11 @@ const WebhookLogs: React.FC<WebhookLogsProps> = ({
                       {log.responseStatus ? (
                         <Chip
                           label={log.responseStatus}
-                          color={log.responseStatus >= 200 && log.responseStatus < 300 ? 'success' : 'error'}
+                          color={
+                            log.responseStatus >= 200 && log.responseStatus < 300
+                              ? 'success'
+                              : 'error'
+                          }
                           size="small"
                           variant="outlined"
                         />
@@ -344,12 +341,7 @@ const WebhookLogs: React.FC<WebhookLogsProps> = ({
       {/* Pagination */}
       {totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-          />
+          <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
         </Box>
       )}
 

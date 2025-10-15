@@ -16,7 +16,7 @@ describe('Webhook E2E Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     nock.cleanAll();
-    
+
     // Mock authentication middleware
     jest.doMock('../../middleware/auth.middleware', () => ({
       authenticateToken: (req: any, res: any, next: any) => {
@@ -394,9 +394,7 @@ describe('Webhook E2E Tests', () => {
 
   describe('Security Tests', () => {
     it('should reject requests without authentication', async () => {
-      const response = await request(app)
-        .get('/api/v1/webhooks')
-        .expect(401);
+      const response = await request(app).get('/api/v1/webhooks').expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
@@ -443,12 +441,7 @@ describe('Webhook E2E Tests', () => {
     });
 
     it('should validate event types', async () => {
-      const invalidEventTypes = [
-        'invalid-event',
-        'user.invalid',
-        'invalid.created',
-        '',
-      ];
+      const invalidEventTypes = ['invalid-event', 'user.invalid', 'invalid.created', ''];
 
       for (const eventType of invalidEventTypes) {
         const response = await request(app)
@@ -467,16 +460,14 @@ describe('Webhook E2E Tests', () => {
   describe('Rate Limiting', () => {
     it('should apply rate limiting to webhook endpoints', async () => {
       // Make multiple requests to trigger rate limiting
-      const requests = Array(10).fill(null).map(() =>
-        request(app)
-          .get('/api/v1/webhooks')
-          .set('Authorization', authToken)
-      );
+      const requests = Array(10)
+        .fill(null)
+        .map(() => request(app).get('/api/v1/webhooks').set('Authorization', authToken));
 
       const responses = await Promise.all(requests);
 
       // At least one request should be rate limited
-      const rateLimitedResponse = responses.find(res => res.status === 429);
+      const rateLimitedResponse = responses.find((res) => res.status === 429);
       expect(rateLimitedResponse).toBeDefined();
       expect(rateLimitedResponse?.body).toHaveProperty('error');
     });

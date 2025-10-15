@@ -6,10 +6,10 @@ import { errorResponse } from '../utils/response';
  * Rate limits per role according to FR-6 specification
  */
 const RATE_LIMITS = {
-  guest: 10,      // 10 requests per minute
-  user: 60,       // 60 requests per minute
-  manager: 120,   // 120 requests per minute
-  admin: 0        // No limit (0 represents unlimited)
+  guest: 10, // 10 requests per minute
+  user: 60, // 60 requests per minute
+  manager: 120, // 120 requests per minute
+  admin: 0, // No limit (0 represents unlimited)
 };
 
 /**
@@ -50,19 +50,25 @@ const getUserRole = (req: Request): UserRole => {
   // If user is authenticated, get their role
   if (req.user) {
     // Check if user has admin role (from role property or roles array)
-    if (req.user.role === 'admin' || req.user.role === 'superadmin' ||
-        (req.user.roles && req.user.roles.some(role => role.name === 'admin' || role.name === 'superadmin'))) {
+    if (
+      req.user.role === 'admin' ||
+      req.user.role === 'superadmin' ||
+      (req.user.roles &&
+        req.user.roles.some((role) => role.name === 'admin' || role.name === 'superadmin'))
+    ) {
       return 'admin';
     }
     // Check if user has manager role
-    if (req.user.role === 'manager' ||
-        (req.user.roles && req.user.roles.some(role => role.name === 'manager'))) {
+    if (
+      req.user.role === 'manager' ||
+      (req.user.roles && req.user.roles.some((role) => role.name === 'manager'))
+    ) {
       return 'manager';
     }
     // Default to user role for authenticated users
     return 'user';
   }
-  
+
   // Default to guest for unauthenticated users
   return 'guest';
 };
@@ -77,39 +83,39 @@ export const createRateLimiter = (keyPrefix: string = 'rate_limit') => {
     try {
       // Get user role
       const role = getUserRole(req);
-      
+
       // Skip rate limiting for admin users
       if (role === 'admin') {
         return next();
       }
-      
+
       // Get rate limit for this role
       const limit = RATE_LIMITS[role];
       if (limit === 0) {
         // No limit for this role
         return next();
       }
-      
+
       // Create unique key for this user/IP
       const identifier = req.user ? `user:${req.user.id}` : `ip:${req.ip}`;
       const key = `${keyPrefix}:${role}:${identifier}`;
-      
+
       // Get current count and TTL
       const current = await RedisService.incr(key);
-      
+
       // Set expiry if this is the first request in the window
       if (current === 1) {
         await RedisService.expire(key, 60); // 60 seconds window
       }
-      
+
       // Get TTL for response headers
       const ttl = await RedisService.ttl(key);
-      
+
       // Set rate limit headers
       res.setHeader('X-RateLimit-Limit', limit);
       res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - (current || 0)));
       res.setHeader('X-RateLimit-Reset', new Date(Date.now() + (ttl || 0) * 1000).toISOString());
-      
+
       // Check if limit exceeded
       if ((current || 0) > limit) {
         errorResponse(
@@ -121,13 +127,13 @@ export const createRateLimiter = (keyPrefix: string = 'rate_limit') => {
             role,
             limit,
             window: '1 minute',
-            retry_after: ttl
+            retry_after: ttl,
           },
           req.requestId
         );
         return;
       }
-      
+
       next();
     } catch (error) {
       console.error('Rate limiter error:', error);
@@ -151,34 +157,34 @@ export const createCustomRateLimiter = (
     try {
       // Get user role
       const role = getUserRole(req);
-      
+
       // Get rate limit for this role
       const limit = limits[role] || 0;
       if (limit === 0) {
         // No limit for this role
         return next();
       }
-      
+
       // Create unique key for this user/IP
       const identifier = req.user ? `user:${req.user.id}` : `ip:${req.ip}`;
       const key = `${keyPrefix}:${role}:${identifier}`;
-      
+
       // Get current count and TTL
       const current = await RedisService.incr(key);
-      
+
       // Set expiry if this is the first request in the window
       if (current === 1) {
         await RedisService.expire(key, 60); // 60 seconds window
       }
-      
+
       // Get TTL for response headers
       const ttl = await RedisService.ttl(key);
-      
+
       // Set rate limit headers
       res.setHeader('X-RateLimit-Limit', limit);
       res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - (current || 0)));
       res.setHeader('X-RateLimit-Reset', new Date(Date.now() + (ttl || 0) * 1000).toISOString());
-      
+
       // Check if limit exceeded
       if ((current || 0) > limit) {
         errorResponse(
@@ -190,13 +196,13 @@ export const createCustomRateLimiter = (
             role,
             limit,
             window: '1 minute',
-            retry_after: ttl
+            retry_after: ttl,
           },
           req.requestId
         );
         return;
       }
-      
+
       next();
     } catch (error) {
       console.error('Custom rate limiter error:', error);
@@ -214,24 +220,27 @@ export const rateLimiter = createRateLimiter('api');
 /**
  * Strict rate limiter for sensitive endpoints (e.g., payment processing)
  */
-export const strictRateLimiter = createCustomRateLimiter({
-  guest: 5,    // 5 requests per minute for guests
-  user: 10,    // 10 requests per minute for users
-  manager: 20, // 20 requests per minute for managers
-  admin: 0     // No limit for admins
-}, 'strict');
+export const strictRateLimiter = createCustomRateLimiter(
+  {
+    guest: 5, // 5 requests per minute for guests
+    user: 10, // 10 requests per minute for users
+    manager: 20, // 20 requests per minute for managers
+    admin: 0, // No limit for admins
+  },
+  'strict'
+);
 
 /**
  * Lenient rate limiter for less sensitive endpoints
  */
-export const lenientRateLimiter = createCustomRateLimiter({
-  guest: 20,    // 20 requests per minute for guests
-  user: 100,    // 100 requests per minute for users
-  manager: 200, // 200 requests per minute for managers
-  admin: 0      // No limit for admins
-}, 'lenient');
+export const lenientRateLimiter = createCustomRateLimiter(
+  {
+    guest: 20, // 20 requests per minute for guests
+    user: 100, // 100 requests per minute for users
+    manager: 200, // 200 requests per minute for managers
+    admin: 0, // No limit for admins
+  },
+  'lenient'
+);
 
-export {
-  getUserRole,
-  RATE_LIMITS
-};
+export { getUserRole, RATE_LIMITS };

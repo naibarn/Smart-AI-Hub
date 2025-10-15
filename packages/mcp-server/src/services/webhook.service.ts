@@ -20,7 +20,12 @@ class WebhookService {
   /**
    * Trigger webhook event
    */
-  async triggerEvent(eventType: string, userId: string, data: any, metadata: any = {}): Promise<void> {
+  async triggerEvent(
+    eventType: string,
+    userId: string,
+    data: any,
+    metadata: any = {}
+  ): Promise<void> {
     try {
       if (!this.internalSecret) {
         logger.warn('Webhook service integration not configured - skipping webhook trigger');
@@ -43,7 +48,7 @@ class WebhookService {
         payload,
         {
           headers: {
-            'Authorization': `Bearer ${this.internalSecret}`,
+            Authorization: `Bearer ${this.internalSecret}`,
             'Content-Type': 'application/json',
           },
           timeout: 5000, // 5 seconds timeout
@@ -54,7 +59,7 @@ class WebhookService {
     } catch (error: any) {
       // Log error but don't fail the main operation
       logger.error(`Failed to trigger webhook: ${eventType} for user ${userId}:`, error.message);
-      
+
       if (error.response) {
         logger.error('Webhook service response:', error.response.status, error.response.data);
       }
@@ -73,21 +78,26 @@ class WebhookService {
     duration: number,
     response: any
   ): Promise<void> {
-    return await this.triggerEvent('service.completed', userId, {
+    return await this.triggerEvent(
+      'service.completed',
       userId,
-      requestId,
-      service: 'mcp',
-      model,
-      tokens,
-      credits,
-      duration,
-      response: response.content || response.data,
-      completedAt: new Date().toISOString(),
-    }, {
-      source: 'mcp_completion',
-      requestId,
-      model,
-    });
+      {
+        userId,
+        requestId,
+        service: 'mcp',
+        model,
+        tokens,
+        credits,
+        duration,
+        response: response.content || response.data,
+        completedAt: new Date().toISOString(),
+      },
+      {
+        source: 'mcp_completion',
+        requestId,
+        model,
+      }
+    );
   }
 
   /**
@@ -101,21 +111,26 @@ class WebhookService {
     errorMessage: string,
     duration: number
   ): Promise<void> {
-    return await this.triggerEvent('service.failed', userId, {
+    return await this.triggerEvent(
+      'service.failed',
       userId,
-      requestId,
-      service: 'mcp',
-      model,
-      errorCode,
-      errorMessage,
-      duration,
-      failedAt: new Date().toISOString(),
-    }, {
-      source: 'mcp_error',
-      requestId,
-      model,
-      errorCode,
-    });
+      {
+        userId,
+        requestId,
+        service: 'mcp',
+        model,
+        errorCode,
+        errorMessage,
+        duration,
+        failedAt: new Date().toISOString(),
+      },
+      {
+        source: 'mcp_error',
+        requestId,
+        model,
+        errorCode,
+      }
+    );
   }
 
   /**
@@ -127,18 +142,23 @@ class WebhookService {
     model: string,
     maxTokens: number
   ): Promise<void> {
-    return await this.triggerEvent('service.started', userId, {
+    return await this.triggerEvent(
+      'service.started',
       userId,
-      requestId,
-      service: 'mcp',
-      model,
-      maxTokens,
-      startedAt: new Date().toISOString(),
-    }, {
-      source: 'mcp_start',
-      requestId,
-      model,
-    });
+      {
+        userId,
+        requestId,
+        service: 'mcp',
+        model,
+        maxTokens,
+        startedAt: new Date().toISOString(),
+      },
+      {
+        source: 'mcp_start',
+        requestId,
+        model,
+      }
+    );
   }
 
   /**
@@ -146,15 +166,12 @@ class WebhookService {
    */
   async checkHealth(): Promise<any> {
     try {
-      const response = await axios.get(
-        `${this.webhookServiceUrl}/internal/health`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.internalSecret}`,
-          },
-          timeout: 3000,
-        }
-      );
+      const response = await axios.get(`${this.webhookServiceUrl}/internal/health`, {
+        headers: {
+          Authorization: `Bearer ${this.internalSecret}`,
+        },
+        timeout: 3000,
+      });
 
       return response.data;
     } catch (error: any) {

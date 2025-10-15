@@ -56,13 +56,10 @@ const Webhooks: React.FC = () => {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <WebhookForm
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
+            <WebhookForm onSave={handleSave} onCancel={handleCancel} />
           </motion.div>
         );
-      
+
       case 'edit':
         return (
           <motion.div
@@ -73,15 +70,11 @@ const Webhooks: React.FC = () => {
             transition={{ duration: 0.3 }}
           >
             {selectedWebhook && (
-              <WebhookForm
-                webhook={selectedWebhook}
-                onSave={handleSave}
-                onCancel={handleCancel}
-              />
+              <WebhookForm webhook={selectedWebhook} onSave={handleSave} onCancel={handleCancel} />
             )}
           </motion.div>
         );
-      
+
       case 'logs':
         return (
           <motion.div
@@ -91,15 +84,10 @@ const Webhooks: React.FC = () => {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            {selectedWebhook && (
-              <WebhookLogs
-                webhook={selectedWebhook}
-                onClose={handleCloseLogs}
-              />
-            )}
+            {selectedWebhook && <WebhookLogs webhook={selectedWebhook} onClose={handleCloseLogs} />}
           </motion.div>
         );
-      
+
       case 'list':
       default:
         return (
@@ -122,9 +110,7 @@ const Webhooks: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', p: 3 }}>
-      <AnimatePresence mode="wait">
-        {renderContent()}
-      </AnimatePresence>
+      <AnimatePresence mode="wait">{renderContent()}</AnimatePresence>
     </Box>
   );
 };

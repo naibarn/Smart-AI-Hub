@@ -93,9 +93,7 @@ export const recordUsage = async (
 /**
  * Get usage metrics with optional filters
  */
-export const getUsageMetrics = async (
-  filters: AnalyticsFilters = {}
-): Promise<UsageMetrics> => {
+export const getUsageMetrics = async (filters: AnalyticsFilters = {}): Promise<UsageMetrics> => {
   try {
     const whereClause: Prisma.UsageLogWhereInput = {};
 
@@ -174,7 +172,7 @@ export const getUsageByService = async (
       _sum: { tokens: true, credits: true },
     });
 
-    return serviceUsage.map(item => ({
+    return serviceUsage.map((item) => ({
       service: item.service,
       requests: item._count.id,
       tokens: item._sum.tokens || 0,
@@ -189,9 +187,7 @@ export const getUsageByService = async (
 /**
  * Get usage breakdown by model
  */
-export const getUsageByModel = async (
-  filters: AnalyticsFilters = {}
-): Promise<UsageByModel[]> => {
+export const getUsageByModel = async (filters: AnalyticsFilters = {}): Promise<UsageByModel[]> => {
   try {
     const whereClause: Prisma.UsageLogWhereInput = {
       model: { not: null },
@@ -222,7 +218,7 @@ export const getUsageByModel = async (
       _sum: { tokens: true, credits: true },
     });
 
-    return modelUsage.map(item => ({
+    return modelUsage.map((item) => ({
       model: item.model!,
       requests: item._count.id,
       tokens: item._sum.tokens || 0,
@@ -279,13 +275,15 @@ export const getUsageTimeSeries = async (
         dateFormat = 'YYYY-MM-DD';
     }
 
-    const timeSeries = await prisma.$queryRaw<Array<{
-      period: string;
-      requests: bigint;
-      tokens: bigint;
-      credits: bigint;
-      uniqueUsers: bigint;
-    }>>`
+    const timeSeries = await prisma.$queryRaw<
+      Array<{
+        period: string;
+        requests: bigint;
+        tokens: bigint;
+        credits: bigint;
+        uniqueUsers: bigint;
+      }>
+    >`
       SELECT 
         TO_CHAR(created_at, ${dateFormat}) as period,
         COUNT(*) as requests,
@@ -298,7 +296,7 @@ export const getUsageTimeSeries = async (
       ORDER BY period ASC
     `;
 
-    return timeSeries.map(item => ({
+    return timeSeries.map((item) => ({
       period: item.period,
       requests: Number(item.requests),
       tokens: Number(item.tokens),
@@ -352,18 +350,21 @@ export const getTopUsers = async (
     });
 
     // Get user emails for the top users
-    const userIds = topUsers.map(item => item.userId);
+    const userIds = topUsers.map((item) => item.userId);
     const users = await prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, email: true },
     });
 
-    const userMap = users.reduce((map, user) => {
-      map[user.id] = user.email;
-      return map;
-    }, {} as Record<string, string>);
+    const userMap = users.reduce(
+      (map, user) => {
+        map[user.id] = user.email;
+        return map;
+      },
+      {} as Record<string, string>
+    );
 
-    return topUsers.map(item => ({
+    return topUsers.map((item) => ({
       userId: item.userId,
       email: userMap[item.userId] || 'Unknown',
       totalRequests: item._count.id,
@@ -380,9 +381,7 @@ export const getTopUsers = async (
 /**
  * Get comprehensive dashboard data
  */
-export const getDashboardData = async (
-  filters: AnalyticsFilters = {}
-): Promise<DashboardData> => {
+export const getDashboardData = async (filters: AnalyticsFilters = {}): Promise<DashboardData> => {
   try {
     const [overview, services, models, timeSeries, topUsers] = await Promise.all([
       getUsageMetrics(filters),
@@ -455,7 +454,7 @@ export const getUsageDataForExport = async (
       }),
     ]);
 
-    const formattedData = data.map(item => ({
+    const formattedData = data.map((item) => ({
       id: item.id,
       userId: item.userId,
       email: item.user.email,

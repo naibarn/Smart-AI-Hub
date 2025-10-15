@@ -282,7 +282,7 @@ export const getAllRoles = async (): Promise<Role[]> => {
       },
     });
 
-    return roles.map(role => ({
+    return roles.map((role) => ({
       id: role.id,
       name: role.name,
       description: role.description,

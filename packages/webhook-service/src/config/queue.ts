@@ -117,7 +117,7 @@ export const getJobsForWebhook = async (
   limit: number = 50
 ): Promise<Bull.Job<WebhookQueueJob>[]> => {
   let jobs: Bull.Job<WebhookQueueJob>[];
-  
+
   switch (status) {
     case 'completed':
       jobs = await webhookQueue.getCompleted();
@@ -139,7 +139,7 @@ export const getJobsForWebhook = async (
   }
 
   return jobs
-    .filter(job => job.data.webhookId === webhookId)
+    .filter((job) => job.data.webhookId === webhookId)
     .slice(0, limit)
     .reverse(); // Most recent first
 };
@@ -150,7 +150,7 @@ export const removeJobsForWebhook = async (
   status?: 'completed' | 'failed' | 'active' | 'waiting' | 'delayed'
 ): Promise<number> => {
   let jobsToRemove: Bull.Job<WebhookQueueJob>[];
-  
+
   if (status) {
     switch (status) {
       case 'completed':
@@ -169,13 +169,25 @@ export const removeJobsForWebhook = async (
         jobsToRemove = await webhookQueue.getDelayed();
         break;
       default:
-        jobsToRemove = await webhookQueue.getJobs(['completed', 'failed', 'active', 'waiting', 'delayed']);
+        jobsToRemove = await webhookQueue.getJobs([
+          'completed',
+          'failed',
+          'active',
+          'waiting',
+          'delayed',
+        ]);
     }
   } else {
-    jobsToRemove = await webhookQueue.getJobs(['completed', 'failed', 'active', 'waiting', 'delayed']);
+    jobsToRemove = await webhookQueue.getJobs([
+      'completed',
+      'failed',
+      'active',
+      'waiting',
+      'delayed',
+    ]);
   }
 
-  const webhooksJobs = jobsToRemove.filter(job => job.data.webhookId === webhookId);
+  const webhooksJobs = jobsToRemove.filter((job) => job.data.webhookId === webhookId);
   let removedCount = 0;
 
   for (const job of webhooksJobs) {

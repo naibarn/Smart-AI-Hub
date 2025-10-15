@@ -47,7 +47,15 @@ export class LoggingService {
    */
   public async logUsage(usageLog: UsageLog): Promise<void> {
     // Log to structured logger
-    logUsage(usageLog);
+    logUsage(
+      usageLog.userId,
+      usageLog.requestId,
+      usageLog.provider,
+      usageLog.model,
+      usageLog.usage.totalTokens,
+      usageLog.creditsUsed,
+      usageLog.duration
+    );
 
     // In production, you would also:
     // 1. Store in database for analytics

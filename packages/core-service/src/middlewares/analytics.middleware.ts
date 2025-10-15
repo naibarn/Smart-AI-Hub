@@ -56,13 +56,21 @@ export const trackUsage = (
           }
 
           // Extract usage data using provided functions or defaults
-          const model = options.extractModel ? options.extractModel(req) : extractModelFromRequest(req);
-          const tokens = options.extractTokens ? options.extractTokens(req) : extractTokensFromRequest(req, responseData);
-          const credits = options.extractCredits ? options.extractCredits(req) : extractCreditsFromRequest(req, responseData);
-          const metadata = options.extractMetadata ? options.extractMetadata(req) : extractMetadataFromRequest(req, res, responseData);
+          const model = options.extractModel
+            ? options.extractModel(req)
+            : extractModelFromRequest(req);
+          const tokens = options.extractTokens
+            ? options.extractTokens(req)
+            : extractTokensFromRequest(req, responseData);
+          const credits = options.extractCredits
+            ? options.extractCredits(req)
+            : extractCreditsFromRequest(req, responseData);
+          const metadata = options.extractMetadata
+            ? options.extractMetadata(req)
+            : extractMetadataFromRequest(req, res, responseData);
 
           // Record usage asynchronously (don't wait for completion)
-          recordUsage(userId, service, model, tokens, credits || 0, metadata).catch(error => {
+          recordUsage(userId, service, model, tokens, credits || 0, metadata).catch((error) => {
             console.error('Error recording usage:', error);
           });
         }
@@ -86,12 +94,12 @@ function extractModelFromRequest(req: Request): string | undefined {
 
   // Try to extract from query parameters
   if (req.query.model || req.query.model_name) {
-    return req.query.model as string || req.query.model_name as string;
+    return (req.query.model as string) || (req.query.model_name as string);
   }
 
   // Try to extract from URL path
   const pathSegments = req.path.split('/');
-  const modelIndex = pathSegments.findIndex(segment => segment === 'models');
+  const modelIndex = pathSegments.findIndex((segment) => segment === 'models');
   if (modelIndex !== -1 && pathSegments[modelIndex + 1]) {
     return pathSegments[modelIndex + 1];
   }
@@ -233,19 +241,28 @@ export const trackCreditUsage = trackUsage('credits', {
     return 1;
   },
   extractMetadata: (req) => ({
-    operation: req.path.includes('deduct') ? 'deduct' : 
-               req.path.includes('redeem') ? 'redeem' : 
-               req.path.includes('adjust') ? 'adjust' : 'check',
+    operation: req.path.includes('deduct')
+      ? 'deduct'
+      : req.path.includes('redeem')
+        ? 'redeem'
+        : req.path.includes('adjust')
+          ? 'adjust'
+          : 'check',
     reason: req.body.reason,
   }),
 });
 
 export const trackAuthUsage = trackUsage('auth', {
   extractMetadata: (req) => ({
-    operation: req.path.includes('login') ? 'login' : 
-               req.path.includes('register') ? 'register' : 
-               req.path.includes('logout') ? 'logout' : 
-               req.path.includes('refresh') ? 'refresh' : 'other',
+    operation: req.path.includes('login')
+      ? 'login'
+      : req.path.includes('register')
+        ? 'register'
+        : req.path.includes('logout')
+          ? 'logout'
+          : req.path.includes('refresh')
+            ? 'refresh'
+            : 'other',
     provider: req.body.provider || 'email',
   }),
 });

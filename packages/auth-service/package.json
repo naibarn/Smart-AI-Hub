@@ -13,6 +13,7 @@
   "dependencies": {
     "@prisma/client": "^5.7.1",
     "@sendgrid/mail": "^8.1.6",
+    "@smart-ai-hub/shared": "^1.0.0",
     "@smart-ai-hub/shared-logger": "^1.0.0",
     "axios": "^1.12.2",
     "bcryptjs": "^2.4.3",

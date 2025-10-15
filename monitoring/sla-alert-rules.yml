@@ -1,0 +1,201 @@
+groups:
+  - name: response-time-sla.rules
+    rules:
+      # Critical Endpoint SLA Violations
+      - alert: CriticalEndpointSLAViolation
+        expr: |
+          (
+            histogram_quantile(0.95, 
+              sum(rate(http_response_time_milliseconds_bucket{service=~"auth-service|mcp-server"}[5m])) 
+              by (le, service, route)
+            ) > 500
+          )
+        for: 5m
+        labels:
+          severity: critical
+          sla_tier: critical
+          team: platform
+        annotations:
+          summary: "Critical endpoint SLA violation detected"
+          description: "Critical endpoint {{ $labels.service }}/{{ $labels.route }} has p95 response time of {{ $value }}ms exceeding 500ms threshold for 5 minutes"
+
+      # High Priority Endpoint SLA Violations
+      - alert: HighPriorityEndpointSLAViolation
+        expr: |
+          (
+            histogram_quantile(0.95, 
+              sum(rate(http_response_time_milliseconds_bucket{service=~"core-service|auth-service"}[5m])) 
+              by (le, service, route)
+            ) > 1000
+          )
+        for: 10m
+        labels:
+          severity: warning
+          sla_tier: high
+          team: platform
+        annotations:
+          summary: "High priority endpoint SLA violation detected"
+          description: "High priority endpoint {{ $labels.service }}/{{ $labels.route }} has p95 response time of {{ $value }}ms exceeding 1s threshold for 10 minutes"
+
+      # Medium Priority Endpoint SLA Violations
+      - alert: MediumPriorityEndpointSLAViolation
+        expr: |
+          (
+            histogram_quantile(0.95, 
+              sum(rate(http_response_time_milliseconds_bucket{service=~"core-service|webhook-service|notification-service"}[5m])) 
+              by (le, service, route)
+            ) > 2000
+          )
+        for: 15m
+        labels:
+          severity: warning
+          sla_tier: medium
+          team: platform
+        annotations:
+          summary: "Medium priority endpoint SLA violation detected"
+          description: "Medium priority endpoint {{ $labels.service }}/{{ $labels.route }} has p95 response time of {{ $value }}ms exceeding 2s threshold for 15 minutes"
+
+      # Low Priority Endpoint SLA Violations
+      - alert: LowPriorityEndpointSLAViolation
+        expr: |
+          (
+            histogram_quantile(0.95, 
+              sum(rate(http_response_time_milliseconds_bucket{service=~"core-service|api-gateway"}[5m])) 
+              by (le, service, route)
+            ) > 5000
+          )
+        for: 30m
+        labels:
+          severity: info
+          sla_tier: low
+          team: platform
+        annotations:
+          summary: "Low priority endpoint SLA violation detected"
+          description: "Low priority endpoint {{ $labels.service }}/{{ $labels.route }} has p95 response time of {{ $value }}ms exceeding 5s threshold for 30 minutes"
+
+      # Frequent Slow Requests
+      - alert: FrequentSlowRequests
+        expr: |
+          (
+            sum(
+              rate(http_response_time_milliseconds_bucket{le="500"}[5m])
+            ) by (service, route) 
+            / 
+            sum(
+              rate(http_response_time_milliseconds_count[5m])
+            ) by (service, route)
+          ) < 0.9
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Frequent slow requests detected"
+          description: "More than 10% of requests to {{ $labels.service }}/{{ $labels.route }} are exceeding 500ms for 15 minutes"
+
+      # Response Time Degradation
+      - alert: ResponseTimeDegradation
+        expr: |
+          (
+            histogram_quantile(0.95, 
+              sum(rate(http_response_time_milliseconds_bucket[5m])) 
+              by (le, service, route)
+            ) 
+            / 
+            (
+              histogram_quantile(0.95, 
+                sum(rate(http_response_time_milliseconds_bucket[1h] offset 24h)) 
+                by (le, service, route)
+              ) or vector(1)
+            )
+          ) > 1.5
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Response time degradation detected"
+          description: "Endpoint {{ $labels.service }}/{{ $labels.route }} response time has increased by 50% compared to 24h baseline"
+
+      # SLA Compliance Rate
+      - alert: LowSLAComplianceRate
+        expr: |
+          (
+            sum(
+              rate(http_response_time_milliseconds_bucket{le=~"500|1000|2000|5000"}[5m])
+            ) by (sla_tier) 
+            / 
+            sum(
+              rate(http_response_time_milliseconds_count[5m])
+            ) by (sla_tier)
+          ) < 0.95
+        for: 20m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Low SLA compliance rate"
+          description: "SLA tier {{ $labels.sla_tier }} has less than 95% compliance rate for 20 minutes"
+
+      # P99 Response Time Spike
+      - alert: P99ResponseTimeSpike
+        expr: |
+          (
+            histogram_quantile(0.99, 
+              sum(rate(http_response_time_milliseconds_bucket[5m])) 
+              by (le, service, route)
+            ) > 5000
+          )
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "P99 response time spike detected"
+          description: "Endpoint {{ $labels.service }}/{{ $labels.route }} has p99 response time of {{ $value }}ms exceeding 5s threshold for 5 minutes"
+
+      # Response Time Variance
+      - alert: HighResponseTimeVariance
+        expr: |
+          (
+            histogram_quantile(0.99, 
+              sum(rate(http_response_time_milliseconds_bucket[5m])) 
+              by (le, service, route)
+            ) 
+            / 
+            histogram_quantile(0.50, 
+              sum(rate(http_response_time_milliseconds_bucket[5m])) 
+              by (le, service, route)
+            )
+          ) > 10
+        for: 15m
+        labels:
+          severity: info
+          team: platform
+        annotations:
+          summary: "High response time variance detected"
+          description: "Endpoint {{ $labels.service }}/{{ $labels.route }} has high response time variance (p99/p50 ratio > 10) for 15 minutes"
+
+      # Baseline Deviation
+      - alert: BaselineDeviation
+        expr: |
+          (
+            histogram_quantile(0.95, 
+              sum(rate(http_response_time_milliseconds_bucket[5m])) 
+              by (le, service, route)
+            ) 
+            - 
+            (
+              performance_baseline_p95{service="{{ $labels.service }}", route="{{ $labels.route }}"}
+            ) or vector(0)
+          ) > (
+            performance_baseline_p95{service="{{ $labels.service }}", route="{{ $labels.route }}"}
+            * 0.5
+          ) or vector(100)
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Response time deviating from baseline"
+          description: "Endpoint {{ $labels.service }}/{{ $labels.route }} response time has deviated more than 50% from baseline for 10 minutes"

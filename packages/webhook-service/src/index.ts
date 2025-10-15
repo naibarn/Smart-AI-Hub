@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import { initializeMetrics, apiSecurityHeaders } from '@smart-ai-hub/shared';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import { connectRedis, disconnectRedis } from './config/redis';
 import { webhookQueue } from './config/queue';
@@ -17,18 +18,49 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT || 3005;
 
-// Security middleware
-app.use(helmet());
+// Initialize monitoring
+const metrics = initializeMetrics({
+  serviceName: 'webhook-service',
+  version: '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  port: PORT,
+  defaultLabels: {
+    service: 'webhook-service',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  }
+});
+
+// Security middleware (API-specific - no CSP needed)
+app.use(apiSecurityHeaders);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3004'],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3004'],
+    credentials: true,
+  })
+);
 
 // Body parser middleware
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Basic metrics middleware
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  
+  res.on('finish', () => {
+    const duration = (Date.now() - startTime) / 1000;
+    const route = req.route?.path || req.path || 'unknown';
+    
+    // Record basic metrics
+    metrics.incrementHttpRequests(req.method, route, res.statusCode);
+    metrics.recordHttpRequestDuration(req.method, route, res.statusCode, duration);
+  });
+  
+  next();
+});
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -36,6 +68,18 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   app.use(morgan('combined'));
 }
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    const metricsText = await metrics.getMetricsAsText();
+    res.set('Content-Type', 'text/plain');
+    res.send(metricsText);
+  } catch (error) {
+    logger.error('Error generating metrics:', error);
+    res.status(500).send('Error generating metrics');
+  }
+});
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
@@ -52,6 +96,9 @@ app.get('/health', async (req, res) => {
       success: true,
       message: 'Webhook Service is running',
       timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      service: 'webhook-service',
       services: {
         database: 'connected',
         redis: redisStatus ? 'connected' : 'disconnected',
@@ -93,7 +140,7 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error:', error);
-  
+
   res.status(500).json({
     error: 'Internal Server Error',
     message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong',
@@ -132,13 +179,13 @@ const initializeApp = async (): Promise<void> => {
   try {
     // Connect to database
     await connectDatabase();
-    
+
     // Connect to Redis
     await connectRedis();
-    
+
     // Start periodic tasks
     startPeriodicTasks();
-    
+
     // Start server
     app.listen(PORT, () => {
       logger.info(`Webhook Service running on port ${PORT}`);
@@ -153,17 +200,17 @@ const initializeApp = async (): Promise<void> => {
 // Graceful shutdown
 const gracefulShutdown = async (): Promise<void> => {
   logger.info('Shutting down gracefully...');
-  
+
   try {
     // Close queue
     await webhookQueue.close();
-    
+
     // Disconnect from Redis
     await disconnectRedis();
-    
+
     // Disconnect from database
     await disconnectDatabase();
-    
+
     logger.info('Graceful shutdown completed');
     process.exit(0);
   } catch (error) {

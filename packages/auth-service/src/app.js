@@ -5,6 +5,10 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
+// Import monitoring and security
+const { initializeMetrics, createMetricsEndpoint, createHealthCheckEndpoint, createMetricsMiddleware } = require('@smart-ai-hub/shared/monitoring');
+const { apiSecurityHeaders } = require('@smart-ai-hub/shared/security/headers');
+
 // Import Redis connection
 const { connectRedis } = require('./config/redis');
 
@@ -17,17 +21,35 @@ const oauthRoutes = require('./routes/oauth.routes');
 const sessionRoutes = require('./routes/session.routes');
 const userRoutes = require('./routes/user.routes');
 const creditRoutes = require('./routes/credit.routes');
+const securityRoutes = require('./routes/security.routes');
+const securityStatusRoutes = require('./routes/security-status.routes');
 
 // Import middleware
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const requestIdMiddleware = require('./middleware/requestId');
 const { rateLimiter } = require('./middleware/rateLimiter');
 
+// Initialize monitoring
+const metrics = initializeMetrics({
+  serviceName: 'auth-service',
+  version: '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  port: process.env.PORT || 3001,
+  defaultLabels: {
+    service: 'auth-service',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  }
+});
+
 // Create Express app
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware (API-specific - no CSP needed)
+app.use(apiSecurityHeaders);
+
+// Metrics middleware (before routes)
+app.use(createMetricsMiddleware(metrics));
 
 // CORS configuration
 app.use(cors({
@@ -56,14 +78,11 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Smart AI Hub Auth Service is running',
-    timestamp: new Date().toISOString()
-  });
-});
+// Metrics endpoint
+app.get('/metrics', createMetricsEndpoint(metrics));
+
+// Enhanced health check endpoint
+app.get('/health', createHealthCheckEndpoint(metrics));
 
 // API Routes - Versioned (v1)
 app.use('/api/v1/auth', authRoutes);
@@ -71,6 +90,8 @@ app.use('/api/v1/auth', oauthRoutes);
 app.use('/api/v1/auth', sessionRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/credits', creditRoutes);
+app.use('/api/v1/security', securityRoutes);
+app.use('/api/v1/security', securityStatusRoutes);
 
 // Legacy routes for backward compatibility with deprecation headers
 app.use('/api/auth', (req, res, next) => {

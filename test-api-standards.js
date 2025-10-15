@@ -21,7 +21,7 @@ const testResults = {
   passed: 0,
   failed: 0,
   total: 0,
-  details: []
+  details: [],
 };
 
 function runTest(testName, testFn) {
@@ -30,11 +30,19 @@ function runTest(testName, testFn) {
     const result = testFn();
     if (result === true || (result && result.passed)) {
       testResults.passed++;
-      testResults.details.push({ name: testName, status: 'PASSED', message: result.message || 'Test passed' });
+      testResults.details.push({
+        name: testName,
+        status: 'PASSED',
+        message: result.message || 'Test passed',
+      });
       console.log(`✅ ${testName}: PASSED`);
     } else {
       testResults.failed++;
-      testResults.details.push({ name: testName, status: 'FAILED', message: result.message || 'Test failed' });
+      testResults.details.push({
+        name: testName,
+        status: 'FAILED',
+        message: result.message || 'Test failed',
+      });
       console.log(`❌ ${testName}: FAILED - ${result.message || 'Unknown error'}`);
     }
   } catch (error) {
@@ -47,22 +55,25 @@ function runTest(testName, testFn) {
 async function testEndpoint(name, url, expectedStatus = 200, expectedHeaders = {}) {
   try {
     const response = await axios.get(url, { validateStatus: () => true });
-    
+
     // Check status code
     if (response.status !== expectedStatus) {
-      return { passed: false, message: `Expected status ${expectedStatus}, got ${response.status}` };
+      return {
+        passed: false,
+        message: `Expected status ${expectedStatus}, got ${response.status}`,
+      };
     }
-    
+
     // Check expected headers
     for (const [header, value] of Object.entries(expectedHeaders)) {
       if (response.headers[header.toLowerCase()] !== value) {
-        return { 
-          passed: false, 
-          message: `Expected header ${header}=${value}, got ${response.headers[header.toLowerCase()]}` 
+        return {
+          passed: false,
+          message: `Expected header ${header}=${value}, got ${response.headers[header.toLowerCase()]}`,
         };
       }
     }
-    
+
     return { passed: true, data: response.data, headers: response.headers };
   } catch (error) {
     return { passed: false, message: error.message };
@@ -125,30 +136,38 @@ runTest('Success Response Format', async () => {
     `${AUTH_SERVICE_URL}/api/v1/health`,
     200
   );
-  
+
   if (!result.passed) return result;
-  
+
   const data = result.data;
   if (!data.data || !data.meta || !data.meta.timestamp || !data.meta.request_id) {
     return { passed: false, message: 'Missing required fields in success response' };
   }
-  
+
   return { passed: true, message: 'Success response format is correct' };
 });
 
 runTest('Error Response Format', async () => {
   try {
-    const response = await axios.get(`${AUTH_SERVICE_URL}/api/v1/nonexistent`, { validateStatus: () => true });
-    
+    const response = await axios.get(`${AUTH_SERVICE_URL}/api/v1/nonexistent`, {
+      validateStatus: () => true,
+    });
+
     if (response.status !== 404) {
       return { passed: false, message: `Expected status 404, got ${response.status}` };
     }
-    
+
     const data = response.data;
-    if (!data.error || !data.error.code || !data.error.message || !data.error.timestamp || !data.error.request_id) {
+    if (
+      !data.error ||
+      !data.error.code ||
+      !data.error.message ||
+      !data.error.timestamp ||
+      !data.error.request_id
+    ) {
       return { passed: false, message: 'Missing required fields in error response' };
     }
-    
+
     return { passed: true, message: 'Error response format is correct' };
   } catch (error) {
     return { passed: false, message: error.message };
@@ -157,18 +176,14 @@ runTest('Error Response Format', async () => {
 
 // Test 4: Request ID Tracking
 runTest('Request ID in Response Headers', async () => {
-  const result = await testEndpoint(
-    'Request ID Test',
-    `${AUTH_SERVICE_URL}/api/v1/health`,
-    200
-  );
-  
+  const result = await testEndpoint('Request ID Test', `${AUTH_SERVICE_URL}/api/v1/health`, 200);
+
   if (!result.passed) return result;
-  
+
   if (!result.headers['x-request-id']) {
     return { passed: false, message: 'Missing X-Request-ID header' };
   }
-  
+
   return { passed: true, message: 'Request ID found in headers' };
 });
 
@@ -178,13 +193,13 @@ runTest('Request ID in Response Body', async () => {
     `${AUTH_SERVICE_URL}/api/v1/health`,
     200
   );
-  
+
   if (!result.passed) return result;
-  
+
   if (!result.data.meta || !result.data.meta.request_id) {
     return { passed: false, message: 'Missing request_id in response body' };
   }
-  
+
   return { passed: true, message: 'Request ID found in response body' };
 });
 
@@ -193,31 +208,39 @@ runTest('Pagination Format', async () => {
   try {
     // This test would require authenticated access, so we'll simulate the expected format
     // In a real test environment, you would authenticate first
-    
+
     const mockPaginatedResponse = {
       data: [1, 2, 3],
       pagination: {
         page: 1,
         per_page: 20,
         total: 100,
-        total_pages: 5
+        total_pages: 5,
       },
       meta: {
         timestamp: new Date().toISOString(),
-        request_id: 'test_request_id'
-      }
+        request_id: 'test_request_id',
+      },
     };
-    
-    if (!mockPaginatedResponse.data || !mockPaginatedResponse.pagination || !mockPaginatedResponse.meta) {
+
+    if (
+      !mockPaginatedResponse.data ||
+      !mockPaginatedResponse.pagination ||
+      !mockPaginatedResponse.meta
+    ) {
       return { passed: false, message: 'Missing required fields in paginated response' };
     }
-    
+
     const { page, per_page, total, total_pages } = mockPaginatedResponse.pagination;
-    if (typeof page !== 'number' || typeof per_page !== 'number' || 
-        typeof total !== 'number' || typeof total_pages !== 'number') {
+    if (
+      typeof page !== 'number' ||
+      typeof per_page !== 'number' ||
+      typeof total !== 'number' ||
+      typeof total_pages !== 'number'
+    ) {
       return { passed: false, message: 'Pagination fields must be numbers' };
     }
-    
+
     return { passed: true, message: 'Pagination format is correct' };
   } catch (error) {
     return { passed: false, message: error.message };
@@ -226,50 +249,46 @@ runTest('Pagination Format', async () => {
 
 // Test 6: Rate Limiting Headers
 runTest('Rate Limiting Headers', async () => {
-  const result = await testEndpoint(
-    'Rate Limiting Test',
-    `${AUTH_SERVICE_URL}/api/v1/health`,
-    200
-  );
-  
+  const result = await testEndpoint('Rate Limiting Test', `${AUTH_SERVICE_URL}/api/v1/health`, 200);
+
   if (!result.passed) return result;
-  
+
   // Rate limiting headers should be present
-  const hasRateLimitHeaders = 
-    result.headers['x-ratelimit-limit'] || 
-    result.headers['x-ratelimit-remaining'] || 
+  const hasRateLimitHeaders =
+    result.headers['x-ratelimit-limit'] ||
+    result.headers['x-ratelimit-remaining'] ||
     result.headers['x-ratelimit-reset'];
-  
+
   if (!hasRateLimitHeaders) {
     return { passed: false, message: 'Missing rate limiting headers' };
   }
-  
+
   return { passed: true, message: 'Rate limiting headers found' };
 });
 
 // Run all tests
 async function runAllTests() {
   console.log('🧪 Running API Standards Validation Tests...\n');
-  
+
   // Wait for all async tests to complete
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   // Print results
   console.log('\n📊 Test Results:');
   console.log(`Total: ${testResults.total}`);
   console.log(`Passed: ${testResults.passed}`);
   console.log(`Failed: ${testResults.failed}`);
   console.log(`Success Rate: ${((testResults.passed / testResults.total) * 100).toFixed(2)}%`);
-  
+
   if (testResults.failed > 0) {
     console.log('\n❌ Failed Tests:');
     testResults.details
-      .filter(test => test.status !== 'PASSED')
-      .forEach(test => console.log(`  - ${test.name}: ${test.message}`));
+      .filter((test) => test.status !== 'PASSED')
+      .forEach((test) => console.log(`  - ${test.name}: ${test.message}`));
   }
-  
+
   console.log('\n🎉 API Standards Validation Complete!');
-  
+
   return testResults.failed === 0;
 }
 
@@ -278,10 +297,12 @@ module.exports = { runAllTests, testResults };
 
 // Run tests if this script is executed directly
 if (require.main === module) {
-  runAllTests().then(success => {
-    process.exit(success ? 0 : 1);
-  }).catch(error => {
-    console.error('Test execution failed:', error);
-    process.exit(1);
-  });
+  runAllTests()
+    .then((success) => {
+      process.exit(success ? 0 : 1);
+    })
+    .catch((error) => {
+      console.error('Test execution failed:', error);
+      process.exit(1);
+    });
 }

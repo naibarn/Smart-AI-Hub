@@ -25,7 +25,7 @@ class Logger {
 
   constructor(options: LoggerOptions) {
     this.serviceName = options.service;
-    
+
     // Define log format
     const logFormat = winston.format.combine(
       winston.format.timestamp(),
@@ -37,7 +37,7 @@ class Logger {
           level: info.level,
           service: this.serviceName,
           message: info.message,
-          ...info
+          ...info,
         };
         return JSON.stringify(logEntry);
       })
@@ -50,16 +50,16 @@ class Logger {
       winston.format.printf((info) => {
         const { timestamp, level, message, service, userId, requestId, duration, ...meta } = info;
         let log = `${timestamp} [${level}] ${service}: ${message}`;
-        
+
         if (userId) log += ` (user: ${userId})`;
         if (requestId) log += ` (req: ${requestId})`;
         if (duration) log += ` (${duration}ms)`;
-        
+
         const keys = Object.keys(meta);
         if (keys.length > 0) {
           log += ` ${JSON.stringify(meta)}`;
         }
-        
+
         return log;
       })
     );
@@ -69,8 +69,8 @@ class Logger {
       // Console transport with colors
       new winston.transports.Console({
         format: consoleFormat,
-        level: options.level || 'info'
-      })
+        level: options.level || 'info',
+      }),
     ];
 
     // Add file transports if logDir is specified
@@ -82,7 +82,7 @@ class Logger {
           datePattern: 'YYYY-MM-DD',
           maxSize: '20m',
           maxFiles: '14d',
-          format: logFormat
+          format: logFormat,
         })
       );
 
@@ -94,7 +94,7 @@ class Logger {
           maxSize: '20m',
           maxFiles: '14d',
           level: 'error',
-          format: logFormat
+          format: logFormat,
         })
       );
     }
@@ -103,7 +103,7 @@ class Logger {
       level: options.level || 'info',
       format: logFormat,
       transports,
-      exitOnError: false
+      exitOnError: false,
     });
   }
 
@@ -117,10 +117,10 @@ class Logger {
 
   error(message: string, error?: Error | any, meta?: any): void {
     if (error instanceof Error) {
-      this.logger.error(message, { 
-        error: error.message, 
+      this.logger.error(message, {
+        error: error.message,
         stack: error.stack,
-        ...meta 
+        ...meta,
       });
     } else {
       this.logger.error(message, { error, ...meta });
@@ -135,7 +135,7 @@ class Logger {
   logRequest(req: Request, res: any, duration: number): void {
     const { method, url, ip, headers } = req;
     const { statusCode } = res;
-    
+
     this.info('HTTP Request', {
       method,
       url,
@@ -144,7 +144,7 @@ class Logger {
       ip,
       userAgent: headers['user-agent'],
       userId: req.user?.id,
-      requestId: req.headers['x-request-id']
+      requestId: req.headers['x-request-id'],
     });
   }
 
@@ -154,7 +154,7 @@ class Logger {
       userId: context?.userId,
       requestId: context?.requestId,
       service: this.serviceName,
-      ...context
+      ...context,
     });
   }
 
@@ -165,7 +165,7 @@ class Logger {
       duration,
       userId: context?.userId,
       requestId: context?.requestId,
-      ...context
+      ...context,
     });
   }
 
@@ -176,7 +176,7 @@ class Logger {
       data,
       userId: context?.userId,
       requestId: context?.requestId,
-      ...context
+      ...context,
     });
   }
 
@@ -188,7 +188,7 @@ class Logger {
       userId: context?.userId,
       requestId: context?.requestId,
       service: this.serviceName,
-      ...context
+      ...context,
     });
   }
 
@@ -207,19 +207,19 @@ export function createLogger(options: LoggerOptions): Logger {
 export const logger = createLogger({
   service: 'smart-ai-hub',
   level: process.env.LOG_LEVEL || 'info',
-  logDir: process.env.LOG_DIR || '/var/log/smart-ai-hub'
+  logDir: process.env.LOG_DIR || '/var/log/smart-ai-hub',
 });
 
 // Request logging middleware factory
 export function createRequestLoggingMiddleware(logger: Logger) {
   return (req: Request, res: any, next: any) => {
     const start = Date.now();
-    
+
     // Add request ID if not present
     if (!req.headers['x-request-id']) {
       req.headers['x-request-id'] = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    
+
     // Log request
     logger.info('Request started', {
       method: req.method,
@@ -227,19 +227,19 @@ export function createRequestLoggingMiddleware(logger: Logger) {
       ip: req.ip,
       userAgent: req.headers['user-agent'],
       requestId: req.headers['x-request-id'],
-      userId: req.user?.id
+      userId: req.user?.id,
     });
-    
+
     // Override res.end to log response
     const originalEnd = res.end;
-    res.end = function(chunk?: any, encoding?: any) {
+    res.end = function (chunk?: any, encoding?: any) {
       const duration = Date.now() - start;
-      
+
       logger.logRequest(req, res, duration);
-      
+
       originalEnd.call(this, chunk, encoding);
     };
-    
+
     next();
   };
 }
@@ -253,9 +253,9 @@ export function createErrorLoggingMiddleware(logger: Logger) {
       ip: req.ip,
       userAgent: req.headers['user-agent'],
       requestId: req.headers['x-request-id'],
-      userId: req.user?.id
+      userId: req.user?.id,
     });
-    
+
     next(error);
   };
 }

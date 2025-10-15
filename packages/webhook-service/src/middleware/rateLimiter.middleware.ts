@@ -83,7 +83,10 @@ export const internalRateLimiter = rateLimit({
 /**
  * Create rate limiter for specific webhook endpoint
  */
-export const createWebhookEndpointRateLimiter = (maxRequests: number = 1000, windowMs: number = 3600000) => {
+export const createWebhookEndpointRateLimiter = (
+  maxRequests: number = 1000,
+  windowMs: number = 3600000
+) => {
   return rateLimit({
     windowMs,
     max: maxRequests,
@@ -116,10 +119,11 @@ export const createWebhookEndpointRateLimiter = (maxRequests: number = 1000, win
 /**
  * Payload size limiter middleware
  */
-export const payloadSizeLimiter = (maxSize: number = 1024 * 1024) => { // 1MB default
+export const payloadSizeLimiter = (maxSize: number = 1024 * 1024) => {
+  // 1MB default
   return (req: Request, res: Response, next: Function) => {
     const contentLength = req.get('Content-Length');
-    
+
     if (contentLength && parseInt(contentLength) > maxSize) {
       logger.warn('Payload size limit exceeded', {
         ip: req.ip,
@@ -145,7 +149,7 @@ export const webhookUrlValidator = (req: Request, res: Response, next: Function)
   if (req.body.url) {
     try {
       const url = new URL(req.body.url);
-      
+
       if (url.protocol !== 'https:') {
         return res.status(400).json({
           error: 'Invalid webhook URL',

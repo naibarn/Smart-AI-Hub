@@ -8,7 +8,7 @@ describe('Signature Utils', () => {
   describe('generateSignature', () => {
     it('should generate a valid HMAC-SHA256 signature', () => {
       const signature = generateSignature(payloadString, secret);
-      
+
       expect(signature).toBeDefined();
       expect(typeof signature).toBe('string');
       expect(signature).toMatch(/^sha256=[a-f0-9]{64}$/);
@@ -17,27 +17,27 @@ describe('Signature Utils', () => {
     it('should generate consistent signatures for same input', () => {
       const signature1 = generateSignature(payloadString, secret);
       const signature2 = generateSignature(payloadString, secret);
-      
+
       expect(signature1).toBe(signature2);
     });
 
     it('should generate different signatures for different inputs', () => {
       const signature1 = generateSignature(payloadString, secret);
       const signature2 = generateSignature('different-payload', secret);
-      
+
       expect(signature1).not.toBe(signature2);
     });
 
     it('should generate different signatures for different secrets', () => {
       const signature1 = generateSignature(payloadString, secret);
       const signature2 = generateSignature(payloadString, 'different-secret');
-      
+
       expect(signature1).not.toBe(signature2);
     });
 
     it('should handle empty payload', () => {
       const signature = generateSignature('', secret);
-      
+
       expect(signature).toBeDefined();
       expect(signature).toMatch(/^sha256=[a-f0-9]{64}$/);
     });
@@ -45,7 +45,7 @@ describe('Signature Utils', () => {
     it('should handle special characters in payload', () => {
       const specialPayload = '{"data":"special chars: !@#$%^&*()"}';
       const signature = generateSignature(specialPayload, secret);
-      
+
       expect(signature).toBeDefined();
       expect(signature).toMatch(/^sha256=[a-f0-9]{64}$/);
     });
@@ -55,28 +55,28 @@ describe('Signature Utils', () => {
     it('should verify a valid signature', () => {
       const signature = generateSignature(payloadString, secret);
       const isValid = verifySignature(payloadString, signature, secret);
-      
+
       expect(isValid).toBe(true);
     });
 
     it('should reject invalid signature', () => {
       const invalidSignature = 'sha256=invalidsignature123';
       const isValid = verifySignature(payloadString, invalidSignature, secret);
-      
+
       expect(isValid).toBe(false);
     });
 
     it('should reject signature with different payload', () => {
       const signature = generateSignature(payloadString, secret);
       const isValid = verifySignature('different-payload', signature, secret);
-      
+
       expect(isValid).toBe(false);
     });
 
     it('should reject signature with different secret', () => {
       const signature = generateSignature(payloadString, secret);
       const isValid = verifySignature(payloadString, signature, 'different-secret');
-      
+
       expect(isValid).toBe(false);
     });
 
@@ -90,7 +90,7 @@ describe('Signature Utils', () => {
         'sha256=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz',
       ];
 
-      malformedSignatures.forEach(signature => {
+      malformedSignatures.forEach((signature) => {
         const isValid = verifySignature(payloadString, signature, secret);
         expect(isValid).toBe(false);
       });
@@ -99,7 +99,7 @@ describe('Signature Utils', () => {
     it('should handle empty payload', () => {
       const signature = generateSignature('', secret);
       const isValid = verifySignature('', signature, secret);
-      
+
       expect(isValid).toBe(true);
     });
 
@@ -107,7 +107,7 @@ describe('Signature Utils', () => {
       const signature = generateSignature(payloadString, secret);
       const upperCaseSignature = signature.toUpperCase();
       const isValid = verifySignature(payloadString, upperCaseSignature, secret);
-      
+
       expect(isValid).toBe(false);
     });
   });

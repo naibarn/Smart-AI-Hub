@@ -49,8 +49,9 @@ describe('WebhookService', () => {
       const error = new Error('Database error');
       mockPrisma.webhookEndpoint.create.mockRejectedValue(error);
 
-      await expect(webhookService.createWebhook(webhookData, mockUserId))
-        .rejects.toThrow('Database error');
+      await expect(webhookService.createWebhook(webhookData, mockUserId)).rejects.toThrow(
+        'Database error'
+      );
     });
 
     it('should validate webhook URL format', async () => {
@@ -59,8 +60,9 @@ describe('WebhookService', () => {
         url: 'invalid-url',
       };
 
-      await expect(webhookService.createWebhook(invalidWebhookData, mockUserId))
-        .rejects.toThrow('Invalid webhook URL');
+      await expect(webhookService.createWebhook(invalidWebhookData, mockUserId)).rejects.toThrow(
+        'Invalid webhook URL'
+      );
     });
   });
 
@@ -112,8 +114,7 @@ describe('WebhookService', () => {
       const error = new Error('Database error');
       mockPrisma.webhookEndpoint.findMany.mockRejectedValue(error);
 
-      await expect(webhookService.getWebhooks(mockUserId))
-        .rejects.toThrow('Database error');
+      await expect(webhookService.getWebhooks(mockUserId)).rejects.toThrow('Database error');
     });
   });
 
@@ -154,8 +155,9 @@ describe('WebhookService', () => {
       const error = new Error('Database error');
       mockPrisma.webhookEndpoint.findUnique.mockRejectedValue(error);
 
-      await expect(webhookService.getWebhookById(webhookId, mockUserId))
-        .rejects.toThrow('Database error');
+      await expect(webhookService.getWebhookById(webhookId, mockUserId)).rejects.toThrow(
+        'Database error'
+      );
     });
   });
 
@@ -192,8 +194,9 @@ describe('WebhookService', () => {
       const error = new Error('Webhook not found');
       mockPrisma.webhookEndpoint.update.mockRejectedValue(error);
 
-      await expect(webhookService.updateWebhook(webhookId, updateData, mockUserId))
-        .rejects.toThrow('Webhook not found');
+      await expect(webhookService.updateWebhook(webhookId, updateData, mockUserId)).rejects.toThrow(
+        'Webhook not found'
+      );
     });
 
     it('should validate webhook URL format', async () => {
@@ -202,8 +205,9 @@ describe('WebhookService', () => {
         url: 'invalid-url',
       };
 
-      await expect(webhookService.updateWebhook(webhookId, invalidUpdateData, mockUserId))
-        .rejects.toThrow('Invalid webhook URL');
+      await expect(
+        webhookService.updateWebhook(webhookId, invalidUpdateData, mockUserId)
+      ).rejects.toThrow('Invalid webhook URL');
     });
   });
 
@@ -236,8 +240,9 @@ describe('WebhookService', () => {
       const error = new Error('Webhook not found');
       mockPrisma.webhookEndpoint.delete.mockRejectedValue(error);
 
-      await expect(webhookService.deleteWebhook(webhookId, mockUserId))
-        .rejects.toThrow('Webhook not found');
+      await expect(webhookService.deleteWebhook(webhookId, mockUserId)).rejects.toThrow(
+        'Webhook not found'
+      );
     });
   });
 
@@ -307,8 +312,9 @@ describe('WebhookService', () => {
     it('should throw error when webhook not found', async () => {
       mockPrisma.webhookEndpoint.findUnique.mockResolvedValue(null);
 
-      await expect(webhookService.toggleWebhook(webhookId, mockUserId))
-        .rejects.toThrow('Webhook not found');
+      await expect(webhookService.toggleWebhook(webhookId, mockUserId)).rejects.toThrow(
+        'Webhook not found'
+      );
     });
   });
 
@@ -380,8 +386,9 @@ describe('WebhookService', () => {
       mockQueue.add.mockRejectedValue(new Error('Queue error'));
 
       // Should not throw error, just log it
-      await expect(webhookService.triggerWebhook(eventData.eventType, eventData.data))
-        .resolves.toBeUndefined();
+      await expect(
+        webhookService.triggerWebhook(eventData.eventType, eventData.data)
+      ).resolves.toBeUndefined();
     });
   });
 });

@@ -48,11 +48,7 @@ interface WebhookFormProps {
   onCancel: () => void;
 }
 
-const WebhookForm: React.FC<WebhookFormProps> = ({
-  webhook,
-  onSave,
-  onCancel,
-}) => {
+const WebhookForm: React.FC<WebhookFormProps> = ({ webhook, onSave, onCancel }) => {
   const [formData, setFormData] = useState<CreateWebhookData>({
     url: '',
     eventTypes: [],
@@ -73,7 +69,7 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
         secret: webhook.secret,
       });
     } else {
-      setFormData(prev => ({ ...prev, secret: generateWebhookSecret() }));
+      setFormData((prev) => ({ ...prev, secret: generateWebhookSecret() }));
     }
   }, [webhook]);
 
@@ -114,19 +110,22 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
     try {
       let savedWebhook: WebhookEndpoint;
-      
+
       if (webhook) {
-        savedWebhook = await webhookService.updateWebhook(webhook.id, formData as UpdateWebhookData);
+        savedWebhook = await webhookService.updateWebhook(
+          webhook.id,
+          formData as UpdateWebhookData
+        );
       } else {
         savedWebhook = await webhookService.createWebhook(formData);
       }
-      
+
       onSave(savedWebhook);
     } catch (err: any) {
       setErrors({ submit: err.message || 'Failed to save webhook' });
@@ -137,8 +136,8 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
-    setFormData(prev => ({ ...prev, url }));
-    
+    setFormData((prev) => ({ ...prev, url }));
+
     if (url.trim()) {
       const validation = validateWebhookUrl(url);
       setUrlError(validation.isValid ? null : validation.error || null);
@@ -148,16 +147,16 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
   };
 
   const handleEventTypeToggle = (eventType: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       eventTypes: prev.eventTypes.includes(eventType)
-        ? prev.eventTypes.filter(type => type !== eventType)
+        ? prev.eventTypes.filter((type) => type !== eventType)
         : [...prev.eventTypes, eventType],
     }));
   };
 
   const regenerateSecret = () => {
-    setFormData(prev => ({ ...prev, secret: generateWebhookSecret() }));
+    setFormData((prev) => ({ ...prev, secret: generateWebhookSecret() }));
   };
 
   const isEditing = !!webhook;
@@ -191,7 +190,9 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
                     value={formData.url}
                     onChange={handleUrlChange}
                     error={!!errors.url || !!urlError}
-                    helperText={errors.url || urlError || 'The endpoint URL where events will be sent'}
+                    helperText={
+                      errors.url || urlError || 'The endpoint URL where events will be sent'
+                    }
                     placeholder="https://your-domain.com/webhook"
                     disabled={loading}
                   />
@@ -205,7 +206,7 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
                       <InfoIcon sx={{ ml: 1, fontSize: 18, color: 'text.secondary' }} />
                     </Tooltip>
                   </Typography>
-                  
+
                   {errors.eventTypes && (
                     <Alert severity="error" sx={{ mb: 2 }}>
                       {errors.eventTypes}
@@ -266,23 +267,22 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
                       <InfoIcon sx={{ ml: 1, fontSize: 18, color: 'text.secondary' }} />
                     </Tooltip>
                   </Typography>
-                  
+
                   <TextField
                     fullWidth
                     type={showSecret ? 'text' : 'password'}
                     label="Secret"
                     value={formData.secret}
-                    onChange={(e) => setFormData(prev => ({ ...prev, secret: e.target.value }))}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, secret: e.target.value }))}
                     error={!!errors.secret}
-                    helperText={errors.secret || 'Used to verify webhook signatures. Keep this secure!'}
+                    helperText={
+                      errors.secret || 'Used to verify webhook signatures. Keep this secure!'
+                    }
                     disabled={loading}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowSecret(!showSecret)}
-                            edge="end"
-                          >
+                          <IconButton onClick={() => setShowSecret(!showSecret)} edge="end">
                             {showSecret ? <VisibilityOffIcon /> : <VisibilityIcon />}
                           </IconButton>
                           <IconButton
@@ -318,8 +318,10 @@ const WebhookForm: React.FC<WebhookFormProps> = ({
                     >
                       {loading ? (
                         <LoadingSpinner size={24} overlay={false} />
+                      ) : isEditing ? (
+                        'Update'
                       ) : (
-                        isEditing ? 'Update' : 'Create'
+                        'Create'
                       )}
                     </GradientButton>
                   </Box>

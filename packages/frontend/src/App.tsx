@@ -7,7 +7,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import theme from './theme/theme';
 import { ToastProvider } from './components/common';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import { ProtectedRoute, AdminProtectedRoute } from './components/auth';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -19,6 +19,14 @@ import TestConnection from './pages/TestConnection';
 import ChatInterface from './pages/ChatInterface';
 import Billing from './pages/Billing';
 import Webhooks from './pages/Webhooks';
+import {
+  MonitoringDashboard,
+  PerformanceMonitoring,
+  DatabaseMonitoring,
+  AlertsMonitoring,
+  SystemMonitoring,
+  GrafanaDashboards
+} from './pages/admin/monitoring/index-pages';
 import CommandPalette from './components/common/CommandPalette';
 import { api } from './services/api';
 
@@ -161,6 +169,17 @@ const AppContent: React.FC = () => {
             <Route path="/webhooks" element={<Webhooks />} />
             <Route path="/test-connection" element={<TestConnection />} />
             <Route path="/chat" element={<ChatInterface />} />
+            
+            {/* Admin monitoring routes with RBAC protection */}
+            <Route element={<AdminProtectedRoute />}>
+              <Route path="/admin/monitoring" element={<MonitoringDashboard />} />
+              <Route path="/admin/monitoring/performance" element={<PerformanceMonitoring />} />
+              <Route path="/admin/monitoring/database" element={<DatabaseMonitoring />} />
+              <Route path="/admin/monitoring/alerts" element={<AlertsMonitoring />} />
+              <Route path="/admin/monitoring/system" element={<SystemMonitoring />} />
+              <Route path="/admin/monitoring/grafana" element={<GrafanaDashboards />} />
+            </Route>
+            
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Route>

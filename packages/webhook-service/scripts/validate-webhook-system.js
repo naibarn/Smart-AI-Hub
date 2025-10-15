@@ -2,7 +2,7 @@
 
 /**
  * Webhook System Integration Validation Script
- * 
+ *
  * This script validates the complete webhook system by:
  * 1. Checking service health
  * 2. Testing webhook creation and management
@@ -56,26 +56,23 @@ function logInfo(message) {
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function generateSignature(payload, secret) {
-  const signature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
+  const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   return `sha256=${signature}`;
 }
 
 // Test functions
 async function testServiceHealth() {
   logInfo('Testing webhook service health...');
-  
+
   try {
     const response = await axios.get(`${WEBHOOK_SERVICE_URL}/health`, {
       timeout: 5000,
     });
-    
+
     if (response.status === 200 && response.data.status === 'ok') {
       logSuccess('Webhook service is healthy');
       return true;
@@ -91,7 +88,7 @@ async function testServiceHealth() {
 
 async function authenticateUser() {
   logInfo('Authenticating test user...');
-  
+
   try {
     // Try to login first
     try {
@@ -99,7 +96,7 @@ async function authenticateUser() {
         email: testUser.email,
         password: testUser.password,
       });
-      
+
       authToken = loginResponse.data.token;
       logSuccess('User authenticated successfully');
       return true;
@@ -107,14 +104,14 @@ async function authenticateUser() {
       // If login fails, try to register
       if (error.response && error.response.status === 401) {
         logInfo('User not found, registering...');
-        
+
         await axios.post(`${AUTH_SERVICE_URL}/api/auth/register`, testUser);
-        
+
         const loginResponse = await axios.post(`${AUTH_SERVICE_URL}/api/auth/login`, {
           email: testUser.email,
           password: testUser.password,
         });
-        
+
         authToken = loginResponse.data.token;
         logSuccess('User registered and authenticated successfully');
         return true;
@@ -130,24 +127,20 @@ async function authenticateUser() {
 
 async function testWebhookCreation() {
   logInfo('Testing webhook creation...');
-  
+
   const webhookData = {
     url: TEST_WEBHOOK_URL,
     eventTypes: ['user.created', 'user.updated', 'credit.low'],
     secret: 'test-webhook-secret-' + Date.now(),
   };
-  
+
   try {
-    const response = await axios.post(
-      `${WEBHOOK_SERVICE_URL}/api/v1/webhooks`,
-      webhookData,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
-    
+    const response = await axios.post(`${WEBHOOK_SERVICE_URL}/api/v1/webhooks`, webhookData, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
     testWebhookId = response.data.id;
     logSuccess(`Webhook created successfully with ID: ${testWebhookId}`);
     return true;
@@ -159,17 +152,14 @@ async function testWebhookCreation() {
 
 async function testWebhookListing() {
   logInfo('Testing webhook listing...');
-  
+
   try {
-    const response = await axios.get(
-      `${WEBHOOK_SERVICE_URL}/api/v1/webhooks`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
-    
+    const response = await axios.get(`${WEBHOOK_SERVICE_URL}/api/v1/webhooks`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
     if (Array.isArray(response.data) && response.data.length > 0) {
       logSuccess(`Found ${response.data.length} webhooks`);
       return true;
@@ -185,16 +175,16 @@ async function testWebhookListing() {
 
 async function testWebhookUpdate() {
   logInfo('Testing webhook update...');
-  
+
   if (!testWebhookId) {
     logError('No webhook ID available for update test');
     return false;
   }
-  
+
   const updateData = {
     eventTypes: ['user.created', 'user.updated', 'credit.low', 'credit.depleted'],
   };
-  
+
   try {
     const response = await axios.put(
       `${WEBHOOK_SERVICE_URL}/api/v1/webhooks/${testWebhookId}`,
@@ -205,7 +195,7 @@ async function testWebhookUpdate() {
         },
       }
     );
-    
+
     if (response.data.eventTypes.length === 4) {
       logSuccess('Webhook updated successfully');
       return true;
@@ -221,12 +211,12 @@ async function testWebhookUpdate() {
 
 async function testWebhookTest() {
   logInfo('Testing webhook test functionality...');
-  
+
   if (!testWebhookId) {
     logError('No webhook ID available for test');
     return false;
   }
-  
+
   const testData = {
     eventType: 'user.created',
     data: {
@@ -235,7 +225,7 @@ async function testWebhookTest() {
       name: 'Test User',
     },
   };
-  
+
   try {
     const response = await axios.post(
       `${WEBHOOK_SERVICE_URL}/api/v1/webhooks/${testWebhookId}/test`,
@@ -246,7 +236,7 @@ async function testWebhookTest() {
         },
       }
     );
-    
+
     if (response.data.success) {
       logSuccess('Webhook test sent successfully');
       return true;
@@ -262,7 +252,7 @@ async function testWebhookTest() {
 
 async function testEventTrigger() {
   logInfo('Testing event trigger via internal endpoint...');
-  
+
   const eventData = {
     eventType: 'user.created',
     data: {
@@ -271,7 +261,7 @@ async function testEventTrigger() {
       name: 'Trigger Test User',
     },
   };
-  
+
   try {
     const response = await axios.post(
       `${WEBHOOK_SERVICE_URL}/api/internal/webhooks/trigger`,
@@ -283,7 +273,7 @@ async function testEventTrigger() {
         },
       }
     );
-    
+
     if (response.data.success && response.data.triggered > 0) {
       logSuccess(`Event triggered successfully, ${response.data.triggered} webhooks notified`);
       return true;
@@ -299,12 +289,12 @@ async function testEventTrigger() {
 
 async function testWebhookLogs() {
   logInfo('Testing webhook logs retrieval...');
-  
+
   if (!testWebhookId) {
     logError('No webhook ID available for logs test');
     return false;
   }
-  
+
   try {
     const response = await axios.get(
       `${WEBHOOK_SERVICE_URL}/api/v1/webhooks/${testWebhookId}/logs`,
@@ -314,7 +304,7 @@ async function testWebhookLogs() {
         },
       }
     );
-    
+
     if (response.data.logs && Array.isArray(response.data.logs)) {
       logSuccess(`Retrieved ${response.data.logs.length} webhook logs`);
       return true;
@@ -330,12 +320,12 @@ async function testWebhookLogs() {
 
 async function testWebhookToggle() {
   logInfo('Testing webhook toggle functionality...');
-  
+
   if (!testWebhookId) {
     logError('No webhook ID available for toggle test');
     return false;
   }
-  
+
   try {
     // Toggle to inactive
     const response1 = await axios.post(
@@ -347,7 +337,7 @@ async function testWebhookToggle() {
         },
       }
     );
-    
+
     // Toggle back to active
     const response2 = await axios.post(
       `${WEBHOOK_SERVICE_URL}/api/v1/webhooks/${testWebhookId}/toggle`,
@@ -358,7 +348,7 @@ async function testWebhookToggle() {
         },
       }
     );
-    
+
     if (response1.data.isActive === false && response2.data.isActive === true) {
       logSuccess('Webhook toggle functionality works correctly');
       return true;
@@ -374,23 +364,22 @@ async function testWebhookToggle() {
 
 async function testSignatureVerification() {
   logInfo('Testing signature verification...');
-  
+
   const payload = JSON.stringify({
     id: 'test-event-123',
     eventType: 'user.created',
     data: { userId: 'test-user' },
     metadata: { timestamp: new Date().toISOString() },
   });
-  
+
   const secret = 'test-secret';
   const signature = generateSignature(payload, secret);
-  
+
   // Test valid signature
-  const isValidSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex') === signature.replace('sha256=', '');
-  
+  const isValidSignature =
+    crypto.createHmac('sha256', secret).update(payload).digest('hex') ===
+    signature.replace('sha256=', '');
+
   if (isValidSignature) {
     logSuccess('Signature verification works correctly');
     return true;
@@ -402,32 +391,31 @@ async function testSignatureVerification() {
 
 async function testRateLimiting() {
   logInfo('Testing rate limiting...');
-  
+
   const requests = [];
   const startTime = performance.now();
-  
+
   // Make multiple rapid requests
   for (let i = 0; i < 10; i++) {
     requests.push(
-      axios.get(
-        `${WEBHOOK_SERVICE_URL}/api/v1/webhooks`,
-        {
+      axios
+        .get(`${WEBHOOK_SERVICE_URL}/api/v1/webhooks`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
-        }
-      ).catch(error => error)
+        })
+        .catch((error) => error)
     );
   }
-  
+
   const responses = await Promise.all(requests);
   const endTime = performance.now();
   const duration = endTime - startTime;
-  
+
   const rateLimitedResponses = responses.filter(
-    response => response.response && response.response.status === 429
+    (response) => response.response && response.response.status === 429
   );
-  
+
   if (rateLimitedResponses.length > 0) {
     logSuccess(`Rate limiting is working (${rateLimitedResponses.length} requests rate limited)`);
     return true;
@@ -439,22 +427,19 @@ async function testRateLimiting() {
 
 async function testWebhookDeletion() {
   logInfo('Testing webhook deletion...');
-  
+
   if (!testWebhookId) {
     logError('No webhook ID available for deletion test');
     return false;
   }
-  
+
   try {
-    const response = await axios.delete(
-      `${WEBHOOK_SERVICE_URL}/api/v1/webhooks/${testWebhookId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    );
-    
+    const response = await axios.delete(`${WEBHOOK_SERVICE_URL}/api/v1/webhooks/${testWebhookId}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
     if (response.data.id === testWebhookId) {
       logSuccess('Webhook deleted successfully');
       return true;
@@ -471,9 +456,9 @@ async function testWebhookDeletion() {
 async function runValidation() {
   logInfo('🚀 Starting Webhook System Integration Validation');
   logInfo('================================================');
-  
+
   const results = [];
-  
+
   // Run all tests
   const tests = [
     { name: 'Service Health', fn: testServiceHealth },
@@ -489,22 +474,22 @@ async function runValidation() {
     { name: 'Rate Limiting', fn: testRateLimiting },
     { name: 'Webhook Deletion', fn: testWebhookDeletion },
   ];
-  
+
   for (const test of tests) {
     logInfo(`Running test: ${test.name}`);
     const startTime = performance.now();
-    
+
     try {
       const result = await test.fn();
       const endTime = performance.now();
       const duration = Math.round(endTime - startTime);
-      
+
       results.push({
         name: test.name,
         passed: result,
         duration,
       });
-      
+
       if (result) {
         logSuccess(`${test.name} passed (${duration}ms)`);
       } else {
@@ -513,45 +498,47 @@ async function runValidation() {
     } catch (error) {
       const endTime = performance.now();
       const duration = Math.round(endTime - startTime);
-      
+
       results.push({
         name: test.name,
         passed: false,
         duration,
         error: error.message,
       });
-      
+
       logError(`${test.name} failed with error: ${error.message} (${duration}ms)`);
     }
-    
+
     // Small delay between tests
     await sleep(500);
   }
-  
+
   // Summary
   logInfo('================================================');
   logInfo('📊 VALIDATION SUMMARY');
   logInfo('================================================');
-  
-  const passed = results.filter(r => r.passed).length;
-  const failed = results.filter(r => !r.passed).length;
+
+  const passed = results.filter((r) => r.passed).length;
+  const failed = results.filter((r) => !r.passed).length;
   const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
-  
+
   logInfo(`Total Tests: ${results.length}`);
   logSuccess(`Passed: ${passed}`);
   logError(`Failed: ${failed}`);
   logInfo(`Total Duration: ${totalDuration}ms`);
-  
+
   if (failed > 0) {
     logInfo('================================================');
     logError('FAILED TESTS:');
-    results.filter(r => !r.passed).forEach(test => {
-      logError(`  - ${test.name}${test.error ? ': ' + test.error : ''}`);
-    });
+    results
+      .filter((r) => !r.passed)
+      .forEach((test) => {
+        logError(`  - ${test.name}${test.error ? ': ' + test.error : ''}`);
+      });
   }
-  
+
   logInfo('================================================');
-  
+
   if (passed === results.length) {
     logSuccess('🎉 ALL TESTS PASSED! Webhook system is fully functional.');
     process.exit(0);
@@ -574,7 +561,7 @@ process.on('uncaughtException', (error) => {
 
 // Run validation
 if (require.main === module) {
-  runValidation().catch(error => {
+  runValidation().catch((error) => {
     logError(`Validation script failed: ${error.message}`);
     process.exit(1);
   });

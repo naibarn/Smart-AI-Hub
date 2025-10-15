@@ -31,13 +31,13 @@ export const successResponse = <T>(
     data,
     meta: {
       timestamp: new Date().toISOString(),
-      request_id: id
-    }
+      request_id: id,
+    },
   };
 
   // Set request ID header
   res.setHeader('X-Request-ID', id);
-  
+
   return res.status(statusCode).json(response);
 };
 
@@ -65,13 +65,13 @@ export const errorResponse = (
       message,
       ...(details && { details }),
       timestamp: new Date().toISOString(),
-      request_id: id
-    }
+      request_id: id,
+    },
   };
 
   // Set request ID header
   res.setHeader('X-Request-ID', id);
-  
+
   return res.status(statusCode).json(response);
 };
 
@@ -99,24 +99,24 @@ export const paginatedResponse = <T>(
   const id = requestId || generateRequestId();
   const perPage = pagination.per_page || pagination.limit || 20;
   const totalPages = pagination.total_pages || Math.ceil(pagination.total / perPage);
-  
+
   const response = {
     data,
     pagination: {
       page: pagination.page,
       per_page: perPage,
       total: pagination.total,
-      total_pages: totalPages
+      total_pages: totalPages,
     },
     meta: {
       timestamp: new Date().toISOString(),
-      request_id: id
-    }
+      request_id: id,
+    },
   };
 
   // Set request ID header
   res.setHeader('X-Request-ID', id);
-  
+
   return res.status(statusCode).json(response);
 };
 
@@ -145,8 +145,8 @@ export const deprecationResponse = <T>(
       request_id: id,
       deprecated: true,
       deprecation_message: deprecationMessage,
-      new_endpoint: newEndpoint
-    }
+      new_endpoint: newEndpoint,
+    },
   };
 
   // Set headers for deprecation
@@ -154,6 +154,6 @@ export const deprecationResponse = <T>(
   res.setHeader('Deprecation', 'true');
   res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
   res.setHeader('Link', `<${newEndpoint}>; rel="successor-version"`);
-  
+
   return res.status(statusCode).json(response);
 };

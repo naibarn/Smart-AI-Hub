@@ -1,0 +1,384 @@
+groups:
+  - name: smart-ai-hub.rules
+    rules:
+      # Service Down Alerts
+      - alert: AuthServiceDown
+        expr: up{job="auth-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service is down"
+          description: "Auth Service has been down for more than 1 minute"
+
+      - alert: CoreServiceDown
+        expr: up{job="core-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service is down"
+          description: "Core Service has been down for more than 1 minute"
+
+      - alert: MCPServerDown
+        expr: up{job="mcp-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: mcp-server
+          team: platform
+        annotations:
+          summary: "MCP Server is down"
+          description: "MCP Server has been down for more than 1 minute"
+
+      - alert: WebhookServiceDown
+        expr: up{job="webhook-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service is down"
+          description: "Webhook Service has been down for more than 1 minute"
+
+      - alert: NotificationServiceDown
+        expr: up{job="notification-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: notification-service
+          team: platform
+        annotations:
+          summary: "Notification Service is down"
+          description: "Notification Service has been down for more than 1 minute"
+
+      # High Error Rate Alerts
+      - alert: AuthServiceHighErrorRate
+        expr: rate(auth_service_http_requests_total{status_code=~"5.."}[5m]) / rate(auth_service_http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service has high error rate"
+          description: "Auth Service error rate is above 10% for more than 2 minutes"
+
+      - alert: CoreServiceHighErrorRate
+        expr: rate(core_service_http_requests_total{status_code=~"5.."}[5m]) / rate(core_service_http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service has high error rate"
+          description: "Core Service error rate is above 10% for more than 2 minutes"
+
+      - alert: MCPServerHighErrorRate
+        expr: rate(mcp_server_http_requests_total{status_code=~"5.."}[5m]) / rate(mcp_server_http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: mcp-server
+          team: platform
+        annotations:
+          summary: "MCP Server has high error rate"
+          description: "MCP Server error rate is above 10% for more than 2 minutes"
+
+      - alert: WebhookServiceHighErrorRate
+        expr: rate(webhook_service_http_requests_total{status_code=~"5.."}[5m]) / rate(webhook_service_http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service has high error rate"
+          description: "Webhook Service error rate is above 10% for more than 2 minutes"
+
+      - alert: NotificationServiceHighErrorRate
+        expr: rate(notification_service_http_requests_total{status_code=~"5.."}[5m]) / rate(notification_service_http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: notification-service
+          team: platform
+        annotations:
+          summary: "Notification Service has high error rate"
+          description: "Notification Service error rate is above 10% for more than 2 minutes"
+
+      # High Response Time Alerts
+      - alert: AuthServiceHighResponseTime
+        expr: histogram_quantile(0.95, rate(auth_service_http_request_duration_seconds_bucket[5m])) > 1
+        for: 3m
+        labels:
+          severity: warning
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service has high response time"
+          description: "Auth Service 95th percentile response time is above 1 second for more than 3 minutes"
+
+      - alert: CoreServiceHighResponseTime
+        expr: histogram_quantile(0.95, rate(core_service_http_request_duration_seconds_bucket[5m])) > 1
+        for: 3m
+        labels:
+          severity: warning
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service has high response time"
+          description: "Core Service 95th percentile response time is above 1 second for more than 3 minutes"
+
+      - alert: MCPServerHighResponseTime
+        expr: histogram_quantile(0.95, rate(mcp_server_http_request_duration_seconds_bucket[5m])) > 1
+        for: 3m
+        labels:
+          severity: warning
+          service: mcp-server
+          team: platform
+        annotations:
+          summary: "MCP Server has high response time"
+          description: "MCP Server 95th percentile response time is above 1 second for more than 3 minutes"
+
+      - alert: WebhookServiceHighResponseTime
+        expr: histogram_quantile(0.95, rate(webhook_service_http_request_duration_seconds_bucket[5m])) > 1
+        for: 3m
+        labels:
+          severity: warning
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service has high response time"
+          description: "Webhook Service 95th percentile response time is above 1 second for more than 3 minutes"
+
+      - alert: NotificationServiceHighResponseTime
+        expr: histogram_quantile(0.95, rate(notification_service_http_request_duration_seconds_bucket[5m])) > 1
+        for: 3m
+        labels:
+          severity: warning
+          service: notification-service
+          team: platform
+        annotations:
+          summary: "Notification Service has high response time"
+          description: "Notification Service 95th percentile response time is above 1 second for more than 3 minutes"
+
+      # High Memory Usage Alerts
+      - alert: AuthServiceHighMemoryUsage
+        expr: process_resident_memory_bytes{job="auth-service"} / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service has high memory usage"
+          description: "Auth Service memory usage is above 512MB for more than 5 minutes"
+
+      - alert: CoreServiceHighMemoryUsage
+        expr: process_resident_memory_bytes{job="core-service"} / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service has high memory usage"
+          description: "Core Service memory usage is above 512MB for more than 5 minutes"
+
+      - alert: MCPServerHighMemoryUsage
+        expr: process_resident_memory_bytes{job="mcp-server"} / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: mcp-server
+          team: platform
+        annotations:
+          summary: "MCP Server has high memory usage"
+          description: "MCP Server memory usage is above 512MB for more than 5 minutes"
+
+      - alert: WebhookServiceHighMemoryUsage
+        expr: process_resident_memory_bytes{job="webhook-service"} / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service has high memory usage"
+          description: "Webhook Service memory usage is above 512MB for more than 5 minutes"
+
+      - alert: NotificationServiceHighMemoryUsage
+        expr: process_resident_memory_bytes{job="notification-service"} / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: notification-service
+          team: platform
+        annotations:
+          summary: "Notification Service has high memory usage"
+          description: "Notification Service memory usage is above 512MB for more than 5 minutes"
+
+      # High CPU Usage Alerts
+      - alert: AuthServiceHighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="auth-service"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service has high CPU usage"
+          description: "Auth Service CPU usage is above 80% for more than 5 minutes"
+
+      - alert: CoreServiceHighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="core-service"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service has high CPU usage"
+          description: "Core Service CPU usage is above 80% for more than 5 minutes"
+
+      - alert: MCPServerHighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="mcp-server"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: mcp-server
+          team: platform
+        annotations:
+          summary: "MCP Server has high CPU usage"
+          description: "MCP Server CPU usage is above 80% for more than 5 minutes"
+
+      - alert: WebhookServiceHighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="webhook-service"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service has high CPU usage"
+          description: "Webhook Service CPU usage is above 80% for more than 5 minutes"
+
+      - alert: NotificationServiceHighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="notification-service"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: notification-service
+          team: platform
+        annotations:
+          summary: "Notification Service has high CPU usage"
+          description: "Notification Service CPU usage is above 80% for more than 5 minutes"
+
+      # Unusual Traffic Alerts
+      - alert: AuthServiceUnusualTraffic
+        expr: rate(auth_service_http_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: info
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service has unusual traffic pattern"
+          description: "Auth Service is receiving more than 100 requests per second for more than 2 minutes"
+
+      - alert: CoreServiceUnusualTraffic
+        expr: rate(core_service_http_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: info
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service has unusual traffic pattern"
+          description: "Core Service is receiving more than 100 requests per second for more than 2 minutes"
+
+      - alert: MCPServerUnusualTraffic
+        expr: rate(mcp_server_http_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: info
+          service: mcp-server
+          team: platform
+        annotations:
+          summary: "MCP Server has unusual traffic pattern"
+          description: "MCP Server is receiving more than 100 requests per second for more than 2 minutes"
+
+      - alert: WebhookServiceUnusualTraffic
+        expr: rate(webhook_service_http_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: info
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service has unusual traffic pattern"
+          description: "Webhook Service is receiving more than 100 requests per second for more than 2 minutes"
+
+      - alert: NotificationServiceUnusualTraffic
+        expr: rate(notification_service_http_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: info
+          service: notification-service
+          team: platform
+        annotations:
+          summary: "Notification Service has unusual traffic pattern"
+          description: "Notification Service is receiving more than 100 requests per second for more than 2 minutes"
+
+      # Database Connection Issues
+      - alert: AuthServiceDatabaseConnectionIssues
+        expr: auth_service_database_connections == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: auth-service
+          team: platform
+        annotations:
+          summary: "Auth Service has no database connections"
+          description: "Auth Service has no active database connections for more than 1 minute"
+
+      - alert: CoreServiceDatabaseConnectionIssues
+        expr: core_service_database_connections == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: core-service
+          team: platform
+        annotations:
+          summary: "Core Service has no database connections"
+          description: "Core Service has no active database connections for more than 1 minute"
+
+      - alert: WebhookServiceDatabaseConnectionIssues
+        expr: webhook_service_database_connections == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: webhook-service
+          team: platform
+        annotations:
+          summary: "Webhook Service has no database connections"
+          description: "Webhook Service has no active database connections for more than 1 minute"
+
+      # Slow Database Queries Alert
+      - alert: SlowDatabaseQueries
+        expr: rate(database_query_duration_seconds_sum[5m]) / rate(database_query_duration_seconds_count[5m]) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: database
+          team: platform
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Database queries are taking more than 2 seconds on average for more than 3 minutes"

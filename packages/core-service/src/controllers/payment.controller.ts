@@ -121,10 +121,15 @@ export const handleCancel = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    successResponse({
-      message: 'Payment canceled',
-      description: 'Your payment was canceled. No charges were made.',
-    }, res, 200, req.requestId);
+    successResponse(
+      {
+        message: 'Payment canceled',
+        description: 'Your payment was canceled. No charges were made.',
+      },
+      res,
+      200,
+      req.requestId
+    );
   } catch (error) {
     next(error);
   }
@@ -179,7 +184,14 @@ export const handleWebhook = async (
   } catch (error) {
     console.error('Webhook error:', error);
     if (error instanceof Error && error.message.includes('signature verification failed')) {
-      errorResponse('WEBHOOK_ERROR', `Webhook Error: ${error.message}`, res, 400, null, req.requestId);
+      errorResponse(
+        'WEBHOOK_ERROR',
+        `Webhook Error: ${error.message}`,
+        res,
+        400,
+        null,
+        req.requestId
+      );
       return;
     }
     next(error);
@@ -226,7 +238,14 @@ export const handleStripeWebhook = async (
   } catch (error) {
     console.error('Stripe webhook error:', error);
     if (error instanceof Error && error.message.includes('signature verification failed')) {
-      errorResponse('WEBHOOK_ERROR', `Webhook Error: ${error.message}`, res, 400, null, req.requestId);
+      errorResponse(
+        'WEBHOOK_ERROR',
+        `Webhook Error: ${error.message}`,
+        res,
+        400,
+        null,
+        req.requestId
+      );
       return;
     }
     next(error);
@@ -275,7 +294,7 @@ export const getPaymentHistory = async (
         page,
         per_page: limit,
         total: history.total,
-        total_pages: Math.ceil(history.total / limit)
+        total_pages: Math.ceil(history.total / limit),
       },
       res,
       200,

@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { webhookController } from '../controllers/webhook.controller';
 import { authenticateJWT } from '../middleware/auth.middleware';
-import { apiRateLimiter, webhookUrlValidator, payloadSizeLimiter } from '../middleware/rateLimiter.middleware';
+import {
+  apiRateLimiter,
+  webhookUrlValidator,
+  payloadSizeLimiter,
+} from '../middleware/rateLimiter.middleware';
 import Joi from 'joi';
 
 const router = Router();
@@ -16,17 +20,23 @@ const createWebhookSchema = Joi.object({
     'string.uri': 'URL must be a valid URI',
     'any.required': 'URL is required',
   }),
-  events: Joi.array().items(Joi.string().valid(
-    'user.created',
-    'credit.depleted',
-    'credit.low',
-    'service.completed',
-    'service.failed'
-  )).min(1).required().messages({
-    'array.min': 'At least one event type is required',
-    'any.only': 'Invalid event type',
-    'any.required': 'Events are required',
-  }),
+  events: Joi.array()
+    .items(
+      Joi.string().valid(
+        'user.created',
+        'credit.depleted',
+        'credit.low',
+        'service.completed',
+        'service.failed'
+      )
+    )
+    .min(1)
+    .required()
+    .messages({
+      'array.min': 'At least one event type is required',
+      'any.only': 'Invalid event type',
+      'any.required': 'Events are required',
+    }),
   description: Joi.string().optional().max(500).messages({
     'string.max': 'Description must be less than 500 characters',
   }),
@@ -36,16 +46,22 @@ const updateWebhookSchema = Joi.object({
   url: Joi.string().uri().optional().messages({
     'string.uri': 'URL must be a valid URI',
   }),
-  events: Joi.array().items(Joi.string().valid(
-    'user.created',
-    'credit.depleted',
-    'credit.low',
-    'service.completed',
-    'service.failed'
-  )).min(1).optional().messages({
-    'array.min': 'At least one event type is required',
-    'any.only': 'Invalid event type',
-  }),
+  events: Joi.array()
+    .items(
+      Joi.string().valid(
+        'user.created',
+        'credit.depleted',
+        'credit.low',
+        'service.completed',
+        'service.failed'
+      )
+    )
+    .min(1)
+    .optional()
+    .messages({
+      'array.min': 'At least one event type is required',
+      'any.only': 'Invalid event type',
+    }),
   description: Joi.string().optional().max(500).allow('').messages({
     'string.max': 'Description must be less than 500 characters',
   }),
@@ -53,16 +69,13 @@ const updateWebhookSchema = Joi.object({
 });
 
 const testWebhookSchema = Joi.object({
-  eventType: Joi.string().valid(
-    'user.created',
-    'credit.depleted',
-    'credit.low',
-    'service.completed',
-    'service.failed'
-  ).required().messages({
-    'any.only': 'Invalid event type',
-    'any.required': 'Event type is required',
-  }),
+  eventType: Joi.string()
+    .valid('user.created', 'credit.depleted', 'credit.low', 'service.completed', 'service.failed')
+    .required()
+    .messages({
+      'any.only': 'Invalid event type',
+      'any.required': 'Event type is required',
+    }),
   payload: Joi.object().optional(),
 });
 

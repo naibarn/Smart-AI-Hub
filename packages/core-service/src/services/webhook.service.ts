@@ -19,7 +19,12 @@ class WebhookService {
   /**
    * Trigger webhook event
    */
-  async triggerEvent(eventType: string, userId: string, data: any, metadata: any = {}): Promise<void> {
+  async triggerEvent(
+    eventType: string,
+    userId: string,
+    data: any,
+    metadata: any = {}
+  ): Promise<void> {
     try {
       if (!this.internalSecret) {
         console.warn('Webhook service integration not configured - skipping webhook trigger');
@@ -42,7 +47,7 @@ class WebhookService {
         payload,
         {
           headers: {
-            'Authorization': `Bearer ${this.internalSecret}`,
+            Authorization: `Bearer ${this.internalSecret}`,
             'Content-Type': 'application/json',
           },
           timeout: 5000, // 5 seconds timeout
@@ -53,7 +58,7 @@ class WebhookService {
     } catch (error: any) {
       // Log error but don't fail the main operation
       console.error(`Failed to trigger webhook: ${eventType} for user ${userId}:`, error.message);
-      
+
       if (error.response) {
         console.error('Webhook service response:', error.response.status, error.response.data);
       }
@@ -63,94 +68,142 @@ class WebhookService {
   /**
    * Trigger credit.depleted event
    */
-  async triggerCreditDepleted(userId: string, balance: number, transactionData: any): Promise<void> {
-    return await this.triggerEvent('credit.depleted', userId, {
+  async triggerCreditDepleted(
+    userId: string,
+    balance: number,
+    transactionData: any
+  ): Promise<void> {
+    return await this.triggerEvent(
+      'credit.depleted',
       userId,
-      balance,
-      previousBalance: transactionData.balanceAfter + transactionData.amount,
-      transactionId: transactionData.id,
-      transactionType: transactionData.type,
-      amount: transactionData.amount,
-      description: transactionData.description,
-      depletedAt: new Date().toISOString(),
-    }, {
-      source: 'credit_transaction',
-      transactionId: transactionData.id,
-    });
+      {
+        userId,
+        balance,
+        previousBalance: transactionData.balanceAfter + transactionData.amount,
+        transactionId: transactionData.id,
+        transactionType: transactionData.type,
+        amount: transactionData.amount,
+        description: transactionData.description,
+        depletedAt: new Date().toISOString(),
+      },
+      {
+        source: 'credit_transaction',
+        transactionId: transactionData.id,
+      }
+    );
   }
 
   /**
    * Trigger credit.low event (when credits fall below threshold)
    */
   async triggerCreditLow(userId: string, balance: number, threshold: number = 10): Promise<void> {
-    return await this.triggerEvent('credit.low', userId, {
+    return await this.triggerEvent(
+      'credit.low',
       userId,
-      balance,
-      threshold,
-      lowCreditAt: new Date().toISOString(),
-    }, {
-      source: 'credit_monitoring',
-      threshold,
-    });
+      {
+        userId,
+        balance,
+        threshold,
+        lowCreditAt: new Date().toISOString(),
+      },
+      {
+        source: 'credit_monitoring',
+        threshold,
+      }
+    );
   }
 
   /**
    * Trigger credit.purchased event
    */
-  async triggerCreditPurchased(userId: string, amount: number, balance: number, paymentData: any): Promise<void> {
-    return await this.triggerEvent('credit.purchased', userId, {
+  async triggerCreditPurchased(
+    userId: string,
+    amount: number,
+    balance: number,
+    paymentData: any
+  ): Promise<void> {
+    return await this.triggerEvent(
+      'credit.purchased',
       userId,
-      amount,
-      balance,
-      previousBalance: balance - amount,
-      transactionId: paymentData.transactionId,
-      paymentMethod: paymentData.paymentMethod,
-      purchasedAt: new Date().toISOString(),
-    }, {
-      source: 'payment',
-      paymentId: paymentData.paymentId,
-    });
+      {
+        userId,
+        amount,
+        balance,
+        previousBalance: balance - amount,
+        transactionId: paymentData.transactionId,
+        paymentMethod: paymentData.paymentMethod,
+        purchasedAt: new Date().toISOString(),
+      },
+      {
+        source: 'payment',
+        paymentId: paymentData.paymentId,
+      }
+    );
   }
 
   /**
    * Trigger credit.refunded event
    */
-  async triggerCreditRefunded(userId: string, amount: number, balance: number, refundData: any): Promise<void> {
-    return await this.triggerEvent('credit.refunded', userId, {
+  async triggerCreditRefunded(
+    userId: string,
+    amount: number,
+    balance: number,
+    refundData: any
+  ): Promise<void> {
+    return await this.triggerEvent(
+      'credit.refunded',
       userId,
-      amount,
-      balance,
-      previousBalance: balance - amount,
-      transactionId: refundData.transactionId,
-      reason: refundData.reason,
-      refundedAt: new Date().toISOString(),
-    }, {
-      source: 'refund',
-      refundId: refundData.refundId,
-    });
+      {
+        userId,
+        amount,
+        balance,
+        previousBalance: balance - amount,
+        transactionId: refundData.transactionId,
+        reason: refundData.reason,
+        refundedAt: new Date().toISOString(),
+      },
+      {
+        source: 'refund',
+        refundId: refundData.refundId,
+      }
+    );
   }
 
   /**
    * Trigger credit.promo_redeemed event
    */
-  async triggerCreditPromoRedeemed(userId: string, promoCode: string, credits: number, balance: number): Promise<void> {
-    return await this.triggerEvent('credit.promo_redeemed', userId, {
+  async triggerCreditPromoRedeemed(
+    userId: string,
+    promoCode: string,
+    credits: number,
+    balance: number
+  ): Promise<void> {
+    return await this.triggerEvent(
+      'credit.promo_redeemed',
       userId,
-      promoCode,
-      credits,
-      balance,
-      previousBalance: balance - credits,
-      redeemedAt: new Date().toISOString(),
-    }, {
-      source: 'promo_code',
-      promoCode,
-    });
+      {
+        userId,
+        promoCode,
+        credits,
+        balance,
+        previousBalance: balance - credits,
+        redeemedAt: new Date().toISOString(),
+      },
+      {
+        source: 'promo_code',
+        promoCode,
+      }
+    );
   }
 
   /**
    * Check if credit is low and trigger appropriate webhook
    */
-  async checkAndTriggerLowCredit(userId: string, balance: number, threshold: number = 10): Promise<void> {
+  async checkAndTriggerLowCredit(
+    userId: string,
+    balance: number,
+    threshold: number = 10
+  ): Promise<void> {
     if (balance <= threshold) {
       await this.triggerCreditLow(userId, balance, threshold);
     }
@@ -159,7 +212,11 @@ class WebhookService {
   /**
    * Check if credit is depleted and trigger appropriate webhook
    */
-  async checkAndTriggerCreditDepleted(userId: string, balance: number, transactionData: any): Promise<void> {
+  async checkAndTriggerCreditDepleted(
+    userId: string,
+    balance: number,
+    transactionData: any
+  ): Promise<void> {
     if (balance <= 0) {
       await this.triggerCreditDepleted(userId, balance, transactionData);
     }
@@ -170,15 +227,12 @@ class WebhookService {
    */
   async checkHealth(): Promise<any> {
     try {
-      const response = await axios.get(
-        `${this.webhookServiceUrl}/internal/health`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.internalSecret}`,
-          },
-          timeout: 3000,
-        }
-      );
+      const response = await axios.get(`${this.webhookServiceUrl}/internal/health`, {
+        headers: {
+          Authorization: `Bearer ${this.internalSecret}`,
+        },
+        timeout: 3000,
+      });
 
       return response.data;
     } catch (error: any) {

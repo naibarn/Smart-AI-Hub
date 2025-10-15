@@ -14,7 +14,10 @@ export class ConnectionService {
   private connections: Map<string, ActiveConnection> = new Map();
   private userConnections: Map<string, Set<string>> = new Map(); // userId → connectionIds
   private connectionAuthMetadata: Map<string, AuthMetadata> = new Map(); // connectionId → auth metadata
-  private connectionUsageStats: Map<string, { requests: number; tokens: number; lastReset: number }> = new Map(); // connectionId → usage stats
+  private connectionUsageStats: Map<
+    string,
+    { requests: number; tokens: number; lastReset: number }
+  > = new Map(); // connectionId → usage stats
 
   /**
    * Create a new connection and add to tracking
@@ -354,7 +357,8 @@ export class ConnectionService {
 
     // Reset stats if more than a minute has passed
     const now = Date.now();
-    if (now - stats.lastReset > 60000) { // 1 minute
+    if (now - stats.lastReset > 60000) {
+      // 1 minute
       stats.requests = 0;
       stats.tokens = 0;
       stats.lastReset = now;

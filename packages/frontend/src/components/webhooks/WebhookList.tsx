@@ -42,7 +42,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '../common/GlassCard';
 import GradientButton from '../common/GradientButton';
 import LoadingSpinner from '../common/LoadingSpinner';
-import { webhookService, WebhookEndpoint, formatWebhookStatus, formatDate } from '../../services/webhook.service';
+import {
+  webhookService,
+  WebhookEndpoint,
+  formatWebhookStatus,
+  formatDate,
+} from '../../services/webhook.service';
 
 interface WebhookListProps {
   onEdit?: (webhook: WebhookEndpoint) => void;
@@ -50,11 +55,7 @@ interface WebhookListProps {
   onCreateNew?: () => void;
 }
 
-const WebhookList: React.FC<WebhookListProps> = ({
-  onEdit,
-  onViewLogs,
-  onCreateNew,
-}) => {
+const WebhookList: React.FC<WebhookListProps> = ({ onEdit, onViewLogs, onCreateNew }) => {
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +106,7 @@ const WebhookList: React.FC<WebhookListProps> = ({
 
   const handleDelete = async () => {
     if (!selectedWebhook) return;
-    
+
     try {
       await webhookService.deleteWebhook(selectedWebhook.id);
       setDeleteDialogOpen(false);
@@ -118,7 +119,7 @@ const WebhookList: React.FC<WebhookListProps> = ({
 
   const handleTest = async () => {
     if (!selectedWebhook) return;
-    
+
     try {
       setTestingWebhook(true);
       const result = await webhookService.testWebhook(selectedWebhook.id, {
@@ -182,11 +183,7 @@ const WebhookList: React.FC<WebhookListProps> = ({
           >
             Refresh
           </GradientButton>
-          <GradientButton
-            variant="primary"
-            startIcon={<AddIcon />}
-            onClick={onCreateNew}
-          >
+          <GradientButton variant="primary" startIcon={<AddIcon />} onClick={onCreateNew}>
             Create Webhook
           </GradientButton>
         </Box>
@@ -370,7 +367,9 @@ const WebhookList: React.FC<WebhookListProps> = ({
             Are you sure you want to delete this webhook? This action cannot be undone.
           </Typography>
           {selectedWebhook && (
-            <Box sx={{ mt: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 1 }}>
+            <Box
+              sx={{ mt: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 1 }}
+            >
               <Typography variant="body2" color="text.secondary">
                 URL: {selectedWebhook.url}
               </Typography>
@@ -406,28 +405,23 @@ const WebhookList: React.FC<WebhookListProps> = ({
             Send a test event to your webhook endpoint to verify it's working correctly.
           </Typography>
           {selectedWebhook && (
-            <Box sx={{ mb: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 1 }}>
+            <Box
+              sx={{ mb: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 1 }}
+            >
               <Typography variant="body2" color="text.secondary">
                 URL: {selectedWebhook.url}
               </Typography>
             </Box>
           )}
           {testResult && (
-            <Alert
-              severity={testResult.success ? 'success' : 'error'}
-              sx={{ mt: 2 }}
-            >
+            <Alert severity={testResult.success ? 'success' : 'error'} sx={{ mt: 2 }}>
               {testResult.message}
             </Alert>
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setTestDialogOpen(false)}>Close</Button>
-          <GradientButton
-            variant="primary"
-            onClick={handleTest}
-            disabled={testingWebhook}
-          >
+          <GradientButton variant="primary" onClick={handleTest} disabled={testingWebhook}>
             {testingWebhook ? 'Testing...' : 'Send Test'}
           </GradientButton>
         </DialogActions>

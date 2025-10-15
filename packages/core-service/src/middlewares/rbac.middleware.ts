@@ -18,7 +18,7 @@ export const requirePermission = (resource: string, action: string) => {
     try {
       // Check if user has the required permission
       const userHasPermission = await hasPermission(req.user.id, resource, action);
-      
+
       if (userHasPermission) {
         next();
         return;
@@ -54,10 +54,10 @@ export const requireRoles = (roles: string[]) => {
     try {
       // Get user's roles from the request or fetch from service
       const userRoles = req.user.roles || [];
-      
+
       // Check if user has any of the required roles
-      const hasRequiredRole = roles.some(role => userRoles.includes(role));
-      
+      const hasRequiredRole = roles.some((role) => userRoles.includes(role));
+
       if (hasRequiredRole) {
         next();
         return;
@@ -100,10 +100,10 @@ export const requireSelfOrRole = (roles: string[]) => {
 
       // Get user's roles from the request or fetch from service
       const userRoles = req.user.roles || [];
-      
+
       // Check if user has any of the required roles
-      const hasRequiredRole = roles.some(role => userRoles.includes(role));
-      
+      const hasRequiredRole = roles.some((role) => userRoles.includes(role));
+
       if (hasRequiredRole) {
         next();
         return;

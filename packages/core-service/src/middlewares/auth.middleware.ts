@@ -153,7 +153,7 @@ export const requireRole = (requiredRole: string) => {
       return;
     }
 
-    const userRoleNames = req.user.roles.map(r => r.name);
+    const userRoleNames = req.user.roles.map((r) => r.name);
     if (!userRoleNames.includes(requiredRole)) {
       res.status(403).json({
         error: 'Insufficient permissions',
@@ -176,7 +176,7 @@ export const authenticateService = async (
 ): Promise<void> => {
   try {
     const serviceToken = req.headers['x-service-token'] as string;
-    
+
     if (!serviceToken) {
       res.status(401).json({
         error: 'Service authentication required',
@@ -185,11 +185,12 @@ export const authenticateService = async (
       return;
     }
 
-    const serviceSecret = process.env.SERVICE_TOKEN_SECRET || 'service-secret-key-change-in-production';
-    
+    const serviceSecret =
+      process.env.SERVICE_TOKEN_SECRET || 'service-secret-key-change-in-production';
+
     try {
       const decoded = jwt.verify(serviceToken, serviceSecret) as any;
-      
+
       if (decoded.type !== 'service') {
         res.status(401).json({
           error: 'Invalid service token',

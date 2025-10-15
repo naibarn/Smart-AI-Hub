@@ -62,12 +62,7 @@ export const getDashboard = async (
     // Get dashboard data
     const dashboardData = await analyticsService.getDashboardData(filters);
 
-    successResponse(
-      dashboardData,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(dashboardData, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -119,12 +114,7 @@ export const getUsageMetrics = async (
     // Get usage metrics
     const metrics = await analyticsService.getUsageMetrics(filters);
 
-    successResponse(
-      metrics,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(metrics, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -168,12 +158,7 @@ export const getUsageByService = async (
     // Get usage by service
     const serviceUsage = await analyticsService.getUsageByService(filters);
 
-    successResponse(
-      serviceUsage,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(serviceUsage, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -221,12 +206,7 @@ export const getUsageByModel = async (
     // Get usage by model
     const modelUsage = await analyticsService.getUsageByModel(filters);
 
-    successResponse(
-      modelUsage,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(modelUsage, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -282,14 +262,12 @@ export const getUsageTimeSeries = async (
     }
 
     // Get time series data
-    const timeSeries = await analyticsService.getUsageTimeSeries(filters, groupBy as 'day' | 'week' | 'month');
-
-    successResponse(
-      timeSeries,
-      res,
-      200,
-      req.requestId
+    const timeSeries = await analyticsService.getUsageTimeSeries(
+      filters,
+      groupBy as 'day' | 'week' | 'month'
     );
+
+    successResponse(timeSeries, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -343,12 +321,7 @@ export const getTopUsers = async (
     // Get top users
     const topUsers = await analyticsService.getTopUsers(filters, limit);
 
-    successResponse(
-      topUsers,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(topUsers, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -422,10 +395,10 @@ export const exportUsageData = async (
       'Tokens',
       'Credits',
       'Metadata',
-      'Created At'
+      'Created At',
     ];
 
-    const csvRows = data.map(row => [
+    const csvRows = data.map((row) => [
       row.id,
       row.userId,
       row.email,
@@ -434,14 +407,17 @@ export const exportUsageData = async (
       row.tokens,
       row.credits,
       `"${row.metadata.replace(/"/g, '""')}"`, // Escape quotes in CSV
-      row.createdAt
+      row.createdAt,
     ]);
 
-    const csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+    const csvContent = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
 
     // Set response headers for CSV download
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="usage-data-${new Date().toISOString().split('T')[0]}.csv"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="usage-data-${new Date().toISOString().split('T')[0]}.csv"`
+    );
     res.setHeader('X-Total-Count', total.toString());
 
     res.send(csvContent);
@@ -506,12 +482,7 @@ export const getMyUsage = async (
       timeSeries,
     };
 
-    successResponse(
-      userData,
-      res,
-      200,
-      req.requestId
-    );
+    successResponse(userData, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }

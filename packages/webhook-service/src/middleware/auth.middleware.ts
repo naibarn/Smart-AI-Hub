@@ -111,11 +111,7 @@ export const authenticateJWT = async (
  * Internal service authentication middleware
  * Uses a shared secret for service-to-service communication
  */
-export const authenticateInternal = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const authenticateInternal = (req: Request, res: Response, next: NextFunction): void => {
   try {
     const authHeader = req.headers.authorization;
     const internalSecret = process.env.INTERNAL_SERVICE_SECRET;
