@@ -5,11 +5,7 @@ import { logger } from '../utils/logger';
 
 export class ClaudeProvider extends BaseLLMProvider {
   private anthropic: Anthropic;
-  private supportedModels: string[] = [
-    'claude-3-opus',
-    'claude-3-sonnet',
-    'claude-3-haiku',
-  ];
+  private supportedModels: string[] = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
 
   constructor(apiKey: string) {
     super();
@@ -29,10 +25,13 @@ export class ClaudeProvider extends BaseLLMProvider {
 
   private async *executeStreaming(request: LLMRequest): AsyncIterable<LLMResponse> {
     try {
-      const systemMessages = request.messages.filter(msg => msg.role === 'system');
-      const system = systemMessages.length > 0 ? systemMessages.map(msg => msg.content).join('\n') : undefined;
-      
-      const messages = request.messages.filter(msg => msg.role !== 'system') as Anthropic.Messages.MessageParam[];
+      const systemMessages = request.messages.filter((msg) => msg.role === 'system');
+      const system =
+        systemMessages.length > 0 ? systemMessages.map((msg) => msg.content).join('\n') : undefined;
+
+      const messages = request.messages.filter(
+        (msg) => msg.role !== 'system'
+      ) as Anthropic.Messages.MessageParam[];
 
       const stream = await this.anthropic.messages.create({
         model: request.model,
@@ -62,8 +61,8 @@ export class ClaudeProvider extends BaseLLMProvider {
               promptTokens: 0, // Prompt tokens are not available in the delta
               completionTokens: chunk.usage.output_tokens,
               totalTokens: chunk.usage.output_tokens,
-            }
-          }
+            },
+          };
         }
       }
     } catch (error: any) {
@@ -74,10 +73,13 @@ export class ClaudeProvider extends BaseLLMProvider {
 
   private async executeNonStreaming(request: LLMRequest): Promise<LLMResponse> {
     try {
-      const systemMessages = request.messages.filter(msg => msg.role === 'system');
-      const system = systemMessages.length > 0 ? systemMessages.map(msg => msg.content).join('\n') : undefined;
-      
-      const messages = request.messages.filter(msg => msg.role !== 'system') as Anthropic.Messages.MessageParam[];
+      const systemMessages = request.messages.filter((msg) => msg.role === 'system');
+      const system =
+        systemMessages.length > 0 ? systemMessages.map((msg) => msg.content).join('\n') : undefined;
+
+      const messages = request.messages.filter(
+        (msg) => msg.role !== 'system'
+      ) as Anthropic.Messages.MessageParam[];
 
       const completion = await this.anthropic.messages.create({
         model: request.model,
@@ -91,7 +93,7 @@ export class ClaudeProvider extends BaseLLMProvider {
 
       const { usage, content, model, stop_reason } = completion;
       const responseContent = content
-        .map(c => ('text' in c ? c.text : ''))
+        .map((c) => ('text' in c ? c.text : ''))
         .join('')
         .trim();
 

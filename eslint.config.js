@@ -81,6 +81,38 @@ module.exports = [
     },
   },
   {
+    files: ["**/*.mjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        Buffer: "readonly",
+        URL: "readonly",
+        // Node.js globals for ES modules
+        __dirname: "readonly",
+        __filename: "readonly",
+        module: "readonly",
+        require: "readonly",
+        exports: "readonly",
+        global: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+        setInterval: "readonly",
+        clearInterval: "readonly",
+      },
+    },
+    plugins: {
+      prettier: require("eslint-plugin-prettier"),
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-console": "off", // Allow console in .mjs files
+      "prettier/prettier": "error",
+    },
+  },
+  {
     ignores: [
       "dist/**",
       "node_modules/**",

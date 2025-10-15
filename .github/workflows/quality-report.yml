@@ -1,0 +1,377 @@
+name: Quality Report
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run quality report daily at 9:00 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Type of report to generate'
+        required: false
+        default: 'comprehensive'
+        type: choice
+        options:
+        - comprehensive
+        - code-quality
+        - test-coverage
+        - security
+        - performance
+
+jobs:
+  generate-quality-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for better analysis
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Generate code quality report
+      run: |
+        echo "Generating code quality report..."
+        npm run lint -- --format=json --output-file=lint-report.json
+        npm run type-check -- --pretty false > typecheck-report.txt 2>&1 || true
+        
+    - name: Run tests with coverage
+      run: |
+        echo "Running tests with coverage..."
+        npm run test:coverage -- --coverageReporters=json --coverageReporters=text --coverageReporters=clover
+        
+    - name: Generate complexity report
+      run: |
+        echo "Generating complexity report..."
+        npx complexity-report --format json --output complexity-report.json src/
+        
+    - name: Generate dependency report
+      run: |
+        echo "Generating dependency report..."
+        npm audit --json > audit-report.json 2>&1 || true
+        npm outdated --json > outdated-report.json 2>&1 || true
+        npx license-checker --json > license-report.json 2>&1 || true
+        
+    - name: Generate bundle analysis
+      run: |
+        echo "Generating bundle analysis..."
+        npm run build -- --analyze
+        npx webpack-bundle-analyzer dist/static/js/*.json --mode=json --report=bundle-report.json 2>/dev/null || true
+        
+    - name: Generate performance metrics
+      run: |
+        echo "Generating performance metrics..."
+        node scripts/generate-performance-metrics.js > performance-metrics.json
+        
+    - name: Generate security scan
+      run: |
+        echo "Generating security scan..."
+        npx snyk test --json > snyk-report.json 2>&1 || true
+        npx semgrep --config=auto --json --output=semgrep-report.json src/ 2>/dev/null || true
+        
+    - name: Generate documentation coverage
+      run: |
+        echo "Generating documentation coverage..."
+        npx typedoc --json docs-report.json src/ 2>/dev/null || true
+        
+    - name: Generate comprehensive quality report
+      run: |
+        echo "Generating comprehensive quality report..."
+        node scripts/generate-quality-report.js
+        
+    - name: Generate HTML report
+      run: |
+        echo "Generating HTML quality report..."
+        node scripts/generate-html-report.js
+        
+    - name: Upload quality report artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: quality-report-${{ github.run_number }}
+        path: |
+          quality-report.json
+          quality-report.html
+          lint-report.json
+          typecheck-report.txt
+          coverage/
+          complexity-report.json
+          audit-report.json
+          outdated-report.json
+          license-report.json
+          bundle-report.json
+          performance-metrics.json
+          snyk-report.json
+          semgrep-report.json
+          docs-report.json
+        
+    - name: Generate quality score
+      run: |
+        echo "Generating quality score..."
+        QUALITY_SCORE=$(node scripts/calculate-quality-score.js)
+        echo "QUALITY_SCORE=$QUALITY_SCORE" >> $GITHUB_ENV
+        echo "Quality Score: $QUALITY_SCORE"
+        
+    - name: Create quality badge
+      run: |
+        echo "Creating quality badge..."
+        COLOR="brightgreen"
+        if [ "$QUALITY_SCORE" -lt 80 ]; then
+          COLOR="yellow"
+        fi
+        if [ "$QUALITY_SCORE" -lt 60 ]; then
+          COLOR="red"
+        fi
+        
+        curl -s "https://img.shields.io/badge/quality-$QUALITY_SCORE%25-$COLOR" > quality-badge.svg
+        
+    - name: Update quality badge in README
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Updating quality badge in README..."
+        node scripts/update-quality-badge.js
+        
+    - name: Commit quality badge update
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md quality-badge.svg
+        git diff --staged --quiet || git commit -m "docs: update quality badge [skip ci]"
+        git push
+        
+    - name: Comment PR with quality report
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const report = JSON.parse(fs.readFileSync('quality-report.json', 'utf8'));
+            const qualityScore = process.env.QUALITY_SCORE;
+            
+            const comment = `
+            ## 📊 Quality Report
+            
+            **Overall Quality Score**: ${qualityScore}% ${qualityScore >= 80 ? '🟢' : qualityScore >= 60 ? '🟡' : '🔴'}
+            
+            ### Metrics Summary
+            - **Test Coverage**: ${report.testCoverage.coverage}%
+            - **Code Quality**: ${report.codeQuality.score}%
+            - **Security**: ${report.security.vulnerabilities} vulnerabilities
+            - **Dependencies**: ${report.dependencies.outdated} outdated
+            - **Documentation**: ${report.documentation.coverage}%
+            - **Complexity**: ${report.complexity.average} average cyclomatic complexity
+            
+            ### Issues Found
+            ${report.issues.slice(0, 5).map(issue => `- **${issue.type}**: ${issue.message}`).join('\n')}
+            
+            ${report.issues.length > 5 ? `\n... and ${report.issues.length - 5} more issues` : ''}
+            
+            [View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.error('Error generating quality comment:', error);
+          }
+            
+    - name: Publish quality report to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./quality-reports
+        destination_dir: quality-reports
+        
+    - name: Send quality report to Slack
+      if: github.ref == 'refs/heads/main' && success()
+      run: |
+        echo "Sending quality report to Slack..."
+        node scripts/send-slack-notification.js
+        
+    - name: Send quality report to Teams
+      if: github.ref == 'refs/heads/main' && success()
+      run: |
+        echo "Sending quality report to Teams..."
+        node scripts/send-teams-notification.js
+        
+    - name: Store quality metrics in database
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Storing quality metrics in database..."
+        node scripts/store-quality-metrics.js
+        
+    - name: Check quality thresholds
+      run: |
+        echo "Checking quality thresholds..."
+        node scripts/check-quality-thresholds.js
+        THRESHOLD_CHECK=$?
+        
+        if [ $THRESHOLD_CHECK -ne 0 ]; then
+          echo "❌ Quality thresholds not met"
+          exit 1
+        fi
+        
+        echo "✅ All quality thresholds met"
+
+  security-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.report_type == 'security'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run security audit
+      run: |
+        echo "Running comprehensive security audit..."
+        npm audit --audit-level=moderate
+        
+    - name: Run Snyk security scan
+      run: |
+        echo "Running Snyk security scan..."
+        npx snyk test --severity-threshold=high
+        
+    - name: Run Semgrep security scan
+      run: |
+        echo "Running Semgrep security scan..."
+        npx semgrep --config=auto --severity=ERROR src/
+        
+    - name: Generate security report
+      run: |
+        echo "Generating security report..."
+        node scripts/generate-security-report.js
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report-${{ github.run_number }}
+        path: security-report.json
+        
+    - name: Create security issue for critical findings
+      run: |
+        echo "Checking for critical security issues..."
+        node scripts/create-security-issues.js
+
+  performance-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.report_type == 'performance'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Run Lighthouse CI
+      run: |
+        echo "Running Lighthouse performance audit..."
+        npm install -g @lhci/cli@0.12.x
+        lhci autorun
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+        
+    - name: Generate performance report
+      run: |
+        echo "Generating performance report..."
+        node scripts/generate-performance-report.js
+        
+    - name: Upload performance report
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-report-${{ github.run_number }}
+        path: performance-report.json
+        
+    - name: Comment PR with performance report
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const report = JSON.parse(fs.readFileSync('performance-report.json', 'utf8'));
+            
+            const comment = `
+            ## 🚀 Performance Report
+            
+            ### Lighthouse Scores
+            - **Performance**: ${report.lighthouse.performance} ${report.lighthouse.performance >= 90 ? '🟢' : report.lighthouse.performance >= 50 ? '🟡' : '🔴'}
+            - **Accessibility**: ${report.lighthouse.accessibility} ${report.lighthouse.accessibility >= 90 ? '🟢' : report.lighthouse.accessibility >= 50 ? '🟡' : '🔴'}
+            - **Best Practices**: ${report.lighthouse.bestPractices} ${report.lighthouse.bestPractices >= 90 ? '🟢' : report.lighthouse.bestPractices >= 50 ? '🟡' : '🔴'}
+            - **SEO**: ${report.lighthouse.seo} ${report.lighthouse.seo >= 90 ? '🟢' : report.lighthouse.seo >= 50 ? '🟡' : '🔴'}
+            
+            ### Core Web Vitals
+            - **Largest Contentful Paint**: ${report.coreWebVitals.lcp}ms
+            - **First Input Delay**: ${report.coreWebVitals.fid}ms
+            - **Cumulative Layout Shift**: ${report.coreWebVitals.cls}
+            
+            [View detailed Lighthouse report](${report.lighthouse.reportUrl})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.error('Error generating performance comment:', error);
+          }
+
+  notify-team:
+    runs-on: ubuntu-latest
+    needs: [generate-quality-report]
+    if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'schedule')
+    
+    steps:
+    - name: Notify team of quality report results
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { needs } = context;
+          const status = needs.generate-quality-report.result;
+          
+          const message = status === 'success' 
+            ? '✅ Quality report generated successfully' 
+            : '❌ Quality report generation failed';
+            
+          // Send notification to team via preferred channel
+          console.log(`Quality report status: ${message}`);

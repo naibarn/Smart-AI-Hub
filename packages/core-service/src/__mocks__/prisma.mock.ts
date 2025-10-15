@@ -222,12 +222,12 @@ export const createMockPrismaClient = () => {
   // Setup default behaviors
   mockPrisma.user.findUnique.mockResolvedValue(mockUser);
   mockPrisma.user.create.mockResolvedValue(mockUser);
-  
+
   mockPrisma.role.findUnique.mockImplementation((args: any) => {
     const roleName = args?.where?.name;
     return Promise.resolve(roleName ? mockRoles[roleName as keyof typeof mockRoles] : null);
   });
-  
+
   mockPrisma.role.findMany.mockResolvedValue(Object.values(mockRoles));
   mockPrisma.role.create.mockImplementation((args: any) => {
     const data = args?.data;
@@ -241,7 +241,7 @@ export const createMockPrismaClient = () => {
   });
 
   mockPrisma.permission.findMany.mockResolvedValue(mockPermissions);
-  
+
   mockPrisma.userRole.findMany.mockResolvedValue([]);
   mockPrisma.userRole.create.mockResolvedValue({
     userId: 'test-user-id',

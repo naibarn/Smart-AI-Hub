@@ -1,4 +1,8 @@
-import { mockPermissionService, setupMockUserWithRoles, resetPermissionMocks } from '../__mocks__/services.mock';
+import {
+  mockPermissionService,
+  setupMockUserWithRoles,
+  resetPermissionMocks,
+} from '../__mocks__/services.mock';
 
 // Mock the permission service module
 jest.mock('../services/permission.service', () => ({
@@ -24,7 +28,7 @@ describe('RBAC System Tests', () => {
   beforeAll(async () => {
     // Setup test data
     testUser = { id: 'test-user-id', email: 'test-rbac@example.com' };
-    
+
     // Get mock roles
     const allRoles = await (mockPermissionService.getAllRoles as any)();
     adminRole = allRoles.find((r: any) => r.name === 'admin');
@@ -45,49 +49,73 @@ describe('RBAC System Tests', () => {
   describe('Permission Checking Logic', () => {
     test('should return false for user with no roles', async () => {
       setupMockUserWithRoles(testUser.id, []);
-      
-      const hasUserPermission = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+
+      const hasUserPermission = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       expect(hasUserPermission).toBe(false);
     });
 
     test('should return true for user with correct permission', async () => {
       setupMockUserWithRoles(testUser.id, ['user']);
-      
-      const hasUserPermission = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+
+      const hasUserPermission = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       expect(hasUserPermission).toBe(true);
     });
 
     test('should return false for user without correct permission', async () => {
       setupMockUserWithRoles(testUser.id, ['user']);
-      
-      const hasDeletePermission = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'delete');
+
+      const hasDeletePermission = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'delete'
+      );
       expect(hasDeletePermission).toBe(false);
     });
 
     test('should return true for admin with all permissions', async () => {
       setupMockUserWithRoles(testUser.id, ['admin']);
-      
-      const hasDeletePermission = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'delete');
+
+      const hasDeletePermission = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'delete'
+      );
       expect(hasDeletePermission).toBe(true);
     });
 
     test('should cache permission results', async () => {
       setupMockUserWithRoles(testUser.id, ['user']);
-      
+
       // Clear cache first
       await (mockPermissionService.clearUserPermissionCache as any)(testUser.id);
       expect(mockPermissionService.clearUserPermissionCache).toHaveBeenCalledWith(testUser.id);
-      
+
       // First call should hit database
       const startTime1 = Date.now();
-      const hasPermission1 = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+      const hasPermission1 = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       const duration1 = Date.now() - startTime1;
-      
+
       // Second call should hit cache
       const startTime2 = Date.now();
-      const hasPermission2 = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+      const hasPermission2 = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       const duration2 = Date.now() - startTime2;
-      
+
       expect(hasPermission1).toBe(true);
       expect(hasPermission2).toBe(true);
       expect(mockPermissionService.hasPermission).toHaveBeenCalledTimes(2);
@@ -102,7 +130,7 @@ describe('RBAC System Tests', () => {
     test('should assign role to user successfully', async () => {
       await (mockPermissionService.assignRole as any)(testUser.id, userRole!.id);
       expect(mockPermissionService.assignRole).toHaveBeenCalledWith(testUser.id, userRole!.id);
-      
+
       setupMockUserWithRoles(testUser.id, ['user']);
       const userRoles = await (mockPermissionService.getUserRoles as any)(testUser.id);
       expect(userRoles).toHaveLength(1);
@@ -111,10 +139,10 @@ describe('RBAC System Tests', () => {
 
     test('should remove role from user successfully', async () => {
       setupMockUserWithRoles(testUser.id, ['user']);
-      
+
       await (mockPermissionService.removeRole as any)(testUser.id, userRole!.id);
       expect(mockPermissionService.removeRole).toHaveBeenCalledWith(testUser.id, userRole!.id);
-      
+
       setupMockUserWithRoles(testUser.id, []);
       const userRoles = await (mockPermissionService.getUserRoles as any)(testUser.id);
       expect(userRoles).toHaveLength(0);
@@ -122,31 +150,39 @@ describe('RBAC System Tests', () => {
 
     test('should throw error when assigning non-existent role', async () => {
       // Setup error handling for this specific test
-      (mockPermissionService.assignRole as any).mockImplementation((userId: string, roleId: string) => {
-        if (roleId === 'non-existent-role-id') {
-          return Promise.reject(new Error('Role not found'));
+      (mockPermissionService.assignRole as any).mockImplementation(
+        (userId: string, roleId: string) => {
+          if (roleId === 'non-existent-role-id') {
+            return Promise.reject(new Error('Role not found'));
+          }
+          return Promise.resolve();
         }
-        return Promise.resolve();
-      });
-      
-      await expect((mockPermissionService.assignRole as any)(testUser.id, 'non-existent-role-id')).rejects.toThrow('Role not found');
+      );
+
+      await expect(
+        (mockPermissionService.assignRole as any)(testUser.id, 'non-existent-role-id')
+      ).rejects.toThrow('Role not found');
     });
 
     test('should throw error when removing non-assigned role', async () => {
       // Setup error handling for this specific test
-      (mockPermissionService.removeRole as any).mockImplementation((userId: string, roleId: string) => {
-        if (roleId === 'user-role-id') {
-          return Promise.reject(new Error('User does not have this role'));
+      (mockPermissionService.removeRole as any).mockImplementation(
+        (userId: string, roleId: string) => {
+          if (roleId === 'user-role-id') {
+            return Promise.reject(new Error('User does not have this role'));
+          }
+          return Promise.resolve();
         }
-        return Promise.resolve();
-      });
-      
-      await expect((mockPermissionService.removeRole as any)(testUser.id, userRole!.id)).rejects.toThrow('User does not have this role');
+      );
+
+      await expect(
+        (mockPermissionService.removeRole as any)(testUser.id, userRole!.id)
+      ).rejects.toThrow('User does not have this role');
     });
 
     test('should allow multiple roles for user', async () => {
       setupMockUserWithRoles(testUser.id, ['user', 'manager']);
-      
+
       const userRoles = await (mockPermissionService.getUserRoles as any)(testUser.id);
       expect(userRoles).toHaveLength(2);
       expect(userRoles.map((r: any) => r.name)).toContain('user');
@@ -161,10 +197,10 @@ describe('RBAC System Tests', () => {
 
     test('should aggregate permissions from multiple roles', async () => {
       setupMockUserWithRoles(testUser.id, ['user', 'manager']);
-      
+
       const userPermissions = await (mockPermissionService.getUserPermissions as any)(testUser.id);
       const permissionNames = userPermissions.map((p: any) => p.name);
-      
+
       // Should have permissions from both roles
       expect(permissionNames).toContain('users:read');
       expect(permissionNames).toContain('credits:read');
@@ -173,10 +209,10 @@ describe('RBAC System Tests', () => {
 
     test('should not duplicate permissions from multiple roles', async () => {
       setupMockUserWithRoles(testUser.id, ['user', 'manager']);
-      
+
       const userPermissions = await (mockPermissionService.getUserPermissions as any)(testUser.id);
       const uniquePermissionNames = [...new Set(userPermissions.map((p: any) => p.name))];
-      
+
       // Should have same number of unique permissions as total permissions
       expect(userPermissions.length).toBe(uniquePermissionNames.length);
     });
@@ -186,7 +222,7 @@ describe('RBAC System Tests', () => {
     test('should get all roles', async () => {
       const roles = await (mockPermissionService.getAllRoles as any)();
       expect(roles.length).toBeGreaterThan(0);
-      
+
       const roleNames = roles.map((r: any) => r.name);
       expect(roleNames).toContain('superadmin');
       expect(roleNames).toContain('admin');
@@ -198,7 +234,7 @@ describe('RBAC System Tests', () => {
     test('should get all permissions', async () => {
       const permissions = await (mockPermissionService.getAllPermissions as any)();
       expect(permissions.length).toBeGreaterThan(0);
-      
+
       const permissionNames = permissions.map((p: any) => p.name);
       expect(permissionNames).toContain('users:read');
       expect(permissionNames).toContain('users:create');
@@ -207,31 +243,36 @@ describe('RBAC System Tests', () => {
     });
 
     test('should create new role successfully', async () => {
-      const newRole = await (mockPermissionService.createRole as any)('test-role', 'Test role for testing', [
-        testPermissions[0]?.id,
-        testPermissions[1]?.id,
-      ]);
-      
+      const newRole = await (mockPermissionService.createRole as any)(
+        'test-role',
+        'Test role for testing',
+        [testPermissions[0]?.id, testPermissions[1]?.id]
+      );
+
       expect(newRole.name).toBe('test-role');
       expect(newRole.description).toBe('Test role for testing');
     });
 
     test('should throw error when creating duplicate role', async () => {
       // Setup error handling for this specific test
-      (mockPermissionService.createRole as any).mockImplementation((name: string, description?: string) => {
-        if (name === 'user') {
-          return Promise.reject(new Error('Role with this name already exists'));
+      (mockPermissionService.createRole as any).mockImplementation(
+        (name: string, description?: string) => {
+          if (name === 'user') {
+            return Promise.reject(new Error('Role with this name already exists'));
+          }
+          return Promise.resolve({
+            id: 'new-role-id',
+            name,
+            description: description || '',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
         }
-        return Promise.resolve({
-          id: 'new-role-id',
-          name,
-          description: description || '',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      });
-      
-      await expect((mockPermissionService.createRole as any)('user', 'Duplicate user role')).rejects.toThrow('Role with this name already exists');
+      );
+
+      await expect(
+        (mockPermissionService.createRole as any)('user', 'Duplicate user role')
+      ).rejects.toThrow('Role with this name already exists');
     });
   });
 
@@ -242,20 +283,20 @@ describe('RBAC System Tests', () => {
 
     test('superadmin should have all permissions', async () => {
       setupMockUserWithRoles(testUser.id, ['admin']);
-      
+
       const allPermissions = await (mockPermissionService.getAllPermissions as any)();
       const userPermissions = await (mockPermissionService.getUserPermissions as any)(testUser.id);
-      
+
       // Admin should have most permissions (except superadmin-specific)
       expect(userPermissions.length).toBeGreaterThan(allPermissions.length * 0.8);
     });
 
     test('guest should have limited permissions', async () => {
       setupMockUserWithRoles(testUser.id, ['guest']);
-      
+
       const userPermissions = await (mockPermissionService.getUserPermissions as any)(testUser.id);
       const permissionNames = userPermissions.map((p: any) => p.name);
-      
+
       // Guest should only have service use permissions
       expect(permissionNames).toContain('services:use');
       expect(permissionNames).not.toContain('users:read');
@@ -264,10 +305,10 @@ describe('RBAC System Tests', () => {
 
     test('manager should have team and credit permissions', async () => {
       setupMockUserWithRoles(testUser.id, ['manager']);
-      
+
       const userPermissions = await (mockPermissionService.getUserPermissions as any)(testUser.id);
       const permissionNames = userPermissions.map((p: any) => p.name);
-      
+
       // Manager should have specific permissions
       expect(permissionNames).toContain('users:read');
       expect(permissionNames).toContain('credits:read');
@@ -286,35 +327,47 @@ describe('RBAC System Tests', () => {
       // Assign role and check permission
       await (mockPermissionService.assignRole as any)(testUser.id, userRole!.id);
       expect(mockPermissionService.assignRole).toHaveBeenCalledWith(testUser.id, userRole!.id);
-      
+
       setupMockUserWithRoles(testUser.id, ['user']);
-      const hasPermissionBefore = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+      const hasPermissionBefore = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       expect(hasPermissionBefore).toBe(true);
-      
+
       // Remove role
       await (mockPermissionService.removeRole as any)(testUser.id, userRole!.id);
       expect(mockPermissionService.removeRole).toHaveBeenCalledWith(testUser.id, userRole!.id);
-      
+
       // Check permission again (should be false after cache clear)
       setupMockUserWithRoles(testUser.id, []);
-      const hasPermissionAfter = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+      const hasPermissionAfter = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       expect(hasPermissionAfter).toBe(false);
     });
 
     test('should clear cache when role is removed', async () => {
       // Assign role
       setupMockUserWithRoles(testUser.id, ['user']);
-      
+
       // Check permission to cache it
       await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
-      
+
       // Remove role
       await (mockPermissionService.removeRole as any)(testUser.id, userRole!.id);
       expect(mockPermissionService.removeRole).toHaveBeenCalledWith(testUser.id, userRole!.id);
-      
+
       // Check permission again (should be false after cache clear)
       setupMockUserWithRoles(testUser.id, []);
-      const hasPermissionAfter = await (mockPermissionService.hasPermission as any)(testUser.id, 'users', 'read');
+      const hasPermissionAfter = await (mockPermissionService.hasPermission as any)(
+        testUser.id,
+        'users',
+        'read'
+      );
       expect(hasPermissionAfter).toBe(false);
     });
   });

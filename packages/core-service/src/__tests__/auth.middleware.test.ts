@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { authenticateJWT, requireRole, AuthenticatedRequest, JWTPayload } from '../middlewares/auth.middleware';
+import {
+  authenticateJWT,
+  requireRole,
+  AuthenticatedRequest,
+  JWTPayload,
+} from '../middlewares/auth.middleware';
 
 // Mock jwt module
 jest.mock('jsonwebtoken');
@@ -218,11 +223,7 @@ describe('Auth Middleware', () => {
       const middleware = requireRole('admin');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -235,11 +236,7 @@ describe('Auth Middleware', () => {
       const middleware = requireRole('admin');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -260,11 +257,7 @@ describe('Auth Middleware', () => {
       const middleware = requireRole('admin');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(403);

@@ -19,13 +19,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import {
-  Send,
-  Bot,
-  User,
-  CreditCard,
-  AlertCircle,
-} from 'lucide-react';
+import { Send, Bot, User, CreditCard, AlertCircle } from 'lucide-react';
 import { GlassCard, GradientButton, LoadingSpinner } from '../components/common';
 import { useSelector } from 'react-redux';
 
@@ -46,7 +40,7 @@ interface CreditInfo {
 const ChatInterface: React.FC = () => {
   const theme = useTheme();
   const { user } = useSelector((state: { app: any }) => state.app.auth);
-  
+
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState('gpt-4');
@@ -69,58 +63,63 @@ const ChatInterface: React.FC = () => {
     const connectWebSocket = () => {
       try {
         const ws = new WebSocket('ws://localhost:3003');
-        
+
         ws.onopen = () => {
           console.log('Connected to MCP server');
           setWsConnection(ws);
         };
-        
+
         ws.onmessage = (event) => {
           try {
             const response = JSON.parse(event.data);
-            
+
             if (response.type === 'chunk') {
               // Handle streaming response
-              setMessages(prev => {
+              setMessages((prev) => {
                 const lastMessage = prev[prev.length - 1];
                 if (lastMessage && lastMessage.role === 'assistant' && !lastMessage.content) {
                   // Update the last assistant message
-                  return prev.map((msg, index) => 
-                    index === prev.length - 1 
+                  return prev.map((msg, index) =>
+                    index === prev.length - 1
                       ? { ...msg, content: msg.content + response.data }
                       : msg
                   );
                 } else {
                   // Add new assistant message
-                  return [...prev, {
-                    id: response.id,
-                    role: 'assistant' as const,
-                    content: response.data || '',
-                    timestamp: new Date(),
-                  }];
+                  return [
+                    ...prev,
+                    {
+                      id: response.id,
+                      role: 'assistant' as const,
+                      content: response.data || '',
+                      timestamp: new Date(),
+                    },
+                  ];
                 }
               });
             } else if (response.type === 'done') {
               setIsLoading(false);
-              
+
               // Update credit balance
               if (response.usage) {
                 const creditsUsed = calculateCredits(response.usage.totalTokens);
-                setCreditInfo(prev => ({
+                setCreditInfo((prev) => ({
                   balance: prev.balance - creditsUsed,
                   lastUpdated: new Date(),
                 }));
-                
+
                 // Update the last message with token info
-                setMessages(prev => prev.map((msg, index) => 
-                  index === prev.length - 1 
-                    ? { 
-                        ...msg, 
-                        tokens: response.usage?.totalTokens,
-                        creditsUsed
-                      }
-                    : msg
-                ));
+                setMessages((prev) =>
+                  prev.map((msg, index) =>
+                    index === prev.length - 1
+                      ? {
+                          ...msg,
+                          tokens: response.usage?.totalTokens,
+                          creditsUsed,
+                        }
+                      : msg
+                  )
+                );
               }
             } else if (response.type === 'error') {
               setIsLoading(false);
@@ -130,37 +129,38 @@ const ChatInterface: React.FC = () => {
             console.error('Error parsing WebSocket message:', err);
           }
         };
-        
+
         ws.onclose = () => {
           console.log('Disconnected from MCP server');
           setWsConnection(null);
           // Attempt to reconnect after 3 seconds
           setTimeout(connectWebSocket, 3000);
         };
-        
+
         ws.onerror = (error) => {
           console.error('WebSocket error:', error);
           setError('Failed to connect to AI service');
         };
-        
+
         // Mock authentication for testing
         ws.onopen = () => {
           // Send mock auth token
-          ws.send(JSON.stringify({
-            type: 'auth',
-            token: 'mock-jwt-token',
-            userId: 'test-user-id',
-          }));
+          ws.send(
+            JSON.stringify({
+              type: 'auth',
+              token: 'mock-jwt-token',
+              userId: 'test-user-id',
+            })
+          );
         };
-        
       } catch (err) {
         console.error('Failed to create WebSocket connection:', err);
         setError('Failed to initialize AI service');
       }
     };
-    
+
     connectWebSocket();
-    
+
     return () => {
       if (wsConnection) {
         wsConnection.close();
@@ -181,16 +181,18 @@ const ChatInterface: React.FC = () => {
 
   const handleSendMessage = () => {
     if (!inputValue.trim() || !wsConnection || isLoading) return;
-    
+
     setError(null);
     const estimatedCredits = estimateCredits(inputValue);
-    
+
     // Check if user has sufficient credits
     if (creditInfo.balance < estimatedCredits) {
-      setError(`Insufficient credits. You need ${estimatedCredits} credits but only have ${creditInfo.balance}.`);
+      setError(
+        `Insufficient credits. You need ${estimatedCredits} credits but only have ${creditInfo.balance}.`
+      );
       return;
     }
-    
+
     // Add user message
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -198,9 +200,9 @@ const ChatInterface: React.FC = () => {
       content: inputValue,
       timestamp: new Date(),
     };
-    
-    setMessages(prev => [...prev, userMessage]);
-    
+
+    setMessages((prev) => [...prev, userMessage]);
+
     // Add placeholder for assistant response
     const assistantMessage: ChatMessage = {
       id: (Date.now() + 1).toString(),
@@ -208,31 +210,29 @@ const ChatInterface: React.FC = () => {
       content: '',
       timestamp: new Date(),
     };
-    
-    setMessages(prev => [...prev, assistantMessage]);
-    
+
+    setMessages((prev) => [...prev, assistantMessage]);
+
     setIsLoading(true);
-    
+
     // Send message to MCP server
     const mcpRequest = {
       id: Date.now().toString(),
       type: 'chat',
       provider: 'auto',
       model: selectedModel,
-      messages: [
-        { role: 'user', content: inputValue }
-      ],
+      messages: [{ role: 'user', content: inputValue }],
       stream: true,
       maxTokens: 1000,
       temperature: 0.7,
     };
-    
+
     wsConnection.send(JSON.stringify(mcpRequest));
     setInputValue('');
   };
 
   const handleAdjustCredits = (amount: number) => {
-    setCreditInfo(prev => ({
+    setCreditInfo((prev) => ({
       balance: Math.max(0, prev.balance + amount),
       lastUpdated: new Date(),
     }));
@@ -244,16 +244,17 @@ const ChatInterface: React.FC = () => {
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
         AI Chat Interface
       </Typography>
-      
+
       {/* Credit Balance Display */}
       <GlassCard sx={{ mb: 3, p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <CreditCard size={24} color={theme.palette.primary.main} />
             <Typography variant="h6">
-              Credit Balance: <span style={{ color: theme.palette.primary.main }}>{creditInfo.balance}</span>
+              Credit Balance:{' '}
+              <span style={{ color: theme.palette.primary.main }}>{creditInfo.balance}</span>
             </Typography>
-            <Chip 
+            <Chip
               label={`Model: ${selectedModel} (${modelPricing[selectedModel as keyof typeof modelPricing]} credits/1K tokens)`}
               size="small"
               color="primary"
@@ -261,24 +262,23 @@ const ChatInterface: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button 
-              size="small" 
-              variant="outlined" 
+            <Button
+              size="small"
+              variant="outlined"
               onClick={() => handleAdjustCredits(-5)}
               disabled={creditInfo.balance <= 0}
             >
               -5
             </Button>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              onClick={() => handleAdjustCredits(15)}
-            >
+            <Button size="small" variant="outlined" onClick={() => handleAdjustCredits(15)}>
               +15
             </Button>
           </Box>
         </Box>
-        <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mt: 1, display: 'block' }}>
+        <Typography
+          variant="caption"
+          sx={{ color: theme.palette.text.secondary, mt: 1, display: 'block' }}
+        >
           Last updated: {creditInfo.lastUpdated.toLocaleTimeString()}
         </Typography>
       </GlassCard>
@@ -296,7 +296,7 @@ const ChatInterface: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Conversation
             </Typography>
-            
+
             <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
               {messages.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -322,23 +322,30 @@ const ChatInterface: React.FC = () => {
                         <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
                           {message.role === 'user' ? 'You' : 'AI Assistant'}
                         </Typography>
-                        <Paper 
-                          sx={{ 
-                            p: 2, 
-                            backgroundColor: message.role === 'user' 
-                              ? 'rgba(59, 130, 246, 0.1)' 
-                              : 'rgba(16, 185, 129, 0.1)',
-                            border: `1px solid ${message.role === 'user' 
-                              ? theme.palette.primary.main 
-                              : theme.palette.secondary.main}20`,
+                        <Paper
+                          sx={{
+                            p: 2,
+                            backgroundColor:
+                              message.role === 'user'
+                                ? 'rgba(59, 130, 246, 0.1)'
+                                : 'rgba(16, 185, 129, 0.1)',
+                            border: `1px solid ${
+                              message.role === 'user'
+                                ? theme.palette.primary.main
+                                : theme.palette.secondary.main
+                            }20`,
                           }}
                         >
                           <Typography variant="body2">
-                            {message.content || (isLoading && index === messages.length - 1 ? 'Thinking...' : '')}
+                            {message.content ||
+                              (isLoading && index === messages.length - 1 ? 'Thinking...' : '')}
                           </Typography>
                         </Paper>
                         {message.tokens && (
-                          <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mt: 0.5, display: 'block' }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: theme.palette.text.secondary, mt: 0.5, display: 'block' }}
+                          >
                             Tokens: {message.tokens} | Credits used: {message.creditsUsed}
                           </Typography>
                         )}
@@ -366,7 +373,7 @@ const ChatInterface: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               AI Settings
             </Typography>
-            
+
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Model</InputLabel>
               <Select

@@ -15,12 +15,7 @@ import {
   Divider,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import {
-  Mail,
-  Lock,
-  Visibility,
-  VisibilityOff,
-} from '@mui/icons-material';
+import { Mail, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useLoginUserMutation, LoginRequest } from '../services/api';
@@ -55,26 +50,28 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       const result = await loginUser(data as LoginRequest).unwrap();
-      
+
       if (result.success && result.user && result.token) {
         // Store token and user data in localStorage
         localStorage.setItem('token', result.token);
         if (result.refreshToken) {
           localStorage.setItem('refreshToken', result.refreshToken);
         }
-        
+
         // Format user data for Redux store
         const userData = {
-          name: `${result.user.firstName || ''} ${result.user.lastName || ''}`.trim() || result.user.email,
+          name:
+            `${result.user.firstName || ''} ${result.user.lastName || ''}`.trim() ||
+            result.user.email,
           email: result.user.email,
           avatar: undefined,
         };
-        
+
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         // Dispatch login action to update Redux store
         dispatch(login(userData));
-        
+
         // Redirect to dashboard
         navigate('/');
       }
@@ -137,10 +134,9 @@ const Login: React.FC = () => {
           {/* API error message */}
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {'status' in error && (error as any).data?.message ?
-                (error as any).data.message :
-                'An error occurred during login'
-              }
+              {'status' in error && (error as any).data?.message
+                ? (error as any).data.message
+                : 'An error occurred during login'}
             </Alert>
           )}
 
@@ -250,7 +246,26 @@ const Login: React.FC = () => {
           </Button>
 
           <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+            <Button
+              onClick={() => navigate('/password-reset')}
+              sx={{
+                color: theme.palette.primary.main,
+                textTransform: 'none',
+                fontWeight: 600,
+                p: 0,
+                mb: 2,
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  textDecoration: 'underline',
+                },
+              }}
+            >
+              Forgot your password?
+            </Button>
+            <Typography
+              variant="body2"
+              sx={{ color: theme.palette.text.secondary, display: 'block' }}
+            >
               Don't have an account?{' '}
               <Button
                 onClick={() => navigate('/register')}

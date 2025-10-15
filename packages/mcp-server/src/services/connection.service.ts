@@ -19,7 +19,7 @@ export class ConnectionService {
   public createConnection(ws: WebSocket, user: UserInfo): ActiveConnection {
     const connectionId = uuidv4();
     const now = new Date();
-    
+
     const metadata: ConnectionMetadata = {
       userId: user.id,
       email: user.email,
@@ -225,12 +225,12 @@ export class ConnectionService {
           userId: connection.metadata.userId,
           lastActivity: connection.metadata.lastActivity,
         });
-        
+
         // Terminate WebSocket if still open
         if (connection.ws.readyState === connection.ws.OPEN) {
           connection.ws.terminate();
         }
-        
+
         this.removeConnection(connectionId);
         cleaned++;
       }

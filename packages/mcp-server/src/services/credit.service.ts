@@ -22,7 +22,7 @@ export class CreditService {
   public estimateCredits(request: MCPRequest): CreditEstimation {
     // Count tokens in messages (rough estimation)
     const promptTokens = this.countTokens(request.messages);
-    
+
     // Estimate completion tokens based on model and prompt
     const estimatedCompletionTokens = this.estimateCompletionTokens(
       request.model,
@@ -61,15 +61,15 @@ export class CreditService {
     try {
       // Get user's current credit balance
       const balance = await this.getUserBalance(userId);
-      
+
       // Estimate required credits
       const estimation = this.estimateCredits(request);
-      
+
       // Check if balance is sufficient
       const hasSufficient = balance >= estimation.estimatedCredits;
-      
+
       logCreditCheck(userId, request.id, balance, estimation.estimatedCredits, hasSufficient);
-      
+
       if (!hasSufficient) {
         logger.warn('Insufficient credits for request', {
           userId,
@@ -79,7 +79,7 @@ export class CreditService {
           deficit: estimation.estimatedCredits - balance,
         });
       }
-      
+
       return hasSufficient;
     } catch (error) {
       logger.error('Error checking sufficient credits', {
@@ -87,7 +87,7 @@ export class CreditService {
         requestId: request.id,
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       // Fail safe - deny request if we can't check credits
       return false;
     }
@@ -96,7 +96,12 @@ export class CreditService {
   /**
    * Deduct credits after request completion
    */
-  public async deductCredits(userId: string, requestId: string, actualTokens: number, model: string): Promise<number> {
+  public async deductCredits(
+    userId: string,
+    requestId: string,
+    actualTokens: number,
+    model: string
+  ): Promise<number> {
     try {
       // Calculate actual credit cost
       const pricePerToken = this.getModelPrice(model);
@@ -139,12 +144,12 @@ export class CreditService {
         model,
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       // In case of error, we should still log the usage but handle credit deduction asynchronously
       throw new Error('Failed to deduct credits');
     }
   }
-  
+
   /**
    * Calculate credit cost for a given model and token count
    */
@@ -161,15 +166,12 @@ export class CreditService {
       // Get service token for authentication
       const serviceToken = getServiceToken();
 
-      const response = await axios.get(
-        `${this.creditServiceUrl}/api/credits/balance`,
-        {
-          headers: {
-            'X-User-ID': userId,
-            'X-Service-Token': serviceToken,
-          },
-        }
-      );
+      const response = await axios.get(`${this.creditServiceUrl}/api/credits/balance`, {
+        headers: {
+          'X-User-ID': userId,
+          'X-Service-Token': serviceToken,
+        },
+      });
 
       return response.data.data?.balance || 0;
     } catch (error) {
@@ -177,7 +179,7 @@ export class CreditService {
         userId,
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       // Return 0 if we can't get balance (fail safe)
       return 0;
     }
@@ -189,24 +191,28 @@ export class CreditService {
    */
   private countTokens(messages: any[]): number {
     let totalTokens = 0;
-    
+
     for (const message of messages) {
       if (message.content) {
         // Rough estimation: ~4 characters per token
         totalTokens += Math.ceil(message.content.length / 4);
       }
     }
-    
+
     return totalTokens;
   }
 
   /**
    * Estimate completion tokens based on model and prompt
    */
-  private estimateCompletionTokens(model: string, promptTokens: number, maxTokens?: number): number {
+  private estimateCompletionTokens(
+    model: string,
+    promptTokens: number,
+    maxTokens?: number
+  ): number {
     // Different models have different response patterns
     let ratio = 0.75; // Default: completion is 75% of prompt
-    
+
     if (model.includes('gpt-3.5')) {
       ratio = 0.5;
     } else if (model.includes('gpt-4')) {
@@ -214,14 +220,14 @@ export class CreditService {
     } else if (model.includes('claude')) {
       ratio = 0.8;
     }
-    
+
     const estimatedTokens = Math.ceil(promptTokens * ratio);
-    
+
     // Respect maxTokens if provided
     if (maxTokens && estimatedTokens > maxTokens) {
       return maxTokens;
     }
-    
+
     return estimatedTokens;
   }
 
@@ -256,7 +262,10 @@ export class CreditService {
 
     // Check temperature range
     if (request.temperature !== undefined) {
-      if (request.temperature < config.MIN_TEMPERATURE || request.temperature > config.MAX_TEMPERATURE) {
+      if (
+        request.temperature < config.MIN_TEMPERATURE ||
+        request.temperature > config.MAX_TEMPERATURE
+      ) {
         return {
           valid: false,
           error: `Temperature must be between ${config.MIN_TEMPERATURE} and ${config.MAX_TEMPERATURE}`,

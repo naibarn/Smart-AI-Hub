@@ -24,7 +24,7 @@ describe('RedisService', () => {
     it('should have methods that are async and return Promises', () => {
       // Test that methods are async by checking if they return Promises when called
       // We'll use a try-catch approach since the Redis dependencies might not be fully mocked
-      
+
       const testMethods = [
         { name: 'set', args: ['test-key', 'test-value'] },
         { name: 'get', args: ['test-key'] },
@@ -48,7 +48,7 @@ describe('RedisService', () => {
         const method = (RedisService as any)[name];
         expect(method).toBeDefined();
         expect(typeof method).toBe('function');
-        
+
         // Test that the method can be called (even if it fails due to missing Redis)
         expect(() => {
           const result = method(...args);
@@ -90,7 +90,7 @@ describe('RedisService', () => {
     it('should be a class with static methods', () => {
       expect(RedisService).toBeDefined();
       expect(typeof RedisService).toBe('object'); // In TypeScript, exported classes are objects
-      
+
       // Test that it's not meant to be instantiated (all methods are static)
       // RedisService is designed as a static utility class, so it shouldn't be instantiable
       expect(() => {
@@ -100,16 +100,34 @@ describe('RedisService', () => {
     });
 
     it('should have proper method names following Redis conventions', () => {
-      const methodNames = Object.getOwnPropertyNames(RedisService)
-        .filter(name => typeof (RedisService as any)[name] === 'function' && name !== 'length' && name !== 'name' && name !== 'prototype');
+      const methodNames = Object.getOwnPropertyNames(RedisService).filter(
+        (name) =>
+          typeof (RedisService as any)[name] === 'function' &&
+          name !== 'length' &&
+          name !== 'name' &&
+          name !== 'prototype'
+      );
 
       const expectedMethods = [
-        'set', 'get', 'del', 'exists', 'expire', 'ttl',
-        'incr', 'incrBy', 'lPush', 'rPop', 'lLen', 'lRange',
-        'sAdd', 'sRem', 'sIsMember', 'sMembers'
+        'set',
+        'get',
+        'del',
+        'exists',
+        'expire',
+        'ttl',
+        'incr',
+        'incrBy',
+        'lPush',
+        'rPop',
+        'lLen',
+        'lRange',
+        'sAdd',
+        'sRem',
+        'sIsMember',
+        'sMembers',
       ];
 
-      expectedMethods.forEach(methodName => {
+      expectedMethods.forEach((methodName) => {
         expect(methodNames).toContain(methodName);
       });
     });

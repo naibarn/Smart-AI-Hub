@@ -11,10 +11,12 @@ const CORE_SERVICE_URL = process.env.CORE_SERVICE_URL || 'http://localhost:3002'
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3003';
 
 // Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Health check

@@ -1,0 +1,16 @@
+{
+  "validation_enabled": true,
+  "auto_fix_errors": true,
+  "retry_count": 3,
+  "validation_rules": {
+    "min_content_length": 10,
+    "require_frontmatter": true,
+    "require_user_stories": true,
+    "require_acceptance_criteria": true,
+    "require_scope": true,
+    "require_technical_requirements": true,
+    "require_testing_criteria": true
+  },
+  "speckit_path": "packages/speckit",
+  "speckit_command": "node dist/cli/index.js validate"
+}

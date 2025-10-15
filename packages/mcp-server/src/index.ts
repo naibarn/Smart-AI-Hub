@@ -42,7 +42,7 @@ app.use(express.json());
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
   const stats = connectionService.getStats();
-  res.json({ 
+  res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
@@ -67,20 +67,21 @@ const wss = new WebSocketServer({
     try {
       // Authenticate WebSocket connection
       const auth = await authenticateWebSocket(info.req);
-      
+
       if (!auth) {
         callback(false, 401, 'Unauthorized');
         return;
       }
-      
+
       // Attach user info to request for later use
       (info.req as any).user = auth.user;
-      (info.req as any).jti = auth.jti;
-      
+      // jti is extracted but not used in this context
+      // (info.req as any).jti = auth.jti;
+
       callback(true);
     } catch (error) {
-      logger.error('WebSocket authentication error', { 
-        error: error instanceof Error ? error.message : String(error) 
+      logger.error('WebSocket authentication error', {
+        error: error instanceof Error ? error.message : String(error),
       });
       callback(false, 500, 'Internal server error');
     }
@@ -90,11 +91,12 @@ const wss = new WebSocketServer({
 // Handle WebSocket connections
 wss.on('connection', (ws: WebSocket, req: any) => {
   const user = (req as any).user;
-  const jti = (req as any).jti;
-  
+  // jti is available but not used in this context
+  // const jti = (req as any).jti;
+
   // Create connection and track it
   const connection = connectionService.createConnection(ws, user);
-  
+
   logger.info('WebSocket connection established', {
     connectionId: connection.id,
     userId: user.id,
@@ -107,7 +109,7 @@ wss.on('connection', (ws: WebSocket, req: any) => {
     try {
       const messageStr = data.toString();
       let request: MCPRequest;
-      
+
       // Parse request
       try {
         request = JSON.parse(messageStr);
@@ -115,30 +117,29 @@ wss.on('connection', (ws: WebSocket, req: any) => {
         sendError(ws, 'INVALID_JSON', 'Invalid JSON format');
         return;
       }
-      
+
       // Validate request
       const validation = creditService.validateRequest(request);
       if (!validation.valid) {
         sendError(ws, 'INVALID_REQUEST', validation.error || 'Invalid request');
         return;
       }
-      
+
       // Update connection activity
       connectionService.updateActivity(connection.id);
-      
+
       // Add to pending requests
       connectionService.addPendingRequest(connection.id, request.id, request);
-      
+
       // Process request
       await handleMessage(connection, request);
-      
     } catch (error) {
       logger.error('Error processing WebSocket message', {
         connectionId: connection.id,
         userId: user.id,
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       sendError(ws, 'INTERNAL_ERROR', 'Internal server error');
     }
   });
@@ -165,7 +166,7 @@ wss.on('connection', (ws: WebSocket, req: any) => {
     data: `Welcome to MCP Server! Connected as ${user.email}`,
     timestamp: new Date().toISOString(),
   };
-  
+
   connectionService.sendMessage(connection.id, welcomeMessage);
 });
 
@@ -181,7 +182,12 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
   try {
     const hasCredits = await creditService.checkSufficientCredits(userId, request);
     if (!hasCredits) {
-      return sendError(connection.ws, 'INSUFFICIENT_CREDITS', 'Insufficient credits for this request.', requestId);
+      return sendError(
+        connection.ws,
+        'INSUFFICIENT_CREDITS',
+        'Insufficient credits for this request.',
+        requestId
+      );
     }
 
     const llmRequest: LLMRequest = { ...request };
@@ -189,6 +195,7 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
 
     if (isAsyncIterable(llmResponse)) {
       let fullContent = '';
+      // fullContent is accumulated but not used in this implementation
       let finalResponse: MCPResponse | null = null;
 
       for await (const chunk of llmResponse) {
@@ -214,8 +221,16 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
         connectionService.sendMessage(connection.id, finalResponse);
         const duration = Date.now() - startTime;
         if (finalResponse.usage) {
-          await creditService.deductCredits(userId, requestId, finalResponse.usage.totalTokens, request.model);
-          const creditsUsed = creditService.calculateCredits(request.model, finalResponse.usage.totalTokens);
+          await creditService.deductCredits(
+            userId,
+            requestId,
+            finalResponse.usage.totalTokens,
+            request.model
+          );
+          const creditsUsed = creditService.calculateCredits(
+            request.model,
+            finalResponse.usage.totalTokens
+          );
           const usageLog = loggingService.createUsageLog(
             userId,
             requestId,
@@ -231,8 +246,16 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
       const duration = Date.now() - startTime;
 
       if (llmResponse.usage) {
-        await creditService.deductCredits(userId, requestId, llmResponse.usage.totalTokens, llmResponse.model);
-        const creditsUsed = creditService.calculateCredits(llmResponse.model, llmResponse.usage.totalTokens);
+        await creditService.deductCredits(
+          userId,
+          requestId,
+          llmResponse.usage.totalTokens,
+          llmResponse.model
+        );
+        const creditsUsed = creditService.calculateCredits(
+          llmResponse.model,
+          llmResponse.usage.totalTokens
+        );
         const response: MCPResponse = {
           id: requestId,
           type: 'done',
@@ -256,7 +279,12 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
     }
   } catch (error: any) {
     logger.error('Error handling message:', { error: error.message, requestId });
-    sendError(connection.ws, 'EXECUTION_ERROR', error.message || 'Failed to execute request.', requestId);
+    sendError(
+      connection.ws,
+      'EXECUTION_ERROR',
+      error.message || 'Failed to execute request.',
+      requestId
+    );
   } finally {
     connectionService.removePendingRequest(connection.id, requestId);
   }
@@ -275,7 +303,7 @@ function sendError(ws: WebSocket, code: string, message: string, requestId?: str
     },
     timestamp: new Date().toISOString(),
   };
-  
+
   if (ws.readyState === ws.OPEN) {
     ws.send(JSON.stringify(errorResponse));
   }
@@ -286,17 +314,17 @@ function sendError(ws: WebSocket, code: string, message: string, requestId?: str
  */
 setInterval(() => {
   const connections = connectionService.getAllConnections();
-  
+
   for (const connection of connections) {
     // Mark as not alive (will be marked alive on pong)
     connectionService.markNotAlive(connection.id);
-    
+
     // Send ping
     if (connection.ws.readyState === connection.ws.OPEN) {
       connection.ws.ping();
     }
   }
-  
+
   // Clean up dead connections after ping timeout
   setTimeout(() => {
     connectionService.cleanupDeadConnections();
@@ -308,13 +336,13 @@ setInterval(() => {
  */
 process.on('SIGTERM', () => {
   logger.info('Received SIGTERM, shutting down gracefully');
-  
+
   // Close all WebSocket connections
   const connections = connectionService.getAllConnections();
   for (const connection of connections) {
     connection.ws.close(1001, 'Server shutting down');
   }
-  
+
   // Close HTTP server
   server.close(() => {
     logger.info('Server closed');

@@ -80,9 +80,7 @@ export const isRedisConnected = (): boolean => {
 /**
  * Execute Redis command with error handling
  */
-export const executeRedisCommand = async <T>(
-  command: () => Promise<T>
-): Promise<T | null> => {
+export const executeRedisCommand = async <T>(command: () => Promise<T>): Promise<T | null> => {
   try {
     if (!redisClient.isOpen) {
       await connectRedis();

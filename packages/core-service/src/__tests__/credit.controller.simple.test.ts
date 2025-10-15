@@ -58,7 +58,7 @@ const mockAuth = (req: any, res: any, next: any) => {
       message: 'No token provided or invalid format',
     });
   }
-  
+
   // For testing, we'll set a mock user based on the token
   if (authHeader.includes('admin-token')) {
     req.user = {
@@ -77,9 +77,10 @@ const mockAuth = (req: any, res: any, next: any) => {
 };
 
 // Mock RBAC middleware
-const mockRequirePermission = (resource: string, action: string) => (req: any, res: any, next: any) => {
-  next();
-};
+const mockRequirePermission =
+  (resource: string, action: string) => (req: any, res: any, next: any) => {
+    next();
+  };
 
 const mockRequireRoles = (roles: string[]) => (req: any, res: any, next: any) => {
   if (roles.includes('admin') && req.user?.role !== 'admin') {
@@ -92,10 +93,30 @@ const mockRequireRoles = (roles: string[]) => (req: any, res: any, next: any) =>
 };
 
 // Apply routes
-app.get('/credits/balance', mockAuth, mockRequirePermission('credits', 'read'), creditController.getBalance);
-app.get('/credits/history', mockAuth, mockRequirePermission('credits', 'read'), creditController.getHistory);
-app.post('/credits/redeem', mockAuth, mockRequirePermission('credits', 'write'), creditController.redeemPromoCode);
-app.post('/admin/credits/adjust', mockAuth, mockRequireRoles(['admin', 'superadmin']), creditController.adjustCredits);
+app.get(
+  '/credits/balance',
+  mockAuth,
+  mockRequirePermission('credits', 'read'),
+  creditController.getBalance
+);
+app.get(
+  '/credits/history',
+  mockAuth,
+  mockRequirePermission('credits', 'read'),
+  creditController.getHistory
+);
+app.post(
+  '/credits/redeem',
+  mockAuth,
+  mockRequirePermission('credits', 'write'),
+  creditController.redeemPromoCode
+);
+app.post(
+  '/admin/credits/adjust',
+  mockAuth,
+  mockRequireRoles(['admin', 'superadmin']),
+  creditController.adjustCredits
+);
 
 // Mock error handler with debugging
 app.use((err: any, req: any, res: any, next: any) => {
@@ -114,7 +135,7 @@ describe('Credit Controller (Simple)', () => {
     mockGetHistory.mockResolvedValue({ data: [], total: 0 });
     mockRedeemPromo.mockResolvedValue(25);
     mockAdjustCredits.mockResolvedValue(150);
-    
+
     // Mock RedisService methods
     mockRedisService.get.mockResolvedValue(null);
     mockRedisService.set.mockResolvedValue(true);
@@ -158,8 +179,7 @@ describe('Credit Controller (Simple)', () => {
     });
 
     test('should return 401 if not authenticated', async () => {
-      const response = await request(app)
-        .get('/credits/balance');
+      const response = await request(app).get('/credits/balance');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access denied');
@@ -260,7 +280,11 @@ describe('Credit Controller (Simple)', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.newBalance).toBe(150);
       expect(response.body.data.message).toBe('Credits adjusted successfully');
-      expect(mockAdjustCredits).toHaveBeenCalledWith('test-user-id', 50, 'Admin adjustment for testing');
+      expect(mockAdjustCredits).toHaveBeenCalledWith(
+        'test-user-id',
+        50,
+        'Admin adjustment for testing'
+      );
     });
 
     test('should return 403 if not admin', async () => {

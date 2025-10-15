@@ -1,0 +1,20 @@
+{
+  "format": "json",
+  "verbose": true,
+  "strict": false,
+  "includeWarnings": true,
+  "reporters": [
+    {
+      "type": "console",
+      "enabled": true,
+      "options": {}
+    },
+    {
+      "type": "file",
+      "enabled": true,
+      "options": {
+        "path": "speckit-report.json"
+      }
+    }
+  ]
+}

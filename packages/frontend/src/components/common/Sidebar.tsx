@@ -124,10 +124,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         onClose();
       }
     } else if (item.children) {
-      setExpandedItems(prev =>
-        prev.indexOf(item.id) !== -1
-          ? prev.filter(id => id !== item.id)
-          : [...prev, item.id]
+      setExpandedItems((prev) =>
+        prev.indexOf(item.id) !== -1 ? prev.filter((id) => id !== item.id) : [...prev, item.id]
       );
     }
   };
@@ -137,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       return location.pathname === item.path;
     }
     if (item.children) {
-      return item.children.some(child => child.path === location.pathname);
+      return item.children.some((child) => child.path === location.pathname);
     }
     return false;
   };
@@ -161,7 +159,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               backgroundColor: isActive ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               color: isActive ? theme.palette.primary.main : theme.palette.text.secondary,
               '&:hover': {
-                backgroundColor: isActive ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: isActive
+                  ? 'rgba(59, 130, 246, 0.15)'
+                  : 'rgba(255, 255, 255, 0.05)',
               },
               transition: 'all 0.2s ease-in-out',
             }}
@@ -214,7 +214,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {hasChildren && !collapsed && (
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {item.children?.map(child => renderSidebarItem(child, depth + 1))}
+              {item.children?.map((child) => renderSidebarItem(child, depth + 1))}
             </List>
           </Collapse>
         )}
@@ -265,10 +265,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 },
               }}
             >
-              <motion.div
-                animate={{ rotate: collapsed ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
+              <motion.div animate={{ rotate: collapsed ? 180 : 0 }} transition={{ duration: 0.3 }}>
                 <ChevronDown size={20} />
               </motion.div>
             </IconButton>
@@ -291,9 +288,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Navigation */}
       <Box sx={{ flexGrow: 1, py: 2 }}>
-        <List>
-          {sidebarItems.map(item => renderSidebarItem(item))}
-        </List>
+        <List>{sidebarItems.map((item) => renderSidebarItem(item))}</List>
       </Box>
 
       {/* Footer */}

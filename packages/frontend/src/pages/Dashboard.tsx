@@ -34,12 +34,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from 'lucide-react';
-import {
-  GlassCard,
-  GradientButton,
-  CreditBadge,
-  LoadingSpinner,
-} from '../components/common';
+import { GlassCard, GradientButton, CreditBadge, LoadingSpinner } from '../components/common';
 
 interface StatCardProps {
   title: string;
@@ -50,14 +45,7 @@ interface StatCardProps {
   delay?: number;
 }
 
-const StatCard: React.FC<StatCardProps> = ({
-  title,
-  value,
-  change,
-  icon,
-  color,
-  delay = 0,
-}) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon, color, delay = 0 }) => {
   const theme = useTheme();
 
   const getColor = () => {
@@ -84,9 +72,13 @@ const StatCard: React.FC<StatCardProps> = ({
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -4 }}
     >
-      <GlassCard glow={color === 'primary' ? 'primary' : color === 'secondary' ? 'secondary' : 'none'}>
+      <GlassCard
+        glow={color === 'primary' ? 'primary' : color === 'secondary' ? 'secondary' : 'none'}
+      >
         <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box
                 sx={{
@@ -108,7 +100,8 @@ const StatCard: React.FC<StatCardProps> = ({
                 label={`${change > 0 ? '+' : ''}${change}%`}
                 size="small"
                 sx={{
-                  backgroundColor: change > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                  backgroundColor:
+                    change > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
                   color: change > 0 ? theme.palette.success.main : theme.palette.error.main,
                   fontWeight: 600,
                 }}
@@ -214,7 +207,7 @@ const Dashboard: React.FC = () => {
   const formatRelativeTime = (date: Date) => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
@@ -311,7 +304,7 @@ const Dashboard: React.FC = () => {
                   <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                     Credit Balance
                   </Typography>
-                  
+
                   <CreditBadge
                     credits={1250}
                     change={150}
@@ -339,7 +332,10 @@ const Dashboard: React.FC = () => {
                         },
                       }}
                     />
-                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary, mt: 1 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: theme.palette.text.secondary, mt: 1 }}
+                    >
                       812 of 1,250 credits used (65%)
                     </Typography>
                   </Box>
@@ -393,7 +389,14 @@ const Dashboard: React.FC = () => {
             >
               <GlassCard sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 3,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Recent Activity
                     </Typography>
@@ -427,12 +430,20 @@ const Dashboard: React.FC = () => {
                             primary={activity.title}
                             secondary={
                               <Box>
-                                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: theme.palette.text.secondary }}
+                                >
                                   {activity.description}
                                 </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                <Box
+                                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}
+                                >
                                   <Clock size={12} color={theme.palette.text.secondary} />
-                                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: theme.palette.text.secondary }}
+                                  >
                                     {formatRelativeTime(activity.timestamp)}
                                   </Typography>
                                 </Box>

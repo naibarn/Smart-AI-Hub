@@ -14,13 +14,13 @@ const prisma = new PrismaClient();
 async function checkIdempotency(eventId: string): Promise<boolean> {
   const key = `webhook:event:${eventId}`;
   const exists = await RedisService.exists(key);
-  
+
   if (!exists) {
     // Mark this event as processed with a 24-hour expiry
     await RedisService.set(key, 'processed', 86400);
     return false; // Not processed before
   }
-  
+
   return true; // Already processed
 }
 
@@ -233,7 +233,7 @@ export const getPaymentHistory = async (
     });
 
     return {
-      data: payments.map(payment => ({
+      data: payments.map((payment) => ({
         id: payment.id,
         userId: payment.userId,
         credits: payment.credits,
@@ -255,7 +255,9 @@ export const getPaymentHistory = async (
 /**
  * Extract and validate session data from Stripe checkout session
  */
-const extractSessionData = (session: Stripe.Checkout.Session): {
+const extractSessionData = (
+  session: Stripe.Checkout.Session
+): {
   sessionId: string;
   userId: string;
   credits: string;
@@ -341,29 +343,29 @@ export const processStripeEvent = async (rawBody: string | Buffer, sig: string):
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        
+
         // 5. For 'checkout.session.completed':
         //    a. Extract the pending transaction ID from the event's metadata.
         const sessionId = session.id;
         const userId = session.metadata?.userId;
         const credits = session.metadata?.credits;
         const packageId = session.metadata?.packageId;
-        
+
         if (!userId || !credits || !packageId) {
           console.error(`Missing required metadata in session ${sessionId}`);
           return;
         }
-        
+
         //    b. Verify the transaction status in our database to prevent duplicate processing (idempotency).
         const existingPayment = await prisma.payment.findUnique({
           where: { stripeSessionId: sessionId },
         });
-        
+
         if (existingPayment) {
           console.log(`Payment with session ID ${sessionId} has already been processed.`);
           return;
         }
-        
+
         //    c. If valid, start a database transaction.
         await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
           // Create payment record
@@ -377,35 +379,37 @@ export const processStripeEvent = async (rawBody: string | Buffer, sig: string):
               stripePaymentIntentId: session.payment_intent as string,
             },
           });
-          
+
           //    d. Update the user's credit balance by calling the credit.service.
           await creditService.adjustCredits(
             userId,
             parseInt(credits, 10),
             `Purchased ${packageId} credits package (Session: ${sessionId})`
           );
-          
+
           //    e. Mark the pending transaction as 'completed'.
           // (Already done above by setting status to 'completed')
         });
-        
+
         //    f. Commit the database transaction.
         // (Automatically committed by Prisma when the transaction function resolves)
-        
+
         // Clear balance cache for this user
         const cacheKey = `credit_balance:${userId}`;
         await RedisService.del(cacheKey);
-        
+
         //    g. Send a purchase confirmation email (placeholder for now).
-        console.log(`TODO: Send purchase confirmation email to user ${userId} for ${credits} credits`);
-        
+        console.log(
+          `TODO: Send purchase confirmation email to user ${userId} for ${credits} credits`
+        );
+
         console.log(`Successfully processed payment for user ${userId}, added ${credits} credits`);
         break;
       }
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session;
         console.log(`Checkout session ${session.id} expired`);
-        
+
         // Optionally update the payment record to 'expired' status if it exists
         // This would be useful if we created a pending record before checkout
         break;
@@ -413,14 +417,14 @@ export const processStripeEvent = async (rawBody: string | Buffer, sig: string):
       case 'payment_intent.payment_failed': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log(`Payment failed: ${paymentIntent.id}`);
-        
+
         // Optionally handle payment failures
         break;
       }
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
         console.log(`Invoice payment succeeded: ${invoice.id}`);
-        
+
         // Handle subscription payments if we implement them in the future
         break;
       }

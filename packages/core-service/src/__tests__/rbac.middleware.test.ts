@@ -30,11 +30,7 @@ describe('RBAC Middleware', () => {
       const middleware = requirePermission('users', 'delete');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -51,11 +47,7 @@ describe('RBAC Middleware', () => {
       const middleware = requirePermission('users', 'delete');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -72,11 +64,7 @@ describe('RBAC Middleware', () => {
       const middleware = requirePermission('users', 'delete');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(403);
@@ -93,11 +81,7 @@ describe('RBAC Middleware', () => {
       const middleware = requirePermission('users', 'read');
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -120,11 +104,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireRoles(['admin', 'manager', 'user']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -141,11 +121,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireRoles(['admin', 'manager']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(403);
@@ -162,11 +138,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireRoles(['admin', 'manager']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -187,11 +159,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireRoles(['admin']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -213,11 +181,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -237,11 +201,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -261,11 +221,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin', 'manager']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();
@@ -285,17 +241,14 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin', 'manager']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(403);
       expect(mockResponse.json).toHaveBeenCalledWith({
         error: 'Insufficient permissions',
-        message: 'You can only access your own resources or need one of these roles: admin, manager',
+        message:
+          'You can only access your own resources or need one of these roles: admin, manager',
       });
       expect(nextFunction).not.toHaveBeenCalled();
     });
@@ -309,11 +262,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -335,11 +284,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(mockResponse.status).toHaveBeenCalledWith(403);
@@ -364,11 +309,7 @@ describe('RBAC Middleware', () => {
       const middleware = requireSelfOrRole(['admin']);
 
       // Execute
-      middleware(
-        mockRequest as AuthenticatedRequest,
-        mockResponse as Response,
-        nextFunction
-      );
+      middleware(mockRequest as AuthenticatedRequest, mockResponse as Response, nextFunction);
 
       // Assert
       expect(nextFunction).toHaveBeenCalled();

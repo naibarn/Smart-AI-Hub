@@ -143,14 +143,16 @@ const mockPermissions = [
 
 // Helper functions for test setup
 export const setupMockUserWithRoles = (userId: string, roleNames: string[]) => {
-  const userRoles = mockRoles.filter(role => roleNames.includes(role.name));
+  const userRoles = mockRoles.filter((role) => roleNames.includes(role.name));
   (mockPermissionService.getUserRoles as any).mockResolvedValue(userRoles);
-  
-  const userPermissions = mockPermissions.filter(permission => {
+
+  const userPermissions = mockPermissions.filter((permission) => {
     if (roleNames.includes('superadmin')) return true;
     if (roleNames.includes('admin')) return true; // Admin should have all permissions including delete
     if (roleNames.includes('manager')) {
-      return ['users:read', 'credits:read', 'credits:update', 'credits:adjust'].includes(permission.name);
+      return ['users:read', 'credits:read', 'credits:update', 'credits:adjust'].includes(
+        permission.name
+      );
     }
     if (roleNames.includes('user')) {
       return ['users:read', 'credits:read'].includes(permission.name);
@@ -160,14 +162,16 @@ export const setupMockUserWithRoles = (userId: string, roleNames: string[]) => {
     }
     return false;
   });
-  
+
   (mockPermissionService.getUserPermissions as any).mockResolvedValue(userPermissions);
-  
+
   // Setup hasPermission based on user permissions
-  (mockPermissionService.hasPermission as any).mockImplementation((uid: string, resource: string, action: string) => {
-    const permissionName = `${resource}:${action}`;
-    return Promise.resolve(userPermissions.some(p => p.name === permissionName));
-  });
+  (mockPermissionService.hasPermission as any).mockImplementation(
+    (uid: string, resource: string, action: string) => {
+      const permissionName = `${resource}:${action}`;
+      return Promise.resolve(userPermissions.some((p) => p.name === permissionName));
+    }
+  );
 };
 
 export const resetPermissionMocks = () => {
@@ -188,17 +192,19 @@ export const setupPermissionServiceDefaults = (mockPermissionService: any) => {
   (mockPermissionService.removeRole as any).mockResolvedValue(undefined);
   (mockPermissionService.getAllRoles as any).mockResolvedValue(mockRoles);
   (mockPermissionService.getAllPermissions as any).mockResolvedValue(mockPermissions);
-  (mockPermissionService.createRole as any).mockImplementation((name: string, description?: string) => {
-    return Promise.resolve({
-      id: 'new-role-id',
-      name,
-      description: description || '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-  });
+  (mockPermissionService.createRole as any).mockImplementation(
+    (name: string, description?: string) => {
+      return Promise.resolve({
+        id: 'new-role-id',
+        name,
+        description: description || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+  );
   (mockPermissionService.clearUserPermissionCache as any).mockResolvedValue(undefined);
-  
+
   // Setup error handling for specific cases - override the default implementations
   (mockPermissionService.assignRole as any).mockImplementation((userId: string, roleId: string) => {
     if (roleId === 'non-existent-role-id') {
@@ -206,26 +212,28 @@ export const setupPermissionServiceDefaults = (mockPermissionService: any) => {
     }
     return Promise.resolve();
   });
-  
+
   (mockPermissionService.removeRole as any).mockImplementation((userId: string, roleId: string) => {
     if (roleId === 'user-role-id') {
       return Promise.reject(new Error('User does not have this role'));
     }
     return Promise.resolve();
   });
-  
-  (mockPermissionService.createRole as any).mockImplementation((name: string, description?: string) => {
-    if (name === 'user') {
-      return Promise.reject(new Error('Role with this name already exists'));
+
+  (mockPermissionService.createRole as any).mockImplementation(
+    (name: string, description?: string) => {
+      if (name === 'user') {
+        return Promise.reject(new Error('Role with this name already exists'));
+      }
+      return Promise.resolve({
+        id: 'new-role-id',
+        name,
+        description: description || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
     }
-    return Promise.resolve({
-      id: 'new-role-id',
-      name,
-      description: description || '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-  });
+  );
 };
 
 export const mockCreditService = createMockCreditService();

@@ -11,6 +11,9 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import PasswordReset from './pages/PasswordReset';
+import EmailVerification from './pages/EmailVerification';
+import OAuthSuccess from './pages/OAuthSuccess';
 import Dashboard from './pages/Dashboard';
 import TestConnection from './pages/TestConnection';
 import ChatInterface from './pages/ChatInterface';
@@ -72,28 +75,36 @@ const appSlice = createSlice({
   },
 });
 
-export const { login, logout, toggleSidebar, setSidebarOpen, toggleCommandPalette, setCommandPaletteOpen } = appSlice.actions;
+export const {
+  login,
+  logout,
+  toggleSidebar,
+  setSidebarOpen,
+  toggleCommandPalette,
+  setCommandPaletteOpen,
+} = appSlice.actions;
 
 const store = configureStore({
   reducer: {
     app: appSlice.reducer,
     [api.reducerPath]: api.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(api.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
 });
 
 // Main App component
 const AppContent: React.FC = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state: { app: AppState }) => state.app.auth);
-  const { sidebarOpen, commandPaletteOpen } = useSelector((state: { app: AppState }) => state.app.ui);
+  const { sidebarOpen, commandPaletteOpen } = useSelector(
+    (state: { app: AppState }) => state.app.ui
+  );
 
   React.useEffect(() => {
     // Check for authentication on app load
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    
+
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
@@ -114,7 +125,7 @@ const AppContent: React.FC = () => {
         event.preventDefault();
         dispatch(toggleCommandPalette());
       }
-      
+
       // Escape to close command palette
       if (event.key === 'Escape' && commandPaletteOpen) {
         dispatch(setCommandPaletteOpen(false));
@@ -125,14 +136,17 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [dispatch, commandPaletteOpen]);
 
-
   return (
     <Router>
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
+        <Route path="/password-reset" element={<PasswordReset />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/auth/success" element={<OAuthSuccess />} />
+        <Route path="/auth/error" element={<OAuthSuccess />} />
+
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout user={user || undefined} sidebarOpen={sidebarOpen} />}>
@@ -152,7 +166,7 @@ const AppContent: React.FC = () => {
         {/* Catch all route - redirect to login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-      
+
       <CommandPalette
         open={commandPaletteOpen}
         onClose={() => dispatch(setCommandPaletteOpen(false))}

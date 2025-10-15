@@ -158,10 +158,11 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
 
     const query = searchQuery.toLowerCase();
     return commands.filter(
-      cmd =>
+      (cmd) =>
         cmd.title.toLowerCase().indexOf(query) !== -1 ||
         (cmd.description && cmd.description.toLowerCase().indexOf(query) !== -1) ||
-        (cmd.keywords && cmd.keywords.some(keyword => keyword.toLowerCase().indexOf(query) !== -1))
+        (cmd.keywords &&
+          cmd.keywords.some((keyword) => keyword.toLowerCase().indexOf(query) !== -1))
     );
   }, [searchQuery]);
 
@@ -178,11 +179,13 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
       switch (event.key) {
         case 'ArrowDown':
           event.preventDefault();
-          setSelectedIndex(prev => (prev + 1) % filteredCommands.length);
+          setSelectedIndex((prev) => (prev + 1) % filteredCommands.length);
           break;
         case 'ArrowUp':
           event.preventDefault();
-          setSelectedIndex(prev => (prev - 1 + filteredCommands.length) % filteredCommands.length);
+          setSelectedIndex(
+            (prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length
+          );
           break;
         case 'Enter':
           event.preventDefault();
@@ -216,7 +219,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
 
   // Group commands by category
   const groupedCommands: Record<string, CommandItem[]> = {};
-  filteredCommands.forEach(cmd => {
+  filteredCommands.forEach((cmd) => {
     const category = getCategoryLabel(cmd.category);
     if (!groupedCommands[category]) {
       groupedCommands[category] = [];
@@ -269,7 +272,10 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
                     endAdornment: (
                       <InputAdornment position="end">
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: theme.palette.text.secondary }}
+                          >
                             ESC
                           </Typography>
                           <IconButton size="small" onClick={onClose}>
@@ -341,10 +347,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
                             }),
                           }}
                         >
-                          <ListItemButton
-                            onClick={command.action}
-                            sx={{ py: 2 }}
-                          >
+                          <ListItemButton onClick={command.action} sx={{ py: 2 }}>
                             <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
                               {command.icon}
                             </ListItemIcon>

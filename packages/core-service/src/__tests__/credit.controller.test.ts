@@ -10,12 +10,12 @@ import '../tests/setup';
 // Create a test app
 const createTestApp = () => {
   const app = express();
-  
+
   // Basic middleware
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  
+
   // Mock auth middleware
   app.use((req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
@@ -25,7 +25,7 @@ const createTestApp = () => {
         message: 'No token provided or invalid format',
       });
     }
-    
+
     // Set mock user based on token
     if (authHeader.includes('admin-token')) {
       req.user = {
@@ -42,7 +42,7 @@ const createTestApp = () => {
     }
     next();
   });
-  
+
   // Mock RBAC middleware
   const requireRoles = (roles: string[]) => (req: any, res: any, next: any) => {
     if (roles.includes('admin') && req.user?.role !== 'admin') {
@@ -53,61 +53,64 @@ const createTestApp = () => {
     }
     next();
   };
-  
+
   // Credit routes with direct implementation to avoid server startup
   app.get('/api/credits/balance', async (req: any, res: any, next: any) => {
     try {
       const userId = req.user.id;
       const cacheKey = `credit_balance:${userId}`;
-      
+
       // Check Redis cache
       const cached = await mockRedisService.get(cacheKey);
       if (cached) {
         return res.json({
           data: parseInt(cached as string),
-          meta: { cached: true }
+          meta: { cached: true },
         });
       }
-      
+
       // Get from service
       const balance = await mockCreditService.getBalance(userId);
-      
+
       // Cache the result
       await mockRedisService.set(cacheKey, (balance as number).toString(), 60);
-      
+
       res.json({
         data: balance,
-        meta: { cached: false }
+        meta: { cached: false },
       });
     } catch (error: any) {
       next(error);
     }
   });
-  
+
   app.get('/api/credits/history', async (req: any, res: any, next: any) => {
     try {
       const userId = req.user.id;
       const pageParam = req.query.page as string;
       const limitParam = req.query.limit as string;
-      
+
       const page = pageParam ? parseInt(pageParam) : 1;
       const limit = limitParam ? parseInt(limitParam) : 20;
-      
+
       // Validate pagination
       if (pageParam && (isNaN(page) || page < 1 || !Number.isInteger(page))) {
         return res.status(400).json({
-          error: { message: 'Page must be a positive integer' }
+          error: { message: 'Page must be a positive integer' },
         });
       }
-      
+
       if (limitParam && (isNaN(limit) || limit < 1 || limit > 100 || !Number.isInteger(limit))) {
         return res.status(400).json({
-          error: { message: 'Limit must be between 1 and 100' }
+          error: { message: 'Limit must be between 1 and 100' },
         });
       }
-      
-      const result = await mockCreditService.getHistory(userId, page, limit) as { data: any[], total: number };
-      
+
+      const result = (await mockCreditService.getHistory(userId, page, limit)) as {
+        data: any[];
+        total: number;
+      };
+
       res.json({
         data: result.data,
         meta: {
@@ -115,95 +118,99 @@ const createTestApp = () => {
             page,
             limit,
             total: result.total,
-            totalPages: Math.ceil(result.total / limit)
-          }
-        }
+            totalPages: Math.ceil(result.total / limit),
+          },
+        },
       });
     } catch (error: any) {
       next(error);
     }
   });
-  
+
   app.post('/api/credits/redeem', async (req: any, res: any, next: any) => {
     try {
       const userId = req.user.id;
       const { code } = req.body;
-      
+
       // Validate input
       if (!code) {
         return res.status(400).json({
-          error: { message: 'Promo code is required' }
+          error: { message: 'Promo code is required' },
         });
       }
-      
+
       if (typeof code !== 'string' || code.length < 3) {
         return res.status(400).json({
-          error: { message: 'Invalid promo code format' }
+          error: { message: 'Invalid promo code format' },
         });
       }
-      
+
       const credits = await mockCreditService.redeemPromo(userId, code);
-      
+
       // Clear cache
       await mockRedisService.del(`credit_balance:${userId}`);
-      
+
       res.json({
         data: {
           credits,
-          message: `Successfully redeemed ${credits} credits`
-        }
+          message: `Successfully redeemed ${credits} credits`,
+        },
       });
     } catch (error: any) {
       next(error);
     }
   });
-  
-  app.post('/api/admin/credits/adjust', requireRoles(['admin']), async (req: any, res: any, next: any) => {
-    try {
-      const { userId, amount, reason } = req.body;
-      
-      // Validate input
-      if (amount === undefined || amount === null) {
-        return res.status(400).json({
-          error: { message: 'Amount is required' }
-        });
-      }
-      
-      if (typeof amount !== 'number') {
-        return res.status(400).json({
-          error: { message: 'Amount must be a number' }
-        });
-      }
-      
-      if (!reason || typeof reason !== 'string' || reason.trim() === '') {
-        return res.status(400).json({
-          error: { message: 'Reason is required and must be a non-empty string' }
-        });
-      }
-      
-      const newBalance = await mockCreditService.adjustCredits(userId, amount, reason);
-      
-      // Clear cache
-      await mockRedisService.del(`credit_balance:${userId}`);
-      
-      res.json({
-        data: {
-          newBalance,
-          message: 'Credits adjusted successfully'
+
+  app.post(
+    '/api/admin/credits/adjust',
+    requireRoles(['admin']),
+    async (req: any, res: any, next: any) => {
+      try {
+        const { userId, amount, reason } = req.body;
+
+        // Validate input
+        if (amount === undefined || amount === null) {
+          return res.status(400).json({
+            error: { message: 'Amount is required' },
+          });
         }
-      });
-    } catch (error: any) {
-      next(error);
+
+        if (typeof amount !== 'number') {
+          return res.status(400).json({
+            error: { message: 'Amount must be a number' },
+          });
+        }
+
+        if (!reason || typeof reason !== 'string' || reason.trim() === '') {
+          return res.status(400).json({
+            error: { message: 'Reason is required and must be a non-empty string' },
+          });
+        }
+
+        const newBalance = await mockCreditService.adjustCredits(userId, amount, reason);
+
+        // Clear cache
+        await mockRedisService.del(`credit_balance:${userId}`);
+
+        res.json({
+          data: {
+            newBalance,
+            message: 'Credits adjusted successfully',
+          },
+        });
+      } catch (error: any) {
+        next(error);
+      }
     }
-  });
-  
+  );
+
   // Error handler
   app.use((error: any, req: any, res: any, next: any) => {
     res.status(500).json({
-      error: { message: error.message }
+      error: { message: error.message },
     });
   });
-  
+
   return app;
 };
 
@@ -211,7 +218,7 @@ const mockRedisService = createMockRedisService();
 
 describe('Credit Controller', () => {
   let app: express.Application;
-  
+
   const mockUser = {
     id: 'test-user-id',
     email: 'test@example.com',
@@ -263,10 +270,10 @@ describe('Credit Controller', () => {
     test('should return balance for authenticated user', async () => {
       // Mock Redis cache miss
       (mockRedisService.get as jest.Mock).mockResolvedValue(null);
-      
+
       // Mock service response
       (mockCreditService.getBalance as jest.Mock).mockResolvedValue(100);
-      
+
       // Mock Redis set
       (mockRedisService.set as jest.Mock).mockResolvedValue(true);
 
@@ -279,11 +286,7 @@ describe('Credit Controller', () => {
       expect(response.body.meta.cached).toBe(false);
       expect(mockCreditService.getBalance).toHaveBeenCalledWith('test-user-id');
       expect(mockRedisService.get).toHaveBeenCalledWith('credit_balance:test-user-id');
-      expect(mockRedisService.set).toHaveBeenCalledWith(
-        'credit_balance:test-user-id',
-        '100',
-        60
-      );
+      expect(mockRedisService.set).toHaveBeenCalledWith('credit_balance:test-user-id', '100', 60);
     });
 
     test('should return cached balance when available', async () => {
@@ -302,8 +305,7 @@ describe('Credit Controller', () => {
     });
 
     test('should return 401 if not authenticated', async () => {
-      const response = await request(app)
-        .get('/api/credits/balance');
+      const response = await request(app).get('/api/credits/balance');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access denied');
@@ -313,9 +315,11 @@ describe('Credit Controller', () => {
     test('should return 500 if service fails', async () => {
       // Mock Redis cache miss
       (mockRedisService.get as jest.Mock).mockResolvedValue(null);
-      
+
       // Mock service error
-      (mockCreditService.getBalance as jest.Mock).mockRejectedValue(new Error('Credit account not found for user: test-user-id'));
+      (mockCreditService.getBalance as jest.Mock).mockRejectedValue(
+        new Error('Credit account not found for user: test-user-id')
+      );
 
       const response = await request(app)
         .get('/api/credits/balance')
@@ -394,8 +398,7 @@ describe('Credit Controller', () => {
     });
 
     test('should return 401 if not authenticated', async () => {
-      const response = await request(app)
-        .get('/api/credits/history');
+      const response = await request(app).get('/api/credits/history');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access denied');
@@ -406,7 +409,7 @@ describe('Credit Controller', () => {
     test('should redeem valid promo code', async () => {
       // Mock service response
       (mockCreditService.redeemPromo as jest.Mock).mockResolvedValue(25);
-      
+
       // Mock Redis delete
       (mockRedisService.del as jest.Mock).mockResolvedValue(true);
 
@@ -424,7 +427,9 @@ describe('Credit Controller', () => {
 
     test('should return error for invalid code', async () => {
       // Mock service error
-      (mockCreditService.redeemPromo as jest.Mock).mockRejectedValue(new Error('Promo code not found'));
+      (mockCreditService.redeemPromo as jest.Mock).mockRejectedValue(
+        new Error('Promo code not found')
+      );
 
       const response = await request(app)
         .post('/api/credits/redeem')
@@ -437,7 +442,9 @@ describe('Credit Controller', () => {
 
     test('should return error if already used', async () => {
       // Mock service error
-      (mockCreditService.redeemPromo as jest.Mock).mockRejectedValue(new Error('You have already used this promo code'));
+      (mockCreditService.redeemPromo as jest.Mock).mockRejectedValue(
+        new Error('You have already used this promo code')
+      );
 
       const response = await request(app)
         .post('/api/credits/redeem')
@@ -469,9 +476,7 @@ describe('Credit Controller', () => {
     });
 
     test('should return 401 if not authenticated', async () => {
-      const response = await request(app)
-        .post('/api/credits/redeem')
-        .send({ code: 'TEST123' });
+      const response = await request(app).post('/api/credits/redeem').send({ code: 'TEST123' });
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Access denied');
@@ -482,7 +487,7 @@ describe('Credit Controller', () => {
     test('should adjust credits with valid reason', async () => {
       // Mock service response
       (mockCreditService.adjustCredits as jest.Mock).mockResolvedValue(150);
-      
+
       // Mock Redis delete
       (mockRedisService.del as jest.Mock).mockResolvedValue(true);
 
@@ -494,7 +499,11 @@ describe('Credit Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.newBalance).toBe(150);
       expect(response.body.data.message).toBe('Credits adjusted successfully');
-      expect(mockCreditService.adjustCredits).toHaveBeenCalledWith('test-user-id', 50, 'Admin adjustment for testing');
+      expect(mockCreditService.adjustCredits).toHaveBeenCalledWith(
+        'test-user-id',
+        50,
+        'Admin adjustment for testing'
+      );
       expect(mockRedisService.del).toHaveBeenCalledWith('credit_balance:test-user-id');
     });
 

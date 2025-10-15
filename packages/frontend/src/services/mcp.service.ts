@@ -95,7 +95,17 @@ export const mcpService = {
   },
 
   // Health check
-  async healthCheck(): Promise<{ status: string; timestamp: string; providers: number; connections: number }> {
-    return apiService.get<{ status: string; timestamp: string; providers: number; connections: number }>('/api/mcp/health');
+  async healthCheck(): Promise<{
+    status: string;
+    timestamp: string;
+    providers: number;
+    connections: number;
+  }> {
+    return apiService.get<{
+      status: string;
+      timestamp: string;
+      providers: number;
+      connections: number;
+    }>('/api/mcp/health');
   },
 };

@@ -33,7 +33,7 @@ export const createCheckoutSession = async (
 
     // Get request body with type safety
     const { packageId, quantity } = req.body as CreateCheckoutSessionRequest;
-    
+
     // Basic validation
     if (!packageId) {
       return next(new AppError('Package ID is required', 400));
@@ -49,7 +49,10 @@ export const createCheckoutSession = async (
     }
 
     // Create checkout session
-    const session = await paymentService.createStripeCheckoutSession(userId, packageId as CreditPackageId);
+    const session = await paymentService.createStripeCheckoutSession(
+      userId,
+      packageId as CreditPackageId
+    );
 
     const response: CreateCheckoutSessionResponse = {
       sessionId: session.id,
@@ -82,7 +85,7 @@ export const handleSuccess = async (
 ): Promise<void> => {
   try {
     const { session_id } = req.query;
-    
+
     if (!session_id) {
       res.status(400).json({
         data: null,
@@ -166,7 +169,7 @@ export const handleWebhook = async (
 ): Promise<void> => {
   try {
     const sig = req.headers['stripe-signature'] as string;
-    
+
     if (!sig) {
       res.status(400).json({
         data: null,
@@ -179,9 +182,20 @@ export const handleWebhook = async (
       return;
     }
 
+    // Get raw body for signature verification
+    let rawBody: string;
+    if (req.body instanceof Buffer) {
+      rawBody = req.body.toString('utf8');
+    } else if (typeof req.body === 'string') {
+      rawBody = req.body;
+    } else {
+      // Fallback for when body parser has already parsed it
+      rawBody = JSON.stringify(req.body);
+    }
+
     // Process webhook using the consolidated service function
-    await paymentService.processStripeWebhook(req.body, sig);
-    
+    await paymentService.processStripeWebhook(rawBody, sig);
+
     res.status(200).json({
       data: { received: true },
       meta: null,
@@ -220,7 +234,7 @@ export const handleStripeWebhook = async (
 ): Promise<void> => {
   try {
     const sig = req.headers['stripe-signature'] as string;
-    
+
     if (!sig) {
       res.status(400).json({
         data: null,
@@ -234,11 +248,19 @@ export const handleStripeWebhook = async (
     }
 
     // Get raw body for signature verification
-    const rawBody = req.body;
-    
+    let rawBody: string;
+    if (req.body instanceof Buffer) {
+      rawBody = req.body.toString('utf8');
+    } else if (typeof req.body === 'string') {
+      rawBody = req.body;
+    } else {
+      // Fallback for when body parser has already parsed it
+      rawBody = JSON.stringify(req.body);
+    }
+
     // Process webhook using the consolidated service function
     await paymentService.processStripeWebhook(rawBody, sig);
-    
+
     res.status(200).json({
       data: { received: true },
       meta: null,
@@ -330,7 +352,7 @@ export const getCreditPackages = async (
 ): Promise<void> => {
   try {
     const { creditPackages } = await import('../config/stripe.config');
-    
+
     // Transform packages for client response
     const packages = Object.entries(creditPackages).map(([key, pkg]) => ({
       id: key,

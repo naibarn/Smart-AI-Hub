@@ -53,7 +53,7 @@ export class LoggingService {
     // 1. Store in database for analytics
     // 2. Send to monitoring system
     // 3. Update user statistics
-    
+
     if (config.NODE_ENV === 'production') {
       await this.persistUsageLog(usageLog);
     }
@@ -98,12 +98,7 @@ export class LoggingService {
   /**
    * Log request error
    */
-  public logRequestError(
-    userId: string,
-    requestId: string,
-    error: Error,
-    duration: number
-  ): void {
+  public logRequestError(userId: string, requestId: string, error: Error, duration: number): void {
     logger.error('MCP request failed', {
       userId,
       requestId,
@@ -134,7 +129,7 @@ export class LoggingService {
   }> {
     // In a real implementation, this would query the database
     // For now, return placeholder data
-    
+
     logger.debug('Fetching user usage stats', {
       userId,
       startDate,
@@ -170,7 +165,7 @@ export class LoggingService {
   }> {
     // In a real implementation, this would query the database
     // For now, return placeholder data
-    
+
     logger.debug('Fetching system usage stats', {
       startDate,
       endDate,
@@ -193,14 +188,14 @@ export class LoggingService {
    */
   private estimateTokens(messages: any[]): number {
     let totalTokens = 0;
-    
+
     for (const message of messages) {
       if (message.content && typeof message.content === 'string') {
         // Rough estimation: ~4 characters per token
         totalTokens += Math.ceil(message.content.length / 4);
       }
     }
-    
+
     return totalTokens;
   }
 
@@ -216,7 +211,7 @@ export class LoggingService {
       // - Send to Elasticsearch for analytics
       // - Send to Stripe for billing integration
       // - Send to monitoring dashboard
-      
+
       logger.debug('Usage log persisted', {
         usageLogId: usageLog.id,
         userId: usageLog.userId,

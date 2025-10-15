@@ -31,17 +31,27 @@ router.put('/users/me', authenticateJWT, requirePermission('users', 'update'), u
  * @desc    Delete a user
  * @access  Private (requires users:delete permission or self access for admin)
  */
-router.delete('/users/:id', authenticateJWT, requirePermission('users', 'delete'), (req: any, res: any) => {
-  res.json({ message: 'Delete user', user: req.user, targetUserId: req.params.id });
-});
+router.delete(
+  '/users/:id',
+  authenticateJWT,
+  requirePermission('users', 'delete'),
+  (req: any, res: any) => {
+    res.json({ message: 'Delete user', user: req.user, targetUserId: req.params.id });
+  }
+);
 
 /**
  * @route   GET /users/:id
  * @desc    Get user by ID
  * @access  Private (requires users:read permission or self access)
  */
-router.get('/users/:id', authenticateJWT, requireSelfOrRole(['admin', 'manager']), (req: any, res: any) => {
-  res.json({ message: 'Get user by ID', user: req.user, targetUserId: req.params.id });
-});
+router.get(
+  '/users/:id',
+  authenticateJWT,
+  requireSelfOrRole(['admin', 'manager']),
+  (req: any, res: any) => {
+    res.json({ message: 'Get user by ID', user: req.user, targetUserId: req.params.id });
+  }
+);
 
 export default router;

@@ -11,13 +11,7 @@ import {
   CardContent,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import {
-  ArrowLeft,
-  CreditCard,
-  TrendingUp,
-  Shield,
-  Zap,
-} from 'lucide-react';
+import { ArrowLeft, CreditCard, TrendingUp, Shield, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetCreditPackagesQuery,
@@ -31,11 +25,16 @@ import { GlassCard, LoadingSpinner } from '../components/common';
 const Billing: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  
+
   // Fetch credit packages and user's credit balance
-  const { data: packages, isLoading: packagesLoading, error: packagesError } = useGetCreditPackagesQuery();
+  const {
+    data: packages,
+    isLoading: packagesLoading,
+    error: packagesError,
+  } = useGetCreditPackagesQuery();
   const { data: balanceData, isLoading: balanceLoading } = useGetCreditBalanceQuery();
-  const [createCheckoutSession, { isLoading: checkoutLoading, error: checkoutError }] = useCreateCheckoutSessionMutation();
+  const [createCheckoutSession, { isLoading: checkoutLoading, error: checkoutError }] =
+    useCreateCheckoutSessionMutation();
 
   // Define static credit packages as fallback
   const staticPackages: CreditPackage[] = [
@@ -46,11 +45,7 @@ const Billing: React.FC = () => {
       price: 9.99,
       currency: 'USD',
       description: 'Perfect for trying out our platform',
-      features: [
-        '100 AI credits',
-        'Basic support',
-        'Access to all models',
-      ],
+      features: ['100 AI credits', 'Basic support', 'Access to all models'],
     },
     {
       id: 'professional',
@@ -59,12 +54,7 @@ const Billing: React.FC = () => {
       price: 39.99,
       currency: 'USD',
       description: 'Great for regular users',
-      features: [
-        '500 AI credits',
-        'Priority support',
-        'Access to all models',
-        'Advanced features',
-      ],
+      features: ['500 AI credits', 'Priority support', 'Access to all models', 'Advanced features'],
       popular: true,
     },
     {
@@ -127,14 +117,10 @@ const Billing: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           <Box sx={{ pt: 3, pb: 4 }}>
-            <Button
-              startIcon={<ArrowLeft size={20} />}
-              onClick={handleGoBack}
-              sx={{ mb: 2 }}
-            >
+            <Button startIcon={<ArrowLeft size={20} />} onClick={handleGoBack} sx={{ mb: 2 }}>
               Back to Dashboard
             </Button>
-            
+
             <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
               Billing & Credits
             </Typography>
@@ -248,7 +234,7 @@ const Billing: React.FC = () => {
             <Typography variant="h4" sx={{ fontWeight: 600, mb: 3, textAlign: 'center' }}>
               Why Choose Our Credits?
             </Typography>
-            
+
             <Grid container spacing={3} sx={{ mt: 2 }}>
               <Grid item xs={12} md={4}>
                 <GlassCard sx={{ height: '100%', p: 3 }}>
@@ -273,7 +259,7 @@ const Billing: React.FC = () => {
                   </Typography>
                 </GlassCard>
               </Grid>
-              
+
               <Grid item xs={12} md={4}>
                 <GlassCard sx={{ height: '100%', p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -297,7 +283,7 @@ const Billing: React.FC = () => {
                   </Typography>
                 </GlassCard>
               </Grid>
-              
+
               <Grid item xs={12} md={4}>
                 <GlassCard sx={{ height: '100%', p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

@@ -14,31 +14,27 @@ import {
   IconButton,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import {
-  Mail,
-  Lock,
-  Visibility,
-  VisibilityOff,
-  Person,
-} from '@mui/icons-material';
+import { Mail, Lock, Visibility, VisibilityOff, Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useRegisterUserMutation, RegisterRequest } from '../services/api';
 
 // Form validation schema with zod
-const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().email('Invalid email address'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -54,6 +50,7 @@ const Register: React.FC = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    getValues,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: 'onBlur',
@@ -65,12 +62,12 @@ const Register: React.FC = () => {
     try {
       const { confirmPassword, ...registerData } = data;
       const result = await registerUser(registerData as RegisterRequest).unwrap();
-      
+
       if (result.success) {
         setRegistrationSuccess(true);
-        // Redirect to login page after 3 seconds
+        // Redirect to email verification page after 3 seconds
         setTimeout(() => {
-          navigate('/login');
+          navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
         }, 3000);
       }
     } catch (err: any) {
@@ -113,21 +110,26 @@ const Register: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: theme.palette.success.main }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 700, mb: 2, color: theme.palette.success.main }}
+            >
               Registration Successful!
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
               Please check your email for verification instructions.
             </Typography>
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-              You will be redirected to the login page in a few seconds...
+              You will be redirected to the verification page in a few seconds...
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate('/login')}
+              onClick={() =>
+                navigate(`/verify-email?email=${encodeURIComponent(getValues('email'))}`)
+              }
               sx={{ mt: 3 }}
             >
-              Go to Login
+              Verify Email Now
             </Button>
           </Box>
         </Container>
@@ -175,10 +177,9 @@ const Register: React.FC = () => {
           {/* API error message */}
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {'status' in error && (error as any).data?.message ?
-                (error as any).data.message :
-                'An error occurred during registration'
-              }
+              {'status' in error && (error as any).data?.message
+                ? (error as any).data.message
+                : 'An error occurred during registration'}
             </Alert>
           )}
 

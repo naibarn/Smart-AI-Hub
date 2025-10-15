@@ -21,11 +21,11 @@ global.console = {
 };
 
 // Set up test timeout
-// @ts-ignore
 jest.setTimeout(10000);
 
 // Global test utilities
 export const createMockJWT = (payload: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const jwt = require('jsonwebtoken');
   return jwt.sign(payload, process.env.JWT_SECRET);
 };
@@ -67,7 +67,6 @@ export const createMockWebSocket = () => {
     CLOSING: 2,
     emit: jest.fn(),
   };
-  // @ts-ignore
   mockWs.on.mockImplementation((event, listener) => {
     if (event === 'close') {
       mockWs.close = listener;
@@ -79,23 +78,18 @@ export const createMockWebSocket = () => {
       // you might want to store this listener if you want to trigger it
     }
   });
-  // @ts-ignore
   mockWs.emit.mockImplementation((event, ...args) => {
-    // @ts-ignore
-    const listeners = mockWs.on.mock.calls.filter(call => call[0] === event);
-    listeners.forEach(call => call[1](...args));
+    const listeners = mockWs.on.mock.calls.filter((call) => call[0] === event);
+    listeners.forEach((call) => call[1](...args));
   });
   return mockWs;
 };
 
 // Clean up after tests
-// @ts-ignore
 afterEach(() => {
-  // @ts-ignore
   jest.clearAllMocks();
 });
 
-// @ts-ignore
 afterAll(() => {
   // Close any open connections
   // Clean up test data

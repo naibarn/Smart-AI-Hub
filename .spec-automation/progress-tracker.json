@@ -1,0 +1,770 @@
+{
+  "version": "1.0",
+  "generated": "2025-10-14T14:00:52.031Z",
+  "total_tasks": 59,
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Setup",
+      "tasks": [
+        {
+          "id": "TASK-1.1",
+          "name": "Load standard template",
+          "status": "completed",
+          "estimated_minutes": 5,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T14:06:03.506Z",
+          "completed_at": "2025-10-14T14:06:08.167Z"
+        },
+        {
+          "id": "TASK-1.2",
+          "name": "Create automation templates",
+          "status": "completed",
+          "estimated_minutes": 10,
+          "actual_minutes": 10,
+          "started_at": "2025-10-14T14:11:12.013Z",
+          "completed_at": "2025-10-14T14:12:30.247Z"
+        },
+        {
+          "id": "TASK-1.3",
+          "name": "Setup validation system",
+          "status": "completed",
+          "estimated_minutes": 5,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T14:12:50.609Z",
+          "completed_at": "2025-10-14T14:13:14.545Z"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Frontend",
+      "tasks": [
+        {
+          "id": "TASK-2.1",
+          "name": "Create frontend specs directory structure",
+          "status": "completed",
+          "estimated_minutes": 5,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T18:42:30.000Z",
+          "completed_at": "2025-10-14T18:42:37.000Z",
+          "file_path": "specs/03_frontend/README.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-2.2",
+          "name": "Create frontend spec for Authentication components",
+          "status": "completed",
+          "estimated_minutes": 60,
+          "actual_minutes": 60,
+          "started_at": "2025-10-14T18:42:37.000Z",
+          "completed_at": "2025-10-14T18:44:13.000Z",
+          "file_path": "specs/03_frontend/components/auth/authentication.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-2.3",
+          "name": "Create frontend spec for Dashboard page",
+          "status": "completed",
+          "estimated_minutes": 60,
+          "actual_minutes": 60,
+          "started_at": "2025-10-14T18:44:13.000Z",
+          "completed_at": "2025-10-14T18:45:33.000Z",
+          "file_path": "specs/03_frontend/pages/dashboard.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-2.4",
+          "name": "Create frontend spec for Credit Management components",
+          "status": "completed",
+          "estimated_minutes": 60,
+          "actual_minutes": 60,
+          "started_at": "2025-10-14T18:45:33.000Z",
+          "completed_at": "2025-10-14T18:47:01.000Z",
+          "file_path": "specs/03_frontend/components/forms/credit_management.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-2.5",
+          "name": "Create frontend spec for Chat Interface",
+          "status": "completed",
+          "estimated_minutes": 60,
+          "actual_minutes": 60,
+          "started_at": "2025-10-14T18:47:01.000Z",
+          "completed_at": "2025-10-14T18:49:34.000Z",
+          "file_path": "specs/03_frontend/pages/chat_interface.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-2.6",
+          "name": "Create frontend spec for Billing/Payment components",
+          "status": "completed",
+          "estimated_minutes": 60,
+          "actual_minutes": 60,
+          "started_at": "2025-10-14T18:49:34.000Z",
+          "completed_at": "2025-10-14T18:50:55.000Z",
+          "file_path": "specs/03_frontend/components/forms/billing_payment.md",
+          "quality_score": 95
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Backend",
+      "tasks": [
+        {
+          "id": "TASK-3.1",
+          "name": "Fix fr_7.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 30,
+          "started_at": "2025-10-14T14:55:54.782Z",
+          "completed_at": "2025-10-14T14:57:32.497Z",
+          "file_path": "specs/01_requirements/functional/fr_7.md",
+          "quality_score": 15
+        },
+        {
+          "id": "TASK-3.2",
+          "name": "Fix credit_transaction.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T15:06:17.485Z",
+          "completed_at": "2025-10-14T15:08:16.629Z",
+          "file_path": "specs/02_architecture/data_models/credit_transaction.md",
+          "quality_score": 15
+        },
+        {
+          "id": "TASK-3.3",
+          "name": "Fix role.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T15:32:25.166Z",
+          "completed_at": "2025-10-14T15:35:24.370Z",
+          "file_path": "specs/02_architecture/data_models/role.md",
+          "quality_score": 15
+        },
+        {
+          "id": "TASK-3.4",
+          "name": "Fix permission.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T15:55:55.000Z",
+          "completed_at": "2025-10-14T16:01:08.000Z",
+          "file_path": "specs/backend/permission.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.5",
+          "name": "Fix user_role.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T16:11:58.000Z",
+          "completed_at": "2025-10-14T16:13:46.000Z",
+          "file_path": "specs/backend/user_role.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.6",
+          "name": "Fix role_permission.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T16:33:36.000Z",
+          "completed_at": "2025-10-14T16:36:04.000Z",
+          "file_path": "specs/backend/role_permission.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.7",
+          "name": "Fix credit_account.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T16:37:07.000Z",
+          "completed_at": "2025-10-14T16:38:52.000Z",
+          "file_path": "specs/backend/credit_account.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.8",
+          "name": "Fix promo_code.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T16:51:27.000Z",
+          "completed_at": "2025-10-14T16:53:58.000Z",
+          "file_path": "specs/backend/promo_code.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.9",
+          "name": "Fix promo_redemption.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 20,
+          "started_at": "2025-10-14T16:56:53.000Z",
+          "completed_at": "2025-10-14T16:59:00.000Z",
+          "file_path": "specs/backend/promo_redemption.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.10",
+          "name": "Fix usage_log.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 8,
+          "started_at": "2025-10-14T18:32:00.000Z",
+          "completed_at": "2025-10-14T18:35:00.000Z",
+          "file_path": "specs/backend/usage_log.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.11",
+          "name": "Fix user.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 7,
+          "started_at": "2025-10-14T18:37:00.000Z",
+          "completed_at": "2025-10-14T18:37:00.000Z",
+          "file_path": "specs/backend/user.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.12",
+          "name": "Fix fr_4.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:05:54.463Z",
+          "completed_at": "2025-10-14T17:09:13.501Z",
+          "file_path": "specs/backend/fr_4.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.13",
+          "name": "Fix fr_5.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:10:58.571Z",
+          "completed_at": "2025-10-14T17:11:04.745Z",
+          "file_path": "specs/backend/fr_5.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.14",
+          "name": "Fix fr_2.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:13:53.983Z",
+          "completed_at": "2025-10-14T17:13:58.055Z",
+          "file_path": "specs/backend/fr_2.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.15",
+          "name": "Fix fr_3.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:16:24.890Z",
+          "completed_at": "2025-10-14T17:16:33.174Z",
+          "file_path": "specs/backend/fr_3.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.16",
+          "name": "Fix fr_6.md",
+          "status": "completed",
+          "estimated_minutes": 45,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:18:59.131Z",
+          "completed_at": "2025-10-14T17:19:14.720Z",
+          "file_path": "specs/backend/fr_6.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.17",
+          "name": "Fix fr_1.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:33:16.105Z",
+          "completed_at": "2025-10-14T17:33:28.371Z",
+          "file_path": "specs/backend/fr_1.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.18",
+          "name": "Fix fr_auth_05.md",
+          "status": "completed",
+          "estimated_minutes": 30,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:35:23.522Z",
+          "completed_at": "2025-10-14T17:35:39.044Z",
+          "file_path": "specs/backend/fr_auth_05.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.19",
+          "name": "Fix fr_auth_06.md",
+          "status": "completed",
+          "estimated_minutes": 35,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:38:22.289Z",
+          "completed_at": "2025-10-14T17:38:51.214Z",
+          "file_path": "specs/backend/fr_auth_06.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.20",
+          "name": "Fix fr_credit_03.md",
+          "status": "completed",
+          "estimated_minutes": 35,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:41:04.515Z",
+          "completed_at": "2025-10-14T17:41:09.662Z",
+          "file_path": "specs/backend/fr_credit_03.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.21",
+          "name": "Fix fr_credit_04.md",
+          "status": "completed",
+          "estimated_minutes": 35,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:53:00.000Z",
+          "completed_at": "2025-10-14T17:54:00.000Z",
+          "file_path": "specs/backend/fr_credit_04.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.22",
+          "name": "Fix api_gateway.md",
+          "status": "completed",
+          "estimated_minutes": 60,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:55:00.000Z",
+          "completed_at": "2025-10-14T17:56:00.000Z",
+          "file_path": "specs/backend/api_gateway.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.23",
+          "name": "Fix auth_service.md",
+          "status": "completed",
+          "estimated_minutes": 75,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:57:00.000Z",
+          "completed_at": "2025-10-14T17:58:00.000Z",
+          "file_path": "specs/backend/auth_service.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.24",
+          "name": "Fix core_service.md",
+          "status": "completed",
+          "estimated_minutes": 120,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T17:59:00.000Z",
+          "completed_at": "2025-10-14T18:00:00.000Z",
+          "file_path": "specs/backend/core_service.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.25",
+          "name": "Fix mcp_server.md",
+          "status": "completed",
+          "estimated_minutes": 140,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T18:01:00.000Z",
+          "completed_at": "2025-10-14T18:02:00.000Z",
+          "file_path": "specs/backend/mcp_server.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.26",
+          "name": "Validate all Group B files",
+          "status": "completed",
+          "estimated_minutes": 15,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T18:09:00.000Z",
+          "completed_at": "2025-10-14T18:10:00.000Z"
+        },
+        {
+          "id": "TASK-3.27",
+          "name": "Commit Group B changes",
+          "status": "completed",
+          "estimated_minutes": 10,
+          "actual_minutes": 5,
+          "started_at": "2025-10-14T18:10:00.000Z",
+          "completed_at": "2025-10-14T18:15:00.000Z"
+        },
+        {
+          "id": "TASK-3.28",
+          "name": "Fix usage_log.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 8,
+          "started_at": "2025-10-14T18:32:00.000Z",
+          "completed_at": "2025-10-14T18:35:00.000Z",
+          "file_path": "specs/backend/usage_log.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.29",
+          "name": "Fix user.md",
+          "status": "completed",
+          "estimated_minutes": 20,
+          "actual_minutes": 7,
+          "started_at": "2025-10-14T18:37:00.000Z",
+          "completed_at": "2025-10-14T18:37:00.000Z",
+          "file_path": "specs/backend/user.md",
+          "quality_score": 95
+        },
+        {
+          "id": "TASK-3.30",
+          "name": "Fix epic_1.md",
+          "status": "completed",
+          "estimated_minutes": 90,
+          "actual_minutes": 10,
+          "started_at": "2025-10-14T18:39:00.000Z",
+          "completed_at": "2025-10-14T18:39:00.000Z",
+          "file_path": "specs/backend/epic_1.md",
+          "quality_score": 95
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Other",
+      "tasks": [
+        {
+          "id": "TASK-4.1",
+          "name": "Fix TRACEABILITY.md",
+          "status": "pending",
+          "estimated_minutes": 45,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/TRACEABILITY.md",
+          "quality_score": 0
+        },
+        {
+          "id": "TASK-4.2",
+          "name": "Fix README.md (01_requirements)",
+          "status": "pending",
+          "estimated_minutes": 40,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/README.md",
+          "quality_score": 0
+        },
+        {
+          "id": "TASK-4.3",
+          "name": "Fix README.md (02_architecture)",
+          "status": "pending",
+          "estimated_minutes": 35,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/02_architecture/README.md",
+          "quality_score": 0
+        },
+        {
+          "id": "TASK-4.4",
+          "name": "Fix README.md (03_backlog)",
+          "status": "pending",
+          "estimated_minutes": 20,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/README.md",
+          "quality_score": 0
+        },
+        {
+          "id": "TASK-4.5",
+          "name": "Fix epic_1.md",
+          "status": "pending",
+          "estimated_minutes": 90,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/epics/epic_1.md",
+          "quality_score": 35
+        },
+        {
+          "id": "TASK-4.6",
+          "name": "Fix epic_3.md",
+          "status": "pending",
+          "estimated_minutes": 100,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/epics/epic_3.md",
+          "quality_score": 35
+        },
+        {
+          "id": "TASK-4.7",
+          "name": "Fix epic_5.md",
+          "status": "pending",
+          "estimated_minutes": 80,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/epics/epic_5.md",
+          "quality_score": 35
+        },
+        {
+          "id": "TASK-4.8",
+          "name": "Fix epic_6.md",
+          "status": "pending",
+          "estimated_minutes": 20,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/epics/epic_6.md",
+          "quality_score": 35
+        },
+        {
+          "id": "TASK-4.9",
+          "name": "Fix epic_2.md",
+          "status": "pending",
+          "estimated_minutes": 220,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/epics/epic_2.md",
+          "quality_score": 50
+        },
+        {
+          "id": "TASK-4.10",
+          "name": "Fix epic_4.md",
+          "status": "pending",
+          "estimated_minutes": 190,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/03_backlog/epics/epic_4.md",
+          "quality_score": 50
+        },
+        {
+          "id": "TASK-4.11",
+          "name": "Fix us_1.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_1.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.12",
+          "name": "Fix us_2.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_2.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.13",
+          "name": "Fix us_3.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_3.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.14",
+          "name": "Fix us_4.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_4.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.15",
+          "name": "Fix us_5.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_5.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.16",
+          "name": "Fix us_6.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_6.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.17",
+          "name": "Fix us_7.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_7.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.18",
+          "name": "Fix us_8.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_8.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.19",
+          "name": "Fix us_9.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_9.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.20",
+          "name": "Fix us_10.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_10.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.21",
+          "name": "Fix us_11.md",
+          "status": "pending",
+          "estimated_minutes": 25,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null,
+          "file_path": "specs/01_requirements/user_stories/us_11.md",
+          "quality_score": 55
+        },
+        {
+          "id": "TASK-4.22",
+          "name": "Validate all Group C files",
+          "status": "pending",
+          "estimated_minutes": 15,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "id": "TASK-4.23",
+          "name": "Commit Group C changes",
+          "status": "pending",
+          "estimated_minutes": 10,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "id": "TASK-4.24",
+          "name": "Final validation of all files",
+          "status": "pending",
+          "estimated_minutes": 20,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Automation & Docs",
+      "tasks": [
+        {
+          "id": "TASK-5.1",
+          "name": "Create GitHub Actions workflow",
+          "status": "pending",
+          "estimated_minutes": 20,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "id": "TASK-5.2",
+          "name": "Create pre-commit hook",
+          "status": "pending",
+          "estimated_minutes": 15,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "id": "TASK-5.3",
+          "name": "Create spec template",
+          "status": "pending",
+          "estimated_minutes": 10,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "id": "TASK-5.4",
+          "name": "Create README and guidelines",
+          "status": "pending",
+          "estimated_minutes": 10,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "id": "TASK-5.5",
+          "name": "Generate final report",
+          "status": "pending",
+          "estimated_minutes": 5,
+          "actual_minutes": 0,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    }
+  ],
+  "current_task": "BATCH 21 - Phase 2 Frontend (5/12 completed)",
+  "last_checkpoint": "2025-10-14T18:50:55.000Z",
+  "statistics": {
+    "total_tasks": 65,
+    "completed_tasks": 37,
+    "in_progress_tasks": 0,
+    "pending_tasks": 28,
+    "completion_percentage": "56.9",
+    "total_estimated_minutes": 3085,
+    "total_actual_minutes": 615
+  }
+}

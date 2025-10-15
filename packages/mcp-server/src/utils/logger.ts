@@ -42,21 +42,23 @@ export const logger = winston.createLogger({
         })
       ),
     }),
-    
+
     // File transport for production
-    ...(config.NODE_ENV === 'production' ? [
-      new winston.transports.File({ 
-        filename: 'logs/error.log', 
-        level: 'error',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5,
-      }),
-      new winston.transports.File({ 
-        filename: 'logs/combined.log',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5,
-      }),
-    ] : []),
+    ...(config.NODE_ENV === 'production'
+      ? [
+          new winston.transports.File({
+            filename: 'logs/error.log',
+            level: 'error',
+            maxsize: 5242880, // 5MB
+            maxFiles: 5,
+          }),
+          new winston.transports.File({
+            filename: 'logs/combined.log',
+            maxsize: 5242880, // 5MB
+            maxFiles: 5,
+          }),
+        ]
+      : []),
   ],
 });
 
@@ -68,7 +70,12 @@ export const morganStream = {
 };
 
 // Helper functions for structured logging
-export const logConnection = (userId: string, connectionId: string, event: string, details?: any) => {
+export const logConnection = (
+  userId: string,
+  connectionId: string,
+  event: string,
+  details?: any
+) => {
   logger.info('WebSocket connection event', {
     event,
     userId,
@@ -100,7 +107,13 @@ export const logResponse = (userId: string, requestId: string, response: any, du
   });
 };
 
-export const logCreditCheck = (userId: string, requestId: string, balance: number, required: number, approved: boolean) => {
+export const logCreditCheck = (
+  userId: string,
+  requestId: string,
+  balance: number,
+  required: number,
+  approved: boolean
+) => {
   logger.info('Credit check performed', {
     userId,
     requestId,
@@ -135,16 +148,18 @@ export const logUsage = (usageLog: any) => {
 
 // Development logger with pretty formatting
 if (config.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.timestamp({ format: 'HH:mm:ss' }),
-      winston.format.printf(({ timestamp, level, message, ...meta }) => {
-        const metaStr = Object.keys(meta).length ? `\n${JSON.stringify(meta, null, 2)}` : '';
-        return `${timestamp} [${level}]: ${message}${metaStr}`;
-      })
-    ),
-  }));
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.timestamp({ format: 'HH:mm:ss' }),
+        winston.format.printf(({ timestamp, level, message, ...meta }) => {
+          const metaStr = Object.keys(meta).length ? `\n${JSON.stringify(meta, null, 2)}` : '';
+          return `${timestamp} [${level}]: ${message}${metaStr}`;
+        })
+      ),
+    })
+  );
 }
 
 export default logger;

@@ -11,11 +11,11 @@ export const testConnection = async () => {
       },
       credentials: 'include',
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log('API connection successful:', data);
     return { success: true, data };
@@ -38,11 +38,11 @@ export const testSpecificEndpoint = async (endpoint: string) => {
       },
       credentials: 'include',
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log(`Connection to ${endpoint} successful:`, data);
     return { success: true, data };
@@ -62,14 +62,14 @@ export const testAllServices = async () => {
     { name: 'Core Service', endpoint: '/api/core/health' },
     { name: 'MCP Server', endpoint: '/api/mcp/health' },
   ];
-  
+
   const results = await Promise.allSettled(
     services.map(async (service) => {
       const result = await testSpecificEndpoint(service.endpoint);
       return { ...service, ...result };
     })
   );
-  
+
   return results.map((result, index) => {
     if (result.status === 'fulfilled') {
       return result.value;

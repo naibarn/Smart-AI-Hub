@@ -46,7 +46,7 @@ const CreditBadge: React.FC<CreditBadgeProps> = ({
         step++;
         current += increment;
         setDisplayCredits(Math.round(current));
-        
+
         if (step >= steps) {
           setDisplayCredits(credits);
           clearInterval(timer);
@@ -163,7 +163,8 @@ const CreditBadge: React.FC<CreditBadgeProps> = ({
                   label={`${change > 0 ? '+' : ''}${change}`}
                   size="small"
                   sx={{
-                    backgroundColor: change > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    backgroundColor:
+                      change > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
                     color: change > 0 ? '#10B981' : '#EF4444',
                     fontWeight: 600,
                     fontSize: '0.75rem',
@@ -193,17 +194,17 @@ const CreditBadge: React.FC<CreditBadgeProps> = ({
 
         {/* Particles */}
         <AnimatePresence>
-          {particles.map(particle => (
+          {particles.map((particle) => (
             <motion.div
               key={particle.id}
-              initial={{ 
-                x: particle.x, 
-                y: particle.y, 
+              initial={{
+                x: particle.x,
+                y: particle.y,
                 opacity: 1,
                 scale: 0,
               }}
-              animate={{ 
-                x: particle.x + (Math.random() - 0.5) * 50, 
+              animate={{
+                x: particle.x + (Math.random() - 0.5) * 50,
                 y: particle.y - 50,
                 opacity: 0,
                 scale: 1,
@@ -273,7 +274,8 @@ const CreditBadge: React.FC<CreditBadgeProps> = ({
             fontSize: '0.75rem',
           }}
         >
-          ({change > 0 ? '+' : ''}{change})
+          ({change > 0 ? '+' : ''}
+          {change})
         </Typography>
       )}
     </Box>

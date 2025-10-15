@@ -1,19 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 export declare const connectAuthRedis: () => Promise<void>;
 export interface JWTPayload {
-    sub: string;
-    email: string;
-    role: string;
-    iat: number;
-    exp: number;
-    jti: string;
+  sub: string;
+  email: string;
+  role: string;
+  iat: number;
+  exp: number;
+  jti: string;
 }
 export interface AuthenticatedRequest extends Request {
-    user?: {
-        id: string;
-        email: string;
-        role: string;
-    };
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
 }
 /**
  * JWT Authentication Middleware
@@ -31,12 +31,18 @@ export interface AuthenticatedRequest extends Request {
  * - 401 if token is expired
  * - 401 if token is revoked (in blacklist)
  */
-export declare const authenticateJWT: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const authenticateJWT: (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => Promise<void>;
 /**
  * Optional role-based authentication middleware
  * Usage: router.get('/admin', authenticateJWT, requireRole('admin'), adminHandler);
  */
-export declare const requireRole: (requiredRole: string) => (req: AuthenticatedRequest, res: Response, next: NextFunction) => void;
+export declare const requireRole: (
+  requiredRole: string
+) => (req: AuthenticatedRequest, res: Response, next: NextFunction) => void;
 /**
  * Disconnect Redis client (call this when shutting down the application)
  */

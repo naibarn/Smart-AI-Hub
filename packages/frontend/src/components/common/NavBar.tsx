@@ -203,11 +203,7 @@ const NavBar: React.FC<NavBarProps> = ({
                       },
                     }}
                   >
-                    <Avatar
-                      src={user.avatar}
-                      alt={user.name}
-                      sx={{ width: 32, height: 32 }}
-                    >
+                    <Avatar src={user.avatar} alt={user.name} sx={{ width: 32, height: 32 }}>
                       {user.name.charAt(0).toUpperCase()}
                     </Avatar>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>

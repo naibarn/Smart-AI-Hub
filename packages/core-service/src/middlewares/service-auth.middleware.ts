@@ -58,7 +58,8 @@ export const authenticateServiceRequest = async (
     }
 
     // 2. Verify token signature with service JWT secret
-    const serviceJwtSecret = process.env.SERVICE_TOKEN_SECRET || 'service-secret-key-change-in-production';
+    const serviceJwtSecret =
+      process.env.SERVICE_TOKEN_SECRET || 'service-secret-key-change-in-production';
 
     let decoded: ServiceJWTPayload;
     try {
@@ -135,14 +136,15 @@ export const authenticateServiceRequest = async (
  * Generate a service JWT token for internal service communication
  */
 export const generateServiceToken = (serviceId: string, serviceName: string): string => {
-  const serviceJwtSecret = process.env.SERVICE_JWT_SECRET || 'your-super-secret-service-key-change-in-production';
-  
+  const serviceJwtSecret =
+    process.env.SERVICE_JWT_SECRET || 'your-super-secret-service-key-change-in-production';
+
   const payload: ServiceJWTPayload = {
     sub: serviceId,
     name: serviceName,
     type: 'service',
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
     jti: `svc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
   };
 

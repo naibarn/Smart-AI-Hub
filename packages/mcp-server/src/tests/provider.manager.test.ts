@@ -76,7 +76,9 @@ describe('ProviderManager', () => {
     mockOpenAI.execute.mockRejectedValue(new Error('OpenAI failed'));
     mockClaude.execute.mockRejectedValue(new Error('Claude failed'));
     const request = { ...mockRequest, provider: 'auto' } as LLMRequest;
-    await expect(manager.handleRequest(request)).rejects.toThrow('All providers are currently unavailable.');
+    await expect(manager.handleRequest(request)).rejects.toThrow(
+      'All providers are currently unavailable.'
+    );
   });
 
   it('should open the circuit for a provider after repeated failures', async () => {
@@ -91,7 +93,7 @@ describe('ProviderManager', () => {
 
     // The 6th call should be rejected immediately because the breaker is open
     await expect(manager.handleRequest(request)).rejects.toThrow('Breaker is open');
-    
+
     // The mock should have been called only 5 times, not 6
     expect(mockOpenAI.execute).toHaveBeenCalledTimes(5);
   });
@@ -104,7 +106,7 @@ describe('ProviderManager', () => {
     for (let i = 0; i < 5; i++) {
       await expect(manager.handleRequest(request)).rejects.toThrow('OpenAI failed');
     }
-    
+
     // Allow micro-tasks to run, like the breaker state change
     await jest.advanceTimersByTimeAsync(1);
 
@@ -125,12 +127,12 @@ describe('ProviderManager', () => {
     await manager.handleRequest(request);
     expect(mockOpenAI.execute).toHaveBeenCalledTimes(7);
   });
-  
+
   it('should get the status of the providers', () => {
     const status = manager.getStatus();
     expect(status).toEqual({
-        "claude": "healthy",
-        "openai": "healthy",
-      });
+      claude: 'healthy',
+      openai: 'healthy',
+    });
   });
 });

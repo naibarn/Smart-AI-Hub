@@ -30,7 +30,9 @@ describe('CreditService', () => {
       const promptTokens = Math.ceil(mockRequest.messages[0].content.length / 4);
       const completionTokens = Math.ceil(promptTokens * 0.75);
       const totalTokens = promptTokens + completionTokens;
-      const expectedCredits = Math.ceil(totalTokens * (config.MODEL_PRICING['gpt-4'] / 1000) * 1000);
+      const expectedCredits = Math.ceil(
+        totalTokens * (config.MODEL_PRICING['gpt-4'] / 1000) * 1000
+      );
       expect(estimation.estimatedCredits).toBe(expectedCredits);
     });
 
@@ -40,7 +42,9 @@ describe('CreditService', () => {
       const promptTokens = Math.ceil(mockRequest.messages[0].content.length / 4);
       const completionTokens = Math.ceil(promptTokens * 0.5);
       const totalTokens = promptTokens + completionTokens;
-      const expectedCredits = Math.ceil(totalTokens * (config.MODEL_PRICING['gpt-3.5-turbo'] / 1000) * 1000);
+      const expectedCredits = Math.ceil(
+        totalTokens * (config.MODEL_PRICING['gpt-3.5-turbo'] / 1000) * 1000
+      );
       expect(estimation.estimatedCredits).toBe(expectedCredits);
     });
 
@@ -50,7 +54,9 @@ describe('CreditService', () => {
       const promptTokens = Math.ceil(mockRequest.messages[0].content.length / 4);
       const completionTokens = Math.ceil(promptTokens * 0.8);
       const totalTokens = promptTokens + completionTokens;
-      const expectedCredits = Math.ceil(totalTokens * (config.MODEL_PRICING['claude-3-sonnet'] / 1000) * 1000);
+      const expectedCredits = Math.ceil(
+        totalTokens * (config.MODEL_PRICING['claude-3-sonnet'] / 1000) * 1000
+      );
       expect(estimation.estimatedCredits).toBe(expectedCredits);
     });
 
@@ -59,7 +65,9 @@ describe('CreditService', () => {
       const estimation = creditService.estimateCredits(mockRequest);
       const promptTokens = Math.ceil(mockRequest.messages[0].content.length / 4);
       const totalTokens = promptTokens + 5; // prompt + maxTokens
-      const expectedCredits = Math.ceil(totalTokens * (config.MODEL_PRICING['gpt-4'] / 1000) * 1000);
+      const expectedCredits = Math.ceil(
+        totalTokens * (config.MODEL_PRICING['gpt-4'] / 1000) * 1000
+      );
       expect(estimation.estimatedCredits).toBe(expectedCredits);
     });
   });
@@ -157,7 +165,10 @@ describe('CreditService', () => {
     });
 
     it('should return invalid for too many messages', () => {
-      mockRequest.messages = new Array(config.MAX_MESSAGES_IN_CONTEXT + 1).fill({ role: 'user', content: 'a' });
+      mockRequest.messages = new Array(config.MAX_MESSAGES_IN_CONTEXT + 1).fill({
+        role: 'user',
+        content: 'a',
+      });
       const result = creditService.validateRequest(mockRequest);
       expect(result.valid).toBe(false);
       expect(result.error).toContain('Too many messages');

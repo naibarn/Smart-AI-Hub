@@ -19,7 +19,7 @@ describe('ConnectionService', () => {
   describe('createConnection', () => {
     it('should create a new connection', () => {
       const connection = connectionService.createConnection(mockWs, mockUser);
-      
+
       expect(connection).toBeDefined();
       expect(connection.id).toBeDefined();
       expect(connection.ws).toBe(mockWs);
@@ -30,14 +30,14 @@ describe('ConnectionService', () => {
 
     it('should track connection in connections map', () => {
       const connection = connectionService.createConnection(mockWs, mockUser);
-      
+
       const retrievedConnection = connectionService.getConnection(connection.id);
       expect(retrievedConnection).toBe(connection);
     });
 
     it('should track user connections', () => {
       const connection = connectionService.createConnection(mockWs, mockUser);
-      
+
       const userConnections = connectionService.getUserConnections(mockUser.id);
       expect(userConnections).toHaveLength(1);
       expect(userConnections[0]).toBe(connection);
@@ -47,18 +47,18 @@ describe('ConnectionService', () => {
   describe('removeConnection', () => {
     it('should remove connection from tracking', () => {
       const connection = connectionService.createConnection(mockWs, mockUser);
-      
+
       connectionService.removeConnection(connection.id);
-      
+
       const retrievedConnection = connectionService.getConnection(connection.id);
       expect(retrievedConnection).toBeUndefined();
     });
 
     it('should remove from user connections', () => {
       const connection = connectionService.createConnection(mockWs, mockUser);
-      
+
       connectionService.removeConnection(connection.id);
-      
+
       const userConnections = connectionService.getUserConnections(mockUser.id);
       expect(userConnections).toHaveLength(0);
     });
@@ -71,9 +71,9 @@ describe('ConnectionService', () => {
   describe('getStats', () => {
     it('should return connection statistics', () => {
       connectionService.createConnection(mockWs, mockUser);
-      
+
       const stats = connectionService.getStats();
-      
+
       expect(stats.totalConnections).toBe(1);
       expect(stats.totalUsers).toBe(1);
       expect(stats.totalPendingRequests).toBe(0);
@@ -98,7 +98,7 @@ describe('ConnectionService', () => {
       const originalActivity = connection.metadata.lastActivity;
 
       // Wait a bit to ensure different timestamp
-      await new Promise(resolve => setTimeout(resolve, 20));
+      await new Promise((resolve) => setTimeout(resolve, 20));
 
       connectionService.updateActivity(connection.id);
 
@@ -140,8 +140,14 @@ describe('ConnectionService', () => {
 
   describe('cleanupDeadConnections', () => {
     it('should remove dead connections', () => {
-      const conn1 = connectionService.createConnection(createMockWebSocket() as any, createMockUser());
-      const conn2 = connectionService.createConnection(createMockWebSocket() as any, createMockUser());
+      const conn1 = connectionService.createConnection(
+        createMockWebSocket() as any,
+        createMockUser()
+      );
+      const conn2 = connectionService.createConnection(
+        createMockWebSocket() as any,
+        createMockUser()
+      );
 
       connectionService.markNotAlive(conn1.id);
       (conn1.ws.readyState as any) = mockWs.CLOSED; // Simulate closed WebSocket
@@ -178,19 +184,19 @@ describe('ConnectionService', () => {
     it('should send message to connection', () => {
       const connection = connectionService.createConnection(mockWs, mockUser);
       const message = { test: 'message' };
-      
+
       mockWs.send = jest.fn();
       mockWs.readyState = mockWs.OPEN;
-      
+
       const result = connectionService.sendMessage(connection.id, message);
-      
+
       expect(result).toBe(true);
       expect(mockWs.send).toHaveBeenCalledWith(JSON.stringify(message));
     });
 
     it('should return false for non-existent connection', () => {
       const result = connectionService.sendMessage('non-existent-id', { test: 'message' });
-      
+
       expect(result).toBe(false);
     });
     it('should return false if connection is closed', () => {

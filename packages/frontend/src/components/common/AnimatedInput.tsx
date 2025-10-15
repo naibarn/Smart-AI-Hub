@@ -53,7 +53,10 @@ const AnimatedInput: React.FC<AnimatedInputProps> = ({
     startAdornment: startIcon && (
       <InputAdornment position="start">
         <motion.div
-          animate={{ scale: focused ? 1.1 : 1, color: focused ? theme.palette.primary.main : theme.palette.text.secondary }}
+          animate={{
+            scale: focused ? 1.1 : 1,
+            color: focused ? theme.palette.primary.main : theme.palette.text.secondary,
+          }}
           transition={{ duration: 0.2 }}
         >
           {startIcon}
@@ -67,10 +70,7 @@ const AnimatedInput: React.FC<AnimatedInputProps> = ({
           edge="end"
           sx={{ color: theme.palette.text.secondary }}
         >
-          <motion.div
-            animate={{ rotate: showPassword ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div animate={{ rotate: showPassword ? 180 : 0 }} transition={{ duration: 0.3 }}>
             {showPassword ? <VisibilityOff /> : <Visibility />}
           </motion.div>
         </IconButton>
@@ -78,7 +78,10 @@ const AnimatedInput: React.FC<AnimatedInputProps> = ({
     ) : endIcon ? (
       <InputAdornment position="end">
         <motion.div
-          animate={{ scale: focused ? 1.1 : 1, color: focused ? theme.palette.primary.main : theme.palette.text.secondary }}
+          animate={{
+            scale: focused ? 1.1 : 1,
+            color: focused ? theme.palette.primary.main : theme.palette.text.secondary,
+          }}
           transition={{ duration: 0.2 }}
         >
           {endIcon}
@@ -150,7 +153,12 @@ const AnimatedInput: React.FC<AnimatedInputProps> = ({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            style={{ color: theme.palette.error.main, fontSize: '0.75rem', marginTop: '4px', marginLeft: '14px' }}
+            style={{
+              color: theme.palette.error.main,
+              fontSize: '0.75rem',
+              marginTop: '4px',
+              marginLeft: '14px',
+            }}
           >
             {helperText}
           </motion.div>

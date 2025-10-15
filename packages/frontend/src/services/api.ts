@@ -61,6 +61,44 @@ export interface LoginResponse {
   refreshToken?: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ConfirmPasswordResetRequest {
+  token: string;
+  password: string;
+}
+
+export interface ConfirmPasswordResetResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  token: string;
+}
+
+export interface VerifyEmailResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+export interface ResendVerificationResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface ApiError {
   status: number;
   data: {
@@ -91,7 +129,7 @@ export const api = createApi({
       query: () => '/api/payments/packages',
       providesTags: ['Credits'],
     }),
-    
+
     // Create a checkout session
     createCheckoutSession: builder.mutation<CheckoutSessionResponse, CheckoutSessionRequest>({
       query: (data) => ({
@@ -100,16 +138,19 @@ export const api = createApi({
         body: data,
       }),
     }),
-    
+
     // Get user's credit balance
-    getCreditBalance: builder.query<{
-      balance: number;
-      currency: string;
-    }, void>({
+    getCreditBalance: builder.query<
+      {
+        balance: number;
+        currency: string;
+      },
+      void
+    >({
       query: () => '/api/credits/balance',
       providesTags: ['Credits'],
     }),
-    
+
     // Register a new user
     registerUser: builder.mutation<RegisterResponse, RegisterRequest>({
       query: (data) => ({
@@ -118,11 +159,50 @@ export const api = createApi({
         body: data,
       }),
     }),
-    
+
     // Login user
     loginUser: builder.mutation<LoginResponse, LoginRequest>({
       query: (data) => ({
         url: '/api/auth/login',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    // Request password reset
+    requestPasswordReset: builder.mutation<PasswordResetResponse, PasswordResetRequest>({
+      query: (data) => ({
+        url: '/api/auth/forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    // Confirm password reset
+    confirmPasswordReset: builder.mutation<
+      ConfirmPasswordResetResponse,
+      ConfirmPasswordResetRequest
+    >({
+      query: (data) => ({
+        url: '/api/auth/reset-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    // Verify email
+    verifyEmail: builder.mutation<VerifyEmailResponse, VerifyEmailRequest>({
+      query: (data) => ({
+        url: '/api/auth/verify-email',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    // Resend verification email
+    resendVerification: builder.mutation<ResendVerificationResponse, ResendVerificationRequest>({
+      query: (data) => ({
+        url: '/api/auth/resend-verification',
         method: 'POST',
         body: data,
       }),
@@ -137,4 +217,8 @@ export const {
   useGetCreditBalanceQuery,
   useRegisterUserMutation,
   useLoginUserMutation,
+  useRequestPasswordResetMutation,
+  useConfirmPasswordResetMutation,
+  useVerifyEmailMutation,
+  useResendVerificationMutation,
 } = api;

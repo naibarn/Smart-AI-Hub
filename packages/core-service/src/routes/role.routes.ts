@@ -53,12 +53,7 @@ router.get(
  * @desc    Get all available roles
  * @access  Private (requires roles:read permission)
  */
-router.get(
-  '/admin/roles',
-  authenticateJWT,
-  requirePermission('roles', 'read'),
-  getAllRolesHandler
-);
+router.get('/admin/roles', authenticateJWT, requirePermission('roles', 'read'), getAllRolesHandler);
 
 /**
  * @route   GET /api/admin/permissions
@@ -89,9 +84,6 @@ router.post(
  * @desc    Check if a user has a specific permission (internal API)
  * @access  Private (internal use by middleware)
  */
-router.post(
-  '/permissions/check',
-  checkPermissionHandler
-);
+router.post('/permissions/check', checkPermissionHandler);
 
 export default router;

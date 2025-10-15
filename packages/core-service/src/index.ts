@@ -12,6 +12,11 @@ const PORT = process.env.PORT || 3002;
 
 // Middleware
 app.use(cors());
+
+// Raw body parser for Stripe webhooks (must be before express.json)
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/payments/stripe-webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 
 // Routes

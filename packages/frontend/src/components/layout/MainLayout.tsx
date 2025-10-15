@@ -27,7 +27,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ user, sidebarOpen }) => {
         showMenuButton={true}
         transparent={true}
       />
-      
+
       <Sidebar
         open={sidebarOpen}
         onClose={() => dispatch(setSidebarOpen(false))}
@@ -35,7 +35,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ user, sidebarOpen }) => {
         collapsed={false}
         onToggleCollapse={() => dispatch(toggleSidebar())}
       />
-      
+
       <Box
         component="main"
         sx={{

@@ -41,7 +41,11 @@ export interface Permission {
  * Check if a user has a specific permission
  * Caches result in Redis for 1 hour TTL
  */
-export const hasPermission = async (userId: string, resource: string, action: string): Promise<boolean> => {
+export const hasPermission = async (
+  userId: string,
+  resource: string,
+  action: string
+): Promise<boolean> => {
   try {
     const permissionKey = `${resource}:${action}`;
     const cacheKey = `permission:${userId}:${permissionKey}`;
@@ -151,8 +155,8 @@ export const getUserPermissions = async (userId: string): Promise<Permission[]> 
     }
 
     // Remove duplicates
-    const uniquePermissions = permissions.filter((permission, index, self) =>
-      index === self.findIndex((p) => p.id === permission.id)
+    const uniquePermissions = permissions.filter(
+      (permission, index, self) => index === self.findIndex((p) => p.id === permission.id)
     );
 
     return uniquePermissions;
@@ -165,7 +169,11 @@ export const getUserPermissions = async (userId: string): Promise<Permission[]> 
 /**
  * Assign a role to a user
  */
-export const assignRole = async (userId: string, roleId: string, assignedBy?: string): Promise<void> => {
+export const assignRole = async (
+  userId: string,
+  roleId: string,
+  assignedBy?: string
+): Promise<void> => {
   try {
     // Use Prisma transaction for atomic operation
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -296,7 +304,11 @@ export const getAllPermissions = async (): Promise<Permission[]> => {
 /**
  * Create a new role
  */
-export const createRole = async (name: string, description?: string, permissionIds?: string[]): Promise<Role> => {
+export const createRole = async (
+  name: string,
+  description?: string,
+  permissionIds?: string[]
+): Promise<Role> => {
   try {
     // Use Prisma transaction for atomic operation
     const role = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -320,7 +332,7 @@ export const createRole = async (name: string, description?: string, permissionI
       // Assign permissions if provided
       if (permissionIds && permissionIds.length > 0) {
         await tx.rolePermission.createMany({
-          data: permissionIds.map(permissionId => ({
+          data: permissionIds.map((permissionId) => ({
             roleId: newRole.id,
             permissionId,
           })),
@@ -345,7 +357,7 @@ export const clearUserPermissionCache = async (userId: string): Promise<void> =>
   try {
     const pattern = `permission:${userId}:*`;
     const keys = await redisClient.keys(pattern);
-    
+
     if (keys.length > 0) {
       await redisClient.del(keys);
     }

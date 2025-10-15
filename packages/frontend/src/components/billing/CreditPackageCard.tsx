@@ -12,10 +12,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import {
-  Check,
-  Star,
-} from 'lucide-react';
+import { Check, Star } from 'lucide-react';
 
 export interface CreditPackageCardProps {
   id: string;
@@ -67,9 +64,7 @@ const CreditPackageCard: React.FC<CreditPackageCardProps> = ({
             ? `0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 2px ${theme.palette.primary.main}`
             : '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s ease',
-          backgroundColor: popular
-            ? 'rgba(255, 255, 255, 0.05)'
-            : 'rgba(255, 255, 255, 0.02)',
+          backgroundColor: popular ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.02)',
           backdropFilter: 'blur(10px)',
           border: popular
             ? `1px solid ${theme.palette.primary.main}30`
@@ -125,11 +120,7 @@ const CreditPackageCard: React.FC<CreditPackageCardProps> = ({
           </Box>
 
           <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Typography
-              variant="h4"
-              component="div"
-              sx={{ fontWeight: 700 }}
-            >
+            <Typography variant="h4" component="div" sx={{ fontWeight: 700 }}>
               {currency} {price.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -142,11 +133,7 @@ const CreditPackageCard: React.FC<CreditPackageCardProps> = ({
               <List dense sx={{ p: 0 }}>
                 {features.map((feature, index) => (
                   <ListItem key={index} sx={{ px: 0, py: 0.5 }}>
-                    <Check
-                      size={16}
-                      color={theme.palette.success.main}
-                      style={{ minWidth: 24 }}
-                    />
+                    <Check size={16} color={theme.palette.success.main} style={{ minWidth: 24 }} />
                     <ListItemText
                       primary={feature}
                       primaryTypographyProps={{
@@ -171,26 +158,16 @@ const CreditPackageCard: React.FC<CreditPackageCardProps> = ({
               fontWeight: 600,
               borderRadius: 2,
               textTransform: 'none',
-              boxShadow: popular
-                ? `0 4px 14px 0 ${theme.palette.primary.main}40`
-                : 'none',
-              backgroundColor: popular
-                ? theme.palette.primary.main
-                : 'transparent',
+              boxShadow: popular ? `0 4px 14px 0 ${theme.palette.primary.main}40` : 'none',
+              backgroundColor: popular ? theme.palette.primary.main : 'transparent',
               borderColor: theme.palette.primary.main,
-              color: popular
-                ? 'white'
-                : theme.palette.primary.main,
+              color: popular ? 'white' : theme.palette.primary.main,
               '&:hover': {
                 backgroundColor: popular
                   ? theme.palette.primary.dark
                   : `${theme.palette.primary.main}10`,
-                borderColor: popular
-                  ? theme.palette.primary.dark
-                  : theme.palette.primary.main,
-                boxShadow: popular
-                  ? `0 6px 20px 0 ${theme.palette.primary.main}60`
-                  : 'none',
+                borderColor: popular ? theme.palette.primary.dark : theme.palette.primary.main,
+                boxShadow: popular ? `0 6px 20px 0 ${theme.palette.primary.main}60` : 'none',
               },
             }}
           >

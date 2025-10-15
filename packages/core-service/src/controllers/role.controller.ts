@@ -57,7 +57,7 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
     });
   } catch (error) {
     console.error('Error assigning role:', error);
-    
+
     if (error instanceof Error) {
       if (error.message === 'Role not found') {
         res.status(404).json({
@@ -110,7 +110,10 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
  * DELETE /api/admin/roles/remove
  * Requires: admin role
  */
-export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const removeRoleFromUser = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { userId, roleId } = req.body;
 
@@ -151,7 +154,7 @@ export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Respons
     });
   } catch (error) {
     console.error('Error removing role:', error);
-    
+
     if (error instanceof Error) {
       if (error.message === 'User does not have this role') {
         res.status(404).json({
@@ -182,7 +185,10 @@ export const removeRoleFromUser = async (req: AuthenticatedRequest, res: Respons
  * GET /api/users/:id/roles
  * Requires: users:read permission
  */
-export const getUserRolesHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUserRolesHandler = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const currentUserId = req.user?.id;
@@ -244,7 +250,10 @@ export const getUserRolesHandler = async (req: AuthenticatedRequest, res: Respon
  * GET /api/admin/roles
  * Requires: roles:read permission
  */
-export const getAllRolesHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllRolesHandler = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const currentUserId = req.user?.id;
 
@@ -300,7 +309,10 @@ export const getAllRolesHandler = async (req: AuthenticatedRequest, res: Respons
  * GET /api/admin/permissions
  * Requires: roles:read permission
  */
-export const getAllPermissionsHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllPermissionsHandler = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const currentUserId = req.user?.id;
 
@@ -356,7 +368,10 @@ export const getAllPermissionsHandler = async (req: AuthenticatedRequest, res: R
  * POST /api/admin/roles
  * Requires: roles:assign permission
  */
-export const createRoleHandler = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const createRoleHandler = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { name, description, permissionIds } = req.body;
     const currentUserId = req.user?.id;
@@ -411,7 +426,7 @@ export const createRoleHandler = async (req: AuthenticatedRequest, res: Response
     });
   } catch (error) {
     console.error('Error creating role:', error);
-    
+
     if (error instanceof Error) {
       if (error.message === 'Role with this name already exists') {
         res.status(409).json({

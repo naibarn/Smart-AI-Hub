@@ -57,11 +57,13 @@ const TestConnection: React.FC = () => {
     },
   ]);
 
-  const [globalStatus, setGlobalStatus] = React.useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [globalStatus, setGlobalStatus] = React.useState<'idle' | 'testing' | 'success' | 'error'>(
+    'idle'
+  );
   const [globalMessage, setGlobalMessage] = React.useState<string>('');
 
   const testSingleService = async (serviceName: string, serviceIndex: number) => {
-    setServices(prev => {
+    setServices((prev) => {
       const updated = [...prev];
       updated[serviceIndex] = { ...updated[serviceIndex], status: 'loading' };
       return updated;
@@ -74,19 +76,28 @@ const TestConnection: React.FC = () => {
           result = await testConnection();
           break;
         case 'Auth API':
-          result = await authService.healthCheck().then(() => ({ success: true })).catch(() => ({ success: false }));
+          result = await authService
+            .healthCheck()
+            .then(() => ({ success: true }))
+            .catch(() => ({ success: false }));
           break;
         case 'Core API':
-          result = await coreService.healthCheck().then(() => ({ success: true })).catch(() => ({ success: false }));
+          result = await coreService
+            .healthCheck()
+            .then(() => ({ success: true }))
+            .catch(() => ({ success: false }));
           break;
         case 'MCP Server':
-          result = await mcpService.healthCheck().then(() => ({ success: true })).catch(() => ({ success: false }));
+          result = await mcpService
+            .healthCheck()
+            .then(() => ({ success: true }))
+            .catch(() => ({ success: false }));
           break;
         default:
           result = { success: false };
       }
 
-      setServices(prev => {
+      setServices((prev) => {
         const updated = [...prev];
         updated[serviceIndex] = {
           ...updated[serviceIndex],
@@ -96,7 +107,7 @@ const TestConnection: React.FC = () => {
         return updated;
       });
     } catch (error) {
-      setServices(prev => {
+      setServices((prev) => {
         const updated = [...prev];
         updated[serviceIndex] = {
           ...updated[serviceIndex],
@@ -114,24 +125,30 @@ const TestConnection: React.FC = () => {
 
     try {
       const results = await testAllServices();
-      
-      setServices(prev => {
+
+      setServices((prev) => {
         const updated = [...prev];
         results.forEach((result, index) => {
           if (index < updated.length) {
             updated[index] = {
               ...updated[index],
               status: result.success ? 'success' : 'error',
-              message: result.success ? 'Connection successful' : (result.error as Error)?.message || 'Connection failed',
+              message: result.success
+                ? 'Connection successful'
+                : (result.error as Error)?.message || 'Connection failed',
             };
           }
         });
         return updated;
       });
 
-      const allSuccessful = results.every(result => result.success);
+      const allSuccessful = results.every((result) => result.success);
       setGlobalStatus(allSuccessful ? 'success' : 'error');
-      setGlobalMessage(allSuccessful ? 'All services are connected successfully!' : 'Some services failed to connect');
+      setGlobalMessage(
+        allSuccessful
+          ? 'All services are connected successfully!'
+          : 'Some services failed to connect'
+      );
     } catch (error) {
       setGlobalStatus('error');
       setGlobalMessage((error as Error).message || 'Unknown error occurred');
@@ -139,26 +156,36 @@ const TestConnection: React.FC = () => {
   };
 
   const resetTests = () => {
-    setServices(prev => prev.map(service => ({ ...service, status: 'idle', message: undefined })));
+    setServices((prev) =>
+      prev.map((service) => ({ ...service, status: 'idle', message: undefined }))
+    );
     setGlobalStatus('idle');
     setGlobalMessage('');
   };
 
   const getStatusColor = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'success': return 'success';
-      case 'error': return 'error';
-      case 'loading': return 'warning';
-      default: return 'default';
+      case 'success':
+        return 'success';
+      case 'error':
+        return 'error';
+      case 'loading':
+        return 'warning';
+      default:
+        return 'default';
     }
   };
 
   const getStatusIcon = (status: ServiceStatus['status']) => {
     switch (status) {
-      case 'success': return <CheckCircle color="success" />;
-      case 'error': return <Error color="error" />;
-      case 'loading': return <CircularProgress size={24} />;
-      default: return null;
+      case 'success':
+        return <CheckCircle color="success" />;
+      case 'error':
+        return <Error color="error" />;
+      case 'loading':
+        return <CircularProgress size={24} />;
+      default:
+        return null;
     }
   };
 
@@ -167,14 +194,16 @@ const TestConnection: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Connection Test
       </Typography>
-      
+
       <Typography variant="body1" color="text.secondary" paragraph>
         Test the connection between the frontend and backend services.
       </Typography>
 
       {globalStatus !== 'idle' && (
-        <Alert 
-          severity={globalStatus === 'success' ? 'success' : globalStatus === 'error' ? 'error' : 'info'}
+        <Alert
+          severity={
+            globalStatus === 'success' ? 'success' : globalStatus === 'error' ? 'error' : 'info'
+          }
           sx={{ mb: 3 }}
         >
           {globalMessage}
@@ -183,11 +212,13 @@ const TestConnection: React.FC = () => {
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+          >
             <Typography variant="h6">Service Status</Typography>
             <Box>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 onClick={testAllConnections}
                 disabled={globalStatus === 'testing'}
                 startIcon={<Refresh />}
@@ -195,11 +226,7 @@ const TestConnection: React.FC = () => {
               >
                 Test All
               </Button>
-              <Button 
-                variant="outlined" 
-                onClick={resetTests}
-                startIcon={<Refresh />}
-              >
+              <Button variant="outlined" onClick={resetTests} startIcon={<Refresh />}>
                 Reset
               </Button>
             </Box>
@@ -209,21 +236,16 @@ const TestConnection: React.FC = () => {
             {services.map((service, index) => (
               <React.Fragment key={service.name}>
                 <ListItem>
-                  <ListItemIcon>
-                    {service.icon}
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={service.name}
-                    secondary={service.message}
-                  />
+                  <ListItemIcon>{service.icon}</ListItemIcon>
+                  <ListItemText primary={service.name} secondary={service.message} />
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip 
+                    <Chip
                       label={service.status}
                       color={getStatusColor(service.status)}
                       size="small"
                     />
                     {getStatusIcon(service.status)}
-                    <Button 
+                    <Button
                       size="small"
                       onClick={() => testSingleService(service.name, index)}
                       disabled={service.status === 'loading'}

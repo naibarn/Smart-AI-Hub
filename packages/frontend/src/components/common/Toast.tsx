@@ -10,7 +10,13 @@ interface ToastProps {
   type?: 'success' | 'error' | 'warning' | 'info';
   title?: string;
   duration?: number;
-  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center';
+  position?:
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'top-center'
+    | 'bottom-center';
   onClose?: () => void;
   action?: React.ReactNode;
 }
@@ -171,11 +177,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast, hideToast }}>
       {children}
-      <Toast
-        open={open}
-        onClose={hideToast}
-        {...toast}
-      />
+      <Toast open={open} onClose={hideToast} {...toast} />
     </ToastContext.Provider>
   );
 };

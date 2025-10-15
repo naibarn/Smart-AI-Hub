@@ -1,0 +1,242 @@
+name: Validate Specifications
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'specs/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'specs/**'
+  workflow_dispatch:
+    inputs:
+      spec_path:
+        description: 'Path to specific spec to validate (optional)'
+        required: false
+        default: ''
+
+jobs:
+  validate-specs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install speckit CLI
+      run: npm install -g @speckit/cli
+      
+    - name: Validate specifications
+      run: |
+        if [ -n "${{ github.event.inputs.spec_path }}" ]; then
+          echo "Validating specific spec: ${{ github.event.inputs.spec_path }}"
+          npx speckit validate "${{ github.event.inputs.spec_path }}"
+        else
+          echo "Validating all specifications"
+          npx speckit validate specs/
+        fi
+      
+    - name: Check spec completeness
+      run: |
+        echo "Checking specification completeness..."
+        node scripts/check-spec-completeness.js
+        
+    - name: Validate spec structure
+      run: |
+        echo "Validating specification structure..."
+        node scripts/validate-spec-structure.js
+        
+    - name: Check for broken links
+      run: |
+        echo "Checking for broken links in specifications..."
+        npm install -g markdown-link-check
+        find specs/ -name "*.md" -exec markdown-link-check {} \;
+        
+    - name: Generate validation report
+      run: |
+        echo "Generating validation report..."
+        node scripts/generate-validation-report.js > validation-report.json
+        
+    - name: Upload validation report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: spec-validation-report
+        path: validation-report.json
+        
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const report = JSON.parse(fs.readFileSync('validation-report.json', 'utf8'));
+            
+            const comment = `
+            ## Specification Validation Results
+            
+            **Status**: ${report.success ? '✅ Passed' : '❌ Failed'}
+            
+            **Summary**:
+            - Total specs: ${report.totalSpecs}
+            - Valid specs: ${report.validSpecs}
+            - Invalid specs: ${report.invalidSpecs}
+            - Warnings: ${report.warnings}
+            
+            **Issues**:
+            ${report.issues.map(issue => `- ${issue}`).join('\n')}
+            
+            ${report.success ? 'All specifications passed validation! ✅' : 'Please fix the issues above. ❌'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.error('Error reading validation report:', error);
+          }
+
+  spec-quality-check:
+    runs-on: ubuntu-latest
+    needs: validate-specs
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Check spec quality metrics
+      run: |
+        echo "Checking specification quality metrics..."
+        node scripts/check-spec-quality.js
+        
+    - name: Validate spec consistency
+      run: |
+        echo "Validating specification consistency..."
+        node scripts/validate-spec-consistency.js
+        
+    - name: Check for duplicate content
+      run: |
+        echo "Checking for duplicate content..."
+        node scripts/check-duplicate-content.js
+        
+    - name: Generate quality report
+      run: |
+        echo "Generating quality report..."
+        node scripts/generate-quality-report.js > quality-report.json
+        
+    - name: Upload quality report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: spec-quality-report
+        path: quality-report.json
+
+  spec-coverage:
+    runs-on: ubuntu-latest
+    needs: validate-specs
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Generate spec coverage report
+      run: |
+        echo "Generating specification coverage report..."
+        node scripts/generate-spec-coverage.js
+        
+    - name: Check coverage thresholds
+      run: |
+        echo "Checking coverage thresholds..."
+        node scripts/check-coverage-thresholds.js
+        
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: spec-coverage-report
+        path: spec-coverage-report.json
+
+  notify-results:
+    runs-on: ubuntu-latest
+    needs: [validate-specs, spec-quality-check, spec-coverage]
+    if: always()
+    
+    steps:
+    - name: Download reports
+      uses: actions/download-artifact@v4
+      with:
+        path: reports/
+        
+    - name: Send notification on failure
+      if: needs.validate-specs.result == 'failure' || needs.spec-quality-check.result == 'failure' || needs.spec-coverage.result == 'failure'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let validationReport = {};
+          let qualityReport = {};
+          let coverageReport = {};
+          
+          try {
+            validationReport = JSON.parse(fs.readFileSync('reports/spec-validation-report/validation-report.json', 'utf8'));
+          } catch (e) {}
+          
+          try {
+            qualityReport = JSON.parse(fs.readFileSync('reports/spec-quality-report/quality-report.json', 'utf8'));
+          } catch (e) {}
+          
+          try {
+            coverageReport = JSON.parse(fs.readFileSync('reports/spec-coverage-report/spec-coverage-report.json', 'utf8'));
+          } catch (e) {}
+          
+          const message = `
+          ## ❌ Specification Validation Failed
+          
+          **Validation Status**: ${needs.validate-specs.result}
+          **Quality Check Status**: ${needs.spec-quality-check.result}
+          **Coverage Check Status**: ${needs.spec-coverage.result}
+          
+          Please review the failed checks and fix the issues.
+          `;
+          
+          if (context.eventName === 'pull_request') {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+          }

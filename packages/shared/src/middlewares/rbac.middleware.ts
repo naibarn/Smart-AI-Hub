@@ -175,28 +175,35 @@ export const requireSelfOrRole = (roles: string[]) => {
  * This would typically call the permission service
  * For now, we'll implement a basic version that can be extended
  */
-async function checkUserPermission(userId: string, resource: string, action: string): Promise<boolean> {
+async function checkUserPermission(
+  userId: string,
+  resource: string,
+  action: string
+): Promise<boolean> {
   try {
     // This should be replaced with an actual call to the permission service
     // For now, we'll make a simple HTTP call to the core-service
-    const response = await fetch(`${process.env.CORE_SERVICE_URL || 'http://localhost:3001'}/api/permissions/check`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId,
-        resource,
-        action,
-      }),
-    });
+    const response = await fetch(
+      `${process.env.CORE_SERVICE_URL || 'http://localhost:3001'}/api/permissions/check`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          resource,
+          action,
+        }),
+      }
+    );
 
     if (!response.ok) {
       console.error('Permission check failed:', response.statusText);
       return false;
     }
 
-    const result = await response.json() as { hasPermission?: boolean };
+    const result = (await response.json()) as { hasPermission?: boolean };
     return result.hasPermission || false;
   } catch (error) {
     console.error('Error checking user permission:', error);
@@ -213,7 +220,7 @@ export const clearUserPermissionCache = async (userId: string): Promise<void> =>
   try {
     const pattern = `permission:${userId}:*`;
     const keys = await redisClient.keys(pattern);
-    
+
     if (keys.length > 0) {
       await redisClient.del(keys);
     }

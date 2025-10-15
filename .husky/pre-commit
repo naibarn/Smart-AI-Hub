@@ -1,1 +1,206 @@
-npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Pre-commit hook for Smart AI Hub
+# This script runs before each commit to ensure code quality
+
+echo "🚀 Running pre-commit checks..."
+
+# Check if we have any staged files
+if [ -z "$(git diff --cached --name-only)" ]; then
+    echo "✅ No staged files to check"
+    exit 0
+fi
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|md)$')
+
+if [ -z "$STAGED_FILES" ]; then
+    echo "✅ No relevant files to check"
+    exit 0
+fi
+
+echo "📋 Staged files to check:"
+echo "$STAGED_FILES"
+echo ""
+
+# Run linting
+echo "🔍 Running linter..."
+npm run lint -- --fix --quiet
+LINT_EXIT_CODE=$?
+
+if [ $LINT_EXIT_CODE -ne 0 ]; then
+    echo "❌ Linting failed. Please fix the issues and try again."
+    echo "💡 You can run 'npm run lint:fix' to automatically fix some issues."
+    exit 1
+fi
+
+echo "✅ Linting passed"
+
+# Run type checking
+echo "🔍 Running type checking..."
+npm run type-check
+TYPE_CHECK_EXIT_CODE=$?
+
+if [ $TYPE_CHECK_EXIT_CODE -ne 0 ]; then
+    echo "❌ Type checking failed. Please fix the type errors and try again."
+    exit 1
+fi
+
+echo "✅ Type checking passed"
+
+# Run unit tests for changed files
+echo "🧪 Running unit tests..."
+npm run test:unit -- --passWithNoTests --bail --silent
+TEST_EXIT_CODE=$?
+
+if [ $TEST_EXIT_CODE -ne 0 ]; then
+    echo "❌ Tests failed. Please fix the failing tests and try again."
+    exit 1
+fi
+
+echo "✅ Tests passed"
+
+# Check for sensitive information
+echo "🔒 Checking for sensitive information..."
+node scripts/check-sensitive-info.js
+SENSITIVE_CHECK_EXIT_CODE=$?
+
+if [ $SENSITIVE_CHECK_EXIT_CODE -ne 0 ]; then
+    echo "❌ Sensitive information detected. Please remove it before committing."
+    exit 1
+fi
+
+echo "✅ No sensitive information detected"
+
+# Validate specifications if any spec files are changed
+if echo "$STAGED_FILES" | grep -q "specs/"; then
+    echo "📋 Validating specifications..."
+    npm run validate:specs
+    SPEC_CHECK_EXIT_CODE=$?
+
+    if [ $SPEC_CHECK_EXIT_CODE -ne 0 ]; then
+        echo "❌ Specification validation failed. Please fix the issues and try again."
+        exit 1
+    fi
+
+    echo "✅ Specification validation passed"
+fi
+
+# Check file sizes
+echo "📏 Checking file sizes..."
+node scripts/check-file-sizes.js
+FILE_SIZE_CHECK_EXIT_CODE=$?
+
+if [ $FILE_SIZE_CHECK_EXIT_CODE -ne 0 ]; then
+    echo "❌ Some files are too large. Please reduce file sizes before committing."
+    exit 1
+fi
+
+echo "✅ File size check passed"
+
+# Check for console.log statements in production code
+echo "🔍 Checking for console.log statements..."
+CONSOLE_LOGS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | xargs grep -l "console\.log" 2>/dev/null || true)
+
+if [ -n "$CONSOLE_LOGS" ]; then
+    echo "⚠️  Warning: console.log statements found in:"
+    echo "$CONSOLE_LOGS"
+    echo "Please remove console.log statements before committing to production."
+    
+    # Ask for confirmation
+    read -p "Do you want to continue despite console.log statements? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+else
+    echo "✅ No console.log statements found"
+fi
+
+# Check for TODO comments without issue references
+echo "📝 Checking TODO comments..."
+TODO_WITHOUT_ISSUE=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | xargs grep -n "TODO\|FIXME" | grep -v "#[0-9]" 2>/dev/null || true)
+
+if [ -n "$TODO_WITHOUT_ISSUE" ]; then
+    echo "⚠️  Warning: TODO/FIXME comments without issue references found:"
+    echo "$TODO_WITHOUT_ISSUE"
+    echo "Please add issue references to TODO comments (e.g., TODO: #123)."
+    
+    # Ask for confirmation
+    read -p "Do you want to continue without issue references? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+else
+    echo "✅ All TODO comments have issue references"
+fi
+
+# Check if package-lock.json is up to date
+if echo "$STAGED_FILES" | grep -q "package.json"; then
+    echo "📦 Checking if package-lock.json is up to date..."
+    npm run check:lockfile
+    LOCKFILE_CHECK_EXIT_CODE=$?
+
+    if [ $LOCKFILE_CHECK_EXIT_CODE -ne 0 ]; then
+        echo "❌ package-lock.json is out of date. Please run 'npm install' and commit the updated lockfile."
+        exit 1
+    fi
+
+    echo "✅ package-lock.json is up to date"
+fi
+
+# Run build to ensure no build errors
+echo "🏗️  Running build check..."
+npm run build --silent
+BUILD_EXIT_CODE=$?
+
+if [ $BUILD_EXIT_CODE -ne 0 ]; then
+    echo "❌ Build failed. Please fix the build errors and try again."
+    exit 1
+fi
+
+echo "✅ Build check passed"
+
+# Check for proper commit message format
+echo "📝 Checking commit message format..."
+COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
+if [ -f "$COMMIT_MSG_FILE" ]; then
+    node scripts/check-commit-message.js "$COMMIT_MSG_FILE"
+    COMMIT_MSG_CHECK_EXIT_CODE=$?
+
+    if [ $COMMIT_MSG_CHECK_EXIT_CODE -ne 0 ]; then
+        echo "❌ Commit message format is invalid. Please follow the conventional commit format."
+        echo "Format: type(scope): description"
+        echo "Examples: feat(auth): add OAuth support, fix(api): resolve user profile issue"
+        exit 1
+    fi
+
+    echo "✅ Commit message format is valid"
+fi
+
+# Run security audit
+echo "🔒 Running security audit..."
+npm audit --audit-level=moderate --silent
+AUDIT_EXIT_CODE=$?
+
+if [ $AUDIT_EXIT_CODE -ne 0 ]; then
+    echo "⚠️  Security vulnerabilities found. Please run 'npm audit fix' and try again."
+    
+    # Ask for confirmation
+    read -p "Do you want to continue despite security vulnerabilities? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+else
+    echo "✅ No security vulnerabilities found"
+fi
+
+# Re-add any files that were automatically fixed
+git update-index --again
+
+echo ""
+echo "🎉 All pre-commit checks passed!"
+echo "✨ Ready to commit!"
