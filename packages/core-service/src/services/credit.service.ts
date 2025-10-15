@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
 import { createNotFoundError, createInternalServerError } from '@smart-ai-hub/shared';
+import { recordUsage } from './analytics.service';
 
 const prisma = new PrismaClient();
 
@@ -63,7 +64,7 @@ export const getBalance = async (userId: string): Promise<number> => {
     }
 
     // Return balance
-    return creditAccount.currentBalance;
+    return creditAccount.balance || 0;
   } catch (error) {
     console.error('Error getting credit balance:', error);
     throw error;
@@ -157,18 +158,19 @@ export const redeemPromo = async (userId: string, code: string): Promise<number>
         creditAccount = await tx.creditAccount.create({
           data: {
             userId,
-            currentBalance: promoCode.credits,
-            totalPurchased: promoCode.credits,
+            balance: promoCode.credits,
           },
         });
       } else {
         // Update credit account balance
-        creditAccount = await tx.creditAccount.update({
+        await tx.creditAccount.update({
           where: { userId },
-          data: {
-            currentBalance: creditAccount.currentBalance + promoCode.credits,
-            totalPurchased: creditAccount.totalPurchased + promoCode.credits,
-          },
+          data: { balance: (creditAccount.balance || 0) + promoCode.credits },
+        });
+        
+        // Refresh the account to get updated values
+        creditAccount = await tx.creditAccount.findUnique({
+          where: { userId },
         });
       }
 
@@ -178,7 +180,7 @@ export const redeemPromo = async (userId: string, code: string): Promise<number>
           userId,
           amount: promoCode.credits,
           type: 'promo',
-          balanceAfter: creditAccount.currentBalance,
+          balanceAfter: (creditAccount.balance || 0) + promoCode.credits,
           description: `Redeemed promo code: ${promoCode.code}`,
         },
       });
@@ -231,22 +233,19 @@ export const adjustCredits = async (
         creditAccount = await tx.creditAccount.create({
           data: {
             userId,
-            currentBalance: amount,
-            totalPurchased: amount > 0 ? amount : 0,
-            totalUsed: amount < 0 ? Math.abs(amount) : 0,
+            balance: amount,
           },
         });
       } else {
         // Update credit account balance
-        creditAccount = await tx.creditAccount.update({
+        await tx.creditAccount.update({
           where: { userId },
-          data: {
-            currentBalance: creditAccount.currentBalance + amount,
-            totalPurchased:
-              amount > 0 ? creditAccount.totalPurchased + amount : creditAccount.totalPurchased,
-            totalUsed:
-              amount < 0 ? creditAccount.totalUsed + Math.abs(amount) : creditAccount.totalUsed,
-          },
+          data: { balance: (creditAccount.balance || 0) + amount },
+        });
+        
+        // Refresh the account to get updated values
+        creditAccount = await tx.creditAccount.findUnique({
+          where: { userId },
         });
       }
 
@@ -256,12 +255,12 @@ export const adjustCredits = async (
           userId,
           amount,
           type: 'admin_adjustment',
-          balanceAfter: creditAccount.currentBalance,
+          balanceAfter: (creditAccount.balance || 0) + amount,
           description: `Admin adjustment: ${reason}`,
         },
       });
 
-      return creditAccount.currentBalance;
+      return (creditAccount.balance || 0) + amount;
     });
 
     return newBalance as number;
@@ -325,17 +324,19 @@ export const deductCredits = async (
       }
 
       // Check sufficient balance
-      if (creditAccount.currentBalance < cost) {
+      if ((creditAccount.balance || 0) < cost) {
         throw new Error('Insufficient credits');
       }
 
       // Update credit account balance
-      const updatedAccount = await tx.creditAccount.update({
+      await tx.creditAccount.update({
         where: { userId },
-        data: {
-          currentBalance: creditAccount.currentBalance - cost,
-          totalUsed: creditAccount.totalUsed + cost,
-        },
+        data: { balance: (creditAccount.balance || 0) - cost },
+      });
+      
+      // Refresh the account to get updated values
+      const updatedAccount = await tx.creditAccount.findUnique({
+        where: { userId },
       });
 
       // Create transaction record with unique ID
@@ -344,14 +345,19 @@ export const deductCredits = async (
           userId,
           amount: -cost, // Negative for deduction
           type: 'usage',
-          balanceAfter: updatedAccount.currentBalance,
+          balanceAfter: (creditAccount.balance || 0) - cost,
           description: `Service usage: ${service}`,
           metadata: metadata || {},
         },
       });
 
+      // Record usage for analytics
+      recordUsage(userId, service, undefined, undefined, cost, metadata).catch(error => {
+        console.error('Error recording usage:', error);
+      });
+
       return {
-        new_balance: updatedAccount.currentBalance,
+        new_balance: (creditAccount.balance || 0) - cost,
         transaction_id: transaction.id,
       };
     });

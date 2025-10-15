@@ -9,6 +9,8 @@ import {
   createRole,
   hasPermission,
 } from '../services/permission.service';
+import { successResponse, errorResponse, paginatedResponse } from '../utils/response';
+import { parsePaginationParams } from '../utils/pagination';
 
 /**
  * Assign a role to a user
@@ -22,86 +24,39 @@ export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response)
 
     // Validate input
     if (!userId || !roleId) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'userId and roleId are required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'userId and roleId are required', res, 400, null, req.requestId);
       return;
     }
 
     // Check if the current user has permission to assign roles
     if (req.user && !(await hasPermission(req.user.id, 'roles', 'assign'))) {
-      res.status(403).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to assign roles',
-        },
-      });
+      errorResponse('FORBIDDEN', 'You do not have permission to assign roles', res, 403, null, req.requestId);
       return;
     }
 
     await assignRole(userId, roleId, assignedBy);
 
-    res.status(200).json({
-      data: {
-        message: 'Role assigned successfully',
-      },
-      meta: null,
-      error: null,
-    });
+    successResponse({ message: 'Role assigned successfully' }, res, 200, req.requestId);
+    return;
   } catch (error) {
     console.error('Error assigning role:', error);
 
     if (error instanceof Error) {
       if (error.message === 'Role not found') {
-        res.status(404).json({
-          data: null,
-          meta: null,
-          error: {
-            code: 'NOT_FOUND',
-            message: 'Role not found',
-          },
-        });
+        errorResponse('NOT_FOUND', 'Role not found', res, 404, null, req.requestId);
         return;
       }
       if (error.message === 'User not found') {
-        res.status(404).json({
-          data: null,
-          meta: null,
-          error: {
-            code: 'NOT_FOUND',
-            message: 'User not found',
-          },
-        });
+        errorResponse('NOT_FOUND', 'User not found', res, 404, null, req.requestId);
         return;
       }
       if (error.message === 'User already has this role') {
-        res.status(409).json({
-          data: null,
-          meta: null,
-          error: {
-            code: 'CONFLICT',
-            message: 'User already has this role',
-          },
-        });
+        errorResponse('CONFLICT', 'User already has this role', res, 409, null, req.requestId);
         return;
       }
     }
 
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to assign role',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to assign role', res, 500, null, req.requestId);
   }
 };
 
@@ -119,64 +74,31 @@ export const removeRoleFromUser = async (
 
     // Validate input
     if (!userId || !roleId) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'userId and roleId are required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'userId and roleId are required', res, 400, null, req.requestId);
       return;
     }
 
     // Check if the current user has permission to assign roles
     if (req.user && !(await hasPermission(req.user.id, 'roles', 'assign'))) {
-      res.status(403).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to remove roles',
-        },
-      });
+      errorResponse('FORBIDDEN', 'You do not have permission to remove roles', res, 403, null, req.requestId);
       return;
     }
 
     await removeRole(userId, roleId);
 
-    res.status(200).json({
-      data: {
-        message: 'Role removed successfully',
-      },
-      meta: null,
-      error: null,
-    });
+    successResponse({ message: 'Role removed successfully' }, res, 200, req.requestId);
+    return;
   } catch (error) {
     console.error('Error removing role:', error);
 
     if (error instanceof Error) {
       if (error.message === 'User does not have this role') {
-        res.status(404).json({
-          data: null,
-          meta: null,
-          error: {
-            code: 'NOT_FOUND',
-            message: 'User does not have this role',
-          },
-        });
+        errorResponse('NOT_FOUND', 'User does not have this role', res, 404, null, req.requestId);
         return;
       }
     }
 
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to remove role',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to remove role', res, 500, null, req.requestId);
   }
 };
 
@@ -194,14 +116,7 @@ export const getUserRolesHandler = async (
     const currentUserId = req.user?.id;
 
     if (!currentUserId) {
-      res.status(401).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
-        },
-      });
+      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
       return;
     }
 
@@ -211,37 +126,20 @@ export const getUserRolesHandler = async (
     const hasReadPermission = await hasPermission(currentUserId, 'users', 'read');
 
     if (!isSelfAccess && !hasReadPermission) {
-      res.status(403).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to read user roles',
-        },
-      });
+      errorResponse('FORBIDDEN', 'You do not have permission to read user roles', res, 403, null, req.requestId);
       return;
     }
 
     const roles = await getUserRoles(id);
 
-    res.status(200).json({
-      data: {
-        userId: id,
-        roles,
-      },
-      meta: null,
-      error: null,
-    });
+    successResponse({
+      userId: id,
+      roles,
+    }, res, 200, req.requestId);
+    return;
   } catch (error) {
     console.error('Error getting user roles:', error);
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to get user roles',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to get user roles', res, 500, null, req.requestId);
   }
 };
 
@@ -258,49 +156,44 @@ export const getAllRolesHandler = async (
     const currentUserId = req.user?.id;
 
     if (!currentUserId) {
-      res.status(401).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
-        },
-      });
+      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
       return;
     }
 
     // Check if user has permission to read roles
     if (!(await hasPermission(currentUserId, 'roles', 'read'))) {
-      res.status(403).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to read roles',
-        },
-      });
+      errorResponse('FORBIDDEN', 'You do not have permission to read roles', res, 403, null, req.requestId);
       return;
     }
 
+    // Parse pagination parameters
+    const pagination = parsePaginationParams(req.query);
+    
+    // Get roles with pagination
     const roles = await getAllRoles();
-
-    res.status(200).json({
-      data: {
-        roles,
+    
+    // For now, implement simple pagination on the client side
+    // In a real implementation, you would modify getAllRoles to support pagination
+    const startIndex = (pagination.page - 1) * pagination.per_page!;
+    const endIndex = startIndex + pagination.per_page!;
+    const paginatedRoles = roles.slice(startIndex, endIndex);
+    
+    paginatedResponse(
+      paginatedRoles,
+      {
+        page: pagination.page,
+        per_page: pagination.per_page,
+        total: roles.length,
+        total_pages: Math.ceil(roles.length / pagination.per_page!)
       },
-      meta: null,
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     console.error('Error getting all roles:', error);
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to get roles',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to get roles', res, 500, null, req.requestId);
   }
 };
 
@@ -317,49 +210,44 @@ export const getAllPermissionsHandler = async (
     const currentUserId = req.user?.id;
 
     if (!currentUserId) {
-      res.status(401).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
-        },
-      });
+      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
       return;
     }
 
     // Check if user has permission to read roles
     if (!(await hasPermission(currentUserId, 'roles', 'read'))) {
-      res.status(403).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to read permissions',
-        },
-      });
+      errorResponse('FORBIDDEN', 'You do not have permission to read permissions', res, 403, null, req.requestId);
       return;
     }
 
+    // Parse pagination parameters
+    const pagination = parsePaginationParams(req.query);
+    
+    // Get permissions with pagination
     const permissions = await getAllPermissions();
-
-    res.status(200).json({
-      data: {
-        permissions,
+    
+    // For now, implement simple pagination on the client side
+    // In a real implementation, you would modify getAllPermissions to support pagination
+    const startIndex = (pagination.page - 1) * pagination.per_page!;
+    const endIndex = startIndex + pagination.per_page!;
+    const paginatedPermissions = permissions.slice(startIndex, endIndex);
+    
+    paginatedResponse(
+      paginatedPermissions,
+      {
+        page: pagination.page,
+        per_page: pagination.per_page,
+        total: permissions.length,
+        total_pages: Math.ceil(permissions.length / pagination.per_page!)
       },
-      meta: null,
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     console.error('Error getting all permissions:', error);
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to get permissions',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to get permissions', res, 500, null, req.requestId);
   }
 };
 
@@ -377,78 +265,40 @@ export const createRoleHandler = async (
     const currentUserId = req.user?.id;
 
     if (!currentUserId) {
-      res.status(401).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required',
-        },
-      });
+      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
       return;
     }
 
     // Validate input
     if (!name) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'Role name is required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'Role name is required', res, 400, null, req.requestId);
       return;
     }
 
     // Check if user has permission to assign roles
     if (!(await hasPermission(currentUserId, 'roles', 'assign'))) {
-      res.status(403).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to create roles',
-        },
-      });
+      errorResponse('FORBIDDEN', 'You do not have permission to create roles', res, 403, null, req.requestId);
       return;
     }
 
     const role = await createRole(name, description, permissionIds);
 
-    res.status(201).json({
-      data: {
-        role,
-        message: 'Role created successfully',
-      },
-      meta: null,
-      error: null,
-    });
+    successResponse({
+      role,
+      message: 'Role created successfully',
+    }, res, 201, req.requestId);
+    return;
   } catch (error) {
     console.error('Error creating role:', error);
 
     if (error instanceof Error) {
       if (error.message === 'Role with this name already exists') {
-        res.status(409).json({
-          data: null,
-          meta: null,
-          error: {
-            code: 'CONFLICT',
-            message: 'Role with this name already exists',
-          },
-        });
+        errorResponse('CONFLICT', 'Role with this name already exists', res, 409, null, req.requestId);
         return;
       }
     }
 
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to create role',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to create role', res, 500, null, req.requestId);
   }
 };
 
@@ -463,35 +313,18 @@ export const checkPermissionHandler = async (req: Request, res: Response): Promi
 
     // Validate input
     if (!userId || !resource || !action) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'userId, resource, and action are required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'userId, resource, and action are required', res, 400, null, req.requestId);
       return;
     }
 
     const hasRequiredPermission = await hasPermission(userId, resource, action);
 
-    res.status(200).json({
-      data: {
-        hasPermission: hasRequiredPermission,
-      },
-      meta: null,
-      error: null,
-    });
+    successResponse({
+      hasPermission: hasRequiredPermission,
+    }, res, 200, req.requestId);
+    return;
   } catch (error) {
     console.error('Error checking permission:', error);
-    res.status(500).json({
-      data: null,
-      meta: null,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to check permission',
-      },
-    });
+    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to check permission', res, 500, null, req.requestId);
   }
 };

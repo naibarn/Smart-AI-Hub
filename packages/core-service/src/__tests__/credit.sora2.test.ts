@@ -3,6 +3,9 @@ import app from '../index';
 import { PrismaClient } from '@prisma/client';
 import { redisClient } from '../config/redis';
 
+// Set environment variables for tests
+process.env.STRIPE_SECRET_KEY = 'sk_test_dummy_key_for_testing';
+
 const prisma = new PrismaClient();
 
 describe('Sora2 Credit Management Endpoints', () => {
@@ -35,9 +38,7 @@ describe('Sora2 Credit Management Endpoints', () => {
         },
         creditAccount: {
           create: {
-            currentBalance: 100,
-            totalPurchased: 100,
-            totalUsed: 0,
+            balance: 100,
           },
         },
         userRoles: {
@@ -210,8 +211,7 @@ describe('Sora2 Credit Management Endpoints', () => {
         where: { userId: testUser.id },
       });
 
-      expect(updatedAccount?.currentBalance).toBe(70);
-      expect(updatedAccount?.totalUsed).toBe(30);
+      expect(updatedAccount?.balance).toBe(70);
     });
 
     it('should return 402 when insufficient credits', async () => {

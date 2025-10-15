@@ -2,6 +2,7 @@
 const otpService = require('../services/otp.service');
 const emailService = require('../services/email.service');
 const User = require('../models/User');
+const { successResponse, errorResponse } = require('../utils/response');
 
 class VerificationController {
   /**
@@ -16,33 +17,24 @@ class VerificationController {
 
       // Validate email format
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Valid email address is required' }
-        });
+        return errorResponse(res, 400, 'INVALID_EMAIL', 'Valid email address is required', null, req.requestId);
       }
 
       // Check rate limiting for sending OTP
       const rateLimitResult = await otpService.checkRateLimit(email, 'send');
       if (!rateLimitResult.allowed) {
         const resetTime = new Date(rateLimitResult.resetTime).toISOString();
-        return res.status(429).json({
-          success: false,
-          error: {
-            message: 'Too many verification requests. Please try again later.',
-            resetTime,
-            remaining: rateLimitResult.remaining
-          }
-        });
+        return errorResponse(res, 429, 'RATE_LIMIT_EXCEEDED', 'Too many verification requests. Please try again later.', {
+          resetTime,
+          remaining: rateLimitResult.remaining
+        }, req.requestId);
       }
 
       // Check if user exists
       const user = await User.findByEmail(email);
       if (!user) {
         // For security, don't reveal that user doesn't exist
-        return res.json({
-          success: true,
-          message: 'If the email exists, a verification code has been sent',
+        return successResponse(null, res, 200, req.requestId, 'If the email exists, a verification code has been sent', {
           expiresIn: parseInt(process.env.VERIFICATION_OTP_EXPIRY) || 900
         });
       }
@@ -63,10 +55,7 @@ class VerificationController {
       
       if (!emailResult.success) {
         console.error('Failed to send verification email:', emailResult.error);
-        return res.status(500).json({
-          success: false,
-          error: { message: 'Failed to send verification email' }
-        });
+        return errorResponse(res, 500, 'EMAIL_SEND_FAILED', 'Failed to send verification email', null, req.requestId);
       }
 
       // Log the attempt for security monitoring
@@ -78,9 +67,7 @@ class VerificationController {
         messageId: emailResult.messageId
       });
 
-      res.json({
-        success: true,
-        message: 'Verification code sent',
+      return successResponse(null, res, 200, req.requestId, 'Verification code sent', {
         expiresIn: parseInt(process.env.VERIFICATION_OTP_EXPIRY) || 900
       });
 
@@ -102,38 +89,25 @@ class VerificationController {
 
       // Validate input
       if (!email || !otp) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Email and OTP are required' }
-        });
+        return errorResponse(res, 400, 'MISSING_INPUT', 'Email and OTP are required', null, req.requestId);
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Valid email address is required' }
-        });
+        return errorResponse(res, 400, 'INVALID_EMAIL', 'Valid email address is required', null, req.requestId);
       }
 
       if (!/^\d{6}$/.test(otp)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'OTP must be a 6-digit number' }
-        });
+        return errorResponse(res, 400, 'INVALID_OTP_FORMAT', 'OTP must be a 6-digit number', null, req.requestId);
       }
 
       // Check rate limiting for verification attempts
       const rateLimitResult = await otpService.checkRateLimit(email, 'verify');
       if (!rateLimitResult.allowed) {
         const resetTime = new Date(rateLimitResult.resetTime).toISOString();
-        return res.status(429).json({
-          success: false,
-          error: {
-            message: 'Too many verification attempts. Please try again later.',
-            resetTime,
-            remaining: rateLimitResult.remaining
-          }
-        });
+        return errorResponse(res, 429, 'RATE_LIMIT_EXCEEDED', 'Too many verification attempts. Please try again later.', {
+          resetTime,
+          remaining: rateLimitResult.remaining
+        }, req.requestId);
       }
 
       // Verify OTP
@@ -149,19 +123,13 @@ class VerificationController {
       });
 
       if (!verificationResult.success) {
-        return res.status(400).json({
-          success: false,
-          error: { message: verificationResult.message }
-        });
+        return errorResponse(res, 400, 'OTP_VERIFICATION_FAILED', verificationResult.message, null, req.requestId);
       }
 
       // OTP is valid, now update user's email verification status
       const user = await User.findByEmail(email);
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          error: { message: 'User not found' }
-        });
+        return errorResponse(res, 404, 'USER_NOT_FOUND', 'User not found', null, req.requestId);
       }
 
       // Update user's verification status
@@ -175,10 +143,7 @@ class VerificationController {
         // Don't fail the verification if welcome email fails
       }
 
-      res.json({
-        success: true,
-        message: 'Email verified successfully'
-      });
+      return successResponse(null, res, 200, req.requestId, 'Email verified successfully');
 
     } catch (error) {
       console.error('Error in verifyEmail:', error);
@@ -198,43 +163,31 @@ class VerificationController {
 
       // Validate email format
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Valid email address is required' }
-        });
+        return errorResponse(res, 400, 'INVALID_EMAIL', 'Valid email address is required', null, req.requestId);
       }
 
       // Check rate limiting for sending OTP
       const rateLimitResult = await otpService.checkRateLimit(email, 'send');
       if (!rateLimitResult.allowed) {
         const resetTime = new Date(rateLimitResult.resetTime).toISOString();
-        return res.status(429).json({
-          success: false,
-          error: {
-            message: 'Too many verification requests. Please try again later.',
-            resetTime,
-            remaining: rateLimitResult.remaining
-          }
-        });
+        return errorResponse(res, 429, 'RATE_LIMIT_EXCEEDED', 'Too many verification requests. Please try again later.', {
+          resetTime,
+          remaining: rateLimitResult.remaining
+        }, req.requestId);
       }
 
       // Check if user exists
       const user = await User.findByEmail(email);
       if (!user) {
         // For security, don't reveal that user doesn't exist
-        return res.json({
-          success: true,
-          message: 'If the email exists, a verification code has been sent',
+        return successResponse(null, res, 200, req.requestId, 'If the email exists, a verification code has been sent', {
           expiresIn: parseInt(process.env.VERIFICATION_OTP_EXPIRY) || 900
         });
       }
 
       // Check if user is already verified
       if (user.email_verified) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Email is already verified' }
-        });
+        return errorResponse(res, 400, 'EMAIL_ALREADY_VERIFIED', 'Email is already verified', null, req.requestId);
       }
 
       // Generate and store new OTP
@@ -254,10 +207,7 @@ class VerificationController {
       
       if (!emailResult.success) {
         console.error('Failed to send verification email:', emailResult.error);
-        return res.status(500).json({
-          success: false,
-          error: { message: 'Failed to send verification email' }
-        });
+        return errorResponse(res, 500, 'EMAIL_SEND_FAILED', 'Failed to send verification email', null, req.requestId);
       }
 
       // Log the attempt for security monitoring
@@ -269,9 +219,7 @@ class VerificationController {
         messageId: emailResult.messageId
       });
 
-      res.json({
-        success: true,
-        message: 'Code resent',
+      return successResponse(null, res, 200, req.requestId, 'Code resent', {
         expiresIn: parseInt(process.env.VERIFICATION_OTP_EXPIRY) || 900
       });
 
@@ -290,31 +238,22 @@ class VerificationController {
       const { email } = req.query;
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Valid email address is required' }
-        });
+        return errorResponse(res, 400, 'INVALID_EMAIL', 'Valid email address is required', null, req.requestId);
       }
 
       const user = await User.findByEmail(email);
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          error: { message: 'User not found' }
-        });
+        return errorResponse(res, 404, 'USER_NOT_FOUND', 'User not found', null, req.requestId);
       }
 
       const hasValidOTP = await otpService.hasValidOTP(email);
 
-      res.json({
-        success: true,
-        data: {
-          email: user.email,
-          isVerified: user.email_verified,
-          hasValidOTP,
-          createdAt: user.created_at
-        }
-      });
+      return successResponse({
+        email: user.email,
+        isVerified: user.email_verified,
+        hasValidOTP,
+        createdAt: user.created_at
+      }, res, 200, req.requestId);
 
     } catch (error) {
       console.error('Error in getVerificationStatus:', error);
@@ -329,24 +268,15 @@ class VerificationController {
   async testEmailConfiguration(req, res, next) {
     try {
       if (process.env.NODE_ENV === 'production') {
-        return res.status(403).json({
-          success: false,
-          error: { message: 'This endpoint is not available in production' }
-        });
+        return errorResponse(res, 403, 'ENDPOINT_UNAVAILABLE', 'This endpoint is not available in production', null, req.requestId);
       }
 
       const testResult = await emailService.testConfiguration();
 
       if (testResult.success) {
-        res.json({
-          success: true,
-          message: 'Email configuration test successful'
-        });
+        return successResponse(null, res, 200, req.requestId, 'Email configuration test successful');
       } else {
-        res.status(500).json({
-          success: false,
-          error: { message: testResult.error }
-        });
+        return errorResponse(res, 500, 'EMAIL_CONFIG_FAILED', testResult.error, null, req.requestId);
       }
 
     } catch (error) {

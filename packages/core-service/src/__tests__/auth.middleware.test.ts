@@ -33,7 +33,8 @@ describe('Auth Middleware', () => {
     const mockPayload: JWTPayload = {
       sub: 'user-123',
       email: 'test@example.com',
-      role: 'user',
+      roles: ['user'],
+      permissions: [],
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
       jti: 'token-id',
@@ -58,7 +59,8 @@ describe('Auth Middleware', () => {
       expect(mockRequest.user).toEqual({
         id: 'user-123',
         email: 'test@example.com',
-        role: 'user',
+        roles: ['user'],
+        permissions: [],
       });
       expect(nextFunction).toHaveBeenCalled();
       expect(mockResponse.status).not.toHaveBeenCalled();
@@ -218,7 +220,8 @@ describe('Auth Middleware', () => {
       mockRequest.user = {
         id: 'user-123',
         email: 'test@example.com',
-        role: 'admin',
+        roles: ['admin'],
+        permissions: [],
       };
       const middleware = requireRole('admin');
 
@@ -252,7 +255,8 @@ describe('Auth Middleware', () => {
       mockRequest.user = {
         id: 'user-123',
         email: 'test@example.com',
-        role: 'user',
+        roles: ['user'],
+        permissions: [],
       };
       const middleware = requireRole('admin');
 

@@ -24,6 +24,7 @@ export interface Role {
   id: string;
   name: string;
   description: string | null;
+  isSystem: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -281,7 +282,14 @@ export const getAllRoles = async (): Promise<Role[]> => {
       },
     });
 
-    return roles as Role[];
+    return roles.map(role => ({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      isSystem: (role as any).isSystem || false, // Handle new field with fallback
+      createdAt: role.createdAt,
+      updatedAt: role.updatedAt,
+    }));
   } catch (error) {
     console.error('Error getting all roles:', error);
     throw new Error('Failed to get roles');

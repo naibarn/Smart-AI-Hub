@@ -5,6 +5,8 @@ const { generateAccessToken, generateRefreshToken, verifyToken } = require('../u
 const { storeRefreshToken, getRefreshToken, removeRefreshToken, addToBlacklist, logFailedLogin } = require('../config/redis');
 const otpService = require('../services/otp.service');
 const emailService = require('../services/email.service');
+const webhookService = require('../services/webhook.service');
+const { successResponse, errorResponse } = require('../utils/response');
 
 const authController = {
   /**
@@ -17,14 +19,18 @@ const authController = {
       // ตรวจสอบว่า email ซ้ำหรือไม่
       const existingUser = await User.findByEmail(email);
       if (existingUser) {
-        return res.status(409).json({
-          success: false,
-          error: { message: 'Email already exists' }
-        });
+        return errorResponse(
+          'EMAIL_EXISTS',
+          'Email already exists',
+          res,
+          409,
+          { field: 'email' },
+          req.requestId
+        );
       }
 
-      // สร้าง user ใหม่
-      const user = await User.create({ email, password, role_name: 'user' });
+      // สร้าง user ใหม่ with default role 'user'
+      const user = await User.create({ email, password, role_names: ['user'] });
 
       // สร้าง credit account สำหรับ user ใหม่
       await Credit.createAccount(user.id);
@@ -45,24 +51,33 @@ const authController = {
         console.error('Failed to send verification email during registration:', error);
       });
 
+      // Trigger webhook for user creation
+      webhookService.triggerUserCreated(user, {
+        ip: metadata.ip,
+        userAgent: metadata.userAgent,
+      }).catch(error => {
+        console.error('Failed to trigger user.created webhook:', error);
+      });
+
       // สร้าง token
       const token = generateAccessToken({ userId: user.id, email: user.email });
       const refreshToken = generateRefreshToken({ userId: user.id });
 
-      res.status(201).json({
-        success: true,
-        data: {
+      return successResponse(
+        {
           user: {
             id: user.id,
             email: user.email,
-            role_id: user.role_id,
-            email_verified: user.emailVerified
+            roles: user.roles,
+            verified: user.verified
           },
           token,
           refreshToken
         },
-        message: 'Registration successful. Please check your email for verification code.'
-      });
+        res,
+        201,
+        req.requestId
+      );
     } catch (error) {
       next(error);
     }
@@ -83,10 +98,14 @@ const authController = {
         // Log failed login attempt
         await logFailedLogin(email, ip, userAgent);
         
-        return res.status(401).json({
-          success: false,
-          error: { message: 'Invalid email or password' }
-        });
+        return errorResponse(
+          'INVALID_CREDENTIALS',
+          'Invalid email or password',
+          res,
+          401,
+          { field: 'password', attempts_remaining: 3 },
+          req.requestId
+        );
       }
 
       // ตรวจสอบ password
@@ -95,29 +114,33 @@ const authController = {
         // Log failed login attempt
         await logFailedLogin(email, ip, userAgent);
         
-        return res.status(401).json({
-          success: false,
-          error: { message: 'Invalid email or password' }
-        });
+        return errorResponse(
+          'INVALID_CREDENTIALS',
+          'Invalid email or password',
+          res,
+          401,
+          { field: 'password', attempts_remaining: 2 },
+          req.requestId
+        );
       }
 
       // ตรวจสอบว่า account active หรือไม่
-      if (!user.email_verified) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            message: 'Account is not verified. Please check your email for verification code.',
-            code: 'EMAIL_NOT_VERIFIED',
-            email: user.email
-          }
-        });
+      if (!user.verified) {
+        return errorResponse(
+          'EMAIL_NOT_VERIFIED',
+          'Account is not verified. Please check your email for verification code.',
+          res,
+          403,
+          { email: user.email },
+          req.requestId
+        );
       }
 
       // สร้าง access token (15 min) และ refresh token (7 days)
       const accessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
-        role: user.role_name
+        roles: user.roles.map(r => r.name)
       });
       const refreshToken = generateRefreshToken({ userId: user.id });
 
@@ -127,20 +150,29 @@ const authController = {
       // ลบ password ออกจาก response
       delete user.password_hash;
 
-      res.json({
-        success: true,
-        data: {
+      // Trigger webhook for user login
+      webhookService.triggerUserLogin(user, {
+        ip,
+        userAgent,
+      }).catch(error => {
+        console.error('Failed to trigger user.login webhook:', error);
+      });
+
+      return successResponse(
+        {
           user: {
             id: user.id,
             email: user.email,
-            role_id: user.role_id,
-            role_name: user.role_name
+            roles: user.roles,
+            permissions: user.permissions
           },
           accessToken,
           refreshToken
         },
-        message: 'Login successful'
-      });
+        res,
+        200,
+        req.requestId
+      );
     } catch (error) {
       next(error);
     }
@@ -153,10 +185,12 @@ const authController = {
     try {
       const userWithDetails = await User.findByIdWithDetails(req.user.id);
 
-      res.json({
-        success: true,
-        data: { user: userWithDetails }
-      });
+      return successResponse(
+        { user: userWithDetails },
+        res,
+        200,
+        req.requestId
+      );
     } catch (error) {
       next(error);
     }
@@ -174,49 +208,62 @@ const authController = {
       try {
         decoded = verifyToken(refreshToken);
       } catch (error) {
-        return res.status(401).json({
-          success: false,
-          error: { message: 'Invalid or expired refresh token' }
-        });
+        return errorResponse(
+          'INVALID_REFRESH_TOKEN',
+          'Invalid or expired refresh token',
+          res,
+          401,
+          null,
+          req.requestId
+        );
       }
 
       // 2. ตรวจสอบว่า token match กับที่เก็บใน Redis
       const storedRefreshToken = await getRefreshToken(decoded.userId);
       if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
-        return res.status(401).json({
-          success: false,
-          error: { message: 'Refresh token does not match stored token' }
-        });
+        return errorResponse(
+          'REFRESH_TOKEN_MISMATCH',
+          'Refresh token does not match stored token',
+          res,
+          401,
+          null,
+          req.requestId
+        );
       }
 
       // 3. Get user information
       const user = await User.findById(decoded.userId);
       if (!user) {
-        return res.status(401).json({
-          success: false,
-          error: { message: 'User not found' }
-        });
+        return errorResponse(
+          'USER_NOT_FOUND',
+          'User not found',
+          res,
+          401,
+          null,
+          req.requestId
+        );
       }
 
       // 4. Generate access token ใหม่
       const newAccessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
-        role: user.role_name
+        roles: user.roles
       });
 
       // 5. Rotate refresh token - generate ใหม่และ update Redis
       const newRefreshToken = generateRefreshToken({ userId: user.id });
       await storeRefreshToken(user.id, newRefreshToken, 604800); // 7 days in seconds
 
-      res.json({
-        success: true,
-        data: {
+      return successResponse(
+        {
           accessToken: newAccessToken,
           refreshToken: newRefreshToken
         },
-        message: 'Token refreshed successfully'
-      });
+        res,
+        200,
+        req.requestId
+      );
     } catch (error) {
       next(error);
     }
@@ -264,10 +311,24 @@ const authController = {
         }
       }
 
-      res.json({
-        success: true,
-        message: 'Logged out successfully'
-      });
+      // Get user details for webhook
+      const user = await User.findById(userId);
+      if (user) {
+        // Trigger webhook for user logout
+        webhookService.triggerUserLogout(user, {
+          ip: req.ip || req.connection.remoteAddress,
+          userAgent: req.get('User-Agent'),
+        }).catch(error => {
+          console.error('Failed to trigger user.logout webhook:', error);
+        });
+      }
+
+      return successResponse(
+        null,
+        res,
+        200,
+        req.requestId
+      );
     } catch (error) {
       next(error);
     }

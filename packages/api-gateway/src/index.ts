@@ -83,6 +83,15 @@ const creditsAuthProxy = createProxyMiddleware({
   changeOrigin: true,
 });
 
+// Analytics Service Proxy
+const analyticsProxy = createProxyMiddleware({
+  target: CORE_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/analytics': '/api/v1/analytics', // Route to versioned analytics endpoints
+  },
+});
+
 // Apply proxy middleware with error handling
 app.use('/api/auth', (req, res, next) => {
   authProxy(req, res, (err) => {
@@ -149,6 +158,16 @@ app.use('/api/credits', (req, res, next) => {
     if (err) {
       console.error('Auth Service Proxy Error:', err);
       return res.status(502).json({ error: 'Auth service unavailable' });
+    }
+    next();
+  });
+});
+
+app.use('/api/analytics', (req, res, next) => {
+  analyticsProxy(req, res, (err) => {
+    if (err) {
+      console.error('Core Service Proxy Error:', err);
+      return res.status(502).json({ error: 'Analytics service unavailable' });
     }
     next();
   });

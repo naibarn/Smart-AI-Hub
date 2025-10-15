@@ -9,6 +9,7 @@ import { AppError } from '@smart-ai-hub/shared';
 import { AuthenticatedRequest } from '@smart-ai-hub/shared';
 import * as paymentService from '../services/payment.service';
 import { CreditPackageId } from '../config/stripe.config';
+import { successResponse, errorResponse, paginatedResponse } from '../utils/response';
 
 /**
  * Create a Stripe checkout session for credit purchase
@@ -59,11 +60,7 @@ export const createCheckoutSession = async (
       url: session.url || '',
     };
 
-    res.status(200).json({
-      data: response,
-      meta: null,
-      error: null,
-    });
+    successResponse(response, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -87,14 +84,7 @@ export const handleSuccess = async (
     const { session_id } = req.query;
 
     if (!session_id) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'Session ID is required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'Session ID is required', res, 400, null, req.requestId);
       return;
     }
 
@@ -131,14 +121,10 @@ export const handleCancel = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    res.status(200).json({
-      data: {
-        message: 'Payment canceled',
-        description: 'Your payment was canceled. No charges were made.',
-      },
-      meta: null,
-      error: null,
-    });
+    successResponse({
+      message: 'Payment canceled',
+      description: 'Your payment was canceled. No charges were made.',
+    }, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -171,14 +157,7 @@ export const handleWebhook = async (
     const sig = req.headers['stripe-signature'] as string;
 
     if (!sig) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'Stripe signature is required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'Stripe signature is required', res, 400, null, req.requestId);
       return;
     }
 
@@ -196,22 +175,11 @@ export const handleWebhook = async (
     // Process webhook using the consolidated service function
     await paymentService.processStripeWebhook(rawBody, sig);
 
-    res.status(200).json({
-      data: { received: true },
-      meta: null,
-      error: null,
-    });
+    successResponse({ received: true }, res, 200, req.requestId);
   } catch (error) {
     console.error('Webhook error:', error);
     if (error instanceof Error && error.message.includes('signature verification failed')) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'WEBHOOK_ERROR',
-          message: `Webhook Error: ${error.message}`,
-        },
-      });
+      errorResponse('WEBHOOK_ERROR', `Webhook Error: ${error.message}`, res, 400, null, req.requestId);
       return;
     }
     next(error);
@@ -236,14 +204,7 @@ export const handleStripeWebhook = async (
     const sig = req.headers['stripe-signature'] as string;
 
     if (!sig) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'BAD_REQUEST',
-          message: 'Stripe signature is required',
-        },
-      });
+      errorResponse('BAD_REQUEST', 'Stripe signature is required', res, 400, null, req.requestId);
       return;
     }
 
@@ -261,22 +222,11 @@ export const handleStripeWebhook = async (
     // Process webhook using the consolidated service function
     await paymentService.processStripeWebhook(rawBody, sig);
 
-    res.status(200).json({
-      data: { received: true },
-      meta: null,
-      error: null,
-    });
+    successResponse({ received: true }, res, 200, req.requestId);
   } catch (error) {
     console.error('Stripe webhook error:', error);
     if (error instanceof Error && error.message.includes('signature verification failed')) {
-      res.status(400).json({
-        data: null,
-        meta: null,
-        error: {
-          code: 'WEBHOOK_ERROR',
-          message: `Webhook Error: ${error.message}`,
-        },
-      });
+      errorResponse('WEBHOOK_ERROR', `Webhook Error: ${error.message}`, res, 400, null, req.requestId);
       return;
     }
     next(error);
@@ -319,18 +269,18 @@ export const getPaymentHistory = async (
     // Get payment history from service
     const history = await paymentService.getPaymentHistory(userId, page, limit);
 
-    res.status(200).json({
-      data: history.data,
-      meta: {
-        pagination: {
-          page,
-          limit,
-          total: history.total,
-          totalPages: Math.ceil(history.total / limit),
-        },
+    paginatedResponse(
+      history.data,
+      {
+        page,
+        per_page: limit,
+        total: history.total,
+        total_pages: Math.ceil(history.total / limit)
       },
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
   } catch (error) {
     next(error);
   }
@@ -362,11 +312,7 @@ export const getCreditPackages = async (
       priceInDollars: (pkg.price / 100).toFixed(2),
     }));
 
-    res.status(200).json({
-      data: packages,
-      meta: null,
-      error: null,
-    });
+    successResponse(packages, res, 200, req.requestId);
   } catch (error) {
     next(error);
   }

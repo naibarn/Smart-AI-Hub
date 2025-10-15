@@ -3,7 +3,10 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import creditRoutes from './routes/credit.routes';
 import paymentRoutes from './routes/payment.routes';
+import analyticsRoutes from './routes/analytics.routes';
 import { errorHandler } from './middlewares/errorHandler.middleware';
+import { requestIdMiddleware } from './middlewares/requestId';
+import { rateLimiter } from './middlewares/rateLimiter';
 import { connectRedis, disconnectRedis } from './config/redis';
 
 const prisma = new PrismaClient();
@@ -19,9 +22,40 @@ app.use('/api/payments/stripe-webhook', express.raw({ type: 'application/json' }
 
 app.use(express.json());
 
-// Routes
-app.use('/api', creditRoutes);
-app.use('/api/payments', paymentRoutes);
+// Request ID middleware (must be before auth)
+app.use(requestIdMiddleware);
+
+// Rate limiting middleware
+app.use(rateLimiter);
+
+// Routes - Versioned (v1)
+app.use('/api/v1', creditRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+
+// Legacy routes for backward compatibility with deprecation headers
+app.use('/api', (req, res, next) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1' + req.url + '>; rel="successor-version"');
+  
+  // Forward to versioned routes
+  req.url = '/api/v1' + req.url;
+  next();
+}, creditRoutes);
+
+// Legacy analytics routes for backward compatibility
+app.use('/api/analytics', (req, res, next) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1/analytics' + req.url + '>; rel="successor-version"');
+  
+  // Forward to versioned routes
+  req.url = '/api/v1/analytics' + req.url;
+  next();
+}, analyticsRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

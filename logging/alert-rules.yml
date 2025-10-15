@@ -1,0 +1,178 @@
+groups:
+  - name: smart-ai-hub-logging
+    rules:
+      # High Error Rate Alert
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate({level="error"} |= ""[5m])) 
+            / 
+            sum(rate({job=~".+"} |= ""[5m]))
+          ) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: logging
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% across all services for the last 5 minutes"
+
+      # No Logs Received Alert
+      - alert: NoLogsReceived
+        expr: |
+          absent_over_time({job=~".+"} |= ""[5m])
+        for: 2m
+        labels:
+          severity: critical
+          service: logging
+        annotations:
+          summary: "No logs received from services"
+          description: "No logs have been received from any service in the last 5 minutes"
+
+      # Service-Specific No Logs Alert
+      - alert: ServiceNoLogs
+        expr: |
+          absent_over_time({job="$1"} |= ""[5m])
+        for: 2m
+        labels:
+          severity: warning
+          service: logging
+        annotations:
+          summary: "No logs received from {{ $labels.job }}"
+          description: "No logs have been received from {{ $labels.job }} in the last 5 minutes"
+
+      # Database Error Alert
+      - alert: DatabaseErrors
+        expr: |
+          sum(rate({level="error"} |= `database` |= `error`[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database errors detected"
+          description: "{{ $value }} database errors per second in the last 5 minutes"
+
+      # Authentication Failures Alert
+      - alert: AuthenticationFailures
+        expr: |
+          sum(rate({level="warn"} |= `Security` |= `failed`[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: auth
+        annotations:
+          summary: "High authentication failure rate"
+          description: "{{ $value }} authentication failures per second in the last 5 minutes"
+
+      # Slow Requests Alert
+      - alert: SlowRequests
+        expr: |
+          (
+            sum(rate({} |= `HTTP Request` | unwrap duration > 1000 [5m]))
+            /
+            sum(rate({} |= `HTTP Request`[5m]))
+          ) * 100 > 10
+        for: 3m
+        labels:
+          severity: warning
+          service: performance
+        annotations:
+          summary: "High slow request rate"
+          description: "{{ $value }}% of requests are taking longer than 1 second"
+
+      # Memory Usage Alert (if logged)
+      - alert: HighMemoryUsage
+        expr: |
+          sum(rate({} |= `memory` |= `usage` | unwrap usage > 0.8 [5m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage above 80% detected in one or more services"
+
+      # Disk Space Alert (if logged)
+      - alert: LowDiskSpace
+        expr: |
+          sum(rate({} |= `disk` |= `space` | unwrap usage > 0.9 [5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Low disk space detected"
+          description: "Disk usage above 90% detected"
+
+      # Service Restart Alert
+      - alert: ServiceRestart
+        expr: |
+          sum(rate({} |= `Service` |= `started`[5m])) > 0
+        for: 0m
+        labels:
+          severity: info
+          service: system
+        annotations:
+          summary: "Service restart detected"
+          description: "Service {{ $labels.service }} has restarted"
+
+      # API Gateway 5xx Errors
+      - alert: APIGatewayErrors
+        expr: |
+          sum(rate({job="api-gateway"} | logfmt | statusCode =~ "5.."[5m])) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+          service: api-gateway
+        annotations:
+          summary: "API Gateway returning 5xx errors"
+          description: "{{ $value }} 5xx errors per second from API Gateway"
+
+      # MCP Server Connection Issues
+      - alert: MCPServerConnectionIssues
+        expr: |
+          sum(rate({job="mcp-server"} |= `connection` |= `failed`[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: mcp-server
+        annotations:
+          summary: "MCP Server connection issues"
+          description: "{{ $value }} connection failures per second from MCP Server"
+
+      # Webhook Delivery Failures
+      - alert: WebhookDeliveryFailures
+        expr: |
+          sum(rate({job="webhook-service"} |= `webhook` |= `delivery` |= `failed`[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: webhook-service
+        annotations:
+          summary: "Webhook delivery failures"
+          description: "{{ $value }} webhook delivery failures per second"
+
+      # Credit Service Payment Issues
+      - alert: CreditServicePaymentIssues
+        expr: |
+          sum(rate({job="core-service"} |= `payment` |= `failed`[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: core-service
+        annotations:
+          summary: "Credit service payment issues"
+          description: "{{ $value }} payment failures per second from credit service"
+
+      # Analytics Service Processing Issues
+      - alert: AnalyticsProcessingIssues
+        expr: |
+          sum(rate({job="analytics-service"} |= `analytics` |= `processing` |= `error`[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: analytics-service
+        annotations:
+          summary: "Analytics processing issues"
+          description: "{{ $value }} analytics processing errors per second"

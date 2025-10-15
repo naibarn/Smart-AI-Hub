@@ -32,7 +32,7 @@ The platform is built as a microservices architecture with modern web technologi
 - **Multi-Provider Support**: Integrate with OpenAI, Claude, and other AI providers
 - **Unified Authentication**: Single sign-on with JWT and OAuth support
 - **Credit Management**: Flexible billing and usage tracking
-- **Role-Based Access Control**: Granular permissions and user management
+- **Advanced RBAC**: Many-to-many role and permission management with junction tables
 - **Real-Time Monitoring**: Comprehensive analytics and system health monitoring
 - **Developer-Friendly**: RESTful APIs and comprehensive documentation
 
@@ -46,7 +46,8 @@ The platform is built as a microservices architecture with modern web technologi
 - ✅ Admin dashboard
 - ✅ Usage analytics and reporting
 - ✅ Notification system
-- ✅ Role-based access control
+- ✅ Advanced RBAC with many-to-many relationships
+- ✅ Junction tables for flexible permission management
 
 ### Technical Features
 - ✅ Microservices architecture
@@ -325,8 +326,10 @@ For detailed testing information, see [TESTING_STRATEGY.md](TESTING_STRATEGY.md)
 
 ### Security Features
 
-- JWT-based authentication
-- Role-based access control (RBAC)
+- JWT-based authentication with role arrays
+- Advanced Role-Based Access Control (RBAC) with many-to-many relationships
+- Junction tables for UserRole and RolePermission mappings
+- Permission caching with Redis for performance
 - Input validation and sanitization
 - SQL injection prevention
 - XSS protection

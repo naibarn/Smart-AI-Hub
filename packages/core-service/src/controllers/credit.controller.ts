@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../middlewares/errorHandler.middleware';
+import { AppError } from '@smart-ai-hub/shared';
 import * as creditService from '../services/credit.service';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import RedisService from '../services/redis.service';
+import webhookService from '../services/webhook.service';
+import { successResponse, errorResponse, paginatedResponse } from '../utils/response';
+import { parsePaginationParams, calculatePagination } from '../utils/pagination';
 
 /**
  * Get user's credit balance
@@ -30,11 +33,13 @@ export const getBalance = async (
     const cachedBalance = await RedisService.get(cacheKey);
     if (cachedBalance) {
       const balanceData = JSON.parse(cachedBalance);
-      res.status(200).json({
-        data: balanceData,
-        meta: { cached: true },
-        error: null,
-      });
+      successResponse(
+        balanceData,
+        res,
+        200,
+        req.requestId
+      );
+      return;
       return;
     }
 
@@ -44,11 +49,13 @@ export const getBalance = async (
     // Cache the result for 60 seconds
     await RedisService.set(cacheKey, JSON.stringify(balance), 60);
 
-    res.status(200).json({
-      data: balance,
-      meta: { cached: false },
-      error: null,
-    });
+    successResponse(
+      balance,
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     next(error);
   }
@@ -90,18 +97,19 @@ export const getHistory = async (
     // Get history from service
     const history = await creditService.getHistory(userId, page, limit);
 
-    res.status(200).json({
-      data: history.data,
-      meta: {
-        pagination: {
-          page,
-          limit,
-          total: history.total,
-          totalPages: Math.ceil(history.total / limit),
-        },
+    paginatedResponse(
+      history.data,
+      {
+        page,
+        per_page: limit,
+        total: history.total,
+        total_pages: Math.ceil(history.total / limit)
       },
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     next(error);
   }
@@ -146,14 +154,24 @@ export const redeemPromoCode = async (
     const cacheKey = `credit_balance:${userId}`;
     await RedisService.del(cacheKey);
 
-    res.status(200).json({
-      data: {
+    // Get updated balance for webhook
+    const newBalance = await creditService.getBalance(userId);
+    
+    // Trigger webhook for promo redemption
+    webhookService.triggerCreditPromoRedeemed(userId, code.trim(), result, newBalance).catch(error => {
+      console.error('Failed to trigger credit.promo_redeemed webhook:', error);
+    });
+
+    successResponse(
+      {
         credits: result,
         message: `Successfully redeemed ${result} credits`,
       },
-      meta: null,
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     next(error);
   }
@@ -199,14 +217,38 @@ export const adjustCredits = async (
     const cacheKey = `credit_balance:${userId}`;
     await RedisService.del(cacheKey);
 
-    res.status(200).json({
-      data: {
+    // Trigger appropriate webhooks based on adjustment
+    if (amount > 0) {
+      // Credit added - trigger purchased webhook
+      webhookService.triggerCreditPurchased(userId, amount, result, {
+        transactionId: `admin_${Date.now()}`,
+        paymentMethod: 'admin_adjustment',
+        paymentId: null,
+      }).catch(error => {
+        console.error('Failed to trigger credit.purchased webhook:', error);
+      });
+    }
+
+    // Check if credit is low or depleted
+    await webhookService.checkAndTriggerLowCredit(userId, result, 10);
+    await webhookService.checkAndTriggerCreditDepleted(userId, result, {
+      id: `admin_${Date.now()}`,
+      type: 'admin_adjustment',
+      amount: amount,
+      balanceAfter: result,
+      description: reason.trim(),
+    });
+
+    successResponse(
+      {
         newBalance: result,
         message: 'Credits adjusted successfully',
       },
-      meta: null,
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     next(error);
   }
@@ -239,14 +281,16 @@ export const getUserCredits = async (
       creditService.getHistory(userId, 1, 10), // Get 10 most recent transactions
     ]);
 
-    res.status(200).json({
-      data: {
+    successResponse(
+      {
         balance,
         recentTransactions: history.data,
       },
-      meta: null,
-      error: null,
-    });
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     next(error);
   }
@@ -288,11 +332,13 @@ export const checkCredits = async (
     // Check credits
     const result = await creditService.checkCredits(userId, service, cost);
 
-    res.status(200).json({
-      data: result,
-      meta: null,
-      error: null,
-    });
+    successResponse(
+      result,
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     next(error);
   }
@@ -338,11 +384,21 @@ export const deductCredits = async (
     const cacheKey = `credit_balance:${userId}`;
     await RedisService.del(cacheKey);
 
-    res.status(200).json({
-      data: result,
-      meta: null,
-      error: null,
-    });
+    // Get transaction details for webhook
+    const history = await creditService.getHistory(userId, 1, 1);
+    const transactionData = history.data[0];
+
+    // Check if credit is low or depleted and trigger appropriate webhooks
+    await webhookService.checkAndTriggerLowCredit(userId, result.new_balance, 10);
+    await webhookService.checkAndTriggerCreditDepleted(userId, result.new_balance, transactionData);
+
+    successResponse(
+      result,
+      res,
+      200,
+      req.requestId
+    );
+    return;
   } catch (error) {
     // Handle specific error for insufficient credits
     if (error instanceof Error && error.message === 'Insufficient credits') {

@@ -1,6 +1,7 @@
 // src/controllers/password.controller.js
 const passwordService = require('../services/password.service');
 const emailService = require('../services/email.service');
+const { successResponse, errorResponse } = require('../utils/response');
 
 const passwordController = {
   /**
@@ -17,14 +18,9 @@ const passwordController = {
       const rateLimit = await passwordService.checkRateLimit(ip);
       if (!rateLimit.allowed) {
         await passwordService.logResetAttempt(email, ip, userAgent, false);
-        return res.status(429).json({
-          success: false,
-          error: {
-            message: 'Too many password reset attempts. Please try again later.',
-            code: 'RATE_LIMIT_EXCEEDED',
-            remaining: rateLimit.remaining
-          }
-        });
+        return errorResponse(res, 429, 'RATE_LIMIT_EXCEEDED', 'Too many password reset attempts. Please try again later.', {
+          remaining: rateLimit.remaining
+        }, req.requestId);
       }
 
       // Find user by email (don't reveal if email exists or not for security)
@@ -49,10 +45,7 @@ const passwordController = {
       }
 
       // Always return success message for security
-      res.json({
-        success: true,
-        message: 'Reset link sent if email exists'
-      });
+      return successResponse(null, res, 200, req.requestId, 'Reset link sent if email exists');
     } catch (error) {
       next(error);
     }
@@ -72,13 +65,7 @@ const passwordController = {
       const tokenValidation = await passwordService.validateResetToken(token);
       
       if (!tokenValidation.valid) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'Invalid or expired reset token',
-            code: 'INVALID_TOKEN'
-          }
-        });
+        return errorResponse(res, 400, 'INVALID_TOKEN', 'Invalid or expired reset token', null, req.requestId);
       }
 
       const userId = tokenValidation.userId;
@@ -100,10 +87,7 @@ const passwordController = {
         await passwordService.logResetAttempt(user.email, ip, userAgent, true);
       }
 
-      res.json({
-        success: true,
-        message: 'Password updated successfully'
-      });
+      return successResponse(null, res, 200, req.requestId, 'Password updated successfully');
     } catch (error) {
       next(error);
     }
@@ -118,26 +102,14 @@ const passwordController = {
       const { token } = req.query;
 
       if (!token) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'Reset token is required',
-            code: 'TOKEN_REQUIRED'
-          }
-        });
+        return errorResponse(res, 400, 'TOKEN_REQUIRED', 'Reset token is required', null, req.requestId);
       }
 
       // Validate reset token
       const tokenValidation = await passwordService.validateResetToken(token);
       
       if (!tokenValidation.valid) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'Invalid or expired reset token',
-            code: 'INVALID_TOKEN'
-          }
-        });
+        return errorResponse(res, 400, 'INVALID_TOKEN', 'Invalid or expired reset token', null, req.requestId);
       }
 
       // Get user email
@@ -145,20 +117,13 @@ const passwordController = {
       const user = await User.findById(tokenValidation.userId);
 
       if (!user) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'User not found',
-            code: 'USER_NOT_FOUND'
-          }
-        });
+        return errorResponse(res, 400, 'USER_NOT_FOUND', 'User not found', null, req.requestId);
       }
 
-      res.json({
-        success: true,
+      return successResponse({
         valid: true,
         email: user.email
-      });
+      }, res, 200, req.requestId);
     } catch (error) {
       next(error);
     }

@@ -7,11 +7,14 @@ import { WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import { ActiveConnection, ConnectionMetadata } from '../types/mcp.types';
 import { UserInfo } from '../utils/jwt.util';
+import { ConnectionMetadata as AuthMetadata } from '../middlewares/auth.middleware';
 import { logger, logConnection } from '../utils/logger';
 
 export class ConnectionService {
   private connections: Map<string, ActiveConnection> = new Map();
   private userConnections: Map<string, Set<string>> = new Map(); // userId → connectionIds
+  private connectionAuthMetadata: Map<string, AuthMetadata> = new Map(); // connectionId → auth metadata
+  private connectionUsageStats: Map<string, { requests: number; tokens: number; lastReset: number }> = new Map(); // connectionId → usage stats
 
   /**
    * Create a new connection and add to tracking
@@ -84,6 +87,9 @@ export class ConnectionService {
 
     // Clean up pending requests
     connection.pendingRequests.clear();
+
+    // Clean up authorization metadata
+    this.cleanupConnectionMetadata(connectionId);
 
     // Log connection removal
     logConnection(userId, connectionId, 'disconnected', {
@@ -321,6 +327,67 @@ export class ConnectionService {
   public getConnectionMetadata(connectionId: string): ConnectionMetadata | null {
     const connection = this.connections.get(connectionId);
     return connection ? connection.metadata : null;
+  }
+
+  /**
+   * Set authorization metadata for a connection
+   */
+  public setConnectionMetadata(connectionId: string, metadata: AuthMetadata): void {
+    this.connectionAuthMetadata.set(connectionId, metadata);
+  }
+
+  /**
+   * Get authorization metadata for a connection
+   */
+  public getAuthorizationMetadata(connectionId: string): AuthMetadata | null {
+    return this.connectionAuthMetadata.get(connectionId) || null;
+  }
+
+  /**
+   * Get usage statistics for a connection
+   */
+  public getUsageStats(connectionId: string): { requests: number; tokens: number } {
+    const stats = this.connectionUsageStats.get(connectionId);
+    if (!stats) {
+      return { requests: 0, tokens: 0 };
+    }
+
+    // Reset stats if more than a minute has passed
+    const now = Date.now();
+    if (now - stats.lastReset > 60000) { // 1 minute
+      stats.requests = 0;
+      stats.tokens = 0;
+      stats.lastReset = now;
+      this.connectionUsageStats.set(connectionId, stats);
+    }
+
+    return { requests: stats.requests, tokens: stats.tokens };
+  }
+
+  /**
+   * Update usage statistics for a connection
+   */
+  public updateUsageStats(connectionId: string, tokensUsed: number): void {
+    const stats = this.connectionUsageStats.get(connectionId);
+    if (stats) {
+      stats.requests += 1;
+      stats.tokens += tokensUsed;
+      this.connectionUsageStats.set(connectionId, stats);
+    } else {
+      this.connectionUsageStats.set(connectionId, {
+        requests: 1,
+        tokens: tokensUsed,
+        lastReset: Date.now(),
+      });
+    }
+  }
+
+  /**
+   * Clean up authorization metadata when connection is removed
+   */
+  private cleanupConnectionMetadata(connectionId: string): void {
+    this.connectionAuthMetadata.delete(connectionId);
+    this.connectionUsageStats.delete(connectionId);
   }
 }
 

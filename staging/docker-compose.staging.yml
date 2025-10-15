@@ -1,0 +1,306 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: smartaihub-staging-postgres
+    environment:
+      POSTGRES_DB: smart_ai_hub_staging
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-staging_password}
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+      - ../backups:/backups
+    networks:
+      - smart-ai-hub-staging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: smartaihub-staging-redis
+    volumes:
+      - redis_staging_data:/data
+    networks:
+      - smart-ai-hub-staging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:alpine
+    container_name: smartaihub-staging-nginx
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ../logs/nginx:/var/log/nginx
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      - api-gateway
+      - auth-service
+      - core-service
+      - mcp-server
+      - frontend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api-gateway:
+    build:
+      context: ../packages/api-gateway
+      dockerfile: Dockerfile.prod
+    container_name: smartaihub-staging-api-gateway
+    environment:
+      - NODE_ENV=staging
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - CORE_SERVICE_URL=http://core-service:3002
+      - MCP_SERVER_URL=http://mcp-server:3003
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3004
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      core-service:
+        condition: service_healthy
+      mcp-server:
+        condition: service_healthy
+      analytics-service:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ../logs/api-gateway:/app/logs
+
+  auth-service:
+    build:
+      context: ../packages/auth-service
+      dockerfile: Dockerfile.prod
+    container_name: smartaihub-staging-auth-service
+    environment:
+      - NODE_ENV=staging
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
+      - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ../logs/auth-service:/app/logs
+
+  core-service:
+    build:
+      context: ../packages/core-service
+      dockerfile: Dockerfile.prod
+    container_name: smartaihub-staging-core-service
+    environment:
+      - NODE_ENV=staging
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ../logs/core-service:/app/logs
+
+  mcp-server:
+    build:
+      context: ../packages/mcp-server
+      dockerfile: Dockerfile.prod
+    container_name: smartaihub-staging-mcp-server
+    environment:
+      - NODE_ENV=staging
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ../logs/mcp-server:/app/logs
+
+  analytics-service:
+    build:
+      context: ../packages/analytics-service
+      dockerfile: Dockerfile.prod
+    container_name: smartaihub-staging-analytics-service
+    environment:
+      - NODE_ENV=staging
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ../logs/analytics-service:/app/logs
+
+  frontend:
+    build:
+      context: ../packages/frontend
+      dockerfile: Dockerfile.prod
+    container_name: smartaihub-staging-frontend
+    environment:
+      - NODE_ENV=staging
+      - VITE_API_URL=http://localhost:8080
+    networks:
+      - smart-ai-hub-staging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring Services
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: smartaihub-staging-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.staging.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_staging_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring-staging
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: smartaihub-staging-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_staging_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring-staging
+    restart: unless-stopped
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: smartaihub-staging-postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: postgresql://postgres:${POSTGRES_PASSWORD:-staging_password}@postgres:5432/smart_ai_hub_staging?sslmode=disable
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: smartaihub-staging-redis-exporter
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter
+    container_name: smartaihub-staging-nginx-exporter
+    command:
+      - -nginx.scrape-uri=http://nginx:80/nginx_status
+    networks:
+      - smart-ai-hub-staging
+      - monitoring-staging
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
+volumes:
+  postgres_staging_data:
+  redis_staging_data:
+  prometheus_staging_data:
+  grafana_staging_data:
+
+networks:
+  smart-ai-hub-staging:
+    driver: bridge
+  monitoring-staging:
+    driver: bridge

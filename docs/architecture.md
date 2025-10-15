@@ -512,7 +512,8 @@ const jwtConfig = {
 interface JWTPayload {
   sub: string; // User ID
   email: string;
-  role: string;
+  roles: string[]; // Array of role IDs
+  permissions: string[]; // Cached permissions array
   iat: number; // Issued at
   exp: number; // Expiration
   jti: string; // JWT ID (for revocation)
@@ -576,6 +577,7 @@ model Role {
   id          String   @id @default(uuid())
   name        String   @unique // admin, manager, user, guest
   description String?
+  isSystem    Boolean  @default(false) // System roles cannot be deleted
 
   users       UserRole[]
   permissions RolePermission[]
@@ -1392,11 +1394,14 @@ sequenceDiagram
 
 ### Authorization (RBAC)
 
+The Smart AI Hub implements a comprehensive Role-Based Access Control (RBAC) system with many-to-many relationships between users, roles, and permissions.
+
 ```typescript
 // middlewares/rbac.middleware.ts
 function requirePermission(resource: string, action: string) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user.id;
+    const userRoles = req.user.roles || [];
 
     // Check cache first
     const cacheKey = `perms:${userId}:${resource}:${action}`;
@@ -1406,23 +1411,65 @@ function requirePermission(resource: string, action: string) {
       return next();
     }
 
-    // Query database
-    const hasPermission = await checkPermission(userId, resource, action);
+    // Query database for permission check
+    const hasPermission = await checkPermission(userId, resource, action, userRoles);
 
     if (!hasPermission) {
       throw new AppError('FORBIDDEN', `Insufficient permissions for ${action} on ${resource}`, 403);
     }
 
-    // Cache the result
+    // Cache the result with TTL
     await redis.setex(cacheKey, CACHE_TTL.PERMISSIONS, 'true');
 
     next();
   };
 }
 
-// Usage
+// Permission checking with many-to-many relationships
+async function checkPermission(
+  userId: string,
+  resource: string,
+  action: string,
+  userRoles: string[] = []
+): Promise<boolean> {
+  // Check via JOIN query through UserRole and RolePermission tables
+  const permission = await prisma.permission.findFirst({
+    where: {
+      resource,
+      action,
+      roles: {
+        some: {
+          users: {
+            some: {
+              userId
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return !!permission;
+}
+
+// Usage examples
 router.delete('/users/:id', requirePermission('users', 'delete'), deleteUser);
+router.post('/roles', requirePermission('roles', 'create'), createRole);
+router.put('/permissions/:id', requirePermission('permissions', 'update'), updatePermission);
 ```
+
+#### Junction Tables
+
+The RBAC system uses two junction tables to implement many-to-many relationships:
+
+1. **UserRole**: Links users to roles with assignment timestamps
+2. **RolePermission**: Links roles to permissions with granted timestamps
+
+These tables allow for flexible permission management where:
+- Users can have multiple roles
+- Roles can have multiple permissions
+- The same permission can be assigned to multiple roles
+- User permissions are the union of all permissions from all their roles
 
 ### API Key Management
 

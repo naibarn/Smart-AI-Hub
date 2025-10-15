@@ -1,5 +1,9 @@
 // src/controllers/user.controller.js
-const db = require('../config/database');
+const { PrismaClient } = require('@prisma/client');
+const { successResponse, errorResponse, paginatedResponse } = require('../utils/response');
+const webhookService = require('../services/webhook.service');
+
+const prisma = new PrismaClient();
 
 const userController = {
   /**
@@ -9,31 +13,39 @@ const userController = {
     try {
       const userId = req.params.id || req.user.id;
 
-      const { rows } = await db.query(
-        `SELECT 
-          u.id, u.email, u.username, u.is_active, u.created_at,
-          r.name as role_name,
-          up.full_name, up.phone_number, up.address, up.date_of_birth,
-          ca.balance as credit_balance
-         FROM users u
-         LEFT JOIN roles r ON u.role_id = r.id
-         LEFT JOIN user_profiles up ON u.id = up.user_id
-         LEFT JOIN credit_accounts ca ON u.id = ca.user_id
-         WHERE u.id = $1`,
-        [userId]
-      );
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          roles: {
+            include: {
+              role: true
+            }
+          },
+          profile: true,
+          creditAccount: true
+        }
+      });
 
-      if (rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: { message: 'User not found' }
-        });
+      if (!user) {
+        return errorResponse(res, 404, 'USER_NOT_FOUND', 'User not found', null, req.requestId);
       }
 
-      res.json({
-        success: true,
-        data: { profile: rows[0] }
-      });
+      // Transform the data to match expected format
+      const profile = {
+        id: user.id,
+        email: user.email,
+        username: user.profile?.firstName + ' ' + user.profile?.lastName,
+        is_active: true, // Assuming active if exists
+        created_at: user.createdAt,
+        roles: user.roles.map(ur => ur.role.name),
+        credit_balance: user.creditAccount?.balance || 0,
+        full_name: user.profile?.firstName + ' ' + user.profile?.lastName,
+        phone_number: user.profile?.phoneNumber,
+        address: user.profile?.address,
+        date_of_birth: user.profile?.dateOfBirth
+      };
+
+      return successResponse({ profile }, res, 200, req.requestId);
     } catch (error) {
       next(error);
     }
@@ -47,74 +59,42 @@ const userController = {
       const userId = req.user.id;
       const { full_name, phone_number, address, date_of_birth } = req.body;
 
-      // ตรวจสอบว่ามี profile อยู่แล้วหรือไม่
-      const { rows: existingProfile } = await db.query(
-        `SELECT * FROM user_profiles WHERE user_id = $1`,
-        [userId]
-      );
+      // Split full_name into first and last name
+      const names = full_name ? full_name.split(' ') : [];
+      const firstName = names[0] || '';
+      const lastName = names.slice(1).join(' ') || '';
 
-      let result;
-
-      if (existingProfile.length === 0) {
-        // สร้าง profile ใหม่
-        const { rows } = await db.query(
-          `INSERT INTO user_profiles (user_id, full_name, phone_number, address, date_of_birth)
-           VALUES ($1, $2, $3, $4, $5)
-           RETURNING *`,
-          [userId, full_name, phone_number, address, date_of_birth]
-        );
-        result = rows[0];
-      } else {
-        // อัปเดต profile ที่มีอยู่
-        const fields = [];
-        const values = [];
-        let paramCount = 1;
-
-        if (full_name !== undefined) {
-          fields.push(`full_name = $${paramCount}`);
-          values.push(full_name);
-          paramCount++;
+      // Update or create profile
+      const profile = await prisma.userProfile.upsert({
+        where: { userId: userId },
+        update: {
+          firstName,
+          lastName,
+          phoneNumber: phone_number,
+          address,
+          dateOfBirth: date_of_birth ? new Date(date_of_birth) : null
+        },
+        create: {
+          userId: userId,
+          firstName,
+          lastName,
+          phoneNumber: phone_number,
+          address,
+          dateOfBirth: date_of_birth ? new Date(date_of_birth) : null
         }
-        if (phone_number !== undefined) {
-          fields.push(`phone_number = $${paramCount}`);
-          values.push(phone_number);
-          paramCount++;
-        }
-        if (address !== undefined) {
-          fields.push(`address = $${paramCount}`);
-          values.push(address);
-          paramCount++;
-        }
-        if (date_of_birth !== undefined) {
-          fields.push(`date_of_birth = $${paramCount}`);
-          values.push(date_of_birth);
-          paramCount++;
-        }
-
-        if (fields.length === 0) {
-          return res.status(400).json({
-            success: false,
-            error: { message: 'No fields to update' }
-          });
-        }
-
-        values.push(userId);
-
-        const { rows } = await db.query(
-          `UPDATE user_profiles 
-           SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP
-           WHERE user_id = $${paramCount}
-           RETURNING *`,
-          values
-        );
-        result = rows[0];
-      }
-
-      res.json({
-        success: true,
-        data: { profile: result },
-        message: 'Profile updated successfully'
       });
+
+      // Trigger webhook for profile update
+      webhookService.triggerProfileUpdated(req.user, {
+        full_name,
+        phone_number,
+        address,
+        date_of_birth,
+      }).catch(error => {
+        console.error('Failed to trigger user.profile_updated webhook:', error);
+      });
+
+      return successResponse({ profile }, res, 200, req.requestId, 'Profile updated successfully');
     } catch (error) {
       next(error);
     }
@@ -125,37 +105,195 @@ const userController = {
    */
   async listUsers(req, res, next) {
     try {
-      const { page = 1, limit = 20 } = req.query;
-      const offset = (page - 1) * limit;
+      const { page = 1, per_page = 20 } = req.query;
+      const pageNum = parseInt(page);
+      const perPageNum = parseInt(per_page);
+      const skip = (pageNum - 1) * perPageNum;
 
-      const { rows } = await db.query(
-        `SELECT 
-          u.id, u.email, u.username, u.is_active, u.created_at,
-          r.name as role_name,
-          ca.balance as credit_balance
-         FROM users u
-         LEFT JOIN roles r ON u.role_id = r.id
-         LEFT JOIN credit_accounts ca ON u.id = ca.user_id
-         ORDER BY u.created_at DESC
-         LIMIT $1 OFFSET $2`,
-        [limit, offset]
+      const [users, totalCount] = await Promise.all([
+        prisma.user.findMany({
+          skip: skip,
+          take: perPageNum,
+          include: {
+            roles: {
+              include: {
+                role: true
+              }
+            },
+            creditAccount: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }),
+        prisma.user.count()
+      ]);
+
+      // Transform the data to match expected format
+      const transformedUsers = users.map(user => ({
+        id: user.id,
+        email: user.email,
+        username: user.profile?.firstName + ' ' + user.profile?.lastName,
+        is_active: true,
+        created_at: user.createdAt,
+        roles: user.roles.map(ur => ur.role.name),
+        credit_balance: user.creditAccount?.balance || 0
+      }));
+
+      const totalPages = Math.ceil(totalCount / perPageNum);
+      
+      return paginatedResponse(
+        transformedUsers,
+        pageNum,
+        perPageNum,
+        totalCount,
+        totalPages,
+        res,
+        req.requestId
       );
+    } catch (error) {
+      next(error);
+    }
+  },
 
-      const { rows: countRows } = await db.query(
-        `SELECT COUNT(*) FROM users`
-      );
+  /**
+   * Assign Roles to User - มอบหมายบทบาทให้ผู้ใช้ (admin only)
+   */
+  async assignRoles(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const { roleNames } = req.body;
 
-      res.json({
-        success: true,
-        data: {
-          users: rows,
-          pagination: {
-            page: parseInt(page),
-            limit: parseInt(limit),
-            total: parseInt(countRows[0].count)
+      if (!roleNames || !Array.isArray(roleNames)) {
+        return errorResponse(res, 400, 'INVALID_INPUT', 'roleNames array is required', null, req.requestId);
+      }
+
+      // Find roles by names
+      const roles = await prisma.role.findMany({
+        where: { name: { in: roleNames } }
+      });
+
+      if (roles.length !== roleNames.length) {
+        const foundNames = roles.map(r => r.name);
+        const missingNames = roleNames.filter(name => !foundNames.includes(name));
+        return errorResponse(res, 404, 'ROLES_NOT_FOUND', `Roles not found: ${missingNames.join(', ')}`, null, req.requestId);
+      }
+
+      // Remove existing roles
+      await prisma.userRole.deleteMany({
+        where: { userId: userId }
+      });
+
+      // Assign new roles
+      await prisma.userRole.createMany({
+        data: roles.map(role => ({
+          userId: userId,
+          roleId: role.id,
+          assignedAt: new Date()
+        }))
+      });
+
+      const updatedUser = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          roles: {
+            include: {
+              role: true
+            }
           }
         }
       });
+
+      // Trigger webhook for role assignment
+      webhookService.triggerRolesAssigned(updatedUser, updatedUser.roles.map(ur => ur.role)).catch(error => {
+        console.error('Failed to trigger user.roles_assigned webhook:', error);
+      });
+
+      return successResponse({
+        userId: updatedUser.id,
+        roles: updatedUser.roles.map(ur => ({
+          id: ur.role.id,
+          name: ur.role.name,
+          assignedAt: ur.assignedAt
+        }))
+      }, res, 200, req.requestId, 'Roles assigned successfully');
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Remove Role from User - ถอนบทบาทจากผู้ใช้ (admin only)
+   */
+  async removeRole(req, res, next) {
+    try {
+      const { userId, roleName } = req.params;
+
+      const role = await prisma.role.findUnique({
+        where: { name: roleName }
+      });
+
+      if (!role) {
+        return errorResponse(res, 404, 'ROLE_NOT_FOUND', `Role '${roleName}' not found`, null, req.requestId);
+      }
+
+      await prisma.userRole.deleteMany({
+        where: {
+          userId: userId,
+          roleId: role.id
+        }
+      });
+
+      return successResponse(null, res, 200, req.requestId, `Role '${roleName}' removed from user successfully`);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Get User Permissions - ดึงสิทธิ์ของผู้ใช้
+   */
+  async getUserPermissions(req, res, next) {
+    try {
+      const userId = req.params.id || req.user.id;
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          roles: {
+            include: {
+              role: {
+                include: {
+                  permissions: {
+                    include: {
+                      permission: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        return errorResponse(res, 404, 'USER_NOT_FOUND', 'User not found', null, req.requestId);
+      }
+
+      // Extract all unique permissions from all roles
+      const permissions = user.roles.flatMap(ur => 
+        ur.role.permissions.map(rp => rp.permission)
+      );
+
+      // Remove duplicates based on permission id
+      const uniquePermissions = permissions.filter((permission, index, self) =>
+        index === self.findIndex(p => p.id === permission.id)
+      );
+
+      return successResponse({
+        userId: user.id,
+        permissions: uniquePermissions
+      }, res, 200, req.requestId);
     } catch (error) {
       next(error);
     }

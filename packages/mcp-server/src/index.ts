@@ -1,6 +1,6 @@
 /**
  * MCP Server Main Implementation
- * WebSocket server with JWT authentication, credit checking, and usage logging
+ * WebSocket server with JWT authentication, authorization, credit checking, and usage logging
  */
 
 import express, { Application, Request, Response } from 'express';
@@ -10,9 +10,18 @@ import cors from 'cors';
 import { config, validateConfig } from './config/config';
 import { logger } from './utils/logger';
 import { authenticateWebSocket } from './utils/jwt.util';
+import {
+  createConnectionMetadata,
+  authorizeWebSocket,
+  checkRateLimit,
+  canAccessModel,
+  getMaxTokens,
+  ConnectionMetadata
+} from './middlewares/auth.middleware';
 import { connectionService } from './services/connection.service';
 import { creditService } from './services/credit.service';
 import { loggingService } from './services/logging.service';
+import webhookService from './services/webhook.service';
 import { MCPRequest, MCPResponse, LLMRequest } from './types/mcp.types';
 import { OpenAIProvider } from './providers/openai.provider';
 import { ClaudeProvider } from './providers/claude.provider';
@@ -40,24 +49,73 @@ app.use(cors());
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/api/v1/health', (req: Request, res: Response) => {
   const stats = connectionService.getStats();
-  res.json({
+  const response = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
     connections: stats,
     providers: providerManager.getStatus(),
+  };
+  
+  // Generate request ID
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Set request ID header
+  res.setHeader('X-Request-ID', requestId);
+  
+  res.json({
+    data: response,
+    meta: {
+      timestamp: new Date().toISOString(),
+      request_id: requestId
+    }
   });
 });
 
 // Stats endpoint for monitoring
-app.get('/stats', (req: Request, res: Response) => {
+app.get('/api/v1/stats', (req: Request, res: Response) => {
   const stats = connectionService.getStats();
-  res.json({
+  const response = {
     ...stats,
     timestamp: new Date().toISOString(),
+  };
+  
+  // Generate request ID
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Set request ID header
+  res.setHeader('X-Request-ID', requestId);
+  
+  res.json({
+    data: response,
+    meta: {
+      timestamp: new Date().toISOString(),
+      request_id: requestId
+    }
   });
+});
+
+// Legacy routes for backward compatibility with deprecation headers
+app.get('/health', (req: Request, res: Response) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1/health>; rel="successor-version"');
+  
+  // Forward to versioned endpoint
+  res.redirect(302, '/api/v1/health');
+});
+
+app.get('/stats', (req: Request, res: Response) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1/stats>; rel="successor-version"');
+  
+  // Forward to versioned endpoint
+  res.redirect(302, '/api/v1/stats');
 });
 
 // WebSocket setup with authentication
@@ -94,14 +152,22 @@ wss.on('connection', (ws: WebSocket, req: any) => {
   // jti is available but not used in this context
   // const jti = (req as any).jti;
 
+  // Create connection metadata with authorization info
+  const metadata = createConnectionMetadata(user);
+
   // Create connection and track it
   const connection = connectionService.createConnection(ws, user);
+  
+  // Store metadata with connection for authorization checks
+  connectionService.setConnectionMetadata(connection.id, metadata);
 
   logger.info('WebSocket connection established', {
     connectionId: connection.id,
     userId: user.id,
     email: user.email,
     role: user.role,
+    permissions: metadata.permissions,
+    allowedModels: metadata.allowedModels,
   });
 
   // Handle incoming messages
@@ -118,10 +184,44 @@ wss.on('connection', (ws: WebSocket, req: any) => {
         return;
       }
 
-      // Validate request
+      // Get connection metadata for authorization
+      const connectionMetadata = connectionService.getAuthorizationMetadata(connection.id);
+      
+      if (!connectionMetadata) {
+        sendError(ws, 'UNAUTHORIZED', 'Connection metadata not found');
+        return;
+      }
+      
+      // Validate basic request structure
       const validation = creditService.validateRequest(request);
       if (!validation.valid) {
         sendError(ws, 'INVALID_REQUEST', validation.error || 'Invalid request');
+        return;
+      }
+      
+      // Authorization check - validate user can access this model and features
+      const maxTokens = getMaxTokens(user.role);
+      const requestedTokens = request.maxTokens || maxTokens;
+      
+      const authResult = authorizeWebSocket(
+        ws,
+        connectionMetadata,
+        request.model,
+        requestedTokens,
+        'chat' // Default feature for now
+      );
+      
+      if (!authResult.authorized) {
+        sendError(ws, 'UNAUTHORIZED', authResult.reason || 'Unauthorized');
+        return;
+      }
+      
+      // Rate limiting check
+      const currentUsage = connectionService.getUsageStats(connection.id);
+      const rateLimitResult = checkRateLimit(connectionMetadata, currentUsage);
+      
+      if (!rateLimitResult.allowed) {
+        sendError(ws, 'RATE_LIMITED', rateLimitResult.reason || 'Rate limit exceeded');
         return;
       }
 
@@ -180,8 +280,30 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
   const { userId } = connection.metadata;
 
   try {
+    // Trigger service.started webhook
+    webhookService.triggerServiceStarted(
+      userId,
+      requestId,
+      request.model,
+      request.maxTokens || 1000
+    ).catch(error => {
+      logger.error('Failed to trigger service.started webhook:', error);
+    });
+
     const hasCredits = await creditService.checkSufficientCredits(userId, request);
     if (!hasCredits) {
+      // Trigger service.failed webhook for insufficient credits
+      webhookService.triggerServiceFailed(
+        userId,
+        requestId,
+        request.model,
+        'INSUFFICIENT_CREDITS',
+        'Insufficient credits for this request.',
+        Date.now() - startTime
+      ).catch(error => {
+        logger.error('Failed to trigger service.failed webhook:', error);
+      });
+
       return sendError(
         connection.ws,
         'INSUFFICIENT_CREDITS',
@@ -231,6 +353,10 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
             request.model,
             finalResponse.usage.totalTokens
           );
+          
+          // Update usage statistics for rate limiting
+          connectionService.updateUsageStats(connection.id, finalResponse.usage.totalTokens);
+          
           const usageLog = loggingService.createUsageLog(
             userId,
             requestId,
@@ -240,6 +366,19 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
             creditsUsed
           );
           await loggingService.logUsage(usageLog);
+
+          // Trigger service.completed webhook
+          webhookService.triggerServiceCompleted(
+            userId,
+            requestId,
+            request.model,
+            finalResponse.usage.totalTokens,
+            creditsUsed,
+            duration,
+            finalResponse
+          ).catch(error => {
+            logger.error('Failed to trigger service.completed webhook:', error);
+          });
         }
       }
     } else {
@@ -256,6 +395,10 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
           llmResponse.model,
           llmResponse.usage.totalTokens
         );
+        
+        // Update usage statistics for rate limiting
+        connectionService.updateUsageStats(connection.id, llmResponse.usage.totalTokens);
+        
         const response: MCPResponse = {
           id: requestId,
           type: 'done',
@@ -275,10 +418,36 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
           creditsUsed
         );
         await loggingService.logUsage(usageLog);
+
+        // Trigger service.completed webhook
+        webhookService.triggerServiceCompleted(
+          userId,
+          requestId,
+          llmResponse.model,
+          llmResponse.usage.totalTokens,
+          creditsUsed,
+          duration,
+          response
+        ).catch(error => {
+          logger.error('Failed to trigger service.completed webhook:', error);
+        });
       }
     }
   } catch (error: any) {
     logger.error('Error handling message:', { error: error.message, requestId });
+    
+    // Trigger service.failed webhook for execution errors
+    webhookService.triggerServiceFailed(
+      userId,
+      requestId,
+      request.model || 'unknown',
+      'EXECUTION_ERROR',
+      error.message || 'Failed to execute request.',
+      Date.now() - startTime
+    ).catch(error => {
+      logger.error('Failed to trigger service.failed webhook:', error);
+    });
+
     sendError(
       connection.ws,
       'EXECUTION_ERROR',
@@ -294,12 +463,14 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
  * Send error message to client
  */
 function sendError(ws: WebSocket, code: string, message: string, requestId?: string): void {
+  const id = requestId || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const errorResponse: MCPResponse = {
-    id: requestId || 'error',
+    id: id,
     type: 'error',
     error: {
       code,
       message,
+      request_id: id
     },
     timestamp: new Date().toISOString(),
   };

@@ -20,6 +20,8 @@ const creditRoutes = require('./routes/credit.routes');
 
 // Import middleware
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const requestIdMiddleware = require('./middleware/requestId');
+const { rateLimiter } = require('./middleware/rateLimiter');
 
 // Create Express app
 const app = express();
@@ -40,8 +42,14 @@ app.use(express.urlencoded({ extended: true }));
 // Static file serving
 app.use(express.static('public'));
 
+// Request ID middleware (must be before auth)
+app.use(requestIdMiddleware);
+
 // Initialize Passport
 app.use(passport.initialize());
+
+// Rate limiting middleware
+app.use(rateLimiter);
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -57,12 +65,46 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/auth', oauthRoutes);
-app.use('/api/auth', sessionRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/credits', creditRoutes);
+// API Routes - Versioned (v1)
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth', oauthRoutes);
+app.use('/api/v1/auth', sessionRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/credits', creditRoutes);
+
+// Legacy routes for backward compatibility with deprecation headers
+app.use('/api/auth', (req, res, next) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1/auth' + req.url + '>; rel="successor-version"');
+  
+  // Forward to versioned routes
+  req.url = '/api/v1/auth' + req.url;
+  next();
+}, authRoutes);
+
+app.use('/api/users', (req, res, next) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1/users' + req.url + '>; rel="successor-version"');
+  
+  // Forward to versioned routes
+  req.url = '/api/v1/users' + req.url;
+  next();
+}, userRoutes);
+
+app.use('/api/credits', (req, res, next) => {
+  // Set deprecation headers
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+  res.setHeader('Link', '</api/v1/credits' + req.url + '>; rel="successor-version"');
+  
+  // Forward to versioned routes
+  req.url = '/api/v1/credits' + req.url;
+  next();
+}, creditRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

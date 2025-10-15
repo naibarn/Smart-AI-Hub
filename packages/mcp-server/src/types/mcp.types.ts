@@ -30,6 +30,8 @@ export interface ErrorDetails {
   code: string;
   message: string;
   details?: any;
+  request_id?: string;
+  timestamp?: string;
 }
 
 // Client → Server Request

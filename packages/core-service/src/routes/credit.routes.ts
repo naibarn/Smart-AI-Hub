@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateJWT } from '@smart-ai-hub/shared';
 import { requirePermission, requireRoles } from '../middlewares/rbac.middleware';
 import { authenticateServiceRequest } from '../middlewares/service-auth.middleware';
+import { rateLimiter, strictRateLimiter } from '../middlewares/rateLimiter';
 import * as creditController from '../controllers/credit.controller';
 
 const router = Router();
@@ -13,6 +14,7 @@ const router = Router();
  */
 router.get(
   '/credits/balance',
+  rateLimiter,
   authenticateJWT,
   requirePermission('credits', 'read'),
   creditController.getBalance
@@ -25,6 +27,7 @@ router.get(
  */
 router.get(
   '/credits/history',
+  rateLimiter,
   authenticateJWT,
   requirePermission('credits', 'read'),
   creditController.getHistory
@@ -37,6 +40,7 @@ router.get(
  */
 router.post(
   '/credits/redeem',
+  strictRateLimiter,
   authenticateJWT,
   requirePermission('credits', 'write'),
   creditController.redeemPromoCode
@@ -49,6 +53,7 @@ router.post(
  */
 router.post(
   '/admin/credits/adjust',
+  rateLimiter,
   authenticateJWT,
   requireRoles(['admin', 'superadmin']),
   creditController.adjustCredits
@@ -61,6 +66,7 @@ router.post(
  */
 router.get(
   '/admin/credits/:userId',
+  rateLimiter,
   authenticateJWT,
   requirePermission('credits', 'read'),
   creditController.getUserCredits
@@ -71,13 +77,13 @@ router.get(
  * @desc    Check if user has sufficient credits for a service
  * @access  Private (requires service authentication)
  */
-router.post('/mcp/v1/credits/check', authenticateServiceRequest, creditController.checkCredits);
+router.post('/mcp/v1/credits/check', rateLimiter, authenticateServiceRequest, creditController.checkCredits);
 
 /**
  * @route   POST /api/mcp/v1/credits/deduct
  * @desc    Deduct credits from user account with transaction record
  * @access  Private (requires service authentication)
  */
-router.post('/mcp/v1/credits/deduct', authenticateServiceRequest, creditController.deductCredits);
+router.post('/mcp/v1/credits/deduct', rateLimiter, authenticateServiceRequest, creditController.deductCredits);
 
 export default router;

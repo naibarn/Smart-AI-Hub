@@ -26,6 +26,7 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  Webhook,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -84,6 +85,12 @@ const sidebarItems: SidebarItem[] = [
         path: '/services/api-keys',
       },
     ],
+  },
+  {
+    id: 'webhooks',
+    label: 'Webhooks',
+    icon: <Webhook size={20} />,
+    path: '/webhooks',
   },
   {
     id: 'team',

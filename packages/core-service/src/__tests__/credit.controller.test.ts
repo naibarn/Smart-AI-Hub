@@ -233,9 +233,7 @@ describe('Credit Controller', () => {
 
   const mockCreditAccount = {
     userId: 'test-user-id',
-    currentBalance: 100,
-    totalPurchased: 100,
-    totalUsed: 0,
+    balance: 100,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

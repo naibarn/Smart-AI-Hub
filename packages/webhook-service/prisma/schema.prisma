@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WebhookEndpoint {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  url         String   @db.VarChar(500)
+  secret      String   @db.VarChar(255)
+  events      String[] // Array of event types this webhook subscribes to
+  isActive    Boolean  @default(true) @map("is_active")
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs        WebhookLog[]
+
+  @@map("webhook_endpoints")
+  @@index([userId])
+  @@index([isActive])
+  @@index([events])
+}
+
+model WebhookLog {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  webhookId   String        @map("webhook_id") @db.Uuid
+  eventType   String        @map("event_type") @db.VarChar(100)
+  payload     Json          // The webhook payload
+  status      WebhookStatus // pending, delivered, failed, retrying
+  statusCode  Int?          @map("status_code") // HTTP status code from webhook delivery
+  response    String?       @db.Text // Response body from webhook endpoint
+  error       String?       @db.Text // Error message if delivery failed
+  attempt     Int           @default(1) // Current attempt number
+  maxAttempts Int           @default(3) @map("max_attempts") // Maximum retry attempts
+  deliveredAt DateTime?     @map("delivered_at") // When webhook was successfully delivered
+  nextRetryAt DateTime?     @map("next_retry_at") // When to retry next
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  webhook     WebhookEndpoint @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@map("webhook_logs")
+  @@index([webhookId])
+  @@index([eventType])
+  @@index([status])
+  @@index([createdAt])
+  @@index([nextRetryAt])
+}
+
+enum WebhookStatus {
+  pending    // Waiting to be delivered
+  delivered  // Successfully delivered
+  failed     // Failed after max retries
+  retrying   // Retrying delivery
+}
+
+// Import User model from auth-service for relation
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique @db.VarChar(255)
+  passwordHash String?   @map("password_hash") @db.VarChar(255)
+  verified     Boolean   @default(false)
+  googleId     String?   @unique @map("google_id") @db.VarChar(255)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  webhookEndpoints WebhookEndpoint[]
+
+  @@map("users")
+  @@index([email])
+}

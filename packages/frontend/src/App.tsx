@@ -18,6 +18,7 @@ import Dashboard from './pages/Dashboard';
 import TestConnection from './pages/TestConnection';
 import ChatInterface from './pages/ChatInterface';
 import Billing from './pages/Billing';
+import Webhooks from './pages/Webhooks';
 import CommandPalette from './components/common/CommandPalette';
 import { api } from './services/api';
 
@@ -157,6 +158,7 @@ const AppContent: React.FC = () => {
             <Route path="/team" element={<Dashboard />} />
             <Route path="/services/*" element={<Dashboard />} />
             <Route path="/settings" element={<Dashboard />} />
+            <Route path="/webhooks" element={<Webhooks />} />
             <Route path="/test-connection" element={<TestConnection />} />
             <Route path="/chat" element={<ChatInterface />} />
             <Route path="*" element={<Navigate to="/" replace />} />

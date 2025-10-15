@@ -1,4 +1,6 @@
 
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15
@@ -10,8 +12,15 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - /var/log/postgres:/var/log/postgres
     networks:
       - smart-ai-hub
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=postgres"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -24,8 +33,15 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      - /var/log/redis:/var/log/redis
     networks:
       - smart-ai-hub
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=redis"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -38,10 +54,17 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /var/log/nginx:/var/log/nginx
     networks:
       - smart-ai-hub
     depends_on:
       - api-gateway
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=nginx"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -55,6 +78,10 @@ services:
     environment:
       - NODE_ENV=development
       - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/api-gateway
+    volumes:
+      - /var/log/api-gateway:/var/log/api-gateway
     networks:
       - smart-ai-hub
     depends_on:
@@ -68,6 +95,14 @@ services:
         condition: service_healthy
       mcp-server:
         condition: service_healthy
+      webhook-service:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=api-gateway"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
       interval: 30s
@@ -84,11 +119,23 @@ services:
       - OAUTH_CLIENT_ID=client_id
       - OAUTH_CLIENT_SECRET=client_secret
       - REDIS_URL=redis://redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3005
+      - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/auth-service
+    volumes:
+      - /var/log/auth-service:/var/log/auth-service
     networks:
       - smart-ai-hub
     depends_on:
       redis:
         condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=auth-service"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
       interval: 30s
@@ -103,6 +150,12 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/smart_ai_hub
       - REDIS_URL=redis://redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3005
+      - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/core-service
+    volumes:
+      - /var/log/core-service:/var/log/core-service
     networks:
       - smart-ai-hub
     depends_on:
@@ -110,6 +163,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=core-service"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
       interval: 30s
@@ -123,13 +182,58 @@ services:
     environment:
       - NODE_ENV=development
       - REDIS_URL=redis://redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3005
+      - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/mcp-server
+    volumes:
+      - /var/log/mcp-server:/var/log/mcp-server
     networks:
       - smart-ai-hub
     depends_on:
       redis:
         condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=mcp-server"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  webhook-service:
+    build: ./packages/webhook-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/smart_ai_hub
+      - REDIS_URL=redis://redis:6379
+      - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
+      - WEBHOOK_SECRET=webhook_signing_secret_12345
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/webhook-service
+    volumes:
+      - /var/log/webhook-service:/var/log/webhook-service
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=webhook-service"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -139,11 +243,21 @@ services:
     environment:
       - NODE_ENV=development
       - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/notification-service
+    volumes:
+      - /var/log/notification-service:/var/log/notification-service
     networks:
       - smart-ai-hub
     depends_on:
       redis:
         condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=notification-service"
 
   frontend:
     build: ./packages/frontend
@@ -157,6 +271,12 @@ services:
     depends_on:
       nginx:
         condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=frontend"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
