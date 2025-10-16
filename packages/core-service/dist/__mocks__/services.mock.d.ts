@@ -15,6 +15,18 @@ export declare const createMockPermissionService: () => {
     createRole: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
     clearUserPermissionCache: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
 };
+export declare const createMockPointService: () => {
+    getBalance: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getTransactionHistory: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    exchangeFromCredits: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    claimDailyReward: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getDailyRewardStatus: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    deductPoints: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getExchangeRates: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    updateExchangeRate: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getPointsStatistics: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getAutoTopupStatistics: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+};
 export declare const setupCreditServiceDefaults: (mockCreditService: any) => void;
 export declare const setupMockUserWithRoles: (userId: string, roleNames: string[]) => void;
 export declare const resetPermissionMocks: () => void;
@@ -36,4 +48,17 @@ export declare const mockPermissionService: {
     createRole: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
     clearUserPermissionCache: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
 };
+export declare const mockPointService: {
+    getBalance: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getTransactionHistory: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    exchangeFromCredits: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    claimDailyReward: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getDailyRewardStatus: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    deductPoints: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getExchangeRates: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    updateExchangeRate: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getPointsStatistics: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+    getAutoTopupStatistics: import("jest-mock").Mock<import("jest-mock").UnknownFunction>;
+};
+export declare const setupPointServiceDefaults: (mockPointService: any) => void;
 //# sourceMappingURL=services.mock.d.ts.map

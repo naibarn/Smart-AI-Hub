@@ -93,14 +93,29 @@ describe('RedisService', () => {
             }).toThrow(); // We expect it to throw since it's not meant to be instantiated
         });
         it('should have proper method names following Redis conventions', () => {
-            const methodNames = Object.getOwnPropertyNames(redis_service_1.RedisService)
-                .filter(name => typeof redis_service_1.RedisService[name] === 'function' && name !== 'length' && name !== 'name' && name !== 'prototype');
+            const methodNames = Object.getOwnPropertyNames(redis_service_1.RedisService).filter((name) => typeof redis_service_1.RedisService[name] === 'function' &&
+                name !== 'length' &&
+                name !== 'name' &&
+                name !== 'prototype');
             const expectedMethods = [
-                'set', 'get', 'del', 'exists', 'expire', 'ttl',
-                'incr', 'incrBy', 'lPush', 'rPop', 'lLen', 'lRange',
-                'sAdd', 'sRem', 'sIsMember', 'sMembers'
+                'set',
+                'get',
+                'del',
+                'exists',
+                'expire',
+                'ttl',
+                'incr',
+                'incrBy',
+                'lPush',
+                'rPop',
+                'lLen',
+                'lRange',
+                'sAdd',
+                'sRem',
+                'sIsMember',
+                'sMembers',
             ];
-            expectedMethods.forEach(methodName => {
+            expectedMethods.forEach((methodName) => {
                 expect(methodNames).toContain(methodName);
             });
         });

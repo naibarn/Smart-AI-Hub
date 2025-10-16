@@ -7,6 +7,10 @@ import pointRoutes from './routes/point.routes';
 import paymentRoutes from './routes/payment.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import monitoringRoutes from './routes/monitoring.routes';
+import transferRoutes from './routes/transfer.routes';
+import referralRoutes from './routes/referral.routes';
+import blockRoutes from './routes/block.routes';
+import hierarchyRoutes from './routes/hierarchy.routes';
 import { errorHandler } from './middlewares/errorHandler.middleware';
 import { requestIdMiddleware } from './middlewares/requestId';
 import { rateLimiter } from './middlewares/rateLimiter';
@@ -69,6 +73,10 @@ app.use('/api/v1', pointRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/monitoring', monitoringRoutes);
+app.use('/api/v1/transfer', transferRoutes);
+app.use('/api/v1/referral', referralRoutes);
+app.use('/api/v1/block', blockRoutes);
+app.use('/api/v1/hierarchy', hierarchyRoutes);
 
 // Legacy routes for backward compatibility with deprecation headers
 app.use(

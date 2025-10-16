@@ -34,8 +34,10 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const auth_middleware_1 = require("../middlewares/auth.middleware");
+const shared_1 = require("@smart-ai-hub/shared");
 const rbac_middleware_1 = require("../middlewares/rbac.middleware");
+const service_auth_middleware_1 = require("../middlewares/service-auth.middleware");
+const rateLimiter_1 = require("../middlewares/rateLimiter");
 const creditController = __importStar(require("../controllers/credit.controller"));
 const router = (0, express_1.Router)();
 /**
@@ -43,42 +45,42 @@ const router = (0, express_1.Router)();
  * @desc    Get current user's credit balance
  * @access  Private (JWT required)
  */
-router.get('/credits/balance', auth_middleware_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getBalance);
+router.get('/credits/balance', rateLimiter_1.rateLimiter, shared_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getBalance);
 /**
  * @route   GET /credits/history
  * @desc    Get current user's credit history
  * @access  Private (JWT required)
  */
-router.get('/credits/history', auth_middleware_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getHistory);
+router.get('/credits/history', rateLimiter_1.rateLimiter, shared_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getHistory);
 /**
  * @route   POST /credits/redeem
  * @desc    Redeem promo code for credits
  * @access  Private (JWT required)
  */
-router.post('/credits/redeem', auth_middleware_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'write'), creditController.redeemPromoCode);
+router.post('/credits/redeem', rateLimiter_1.strictRateLimiter, shared_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'write'), creditController.redeemPromoCode);
 /**
  * @route   POST /admin/credits/adjust
  * @desc    Adjust user credits (admin only)
  * @access  Private (requires credits:adjust permission)
  */
-router.post('/admin/credits/adjust', auth_middleware_1.authenticateJWT, (0, rbac_middleware_1.requireRoles)(['admin', 'superadmin']), creditController.adjustCredits);
+router.post('/admin/credits/adjust', rateLimiter_1.rateLimiter, shared_1.authenticateJWT, (0, rbac_middleware_1.requireRoles)(['admin', 'superadmin']), creditController.adjustCredits);
 /**
  * @route   GET /admin/credits/:userId
  * @desc    Get user credit information (admin only)
  * @access  Private (requires credits:read permission)
  */
-router.get('/admin/credits/:userId', auth_middleware_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getUserCredits);
+router.get('/admin/credits/:userId', rateLimiter_1.rateLimiter, shared_1.authenticateJWT, (0, rbac_middleware_1.requirePermission)('credits', 'read'), creditController.getUserCredits);
 /**
  * @route   POST /api/mcp/v1/credits/check
  * @desc    Check if user has sufficient credits for a service
- * @access  Public (requires X-User-ID header)
+ * @access  Private (requires service authentication)
  */
-router.post('/mcp/v1/credits/check', creditController.checkCredits);
+router.post('/mcp/v1/credits/check', rateLimiter_1.rateLimiter, service_auth_middleware_1.authenticateServiceRequest, creditController.checkCredits);
 /**
  * @route   POST /api/mcp/v1/credits/deduct
  * @desc    Deduct credits from user account with transaction record
- * @access  Public (requires X-User-ID header)
+ * @access  Private (requires service authentication)
  */
-router.post('/mcp/v1/credits/deduct', creditController.deductCredits);
+router.post('/mcp/v1/credits/deduct', rateLimiter_1.rateLimiter, service_auth_middleware_1.authenticateServiceRequest, creditController.deductCredits);
 exports.default = router;
 //# sourceMappingURL=credit.routes.js.map

@@ -180,7 +180,7 @@ export const redeemPromo = async (userId: string, code: string): Promise<number>
           userId,
           amount: promoCode.credits,
           type: 'promo',
-          balanceAfter: (creditAccount.balance || 0) + promoCode.credits,
+          balanceAfter: (creditAccount?.balance || 0) + promoCode.credits,
           description: `Redeemed promo code: ${promoCode.code}`,
         },
       });
@@ -255,12 +255,12 @@ export const adjustCredits = async (
           userId,
           amount,
           type: 'admin_adjustment',
-          balanceAfter: (creditAccount.balance || 0) + amount,
+          balanceAfter: (creditAccount?.balance || 0) + amount,
           description: `Admin adjustment: ${reason}`,
         },
       });
 
-      return (creditAccount.balance || 0) + amount;
+      return (creditAccount?.balance || 0) + amount;
     });
 
     return newBalance as number;

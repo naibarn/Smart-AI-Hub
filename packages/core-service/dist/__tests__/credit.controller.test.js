@@ -63,7 +63,7 @@ const createTestApp = () => {
             if (cached) {
                 return res.json({
                     data: parseInt(cached),
-                    meta: { cached: true }
+                    meta: { cached: true },
                 });
             }
             // Get from service
@@ -72,7 +72,7 @@ const createTestApp = () => {
             await mockRedisService.set(cacheKey, balance.toString(), 60);
             res.json({
                 data: balance,
-                meta: { cached: false }
+                meta: { cached: false },
             });
         }
         catch (error) {
@@ -89,15 +89,15 @@ const createTestApp = () => {
             // Validate pagination
             if (pageParam && (isNaN(page) || page < 1 || !Number.isInteger(page))) {
                 return res.status(400).json({
-                    error: { message: 'Page must be a positive integer' }
+                    error: { message: 'Page must be a positive integer' },
                 });
             }
             if (limitParam && (isNaN(limit) || limit < 1 || limit > 100 || !Number.isInteger(limit))) {
                 return res.status(400).json({
-                    error: { message: 'Limit must be between 1 and 100' }
+                    error: { message: 'Limit must be between 1 and 100' },
                 });
             }
-            const result = await services_mock_1.mockCreditService.getHistory(userId, page, limit);
+            const result = (await services_mock_1.mockCreditService.getHistory(userId, page, limit));
             res.json({
                 data: result.data,
                 meta: {
@@ -105,9 +105,9 @@ const createTestApp = () => {
                         page,
                         limit,
                         total: result.total,
-                        totalPages: Math.ceil(result.total / limit)
-                    }
-                }
+                        totalPages: Math.ceil(result.total / limit),
+                    },
+                },
             });
         }
         catch (error) {
@@ -121,12 +121,12 @@ const createTestApp = () => {
             // Validate input
             if (!code) {
                 return res.status(400).json({
-                    error: { message: 'Promo code is required' }
+                    error: { message: 'Promo code is required' },
                 });
             }
             if (typeof code !== 'string' || code.length < 3) {
                 return res.status(400).json({
-                    error: { message: 'Invalid promo code format' }
+                    error: { message: 'Invalid promo code format' },
                 });
             }
             const credits = await services_mock_1.mockCreditService.redeemPromo(userId, code);
@@ -135,8 +135,8 @@ const createTestApp = () => {
             res.json({
                 data: {
                     credits,
-                    message: `Successfully redeemed ${credits} credits`
-                }
+                    message: `Successfully redeemed ${credits} credits`,
+                },
             });
         }
         catch (error) {
@@ -149,17 +149,17 @@ const createTestApp = () => {
             // Validate input
             if (amount === undefined || amount === null) {
                 return res.status(400).json({
-                    error: { message: 'Amount is required' }
+                    error: { message: 'Amount is required' },
                 });
             }
             if (typeof amount !== 'number') {
                 return res.status(400).json({
-                    error: { message: 'Amount must be a number' }
+                    error: { message: 'Amount must be a number' },
                 });
             }
             if (!reason || typeof reason !== 'string' || reason.trim() === '') {
                 return res.status(400).json({
-                    error: { message: 'Reason is required and must be a non-empty string' }
+                    error: { message: 'Reason is required and must be a non-empty string' },
                 });
             }
             const newBalance = await services_mock_1.mockCreditService.adjustCredits(userId, amount, reason);
@@ -168,8 +168,8 @@ const createTestApp = () => {
             res.json({
                 data: {
                     newBalance,
-                    message: 'Credits adjusted successfully'
-                }
+                    message: 'Credits adjusted successfully',
+                },
             });
         }
         catch (error) {
@@ -179,7 +179,7 @@ const createTestApp = () => {
     // Error handler
     app.use((error, req, res, next) => {
         res.status(500).json({
-            error: { message: error.message }
+            error: { message: error.message },
         });
     });
     return app;
@@ -199,9 +199,7 @@ describe('Credit Controller', () => {
     };
     const mockCreditAccount = {
         userId: 'test-user-id',
-        currentBalance: 100,
-        totalPurchased: 100,
-        totalUsed: 0,
+        balance: 100,
         createdAt: new Date(),
         updatedAt: new Date(),
     };
@@ -259,8 +257,7 @@ describe('Credit Controller', () => {
             expect(services_mock_1.mockCreditService.getBalance).not.toHaveBeenCalled();
         });
         test('should return 401 if not authenticated', async () => {
-            const response = await (0, supertest_1.default)(app)
-                .get('/api/credits/balance');
+            const response = await (0, supertest_1.default)(app).get('/api/credits/balance');
             expect(response.status).toBe(401);
             expect(response.body.error).toBe('Access denied');
             expect(response.body.message).toBe('No token provided or invalid format');
@@ -331,8 +328,7 @@ describe('Credit Controller', () => {
             expect(response3.body.error.message).toBe('Limit must be between 1 and 100');
         });
         test('should return 401 if not authenticated', async () => {
-            const response = await (0, supertest_1.default)(app)
-                .get('/api/credits/history');
+            const response = await (0, supertest_1.default)(app).get('/api/credits/history');
             expect(response.status).toBe(401);
             expect(response.body.error).toBe('Access denied');
         });
@@ -390,9 +386,7 @@ describe('Credit Controller', () => {
             expect(response.body.error.message).toBe('Invalid promo code format');
         });
         test('should return 401 if not authenticated', async () => {
-            const response = await (0, supertest_1.default)(app)
-                .post('/api/credits/redeem')
-                .send({ code: 'TEST123' });
+            const response = await (0, supertest_1.default)(app).post('/api/credits/redeem').send({ code: 'TEST123' });
             expect(response.status).toBe(401);
             expect(response.body.error).toBe('Access denied');
         });

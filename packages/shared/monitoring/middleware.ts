@@ -131,11 +131,11 @@ export function createMetricsMiddleware(metrics: PrometheusMetrics) {
           .customMetrics.set('sla_compliance', { gauge: slaComplianceGauge } as any);
       }
       const compliance = duration <= slaThreshold ? 100 : 0;
-      slaComplianceGauge?.set(compliance, {
+      slaComplianceGauge?.set({
         method: req.method,
         route,
         sla_tier: slaTier,
-      });
+      }, compliance);
 
       // Decrement active connections
       metrics.setActiveConnections(-1);
@@ -218,9 +218,17 @@ export function recordCustomMetric(
     if (customMetric.counter) {
       customMetric.counter.inc(labels, value);
     } else if (customMetric.histogram) {
-      customMetric.histogram.observe(labels, value);
+      if (labels) {
+        customMetric.histogram.observe(labels, value);
+      } else {
+        customMetric.histogram.observe(value);
+      }
     } else if (customMetric.gauge) {
-      customMetric.gauge.set(value, labels);
+      if (labels) {
+        customMetric.gauge.set(labels, value);
+      } else {
+        customMetric.gauge.set(value);
+      }
     }
   }
 }

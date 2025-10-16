@@ -173,8 +173,7 @@ describe('Credit Controller (Simple)', () => {
             expect(mockGetBalance).not.toHaveBeenCalled();
         });
         test('should return 401 if not authenticated', async () => {
-            const response = await (0, supertest_1.default)(app)
-                .get('/credits/balance');
+            const response = await (0, supertest_1.default)(app).get('/credits/balance');
             expect(response.status).toBe(401);
             expect(response.body.error).toBe('Access denied');
         });

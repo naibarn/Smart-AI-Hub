@@ -54,9 +54,12 @@ export const requireRoles = (roles: string[]) => {
     try {
       // Get user's roles from the request or fetch from service
       const userRoles = req.user.roles || [];
+      
+      // Extract role names from user roles
+      const userRoleNames = userRoles.map((role: any) => role.name);
 
       // Check if user has any of the required roles
-      const hasRequiredRole = roles.some((role) => userRoles.includes(role));
+      const hasRequiredRole = roles.some((role) => userRoleNames.includes(role));
 
       if (hasRequiredRole) {
         next();
@@ -100,9 +103,12 @@ export const requireSelfOrRole = (roles: string[]) => {
 
       // Get user's roles from the request or fetch from service
       const userRoles = req.user.roles || [];
+      
+      // Extract role names from user roles
+      const userRoleNames = userRoles.map((role: any) => role.name);
 
       // Check if user has any of the required roles
-      const hasRequiredRole = roles.some((role) => userRoles.includes(role));
+      const hasRequiredRole = roles.some((role) => userRoleNames.includes(role));
 
       if (hasRequiredRole) {
         next();

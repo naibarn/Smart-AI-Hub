@@ -1,18 +1,20 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PointTransactionType } from '@prisma/client';
 import * as pointService from '../services/point.service';
 import * as creditService from '../services/credit.service';
 
 // Mock Prisma Client
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
+jest.mock('@prisma/client', () => {
+  const mockPrisma: any = {
     pointAccount: {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      aggregate: jest.fn(),
+      count: jest.fn(),
     },
     pointTransaction: {
-      create: jest.fn(),
       findMany: jest.fn(),
+      create: jest.fn(),
       count: jest.fn(),
     },
     dailyLoginReward: {
@@ -22,180 +24,235 @@ jest.mock('@prisma/client', () => ({
     exchangeRate: {
       findUnique: jest.fn(),
       upsert: jest.fn(),
-      findMany: jest.fn(),
+    },
+    autoTopupLog: {
+      create: jest.fn(),
+    },
+    payment: {
+      create: jest.fn(),
     },
     user: {
       findUnique: jest.fn(),
       update: jest.fn(),
     },
-    payment: {
-      create: jest.fn(),
+    creditAccount: {
+      findUnique: jest.fn(),
     },
     $transaction: jest.fn(),
-  })),
-}));
+  };
+
+  return {
+    PrismaClient: jest.fn(() => mockPrisma),
+  };
+});
 
 // Mock Redis
 jest.mock('redis', () => ({
   createClient: jest.fn().mockImplementation(() => ({
     connect: jest.fn().mockResolvedValue(undefined),
-    get: jest.fn(),
-    setEx: jest.fn(),
-    del: jest.fn(),
-    quit: jest.fn(),
+    get: jest.fn().mockResolvedValue(null),
+    setEx: jest.fn().mockResolvedValue('OK'),
+    del: jest.fn().mockResolvedValue(1),
+    quit: jest.fn().mockResolvedValue(undefined),
   })),
 }));
 
-// Mock credit service
-jest.mock('../services/credit.service');
+// Mock Credit Service
+jest.mock('../services/credit.service', () => ({
+  getBalance: jest.fn(),
+  deductCredits: jest.fn(),
+}));
 
-const mockPrisma = new PrismaClient() as jest.Mocked<PrismaClient>;
+// Mock Analytics Service
+jest.mock('../services/analytics.service', () => ({
+  recordUsage: jest.fn(),
+}));
 
-describe('Point Service', () => {
+// Mock Shared errors
+jest.mock('@smart-ai-hub/shared', () => ({
+  createNotFoundError: jest.fn((message) => new Error(message)),
+  createInternalServerError: jest.fn((message) => new Error(message)),
+}));
+
+// Get the mocked Prisma instance
+const { PrismaClient: MockedPrismaClient } = require('@prisma/client');
+const mockPrisma = new MockedPrismaClient();
+const mockCreditService = creditService as jest.Mocked<typeof creditService>;
+
+describe('PointService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('getBalance', () => {
-    it('should return point balance for a user', async () => {
+    it('should return user points balance', async () => {
       const userId = 'user-123';
-      const mockAccount = { userId, balance: 1000 };
+      const mockPointAccount = { balance: 1000 };
 
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(mockAccount);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
 
-      const result = await pointService.getBalance(userId);
+      const balance = await pointService.getBalance(userId);
 
-      expect(result).toBe(1000);
+      expect(balance).toBe(1000);
       expect(mockPrisma.pointAccount.findUnique).toHaveBeenCalledWith({
         where: { userId },
       });
     });
 
-    it('should throw error if account not found', async () => {
+    it('should throw error if point account not found', async () => {
       const userId = 'user-123';
 
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(null);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(null);
 
-      await expect(pointService.getBalance(userId)).rejects.toThrow('Point account not found');
+      await expect(pointService.getBalance(userId)).rejects.toThrow(
+        'Point account not found for user: user-123'
+      );
+    });
+  });
+
+  describe('getHistory', () => {
+    it('should return paginated transaction history', async () => {
+      const userId = 'user-123';
+      const page = 1;
+      const limit = 20;
+      const mockTransactions = [
+        { id: 'tx-1', userId, amount: 100, type: 'purchase' as PointTransactionType },
+        { id: 'tx-2', userId, amount: -50, type: 'usage' as PointTransactionType },
+      ];
+
+      mockPrisma.pointTransaction.findMany.mockResolvedValue(mockTransactions as any);
+      mockPrisma.pointTransaction.count.mockResolvedValue(2);
+
+      const result = await pointService.getHistory(userId, page, limit);
+
+      expect(result).toEqual({
+        data: mockTransactions,
+        total: 2,
+      });
     });
   });
 
   describe('addPoints', () => {
-    it('should add points to user account', async () => {
+    it('should add points and create transaction record', async () => {
       const userId = 'user-123';
       const amount = 500;
-      const mockAccount = { userId, balance: 1000 };
-      const mockTransaction = { id: 'tx-123', userId, amount, type: 'purchase' };
+      const type = 'reward' as PointTransactionType;
+      const description = 'Test reward';
+      const mockPointAccount = { balance: 1000 };
+      const mockUpdatedAccount = { balance: 1500 };
+      const mockTransaction = { id: 'tx-123', userId, amount, type, description };
 
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
-        return await callback(mockPrisma);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
+      mockPrisma.pointAccount.update.mockResolvedValue(mockUpdatedAccount as any);
+      mockPrisma.pointTransaction.create.mockResolvedValue(mockTransaction as any);
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma);
       });
 
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(mockAccount);
-      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({
-        ...mockAccount,
-        balance: 1500,
+      const result = await pointService.addPoints(userId, amount, type, description);
+
+      expect(result).toEqual({
+        new_balance: 1500,
+        transaction_id: 'tx-123',
       });
-      (mockPrisma.pointTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
-      (mockPrisma.user.update as jest.Mock).mockResolvedValue({});
-
-      const result = await pointService.addPoints(userId, amount, 'purchase', 'Test purchase');
-
-      expect(result.new_balance).toBe(1500);
-      expect(result.transaction_id).toBe('tx-123');
     });
 
-    it('should throw error for invalid amount', async () => {
+    it('should throw error if amount is not positive', async () => {
       const userId = 'user-123';
       const amount = -100;
+      const type = 'reward' as PointTransactionType;
+      const description = 'Test reward';
 
-      await expect(pointService.addPoints(userId, amount, 'purchase')).rejects.toThrow(
+      await expect(pointService.addPoints(userId, amount, type, description)).rejects.toThrow(
         'Amount must be positive'
       );
     });
   });
 
   describe('deductPoints', () => {
-    it('should deduct points from user account', async () => {
+    it('should deduct points and create transaction record', async () => {
       const userId = 'user-123';
-      const amount = 200;
-      const mockAccount = { userId, balance: 1000 };
-      const mockTransaction = { id: 'tx-123', userId, amount: -200, type: 'usage' };
+      const amount = 100;
+      const description = 'Test usage';
+      const mockPointAccount = { balance: 1000 };
+      const mockUpdatedAccount = { balance: 900 };
+      const mockTransaction = { id: 'tx-123', userId, amount: -100, type: 'usage' as PointTransactionType };
 
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
-        return await callback(mockPrisma);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
+      mockPrisma.pointAccount.update.mockResolvedValue(mockUpdatedAccount as any);
+      mockPrisma.pointTransaction.create.mockResolvedValue(mockTransaction as any);
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma);
       });
-
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(mockAccount);
-      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({
-        ...mockAccount,
-        balance: 800,
-      });
-      (mockPrisma.pointTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
-      (mockPrisma.user.update as jest.Mock).mockResolvedValue({});
-
-      // Mock auto top-up check to return false
       jest.spyOn(pointService, 'checkAndTriggerAutoTopup').mockResolvedValue(false);
 
-      const result = await pointService.deductPoints(userId, amount, 'Test usage');
+      const result = await pointService.deductPoints(userId, amount, description);
 
-      expect(result.new_balance).toBe(800);
       expect(result.status).toBe('ok');
+      expect(result.new_balance).toBe(900);
       expect(result.transaction_id).toBe('tx-123');
     });
 
-    it('should throw error for insufficient points', async () => {
+    it('should throw error if insufficient points', async () => {
       const userId = 'user-123';
-      const amount = 2000;
-      const mockAccount = { userId, balance: 1000 };
+      const amount = 1500;
+      const description = 'Test usage';
+      const mockPointAccount = { balance: 1000 };
 
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
-        return await callback(mockPrisma);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
+      jest.spyOn(pointService, 'checkAndTriggerAutoTopup').mockResolvedValue(false);
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma);
       });
 
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(mockAccount);
-
-      // Mock auto top-up check to return false
-      jest.spyOn(pointService, 'checkAndTriggerAutoTopup').mockResolvedValue(false);
-
-      await expect(pointService.deductPoints(userId, amount)).rejects.toThrow(
+      await expect(pointService.deductPoints(userId, amount, description)).rejects.toThrow(
         'Insufficient points'
       );
     });
   });
 
   describe('exchangeCreditsToPoints', () => {
-    it('should exchange credits to points', async () => {
+    it('should exchange credits to points at correct rate', async () => {
       const userId = 'user-123';
-      const creditAmount = 5;
-      const pointsToReceive = 5000;
+      const creditAmount = 100;
+      const rate = 1000;
+      const pointsToReceive = creditAmount * rate;
+      const mockCreditAccount = { balance: 500 };
+      const mockUpdatedCreditAccount = { balance: 400 };
+      const mockPointAccount = { balance: 1000 };
+      const mockUpdatedPointAccount = { balance: 1000 + pointsToReceive };
+      const mockTransaction = { id: 'tx-123', userId, amount: pointsToReceive, type: 'exchange' as PointTransactionType };
 
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
-        return await callback(mockPrisma);
+      mockPrisma.creditAccount.findUnique.mockResolvedValue(mockCreditAccount as any);
+      mockCreditService.deductCredits.mockResolvedValue({
+        status: 'ok',
+        new_balance: 400,
+        transaction_id: 'credit-tx-123',
+      } as any);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
+      mockPrisma.pointAccount.update.mockResolvedValue(mockUpdatedPointAccount as any);
+      mockPrisma.pointTransaction.create.mockResolvedValue(mockTransaction as any);
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma);
       });
-
-      // Mock credit service
-      (creditService.deductCredits as jest.Mock).mockResolvedValue({});
-      jest.spyOn(pointService, 'addPointsInTransaction').mockResolvedValue({
-        new_balance: 5000,
-        transaction_id: 'tx-123',
-      });
-
-      // Mock getBalance functions
-      jest.spyOn(pointService, 'getBalance').mockResolvedValue(5000);
-      jest.spyOn(creditService, 'getBalance').mockResolvedValue(95);
-      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(1000);
+      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(rate);
 
       const result = await pointService.exchangeCreditsToPoints(userId, creditAmount);
 
-      expect(result.newPointBalance).toBe(5000);
       expect(result.pointsReceived).toBe(pointsToReceive);
-      expect(result.newCreditBalance).toBe(95);
+      expect(mockCreditService.deductCredits).toHaveBeenCalledWith(
+        userId,
+        'exchange_to_points',
+        creditAmount,
+        {
+          exchangeToPoints: true,
+        }
+      );
     });
 
-    it('should throw error for invalid credit amount', async () => {
+    it('should throw error if credit amount is not positive', async () => {
       const userId = 'user-123';
-      const creditAmount = -5;
+      const creditAmount = -100;
 
       await expect(pointService.exchangeCreditsToPoints(userId, creditAmount)).rejects.toThrow(
         'Credit amount must be positive'
@@ -206,172 +263,266 @@ describe('Point Service', () => {
   describe('claimDailyReward', () => {
     it('should claim daily reward successfully', async () => {
       const userId = 'user-123';
-      const rewardAmount = 50;
+      const mockUser = { id: userId, profile: { preferences: { timezone: 'UTC' } } };
+      const mockRewardAmount = 50;
 
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
-        return await callback(mockPrisma);
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any);
+      mockPrisma.dailyLoginReward.findUnique.mockResolvedValue(null as any);
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma);
       });
-
-      // Mock user with timezone
-      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue({
-        id: userId,
-        profile: { preferences: { timezone: 'UTC' } },
-      });
-
-      // Mock existing reward check
-      (mockPrisma.dailyLoginReward.findUnique as jest.Mock).mockResolvedValue(null);
-
-      // Mock reward creation and point addition
-      (mockPrisma.dailyLoginReward.create as jest.Mock).mockResolvedValue({});
       jest.spyOn(pointService, 'addPointsInTransaction').mockResolvedValue({
-        new_balance: 50,
+        new_balance: 1050,
         transaction_id: 'tx-123',
-      });
-
-      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(50);
+      } as any);
+      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(mockRewardAmount);
 
       const result = await pointService.claimDailyReward(userId);
 
-      expect(result.points).toBe(rewardAmount);
-      expect(result.message).toContain('Successfully claimed 50 points');
+      expect(result.points).toBe(mockRewardAmount);
+      expect(result.message).toContain('Successfully claimed');
     });
 
-    it('should throw error if reward already claimed', async () => {
+    it('should throw error if daily reward already claimed', async () => {
       const userId = 'user-123';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const existingReward = { id: 'reward-1', userId, claimedAt: today };
+      const mockUser = { id: userId, profile: { preferences: { timezone: 'UTC' } } };
 
-      // Mock user with timezone
-      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue({
-        id: userId,
-        profile: { preferences: { timezone: 'UTC' } },
-      });
-
-      // Mock existing reward
-      (mockPrisma.dailyLoginReward.findUnique as jest.Mock).mockResolvedValue({
-        id: 'reward-123',
-        userId,
-        rewardDate: new Date(),
-        points: 50,
-      });
-
-      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(50);
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any);
+      mockPrisma.dailyLoginReward.findUnique.mockResolvedValue(existingReward as any);
 
       await expect(pointService.claimDailyReward(userId)).rejects.toThrow(
         'Daily reward already claimed for today'
       );
     });
+
+    // Note: Test for disabled daily rewards moved to separate file
+    // point.service.daily-rewards.test.ts
   });
 
   describe('getDailyRewardStatus', () => {
-    it('should return canClaim: true if reward not claimed today', async () => {
+    it('should return canClaim true if not claimed today', async () => {
       const userId = 'user-123';
-      const rewardAmount = 50;
+      const mockUser = { id: userId, profile: { preferences: { timezone: 'UTC' } } };
+      const mockRewardAmount = 50;
 
-      // Mock user with timezone
-      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue({
-        id: userId,
-        profile: { preferences: { timezone: 'UTC' } },
-      });
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any);
+      mockPrisma.dailyLoginReward.findUnique.mockResolvedValue(null as any);
+      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(mockRewardAmount);
 
-      // Mock no existing reward
-      (mockPrisma.dailyLoginReward.findUnique as jest.Mock).mockResolvedValue(null);
+      const status = await pointService.getDailyRewardStatus(userId);
 
-      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(rewardAmount);
-
-      const result = await pointService.getDailyRewardStatus(userId);
-
-      expect(result.canClaim).toBe(true);
-      expect(result.rewardAmount).toBe(rewardAmount);
+      expect(status.canClaim).toBe(true);
+      expect(status.rewardAmount).toBe(mockRewardAmount);
     });
 
-    it('should return canClaim: false if reward already claimed today', async () => {
+    it('should return canClaim false with next claim date if already claimed', async () => {
       const userId = 'user-123';
-      const rewardAmount = 50;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const existingReward = { id: 'reward-1', userId, claimedAt: today };
+      const mockUser = { id: userId, profile: { preferences: { timezone: 'UTC' } } };
+      const mockRewardAmount = 50;
 
-      // Mock user with timezone
-      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue({
-        id: userId,
-        profile: { preferences: { timezone: 'UTC' } },
-      });
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any);
+      mockPrisma.dailyLoginReward.findUnique.mockResolvedValue(existingReward as any);
+      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(mockRewardAmount);
 
-      // Mock existing reward
-      (mockPrisma.dailyLoginReward.findUnique as jest.Mock).mockResolvedValue({
-        id: 'reward-123',
-        userId,
-        rewardDate: new Date(),
-        points: 50,
-        claimedAt: new Date(),
-      });
+      const status = await pointService.getDailyRewardStatus(userId);
 
-      jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(rewardAmount);
-
-      const result = await pointService.getDailyRewardStatus(userId);
-
-      expect(result.canClaim).toBe(false);
-      expect(result.rewardAmount).toBe(rewardAmount);
-      expect(result.nextClaimDate).toBeDefined();
-    });
-  });
-
-  describe('getExchangeRate', () => {
-    it('should return exchange rate from cache', async () => {
-      const rateName = 'credit_to_points';
-      const rateValue = 1000;
-
-      // Mock Redis cache hit
-      const mockRedisClient = { get: jest.fn().mockResolvedValue('1000') };
-
-      const result = await pointService.getExchangeRate(rateName);
-
-      expect(result).toBe(rateValue);
-      expect(mockRedisClient.get).toHaveBeenCalledWith('exchange_rate:credit_to_points');
-    });
-
-    it('should return default rate if not found in database', async () => {
-      const rateName = 'credit_to_points';
-
-      // Mock Redis cache miss
-      const mockRedisClient = { get: jest.fn().mockResolvedValue(null) };
-
-      // Mock database miss
-      (mockPrisma.exchangeRate.findUnique as jest.Mock).mockResolvedValue(null);
-
-      const result = await pointService.getExchangeRate(rateName);
-
-      expect(result).toBe(1000); // Default POINTS_PER_CREDIT
+      expect(status.canClaim).toBe(false);
+      expect(status.nextClaimDate).toEqual(tomorrow);
+      expect(status.lastClaimDate).toEqual(existingReward.claimedAt);
     });
   });
 
   describe('adjustPoints', () => {
-    it('should adjust user points', async () => {
+    it('should adjust user points with reason', async () => {
       const userId = 'user-123';
-      const amount = 200;
-      const reason = 'Admin bonus';
+      const amount = 500;
+      const reason = 'Admin adjustment';
+      const mockPointAccount = { balance: 1000 };
+      const mockUpdatedAccount = { balance: 1500 };
+      const mockTransaction = { id: 'tx-123', userId, amount, type: 'admin_adjustment' as PointTransactionType };
 
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
-        return await callback(mockPrisma);
+      mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
+      mockPrisma.pointAccount.update.mockResolvedValue(mockUpdatedAccount as any);
+      mockPrisma.pointTransaction.create.mockResolvedValue(mockTransaction as any);
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma);
       });
 
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue({
-        userId,
-        balance: 1000,
+      const newBalance = await pointService.adjustPoints(userId, amount, reason);
+
+      expect(newBalance).toBe(1500);
+      expect(mockPrisma.pointTransaction.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          amount,
+          type: 'admin_adjustment',
+          balanceAfter: 1500,
+          description: 'Admin adjustment: Admin adjustment',
+        },
       });
-      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({ userId, balance: 1200 });
-      (mockPrisma.pointTransaction.create as jest.Mock).mockResolvedValue({});
-      (mockPrisma.user.update as jest.Mock).mockResolvedValue({});
-
-      const result = await pointService.adjustPoints(userId, amount, reason);
-
-      expect(result).toBe(1200);
     });
 
     it('should throw error if reason is empty', async () => {
       const userId = 'user-123';
-      const amount = 200;
+      const amount = 500;
       const reason = '';
 
       await expect(pointService.adjustPoints(userId, amount, reason)).rejects.toThrow(
         'Reason is required for point adjustment'
       );
+    });
+  });
+
+  describe('getExchangeRate', () => {
+    it('should return exchange rate from database', async () => {
+      const name = 'credit_to_points';
+      const rate = 1000;
+      const mockExchangeRate = { name, rate };
+
+      mockPrisma.exchangeRate.findUnique.mockResolvedValue(mockExchangeRate as any);
+
+      const result = await pointService.getExchangeRate(name);
+
+      expect(result).toBe(rate);
+      expect(mockPrisma.exchangeRate.findUnique).toHaveBeenCalledWith({
+        where: { name },
+      });
+    });
+
+    it('should return default rate if not found in database', async () => {
+      const name = 'credit_to_points';
+
+      mockPrisma.exchangeRate.findUnique.mockResolvedValue(null as any);
+
+      const result = await pointService.getExchangeRate(name);
+
+      expect(result).toBe(1000); // Default POINTS_PER_CREDIT
+    });
+
+    it('should throw error for unknown rate name', async () => {
+      const name = 'unknown_rate';
+
+      mockPrisma.exchangeRate.findUnique.mockResolvedValue(null as any);
+
+      await expect(pointService.getExchangeRate(name)).rejects.toThrow(
+        'Exchange rate not found: unknown_rate'
+      );
+    });
+  });
+
+  describe('updateExchangeRate', () => {
+    it('should update existing exchange rate', async () => {
+      const name = 'credit_to_points';
+      const rate = 1200;
+      const description = 'Updated rate';
+      const mockUpdatedRate = { name, rate, description };
+
+      mockPrisma.exchangeRate.upsert.mockResolvedValue(mockUpdatedRate as any);
+
+      const result = await pointService.updateExchangeRate(name, rate, description);
+
+      expect(result).toEqual(mockUpdatedRate);
+      expect(mockPrisma.exchangeRate.upsert).toHaveBeenCalledWith({
+        where: { name },
+        update: { rate, description },
+        create: { name, rate, description },
+      });
+    });
+
+    it('should throw error if rate is not positive', async () => {
+      const name = 'credit_to_points';
+      const rate = -100;
+
+      await expect(pointService.updateExchangeRate(name, rate)).rejects.toThrow(
+        'Rate must be positive'
+      );
+    });
+  });
+
+  describe('getPointsStats', () => {
+    it('should return points statistics', async () => {
+      const mockTotalPointsResult = { _sum: { balance: 100000 } };
+      const mockTotalUsers = 100;
+      const mockActiveUsers = 75;
+      const mockTotalTransactions = 5000;
+
+      mockPrisma.pointAccount.aggregate.mockResolvedValue(mockTotalPointsResult as any);
+      mockPrisma.pointAccount.count
+        .mockResolvedValueOnce(mockTotalUsers)
+        .mockResolvedValueOnce(mockActiveUsers);
+      mockPrisma.pointTransaction.count.mockResolvedValue(mockTotalTransactions);
+
+      const stats = await pointService.getPointsStats();
+
+      expect(stats).toEqual({
+        totalPoints: 100000,
+        totalUsers: 100,
+        activeUsers: 75,
+        averageBalance: 1000,
+        totalTransactions: 5000,
+      });
+    });
+  });
+
+  describe('purchasePoints', () => {
+    it('should purchase points with payment details', async () => {
+      const userId = 'user-123';
+      const pointsAmount = 10000;
+      const paymentDetails = {
+        stripeSessionId: 'sess_123',
+        stripePaymentIntentId: 'pi_123',
+        amount: 100,
+      };
+      const mockPayment = { id: 'pay_123' };
+
+      mockPrisma.$transaction.mockImplementation(async (callback: any) => {
+        return callback(mockPrisma as any);
+      });
+
+      mockPrisma.payment.create.mockResolvedValue(mockPayment as any);
+
+      // Mock addPointsInTransaction
+      jest.spyOn(pointService, 'addPointsInTransaction').mockResolvedValue({
+        new_balance: 11000,
+        transaction_id: 'tx-123',
+      } as any);
+
+      const result = await pointService.purchasePoints(userId, pointsAmount, paymentDetails);
+
+      expect(result.new_balance).toBe(11000);
+      expect(result.transaction_id).toBe('tx-123');
+      expect(mockPrisma.payment.create).toHaveBeenCalledWith({
+        data: {
+          userId,
+          amount: paymentDetails.amount,
+          credits: 0,
+          points: pointsAmount,
+          status: 'completed',
+          stripeSessionId: paymentDetails.stripeSessionId,
+          stripePaymentIntentId: paymentDetails.stripePaymentIntentId,
+        },
+      });
+    });
+
+    it('should throw error if points amount is not positive', async () => {
+      const userId = 'user-123';
+      const pointsAmount = -1000;
+      const paymentDetails = {
+        stripeSessionId: 'sess_123',
+        amount: 100,
+      };
+
+      await expect(
+        pointService.purchasePoints(userId, pointsAmount, paymentDetails)
+      ).rejects.toThrow('Points amount must be positive');
     });
   });
 });

@@ -32,6 +32,7 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     email: string;
     role: string;
+    roles: Array<{ name: string }>;
   };
 }
 
@@ -121,6 +122,7 @@ export const authenticateJWT = async (
       id: decoded.sub,
       email: decoded.email,
       role: decoded.role,
+      roles: [{ name: decoded.role }] // Add roles array for compatibility
     };
 
     // 5. Call next() if successful

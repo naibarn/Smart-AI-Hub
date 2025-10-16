@@ -177,6 +177,15 @@ export const checkAndTriggerAutoTopup = async (userId: string): Promise<boolean>
     if (pointBalance <= AUTO_TOPUP_THRESHOLD && creditBalance >= AUTO_TOPUP_AMOUNT_CREDITS) {
       // Execute auto top-up in a transaction
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        // Get current balances
+        const currentPointBalance = await getBalance(userId);
+        const currentCreditBalance = await creditService.getBalance(userId);
+        
+        const balanceBefore = {
+          points: currentPointBalance,
+          credits: currentCreditBalance
+        };
+        
         // Deduct Credits
         await creditService.deductCredits(userId, 'auto_topup', AUTO_TOPUP_AMOUNT_CREDITS, {
           autoTopup: true,
@@ -191,6 +200,23 @@ export const checkAndTriggerAutoTopup = async (userId: string): Promise<boolean>
           `Auto top-up: ${AUTO_TOPUP_AMOUNT_CREDITS} Credit → ${pointsToAdd} Points`,
           tx
         );
+        
+        const balanceAfter = {
+          points: currentPointBalance + pointsToAdd,
+          credits: currentCreditBalance - AUTO_TOPUP_AMOUNT_CREDITS
+        };
+        
+        // Log auto top-up
+        await tx.autoTopupLog.create({
+          data: {
+            userId,
+            creditsDeducted: AUTO_TOPUP_AMOUNT_CREDITS,
+            pointsAdded: pointsToAdd,
+            triggerReason: 'low_balance',
+            balanceBefore,
+            balanceAfter
+          }
+        });
       });
 
       return true;

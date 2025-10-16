@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const auth_middleware_1 = require("../middlewares/auth.middleware");
 const shared_1 = require("@smart-ai-hub/shared");
 // Placeholder controllers - these should be implemented based on your business logic
 const getUserProfile = (req, res) => {
@@ -16,19 +15,19 @@ const router = (0, express_1.Router)();
  * @desc    Get current user profile
  * @access  Private (JWT required)
  */
-router.get('/users/me', auth_middleware_1.authenticateJWT, (0, shared_1.requirePermission)('users', 'read'), getUserProfile);
+router.get('/users/me', shared_1.authenticateJWT, (0, shared_1.requirePermission)('users', 'read'), getUserProfile);
 /**
  * @route   PUT /users/me
  * @desc    Update current user profile
  * @access  Private (JWT required)
  */
-router.put('/users/me', auth_middleware_1.authenticateJWT, (0, shared_1.requirePermission)('users', 'update'), updateUserProfile);
+router.put('/users/me', shared_1.authenticateJWT, (0, shared_1.requirePermission)('users', 'update'), updateUserProfile);
 /**
  * @route   DELETE /users/:id
  * @desc    Delete a user
  * @access  Private (requires users:delete permission or self access for admin)
  */
-router.delete('/users/:id', auth_middleware_1.authenticateJWT, (0, shared_1.requirePermission)('users', 'delete'), (req, res) => {
+router.delete('/users/:id', shared_1.authenticateJWT, (0, shared_1.requirePermission)('users', 'delete'), (req, res) => {
     res.json({ message: 'Delete user', user: req.user, targetUserId: req.params.id });
 });
 /**
@@ -36,7 +35,7 @@ router.delete('/users/:id', auth_middleware_1.authenticateJWT, (0, shared_1.requ
  * @desc    Get user by ID
  * @access  Private (requires users:read permission or self access)
  */
-router.get('/users/:id', auth_middleware_1.authenticateJWT, (0, shared_1.requireSelfOrRole)(['admin', 'manager']), (req, res) => {
+router.get('/users/:id', shared_1.authenticateJWT, (0, shared_1.requireSelfOrRole)(['admin', 'manager']), (req, res) => {
     res.json({ message: 'Get user by ID', user: req.user, targetUserId: req.params.id });
 });
 exports.default = router;

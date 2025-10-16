@@ -16,6 +16,15 @@ model User {
   passwordHash String?   @map("password_hash") @db.VarChar(255)
   verified     Boolean   @default(false)
   googleId     String?   @unique @map("google_id") @db.VarChar(255)
+  tier         UserTier  @default(general)
+  parentAgencyId String? @map("parent_agency_id") @db.Uuid
+  parentOrganizationId String? @map("parent_organization_id") @db.Uuid
+  inviteCode   String?   @unique @map("invite_code") @db.VarChar(12)
+  invitedBy    String?   @map("invited_by") @db.Uuid
+  isBlocked    Boolean   @default(false) @map("is_blocked")
+  blockedReason String?  @map("blocked_reason") @db.Text
+  blockedAt    DateTime? @map("blocked_at")
+  blockedBy    String?   @map("blocked_by") @db.Uuid
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
@@ -26,6 +35,19 @@ model User {
 
   @@map("users")
   @@index([email])
+  @@index([tier])
+  @@index([parentAgencyId])
+  @@index([parentOrganizationId])
+  @@index([inviteCode])
+  @@index([invitedBy])
+}
+
+enum UserTier {
+  administrator
+  agency
+  organization
+  admin
+  general
 }
 
 model Role {

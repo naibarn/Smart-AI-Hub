@@ -20,38 +20,38 @@ export class PrometheusMetrics {
 
     return {
       httpRequestsTotal: new Counter({
-        name: `${this.config.serviceName}_http_requests_total`,
+        name: `${this.config.serviceName.replace(/-/g, '_')}_http_requests_total`,
         help: 'Total number of HTTP requests',
         labelNames: ['method', 'route', 'status_code', ...Object.keys(defaultLabels)],
         registers: [register],
       }),
       httpRequestDuration: new Histogram({
-        name: `${this.config.serviceName}_http_request_duration_seconds`,
+        name: `${this.config.serviceName.replace(/-/g, '_')}_http_request_duration_seconds`,
         help: 'Duration of HTTP requests in seconds',
         labelNames: ['method', 'route', 'status_code', ...Object.keys(defaultLabels)],
         buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
         registers: [register],
       }),
       activeConnections: new Gauge({
-        name: `${this.config.serviceName}_active_connections`,
+        name: `${this.config.serviceName.replace(/-/g, '_')}_active_connections`,
         help: 'Number of active connections',
         labelNames: [...Object.keys(defaultLabels)],
         registers: [register],
       }),
       databaseConnections: new Gauge({
-        name: `${this.config.serviceName}_database_connections`,
+        name: `${this.config.serviceName.replace(/-/g, '_')}_database_connections`,
         help: 'Number of active database connections',
         labelNames: ['database', ...Object.keys(defaultLabels)],
         registers: [register],
       }),
       errorRate: new Gauge({
-        name: `${this.config.serviceName}_error_rate`,
+        name: `${this.config.serviceName.replace(/-/g, '_')}_error_rate`,
         help: 'Error rate percentage',
         labelNames: ['error_type', ...Object.keys(defaultLabels)],
         registers: [register],
       }),
       queueSize: new Gauge({
-        name: `${this.config.serviceName}_queue_size`,
+        name: `${this.config.serviceName.replace(/-/g, '_')}_queue_size`,
         help: 'Current queue size',
         labelNames: ['queue_name', ...Object.keys(defaultLabels)],
         registers: [register],
@@ -114,7 +114,7 @@ export class PrometheusMetrics {
       ...labels,
     };
 
-    this.metrics.activeConnections.set(count, allLabels);
+    this.metrics.activeConnections.set(allLabels, count);
   }
 
   public getActiveConnections(labels?: Record<string, string>): number | Promise<number> {
@@ -143,7 +143,7 @@ export class PrometheusMetrics {
       ...labels,
     };
 
-    this.metrics.databaseConnections.set(count, allLabels);
+    this.metrics.databaseConnections.set(allLabels, count);
   }
 
   public setErrorRate(errorType: string, rate: number, labels?: Record<string, string>): void {
@@ -156,7 +156,7 @@ export class PrometheusMetrics {
       ...labels,
     };
 
-    this.metrics.errorRate.set(rate, allLabels);
+    this.metrics.errorRate.set(allLabels, rate);
   }
 
   public setQueueSize(queueName: string, size: number, labels?: Record<string, string>): void {
@@ -169,12 +169,12 @@ export class PrometheusMetrics {
       ...labels,
     };
 
-    this.metrics.queueSize.set(size, allLabels);
+    this.metrics.queueSize.set(allLabels, size);
   }
 
   public createCustomCounter(options: MetricOptions): Counter<string> {
     const counter = new Counter({
-      name: `${this.config.serviceName}_${options.name}`,
+      name: `${this.config.serviceName.replace(/-/g, '_')}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
       registers: [register],
@@ -185,7 +185,7 @@ export class PrometheusMetrics {
 
   public createCustomHistogram(options: MetricOptions, buckets?: number[]): Histogram<string> {
     const histogram = new Histogram({
-      name: `${this.config.serviceName}_${options.name}`,
+      name: `${this.config.serviceName.replace(/-/g, '_')}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
       buckets: buckets || [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
@@ -197,7 +197,7 @@ export class PrometheusMetrics {
 
   public createCustomGauge(options: MetricOptions): Gauge<string> {
     const gauge = new Gauge({
-      name: `${this.config.serviceName}_${options.name}`,
+      name: `${this.config.serviceName.replace(/-/g, '_')}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
       registers: [register],
@@ -208,7 +208,7 @@ export class PrometheusMetrics {
 
   public createCustomSummary(options: MetricOptions): Summary<string> {
     const summary = new Summary({
-      name: `${this.config.serviceName}_${options.name}`,
+      name: `${this.config.serviceName.replace(/-/g, '_')}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
       registers: [register],

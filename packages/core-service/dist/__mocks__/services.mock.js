@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mockPermissionService = exports.mockCreditService = exports.setupPermissionServiceDefaults = exports.resetPermissionMocks = exports.setupMockUserWithRoles = exports.setupCreditServiceDefaults = exports.createMockPermissionService = exports.createMockCreditService = void 0;
+exports.setupPointServiceDefaults = exports.mockPointService = exports.mockPermissionService = exports.mockCreditService = exports.setupPermissionServiceDefaults = exports.resetPermissionMocks = exports.setupMockUserWithRoles = exports.setupCreditServiceDefaults = exports.createMockPointService = exports.createMockPermissionService = exports.createMockCreditService = void 0;
 const globals_1 = require("@jest/globals");
 // Mock Credit Service
 const createMockCreditService = () => ({
@@ -23,6 +23,20 @@ const createMockPermissionService = () => ({
     clearUserPermissionCache: globals_1.jest.fn(),
 });
 exports.createMockPermissionService = createMockPermissionService;
+// Mock Point Service
+const createMockPointService = () => ({
+    getBalance: globals_1.jest.fn(),
+    getTransactionHistory: globals_1.jest.fn(),
+    exchangeFromCredits: globals_1.jest.fn(),
+    claimDailyReward: globals_1.jest.fn(),
+    getDailyRewardStatus: globals_1.jest.fn(),
+    deductPoints: globals_1.jest.fn(),
+    getExchangeRates: globals_1.jest.fn(),
+    updateExchangeRate: globals_1.jest.fn(),
+    getPointsStatistics: globals_1.jest.fn(),
+    getAutoTopupStatistics: globals_1.jest.fn(),
+});
+exports.createMockPointService = createMockPointService;
 // Setup default behaviors for credit service
 const setupCreditServiceDefaults = (mockCreditService) => {
     mockCreditService.getBalance.mockResolvedValue(100);
@@ -143,9 +157,9 @@ const mockPermissions = [
 ];
 // Helper functions for test setup
 const setupMockUserWithRoles = (userId, roleNames) => {
-    const userRoles = mockRoles.filter(role => roleNames.includes(role.name));
+    const userRoles = mockRoles.filter((role) => roleNames.includes(role.name));
     exports.mockPermissionService.getUserRoles.mockResolvedValue(userRoles);
-    const userPermissions = mockPermissions.filter(permission => {
+    const userPermissions = mockPermissions.filter((permission) => {
         if (roleNames.includes('superadmin'))
             return true;
         if (roleNames.includes('admin'))
@@ -165,7 +179,7 @@ const setupMockUserWithRoles = (userId, roleNames) => {
     // Setup hasPermission based on user permissions
     exports.mockPermissionService.hasPermission.mockImplementation((uid, resource, action) => {
         const permissionName = `${resource}:${action}`;
-        return Promise.resolve(userPermissions.some(p => p.name === permissionName));
+        return Promise.resolve(userPermissions.some((p) => p.name === permissionName));
     });
 };
 exports.setupMockUserWithRoles = setupMockUserWithRoles;
@@ -226,7 +240,162 @@ const setupPermissionServiceDefaults = (mockPermissionService) => {
 exports.setupPermissionServiceDefaults = setupPermissionServiceDefaults;
 exports.mockCreditService = (0, exports.createMockCreditService)();
 exports.mockPermissionService = (0, exports.createMockPermissionService)();
+exports.mockPointService = (0, exports.createMockPointService)();
 // Setup defaults
 (0, exports.setupCreditServiceDefaults)(exports.mockCreditService);
 (0, exports.setupPermissionServiceDefaults)(exports.mockPermissionService);
+// Setup default behaviors for point service
+const setupPointServiceDefaults = (mockPointService) => {
+    mockPointService.getBalance.mockResolvedValue(1000);
+    mockPointService.getTransactionHistory.mockResolvedValue({
+        transactions: [
+            {
+                id: 'transaction-id',
+                type: 'daily_reward',
+                amount: 50,
+                balance: 50,
+                description: 'Daily login reward',
+                metadata: {},
+                createdAt: new Date().toISOString(),
+            },
+        ],
+        pagination: {
+            page: 1,
+            limit: 20,
+            total: 1,
+            totalPages: 1,
+        },
+    });
+    mockPointService.exchangeFromCredits.mockResolvedValue({
+        transaction: {
+            id: 'transaction-id',
+            type: 'exchange_from_credit',
+            amount: 10000,
+            balance: 10000,
+            description: 'Manual exchange: 10 Credits → 10000 Points',
+            metadata: { creditAmount: 10, exchangeRate: 1000 },
+            createdAt: new Date().toISOString(),
+        },
+        creditTransaction: {
+            id: 'credit-transaction-id',
+            type: 'exchange_to_points',
+            amount: -10,
+            balance: 90,
+            description: 'Exchange to Points: 10 Credits → 10000 Points',
+            metadata: { pointsAmount: 10000, exchangeRate: 1000 },
+            createdAt: new Date().toISOString(),
+        },
+    });
+    mockPointService.claimDailyReward.mockResolvedValue({
+        transaction: {
+            id: 'transaction-id',
+            type: 'daily_reward',
+            amount: 50,
+            balance: 50,
+            description: 'Daily login reward',
+            metadata: {},
+            createdAt: new Date().toISOString(),
+        },
+        consecutiveDays: 1,
+        nextRewardTime: new Date().toISOString(),
+    });
+    mockPointService.getDailyRewardStatus.mockResolvedValue({
+        canClaim: true,
+        lastClaimDate: null,
+        consecutiveDays: 0,
+        nextRewardTime: new Date().toISOString(),
+        rewardAmount: 50,
+    });
+    mockPointService.deductPoints.mockResolvedValue({
+        transaction: {
+            id: 'transaction-id',
+            type: 'usage',
+            amount: -100,
+            balance: 900,
+            description: 'Service usage',
+            metadata: {},
+            createdAt: new Date().toISOString(),
+        },
+        autoTopupTriggered: false,
+    });
+    mockPointService.getExchangeRates.mockResolvedValue({
+        rates: [
+            {
+                id: 'rate-1',
+                name: 'credit_to_points',
+                rate: 1000,
+                description: 'Credits to Points conversion rate',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+        ],
+        config: {
+            autoTopupEnabled: true,
+            autoTopupThreshold: 10,
+            autoTopupAmountCredits: 1,
+            dailyRewardEnabled: true,
+            dailyRewardAmount: 50,
+        },
+    });
+    mockPointService.updateExchangeRate.mockResolvedValue({
+        rate: {
+            id: 'rate-1',
+            name: 'credit_to_points',
+            rate: 1200,
+            description: 'Updated rate for testing',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        },
+    });
+    mockPointService.getPointsStatistics.mockResolvedValue({
+        overview: {
+            totalPoints: 2500000,
+            totalUsers: 1250,
+            activeUsers: 890,
+            averageBalance: 2000,
+        },
+        transactions: {
+            total: 15420,
+            byType: {
+                purchase: 3200,
+                usage: 8900,
+                exchange_from_credit: 2100,
+                daily_reward: 1200,
+                auto_topup_from_credit: 20,
+            },
+            totalPointsEarned: 2100000,
+            totalPointsSpent: 1500000,
+        },
+        period: {
+            startDate: new Date().toISOString(),
+            endDate: new Date().toISOString(),
+        },
+    });
+    mockPointService.getAutoTopupStatistics.mockResolvedValue({
+        overview: {
+            totalAutoTopups: 342,
+            totalCreditsConverted: 342,
+            totalPointsGenerated: 342000,
+            uniqueUsers: 125,
+        },
+        recentAutoTopups: [
+            {
+                id: 'transaction-1',
+                user: {
+                    id: 'user-1',
+                    email: 'user@example.com',
+                },
+                amount: 1000,
+                createdAt: new Date().toISOString(),
+            },
+        ],
+        period: {
+            startDate: new Date().toISOString(),
+            endDate: new Date().toISOString(),
+        },
+    });
+};
+exports.setupPointServiceDefaults = setupPointServiceDefaults;
+// Setup defaults for point service
+(0, exports.setupPointServiceDefaults)(exports.mockPointService);
 //# sourceMappingURL=services.mock.js.map

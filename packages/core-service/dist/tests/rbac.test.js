@@ -166,10 +166,7 @@ describe('RBAC System Tests', () => {
             expect(permissionNames).toContain('services:use');
         });
         test('should create new role successfully', async () => {
-            const newRole = await services_mock_1.mockPermissionService.createRole('test-role', 'Test role for testing', [
-                testPermissions[0]?.id,
-                testPermissions[1]?.id,
-            ]);
+            const newRole = await services_mock_1.mockPermissionService.createRole('test-role', 'Test role for testing', [testPermissions[0]?.id, testPermissions[1]?.id]);
             expect(newRole.name).toBe('test-role');
             expect(newRole.description).toBe('Test role for testing');
         });

@@ -32,12 +32,13 @@ class Logger {
       winston.format.errors({ stack: true }),
       winston.format.json(),
       winston.format.printf((info) => {
+        const { timestamp, level, message, ...meta } = info;
         const logEntry: LogContext = {
-          timestamp: info.timestamp,
-          level: info.level,
+          timestamp: timestamp as string,
+          level: level as string,
           service: this.serviceName,
-          message: info.message,
-          ...info,
+          message: message as string,
+          ...meta,
         };
         return JSON.stringify(logEntry);
       })
@@ -143,7 +144,7 @@ class Logger {
       duration,
       ip,
       userAgent: headers['user-agent'],
-      userId: req.user?.id,
+      userId: (req as any).user?.id,
       requestId: req.headers['x-request-id'],
     });
   }
@@ -227,7 +228,7 @@ export function createRequestLoggingMiddleware(logger: Logger) {
       ip: req.ip,
       userAgent: req.headers['user-agent'],
       requestId: req.headers['x-request-id'],
-      userId: req.user?.id,
+      userId: (req as any).user?.id,
     });
 
     // Override res.end to log response
@@ -253,7 +254,7 @@ export function createErrorLoggingMiddleware(logger: Logger) {
       ip: req.ip,
       userAgent: req.headers['user-agent'],
       requestId: req.headers['x-request-id'],
-      userId: req.user?.id,
+      userId: (req as any).user?.id,
     });
 
     next(error);

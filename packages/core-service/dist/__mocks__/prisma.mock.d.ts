@@ -53,9 +53,7 @@ export declare const mockPermissions: {
 }[];
 export declare const mockCreditAccount: {
     userId: string;
-    currentBalance: number;
-    totalPurchased: number;
-    totalUsed: number;
+    balance: number;
     createdAt: Date;
     updatedAt: Date;
 };

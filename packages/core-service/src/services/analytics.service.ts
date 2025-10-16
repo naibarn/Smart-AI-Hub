@@ -284,14 +284,19 @@ export const getUsageTimeSeries = async (
         uniqueUsers: bigint;
       }>
     >`
-      SELECT 
+      SELECT
         TO_CHAR(created_at, ${dateFormat}) as period,
         COUNT(*) as requests,
         COALESCE(SUM(tokens), 0) as tokens,
         COALESCE(SUM(credits), 0) as credits,
         COUNT(DISTINCT user_id) as unique_users
       FROM usage_logs
-      WHERE ${Prisma.sql([whereClause])}
+      WHERE 1=1
+      ${filters.startDate ? Prisma.sql`AND created_at >= ${filters.startDate}` : Prisma.empty}
+      ${filters.endDate ? Prisma.sql`AND created_at <= ${filters.endDate}` : Prisma.empty}
+      ${filters.service ? Prisma.sql`AND service = ${filters.service}` : Prisma.empty}
+      ${filters.model ? Prisma.sql`AND model = ${filters.model}` : Prisma.empty}
+      ${filters.userId ? Prisma.sql`AND user_id = ${filters.userId}` : Prisma.empty}
       GROUP BY period
       ORDER BY period ASC
     `;

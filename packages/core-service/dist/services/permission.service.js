@@ -144,40 +144,43 @@ exports.getUserPermissions = getUserPermissions;
  */
 const assignRole = async (userId, roleId, assignedBy) => {
     try {
-        // Check if role exists
-        const role = await prisma.role.findUnique({
-            where: { id: roleId },
-        });
-        if (!role) {
-            throw new Error('Role not found');
-        }
-        // Check if user exists
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-        });
-        if (!user) {
-            throw new Error('User not found');
-        }
-        // Check if user already has this role
-        const existingUserRole = await prisma.userRole.findUnique({
-            where: {
-                userId_roleId: {
+        // Use Prisma transaction for atomic operation
+        await prisma.$transaction(async (tx) => {
+            // Check if role exists
+            const role = await tx.role.findUnique({
+                where: { id: roleId },
+            });
+            if (!role) {
+                throw new Error('Role not found');
+            }
+            // Check if user exists
+            const user = await tx.user.findUnique({
+                where: { id: userId },
+            });
+            if (!user) {
+                throw new Error('User not found');
+            }
+            // Check if user already has this role
+            const existingUserRole = await tx.userRole.findUnique({
+                where: {
+                    userId_roleId: {
+                        userId,
+                        roleId,
+                    },
+                },
+            });
+            if (existingUserRole) {
+                throw new Error('User already has this role');
+            }
+            // Assign the role
+            await tx.userRole.create({
+                data: {
                     userId,
                     roleId,
                 },
-            },
+            });
         });
-        if (existingUserRole) {
-            throw new Error('User already has this role');
-        }
-        // Assign the role
-        await prisma.userRole.create({
-            data: {
-                userId,
-                roleId,
-            },
-        });
-        // Clear permission cache for this user
+        // Clear permission cache for this user (outside transaction)
         await (0, exports.clearUserPermissionCache)(userId);
     }
     catch (error) {
@@ -191,28 +194,31 @@ exports.assignRole = assignRole;
  */
 const removeRole = async (userId, roleId) => {
     try {
-        // Check if user has this role
-        const existingUserRole = await prisma.userRole.findUnique({
-            where: {
-                userId_roleId: {
-                    userId,
-                    roleId,
+        // Use Prisma transaction for atomic operation
+        await prisma.$transaction(async (tx) => {
+            // Check if user has this role
+            const existingUserRole = await tx.userRole.findUnique({
+                where: {
+                    userId_roleId: {
+                        userId,
+                        roleId,
+                    },
                 },
-            },
-        });
-        if (!existingUserRole) {
-            throw new Error('User does not have this role');
-        }
-        // Remove the role
-        await prisma.userRole.delete({
-            where: {
-                userId_roleId: {
-                    userId,
-                    roleId,
+            });
+            if (!existingUserRole) {
+                throw new Error('User does not have this role');
+            }
+            // Remove the role
+            await tx.userRole.delete({
+                where: {
+                    userId_roleId: {
+                        userId,
+                        roleId,
+                    },
                 },
-            },
+            });
         });
-        // Clear permission cache for this user
+        // Clear permission cache for this user (outside transaction)
         await (0, exports.clearUserPermissionCache)(userId);
     }
     catch (error) {
@@ -235,7 +241,14 @@ const getAllRoles = async () => {
                 },
             },
         });
-        return roles;
+        return roles.map((role) => ({
+            id: role.id,
+            name: role.name,
+            description: role.description,
+            isSystem: role.isSystem || false, // Handle new field with fallback
+            createdAt: role.createdAt,
+            updatedAt: role.updatedAt,
+        }));
     }
     catch (error) {
         console.error('Error getting all roles:', error);
@@ -262,29 +275,33 @@ exports.getAllPermissions = getAllPermissions;
  */
 const createRole = async (name, description, permissionIds) => {
     try {
-        // Check if role name already exists
-        const existingRole = await prisma.role.findUnique({
-            where: { name },
-        });
-        if (existingRole) {
-            throw new Error('Role with this name already exists');
-        }
-        // Create the role
-        const role = await prisma.role.create({
-            data: {
-                name,
-                description,
-            },
-        });
-        // Assign permissions if provided
-        if (permissionIds && permissionIds.length > 0) {
-            await prisma.rolePermission.createMany({
-                data: permissionIds.map(permissionId => ({
-                    roleId: role.id,
-                    permissionId,
-                })),
+        // Use Prisma transaction for atomic operation
+        const role = await prisma.$transaction(async (tx) => {
+            // Check if role name already exists
+            const existingRole = await tx.role.findUnique({
+                where: { name },
             });
-        }
+            if (existingRole) {
+                throw new Error('Role with this name already exists');
+            }
+            // Create the role
+            const newRole = await tx.role.create({
+                data: {
+                    name,
+                    description,
+                },
+            });
+            // Assign permissions if provided
+            if (permissionIds && permissionIds.length > 0) {
+                await tx.rolePermission.createMany({
+                    data: permissionIds.map((permissionId) => ({
+                        roleId: newRole.id,
+                        permissionId,
+                    })),
+                });
+            }
+            return newRole;
+        });
         return role;
     }
     catch (error) {

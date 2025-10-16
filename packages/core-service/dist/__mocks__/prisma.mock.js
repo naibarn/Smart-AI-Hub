@@ -108,9 +108,7 @@ exports.mockPermissions = [
 ];
 exports.mockCreditAccount = {
     userId: 'test-user-id',
-    currentBalance: 100,
-    totalPurchased: 100,
-    totalUsed: 0,
+    balance: 100,
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
     updatedAt: new Date('2025-01-01T00:00:00.000Z'),
 };

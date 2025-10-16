@@ -5,22 +5,27 @@ export interface MetricOptions {
 }
 
 export interface CounterMetric {
-  inc(labels?: Record<string, string>, value?: number): void;
+  inc(labels?: Partial<Record<string, string | number>>, value?: number): void;
 }
 
 export interface HistogramMetric {
-  observe(labels?: Record<string, string>, value?: number): void;
+  observe(value: number): void;
+  observe(labels: Partial<Record<string, string | number>>, value: number): void;
 }
 
 export interface GaugeMetric {
-  inc(labels?: Record<string, string>, value?: number): void;
-  dec(labels?: Record<string, string>, value?: number): void;
-  set(value: number, labels?: Record<string, string>): void;
-  get(labels?: Record<string, string>): number | Promise<number>;
+  inc(labels?: Partial<Record<string, string | number>>, value?: number): void;
+  inc(value?: number): void;
+  dec(labels?: Partial<Record<string, string | number>>, value?: number): void;
+  dec(value?: number): void;
+  set(value: number): void;
+  set(labels: Partial<Record<string, string | number>>, value: number): void;
+  get(labels?: Partial<Record<string, string | number>>): any;
 }
 
 export interface SummaryMetric {
-  observe(labels?: Record<string, string>, value?: number): void;
+  observe(value: number): void;
+  observe(labels: Partial<Record<string, string | number>>, value: number): void;
 }
 
 export interface Metrics {

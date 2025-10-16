@@ -16,6 +16,7 @@
   - [Authentication](#authentication-endpoints)
   - [Users](#user-endpoints)
   - [Credits](#credit-endpoints)
+  - [Points](#points-endpoints)
   - [MCP (Model Context Protocol)](#mcp-endpoints)
   - [Notifications](#notification-endpoints)
   - [Admin](#admin-endpoints)
@@ -499,6 +500,238 @@ Authorization: Bearer <your-jwt-token>
 }
 ```
 
+### Points Endpoints
+
+#### Get Points Balance
+
+```http
+GET /api/v1/points/balance
+Authorization: Bearer <your-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "balance": 5000
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Get Points History
+
+```http
+GET /api/v1/points/history?page=1&limit=20
+Authorization: Bearer <your-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "txn_123",
+      "userId": "user_123",
+      "amount": 1000,
+      "type": "purchase",
+      "balanceAfter": 5000,
+      "description": "Purchased points",
+      "metadata": {},
+      "createdAt": "2023-10-15T10:30:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 20,
+    "total": 50,
+    "total_pages": 3
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Exchange Credits to Points
+
+```http
+POST /api/v1/points/exchange-from-credits
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "creditAmount": 5
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "newCreditBalance": 5,
+    "newPointBalance": 6000,
+    "pointsReceived": 5000,
+    "message": "Successfully exchanged 5 credits for 5000 points"
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Purchase Points
+
+```http
+POST /api/v1/points/purchase
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "pointsAmount": 10000,
+  "paymentDetails": {
+    "stripeSessionId": "sess_123",
+    "stripePaymentIntentId": "pi_123",
+    "amount": 10
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "newBalance": 15000,
+    "transactionId": "txn_456",
+    "message": "Successfully purchased 10000 points"
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Claim Daily Reward
+
+```http
+POST /api/v1/points/claim-daily-reward
+Authorization: Bearer <your-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "points": 100,
+    "message": "Successfully claimed 100 points as your daily reward!"
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Get Daily Reward Status
+
+```http
+GET /api/v1/points/daily-reward-status
+Authorization: Bearer <your-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "canClaim": true,
+    "rewardAmount": 100
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Get Wallet Balance (Credits and Points)
+
+```http
+GET /api/v1/wallet/balance
+Authorization: Bearer <your-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "credits": 10,
+    "points": 5000
+  },
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Deduct Points (Internal API)
+
+```http
+POST /api/v1/mcp/points/deduct
+X-User-ID: user_123
+X-Service-Token: service-token
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "amount": 100,
+  "description": "Used for AI service",
+  "metadata": {
+    "service": "gpt-4",
+    "model": "gpt-4"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "status": "ok",
+  "new_balance": 4900,
+  "transaction_id": "txn_789",
+  "autoTopupTriggered": false
+}
+```
+
 ### MCP (Model Context Protocol) Endpoints
 
 #### List Available Models
@@ -783,6 +1016,162 @@ Authorization: Bearer <your-admin-jwt-token>
       "averageResponseTime": 150,
       "errorRate": 0.02
     }
+  }
+}
+```
+
+#### Get Exchange Rates (Admin Only)
+
+```http
+GET /api/admin/exchange-rates
+Authorization: Bearer <your-admin-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "rate_123",
+      "fromType": "credits",
+      "toType": "points",
+      "rate": 1000,
+      "isActive": true,
+      "createdAt": "2023-10-15T10:30:00Z",
+      "updatedAt": "2023-10-15T10:30:00Z"
+    }
+  ],
+  "meta": {
+    "timestamp": "2023-10-15T10:30:00Z",
+    "requestId": "req_123",
+    "version": "1.0"
+  }
+}
+```
+
+#### Update Exchange Rate (Admin Only)
+
+```http
+PUT /api/admin/exchange-rates/{rateId}
+Authorization: Bearer <your-admin-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "rate": 1200,
+  "isActive": true
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rate_123",
+    "fromType": "credits",
+    "toType": "points",
+    "rate": 1200,
+    "isActive": true,
+    "createdAt": "2023-10-15T10:30:00Z",
+    "updatedAt": "2023-10-15T11:00:00Z"
+  },
+  "meta": {
+    "timestamp": "2023-10-15T11:00:00Z",
+    "requestId": "req_456",
+    "version": "1.0"
+  }
+}
+```
+
+#### Create Exchange Rate (Admin Only)
+
+```http
+POST /api/admin/exchange-rates
+Authorization: Bearer <your-admin-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "fromType": "credits",
+  "toType": "points",
+  "rate": 1000,
+  "isActive": true
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rate_456",
+    "fromType": "credits",
+    "toType": "points",
+    "rate": 1000,
+    "isActive": true,
+    "createdAt": "2023-10-15T11:30:00Z",
+    "updatedAt": "2023-10-15T11:30:00Z"
+  },
+  "meta": {
+    "timestamp": "2023-10-15T11:30:00Z",
+    "requestId": "req_789",
+    "version": "1.0"
+  }
+}
+```
+
+#### Delete Exchange Rate (Admin Only)
+
+```http
+DELETE /api/admin/exchange-rates/{rateId}
+Authorization: Bearer <your-admin-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Exchange rate deleted successfully",
+  "meta": {
+    "timestamp": "2023-10-15T12:00:00Z",
+    "requestId": "req_101",
+    "version": "1.0"
+  }
+}
+```
+
+#### Get Points Statistics (Admin Only)
+
+```http
+GET /api/admin/stats/points
+Authorization: Bearer <your-admin-jwt-token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalPointsIssued": 5000000,
+    "totalPointsUsed": 3500000,
+    "totalPointsPurchased": 2000000,
+    "totalPointsFromCredits": 1500000,
+    "totalPointsFromDailyRewards": 500000,
+    "activeUsersWithPoints": 850,
+    "averagePointsPerUser": 5882,
+    "topUpTriggeredCount": 120,
+    "exchangeRateCreditsToPoints": 1000
+  },
+  "meta": {
+    "timestamp": "2023-10-15T12:30:00Z",
+    "requestId": "req_202",
+    "version": "1.0"
   }
 }
 ```
