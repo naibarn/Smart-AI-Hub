@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { Request, Response, NextFunction } from 'express';
 import { recordUsage } from '../services/analytics.service';
 import { AuthenticatedRequest } from './auth.middleware';

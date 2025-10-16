@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Monorepo for Smart AI Hub services",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:*",
     "build": "npm-run-all --serial build:*",
@@ -12,6 +13,9 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "type-check": "tsc --noEmit",
+    "test:unit": "echo 'No unit tests configured yet' && exit 0",
+    "validate:specs": "echo 'No spec validation configured yet' && exit 0",
+    "check:lockfile": "echo 'Lockfile check not implemented yet' && exit 0",
     "prepare": "husky"
   },
   "devDependencies": {

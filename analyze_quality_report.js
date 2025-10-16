@@ -1,5 +1,5 @@
-const fs = require('fs');
-// const path = require('path'); // Reserved for future use
+import fs from 'fs';
+// import path from 'path'; // Reserved for future use
 
 // Initialize counters and storage for analysis
 const fileGroups = {

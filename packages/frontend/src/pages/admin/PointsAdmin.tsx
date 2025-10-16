@@ -165,10 +165,8 @@ const PointsAdmin: React.FC = () => {
     }
 
     // Update the rate in the local state
-    setExchangeRates(rates =>
-      rates.map(rate =>
-        rate.id === selectedRate.id ? { ...rate, rate: newRate } : rate
-      )
+    setExchangeRates((rates) =>
+      rates.map((rate) => (rate.id === selectedRate.id ? { ...rate, rate: newRate } : rate))
     );
 
     setEditDialogOpen(false);
@@ -223,7 +221,14 @@ const PointsAdmin: React.FC = () => {
             >
               <GlassCard glow="primary" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
                       Total Points
                     </Typography>
@@ -232,11 +237,7 @@ const PointsAdmin: React.FC = () => {
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
                     {formatNumber(pointsStats.totalPoints)}
                   </Typography>
-                  <Chip
-                    label={`${pointsStats.totalUsers} users`}
-                    size="small"
-                    sx={{ mt: 1 }}
-                  />
+                  <Chip label={`${pointsStats.totalUsers} users`} size="small" sx={{ mt: 1 }} />
                 </CardContent>
               </GlassCard>
             </motion.div>
@@ -250,7 +251,14 @@ const PointsAdmin: React.FC = () => {
             >
               <GlassCard glow="primary" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
                       Active Users
                     </Typography>
@@ -277,7 +285,14 @@ const PointsAdmin: React.FC = () => {
             >
               <GlassCard glow="secondary" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
                       Auto Top-ups
                     </Typography>
@@ -304,7 +319,14 @@ const PointsAdmin: React.FC = () => {
             >
               <GlassCard glow="accent" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
                       Transactions
                     </Typography>
@@ -313,11 +335,7 @@ const PointsAdmin: React.FC = () => {
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
                     {formatNumber(pointsStats.totalTransactions)}
                   </Typography>
-                  <Chip
-                    label="All time"
-                    size="small"
-                    sx={{ mt: 1 }}
-                  />
+                  <Chip label="All time" size="small" sx={{ mt: 1 }} />
                 </CardContent>
               </GlassCard>
             </motion.div>
@@ -362,7 +380,9 @@ const PointsAdmin: React.FC = () => {
                         <TableRow key={rate.id}>
                           <TableCell>
                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {rate.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              {rate.name
+                                .replace(/_/g, ' ')
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
                             </Typography>
                           </TableCell>
                           <TableCell align="right">
@@ -377,10 +397,7 @@ const PointsAdmin: React.FC = () => {
                           </TableCell>
                           <TableCell align="center">
                             <Tooltip title="Edit Rate">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleEditRate(rate)}
-                              >
+                              <IconButton size="small" onClick={() => handleEditRate(rate)}>
                                 <Edit size={18} />
                               </IconButton>
                             </Tooltip>
@@ -395,7 +412,8 @@ const PointsAdmin: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Info size={20} />
                     <Typography variant="body2">
-                      Changes to exchange rates will take effect immediately and affect all future transactions.
+                      Changes to exchange rates will take effect immediately and affect all future
+                      transactions.
                     </Typography>
                   </Box>
                 </Alert>
@@ -418,7 +436,10 @@ const PointsAdmin: React.FC = () => {
                   <Grid item xs={12} md={4}>
                     <GlassCard>
                       <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
+                        <Typography
+                          variant="h4"
+                          sx={{ fontWeight: 700, color: theme.palette.primary.main }}
+                        >
                           {formatNumber(autoTopupStats.totalAutoTopups)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -430,7 +451,10 @@ const PointsAdmin: React.FC = () => {
                   <Grid item xs={12} md={4}>
                     <GlassCard>
                       <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.success.main }}>
+                        <Typography
+                          variant="h4"
+                          sx={{ fontWeight: 700, color: theme.palette.success.main }}
+                        >
                           {formatNumber(autoTopupStats.totalCreditsConverted)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -442,7 +466,10 @@ const PointsAdmin: React.FC = () => {
                   <Grid item xs={12} md={4}>
                     <GlassCard>
                       <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.secondary.main }}>
+                        <Typography
+                          variant="h4"
+                          sx={{ fontWeight: 700, color: theme.palette.secondary.main }}
+                        >
                           {formatNumber(autoTopupStats.totalPointsGenerated)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -497,13 +524,18 @@ const PointsAdmin: React.FC = () => {
         </Paper>
 
         {/* Edit Rate Dialog */}
-        <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
+        <Dialog
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Edit Exchange Rate</DialogTitle>
           <DialogContent>
             {selectedRate && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
-                  {selectedRate.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  {selectedRate.name.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                   {selectedRate.description}

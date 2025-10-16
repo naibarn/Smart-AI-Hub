@@ -12,9 +12,9 @@
  * 6. Checking rate limiting
  */
 
-const axios = require('axios');
-const crypto = require('crypto');
-const { performance } = require('perf_hooks');
+import axios from 'axios';
+import crypto from 'crypto';
+import { performance } from 'perf_hooks';
 
 // Configuration
 const WEBHOOK_SERVICE_URL = process.env.WEBHOOK_SERVICE_URL || 'http://localhost:3005';
@@ -560,14 +560,14 @@ process.on('uncaughtException', (error) => {
 });
 
 // Run validation
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   runValidation().catch((error) => {
     logError(`Validation script failed: ${error.message}`);
     process.exit(1);
   });
 }
 
-module.exports = {
+export {
   runValidation,
   testServiceHealth,
   authenticateUser,

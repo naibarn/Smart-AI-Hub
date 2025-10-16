@@ -27,12 +27,12 @@ import {
   Tooltip,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { 
-  ArrowLeft, 
-  TrendingUp, 
-  Gift, 
-  CreditCard, 
-  RefreshCw, 
+import {
+  ArrowLeft,
+  TrendingUp,
+  Gift,
+  CreditCard,
+  RefreshCw,
   Calendar,
   CheckCircle,
   AlertCircle,
@@ -40,7 +40,7 @@ import {
   Zap,
   Star,
   Coins,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -90,9 +90,13 @@ const Points: React.FC = () => {
   // Fetch data
   const { data: pointBalance, isLoading: pointBalanceLoading } = useGetPointBalanceQuery();
   const { data: walletBalance, isLoading: walletBalanceLoading } = useGetWalletBalanceQuery();
-  const { data: pointHistory, isLoading: historyLoading } = useGetPointHistoryQuery();
-  const { data: dailyRewardStatus, isLoading: rewardStatusLoading } = useGetDailyRewardStatusQuery();
-  
+  const { data: pointHistory, isLoading: historyLoading } = useGetPointHistoryQuery({
+    page: 1,
+    limit: 20,
+  });
+  const { data: dailyRewardStatus, isLoading: rewardStatusLoading } =
+    useGetDailyRewardStatusQuery();
+
   // Mutations
   const [exchangeCredits, { isLoading: exchangeLoading }] = useExchangeCreditsToPointsMutation();
   const [claimDailyReward, { isLoading: claimLoading }] = useClaimDailyRewardMutation();
@@ -212,7 +216,11 @@ const Points: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           <Box sx={{ pt: 3, pb: 4 }}>
-            <Button startIcon={<ArrowLeft size={20} />} onClick={() => navigate('/dashboard')} sx={{ mb: 2 }}>
+            <Button
+              startIcon={<ArrowLeft size={20} />}
+              onClick={() => navigate('/dashboard')}
+              sx={{ mb: 2 }}
+            >
               Back to Dashboard
             </Button>
 
@@ -235,7 +243,14 @@ const Points: React.FC = () => {
             >
               <GlassCard glow="primary" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Points Balance
                     </Typography>
@@ -269,7 +284,14 @@ const Points: React.FC = () => {
             >
               <GlassCard glow="secondary" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Credits Balance
                     </Typography>
@@ -305,18 +327,21 @@ const Points: React.FC = () => {
           >
             <GlassCard glow="primary" sx={{ mb: 4 }}>
               <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                >
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                       Daily Login Reward
                     </Typography>
                     <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
-                      {dailyRewardStatus.canClaim 
+                      {dailyRewardStatus.canClaim
                         ? `Claim your daily reward of ${dailyRewardStatus.rewardAmount} points!`
-                        : `Next reward available in ${dailyRewardStatus.nextClaimDate 
-                            ? new Date(dailyRewardStatus.nextClaimDate).toLocaleDateString()
-                            : 'tomorrow'}`
-                      }
+                        : `Next reward available in ${
+                            dailyRewardStatus.nextClaimDate
+                              ? new Date(dailyRewardStatus.nextClaimDate).toLocaleDateString()
+                              : 'tomorrow'
+                          }`}
                     </Typography>
                   </Box>
                   <Box
@@ -387,7 +412,13 @@ const Points: React.FC = () => {
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Box sx={{ p: 2, border: `1px dashed ${theme.palette.divider}`, borderRadius: 2 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          border: `1px dashed ${theme.palette.divider}`,
+                          borderRadius: 2,
+                        }}
+                      >
                         <Typography variant="body2" color="text.secondary" gutterBottom>
                           You will receive:
                         </Typography>
@@ -478,17 +509,21 @@ const Points: React.FC = () => {
                                 >
                                   {formatRelativeTime(transaction.createdAt)}
                                 </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                <Box
+                                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}
+                                >
                                   <Typography
                                     variant="body2"
                                     sx={{
-                                      color: transaction.amount > 0 
-                                        ? theme.palette.success.main 
-                                        : theme.palette.error.main,
+                                      color:
+                                        transaction.amount > 0
+                                          ? theme.palette.success.main
+                                          : theme.palette.error.main,
                                       fontWeight: 600,
                                     }}
                                   >
-                                    {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString()} points
+                                    {transaction.amount > 0 ? '+' : ''}
+                                    {transaction.amount.toLocaleString()} points
                                   </Typography>
                                 </Box>
                               </Box>
@@ -500,7 +535,10 @@ const Points: React.FC = () => {
                   ) : (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                       <AlertCircle size={48} color={theme.palette.text.secondary} />
-                      <Typography variant="body1" sx={{ color: theme.palette.text.secondary, mt: 2 }}>
+                      <Typography
+                        variant="body1"
+                        sx={{ color: theme.palette.text.secondary, mt: 2 }}
+                      >
                         No transactions yet
                       </Typography>
                       <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
@@ -515,11 +553,17 @@ const Points: React.FC = () => {
         </Paper>
 
         {/* Exchange Confirmation Dialog */}
-        <Dialog open={exchangeDialogOpen} onClose={() => setExchangeDialogOpen(false)} maxWidth="sm" fullWidth>
+        <Dialog
+          open={exchangeDialogOpen}
+          onClose={() => setExchangeDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Confirm Exchange</DialogTitle>
           <DialogContent>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              Are you sure you want to exchange {exchangeAmount} credits for {parseInt(exchangeAmount) * 1000} points?
+              Are you sure you want to exchange {exchangeAmount} credits for{' '}
+              {parseInt(exchangeAmount) * 1000} points?
             </Typography>
             <Typography variant="body2" color="text.secondary">
               This action cannot be undone.

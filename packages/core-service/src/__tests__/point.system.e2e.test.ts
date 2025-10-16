@@ -175,55 +175,71 @@ const createTestApp = () => {
   });
 
   // Admin routes
-  app.get('/api/admin/exchange-rates', requireRoles(['admin']), async (req: any, res: any, next: any) => {
-    try {
-      const result = await mockPointService.getExchangeRates();
-      res.json({
-        success: true,
-        data: result,
-      });
-    } catch (error: any) {
-      next(error);
+  app.get(
+    '/api/admin/exchange-rates',
+    requireRoles(['admin']),
+    async (req: any, res: any, next: any) => {
+      try {
+        const result = await mockPointService.getExchangeRates();
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error: any) {
+        next(error);
+      }
     }
-  });
+  );
 
-  app.put('/api/admin/exchange-rates/:name', requireRoles(['admin']), async (req: any, res: any, next: any) => {
-    try {
-      const { name } = req.params;
-      const { rate, description } = req.body;
-      const result = await mockPointService.updateExchangeRate(name, rate, description);
-      res.json({
-        success: true,
-        data: result,
-      });
-    } catch (error: any) {
-      next(error);
+  app.put(
+    '/api/admin/exchange-rates/:name',
+    requireRoles(['admin']),
+    async (req: any, res: any, next: any) => {
+      try {
+        const { name } = req.params;
+        const { rate, description } = req.body;
+        const result = await mockPointService.updateExchangeRate(name, rate, description);
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error: any) {
+        next(error);
+      }
     }
-  });
+  );
 
-  app.get('/api/admin/points/stats', requireRoles(['admin']), async (req: any, res: any, next: any) => {
-    try {
-      const result = await mockPointService.getPointsStatistics();
-      res.json({
-        success: true,
-        data: result,
-      });
-    } catch (error: any) {
-      next(error);
+  app.get(
+    '/api/admin/points/stats',
+    requireRoles(['admin']),
+    async (req: any, res: any, next: any) => {
+      try {
+        const result = await mockPointService.getPointsStatistics();
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error: any) {
+        next(error);
+      }
     }
-  });
+  );
 
-  app.get('/api/admin/auto-topup/stats', requireRoles(['admin']), async (req: any, res: any, next: any) => {
-    try {
-      const result = await mockPointService.getAutoTopupStatistics();
-      res.json({
-        success: true,
-        data: result,
-      });
-    } catch (error: any) {
-      next(error);
+  app.get(
+    '/api/admin/auto-topup/stats',
+    requireRoles(['admin']),
+    async (req: any, res: any, next: any) => {
+      try {
+        const result = await mockPointService.getAutoTopupStatistics();
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error: any) {
+        next(error);
+      }
     }
-  });
+  );
 
   // Error handler
   app.use((error: any, req: any, res: any, next: any) => {
@@ -429,7 +445,11 @@ describe('Points System E2E Tests', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.autoTopupTriggered).toBe(true);
       expect(response.body.data.transaction.type).toBe('usage');
-      expect(mockPointService.deductPoints).toHaveBeenCalledWith('test-user-id', 100, 'Test service usage');
+      expect(mockPointService.deductPoints).toHaveBeenCalledWith(
+        'test-user-id',
+        100,
+        'Test service usage'
+      );
     });
 
     it('should not trigger auto top-up when credits are insufficient', async () => {
@@ -449,7 +469,11 @@ describe('Points System E2E Tests', () => {
         .expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(mockPointService.deductPoints).toHaveBeenCalledWith('test-user-id', 100, 'Test service usage');
+      expect(mockPointService.deductPoints).toHaveBeenCalledWith(
+        'test-user-id',
+        100,
+        'Test service usage'
+      );
     });
   });
 
@@ -493,10 +517,15 @@ describe('Points System E2E Tests', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.transactions).toBeInstanceOf(Array);
       expect(response.body.data.pagination).toBeDefined();
-      
+
       // Should have at least daily reward and exchange transactions
       expect(response.body.data.transactions.length).toBeGreaterThanOrEqual(2);
-      expect(mockPointService.getTransactionHistory).toHaveBeenCalledWith('test-user-id', 1, 20, undefined);
+      expect(mockPointService.getTransactionHistory).toHaveBeenCalledWith(
+        'test-user-id',
+        1,
+        20,
+        undefined
+      );
     });
 
     it('should filter transactions by type', async () => {
@@ -530,7 +559,12 @@ describe('Points System E2E Tests', () => {
       response.body.data.transactions.forEach((tx: any) => {
         expect(tx.type).toBe('daily_reward');
       });
-      expect(mockPointService.getTransactionHistory).toHaveBeenCalledWith('test-user-id', 1, 20, 'daily_reward');
+      expect(mockPointService.getTransactionHistory).toHaveBeenCalledWith(
+        'test-user-id',
+        1,
+        20,
+        'daily_reward'
+      );
     });
   });
 
@@ -592,7 +626,11 @@ describe('Points System E2E Tests', () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.rate.rate).toBe(1200);
-      expect(mockPointService.updateExchangeRate).toHaveBeenCalledWith('credit_to_points', 1200, 'Updated rate for testing');
+      expect(mockPointService.updateExchangeRate).toHaveBeenCalledWith(
+        'credit_to_points',
+        1200,
+        'Updated rate for testing'
+      );
     });
 
     it('should get points statistics', async () => {
@@ -673,9 +711,7 @@ describe('Points System E2E Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle unauthorized access', async () => {
-      const response = await request(app)
-        .get('/api/points/balance')
-        .expect(401);
+      const response = await request(app).get('/api/points/balance').expect(401);
 
       expect(response.body.error).toBe('Access denied');
     });
@@ -711,15 +747,15 @@ describe('Points System E2E Tests', () => {
       // Mock service response
       (mockPointService.getBalance as jest.Mock).mockResolvedValue(1000);
 
-      const promises = Array(10).fill(null).map(() =>
-        request(app)
-          .get('/api/points/balance')
-          .set('Authorization', 'Bearer valid-token')
-      );
+      const promises = Array(10)
+        .fill(null)
+        .map(() =>
+          request(app).get('/api/points/balance').set('Authorization', 'Bearer valid-token')
+        );
 
       const responses = await Promise.all(promises);
-      
-      responses.forEach(response => {
+
+      responses.forEach((response) => {
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
       });
@@ -733,9 +769,7 @@ describe('Points System E2E Tests', () => {
       });
 
       const start = Date.now();
-      await request(app)
-        .get('/api/points/history')
-        .set('Authorization', 'Bearer valid-token');
+      await request(app).get('/api/points/history').set('Authorization', 'Bearer valid-token');
       const duration = Date.now() - start;
 
       expect(duration).toBeLessThan(500); // Should respond within 500ms

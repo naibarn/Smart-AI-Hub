@@ -1,12 +1,11 @@
 import helmet from 'helmet';
-import type { Request, Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+import type { Request as ExpressRequest } from 'express';
 
-// Extend Request interface to include locals
-declare global {
-  namespace Express {
-    interface Request {
-      locals?: any;
-    }
+// Extend Express Request interface to include locals
+declare module 'express' {
+  interface Request {
+    locals?: any;
   }
 }
 
@@ -204,12 +203,13 @@ export const SecurityConfig = {
 /**
  * CSP nonce generation middleware
  */
-export const cspNonceMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const crypto = require('crypto') as typeof import('crypto');
-  req.locals = req.locals || {};
-  req.locals.cspNonce = crypto.randomBytes(16).toString('base64');
-  res.locals.cspNonce = req.locals.cspNonce;
-  next();
+export const cspNonceMiddleware = (req: ExpressRequest, res: Response, next: NextFunction) => {
+  import('crypto').then((crypto) => {
+    req.locals = req.locals || {};
+    req.locals.cspNonce = crypto.randomBytes(16).toString('base64');
+    res.locals.cspNonce = req.locals.cspNonce;
+    next();
+  });
 };
 
 /**
@@ -254,8 +254,8 @@ export const apiSecurityHeaders = helmet({
 /**
  * Generate CSP nonce for templates
  */
-export const generateCspNonce = (): string => {
-  const crypto = require('crypto') as typeof import('crypto');
+export const generateCspNonce = async (): Promise<string> => {
+  const crypto = await import('crypto');
   return crypto.randomBytes(16).toString('base64');
 };
 

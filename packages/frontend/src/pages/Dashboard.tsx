@@ -397,7 +397,14 @@ const Dashboard: React.FC = () => {
             >
               <GlassCard glow="secondary" sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 3,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Points Balance
                     </Typography>
@@ -414,7 +421,10 @@ const Dashboard: React.FC = () => {
                   </Box>
 
                   <Box sx={{ textAlign: 'center', mb: 3 }}>
-                    <Typography variant="h3" sx={{ fontWeight: 700, color: theme.palette.secondary.main }}>
+                    <Typography
+                      variant="h3"
+                      sx={{ fontWeight: 700, color: theme.palette.secondary.main }}
+                    >
                       {walletBalance?.points?.toLocaleString() || '0'}
                     </Typography>
                     <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>

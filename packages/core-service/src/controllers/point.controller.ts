@@ -389,7 +389,7 @@ export const getWalletBalance = async (
 
     // Get both balances
     const [creditBalance, pointBalance] = await Promise.all([
-      import('../services/credit.service').then(m => m.getBalance(userId)),
+      import('../services/credit.service').then((m) => m.getBalance(userId)),
       pointService.getBalance(userId),
     ]);
 

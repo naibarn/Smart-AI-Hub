@@ -1,8 +1,9 @@
-const js = require("@eslint/js");
-const tseslint = require("typescript-eslint");
-const prettierConfig = require("eslint-config-prettier");
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import prettierConfig from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
 
-module.exports = [
+export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettierConfig,
@@ -29,7 +30,7 @@ module.exports = [
     },
     plugins: {
       "@typescript-eslint": tseslint.plugin,
-      prettier: require("eslint-plugin-prettier"),
+      prettier: prettierPlugin,
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
@@ -43,7 +44,7 @@ module.exports = [
     files: ["**/*.js"],
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "commonjs",
+      sourceType: "module",
       globals: {
         console: "readonly",
         process: "readonly",
@@ -72,7 +73,7 @@ module.exports = [
       },
     },
     plugins: {
-      prettier: require("eslint-plugin-prettier"),
+      prettier: prettierPlugin,
     },
     rules: {
       "no-unused-vars": "warn",
@@ -104,7 +105,7 @@ module.exports = [
       },
     },
     plugins: {
-      prettier: require("eslint-plugin-prettier"),
+      prettier: prettierPlugin,
     },
     rules: {
       "no-unused-vars": "warn",

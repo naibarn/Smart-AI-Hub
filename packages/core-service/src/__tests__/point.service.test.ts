@@ -92,7 +92,10 @@ describe('Point Service', () => {
       });
 
       (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(mockAccount);
-      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({ ...mockAccount, balance: 1500 });
+      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({
+        ...mockAccount,
+        balance: 1500,
+      });
       (mockPrisma.pointTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
       (mockPrisma.user.update as jest.Mock).mockResolvedValue({});
 
@@ -106,7 +109,9 @@ describe('Point Service', () => {
       const userId = 'user-123';
       const amount = -100;
 
-      await expect(pointService.addPoints(userId, amount, 'purchase')).rejects.toThrow('Amount must be positive');
+      await expect(pointService.addPoints(userId, amount, 'purchase')).rejects.toThrow(
+        'Amount must be positive'
+      );
     });
   });
 
@@ -122,7 +127,10 @@ describe('Point Service', () => {
       });
 
       (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue(mockAccount);
-      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({ ...mockAccount, balance: 800 });
+      (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({
+        ...mockAccount,
+        balance: 800,
+      });
       (mockPrisma.pointTransaction.create as jest.Mock).mockResolvedValue(mockTransaction);
       (mockPrisma.user.update as jest.Mock).mockResolvedValue({});
 
@@ -150,7 +158,9 @@ describe('Point Service', () => {
       // Mock auto top-up check to return false
       jest.spyOn(pointService, 'checkAndTriggerAutoTopup').mockResolvedValue(false);
 
-      await expect(pointService.deductPoints(userId, amount)).rejects.toThrow('Insufficient points');
+      await expect(pointService.deductPoints(userId, amount)).rejects.toThrow(
+        'Insufficient points'
+      );
     });
   });
 
@@ -187,7 +197,9 @@ describe('Point Service', () => {
       const userId = 'user-123';
       const creditAmount = -5;
 
-      await expect(pointService.exchangeCreditsToPoints(userId, creditAmount)).rejects.toThrow('Credit amount must be positive');
+      await expect(pointService.exchangeCreditsToPoints(userId, creditAmount)).rejects.toThrow(
+        'Credit amount must be positive'
+      );
     });
   });
 
@@ -243,7 +255,9 @@ describe('Point Service', () => {
 
       jest.spyOn(pointService, 'getExchangeRate').mockResolvedValue(50);
 
-      await expect(pointService.claimDailyReward(userId)).rejects.toThrow('Daily reward already claimed for today');
+      await expect(pointService.claimDailyReward(userId)).rejects.toThrow(
+        'Daily reward already claimed for today'
+      );
     });
   });
 
@@ -304,8 +318,7 @@ describe('Point Service', () => {
       const rateValue = 1000;
 
       // Mock Redis cache hit
-      const mockRedisClient = require('redis').createClient();
-      mockRedisClient.get.mockResolvedValue('1000');
+      const mockRedisClient = { get: jest.fn().mockResolvedValue('1000') };
 
       const result = await pointService.getExchangeRate(rateName);
 
@@ -317,8 +330,7 @@ describe('Point Service', () => {
       const rateName = 'credit_to_points';
 
       // Mock Redis cache miss
-      const mockRedisClient = require('redis').createClient();
-      mockRedisClient.get.mockResolvedValue(null);
+      const mockRedisClient = { get: jest.fn().mockResolvedValue(null) };
 
       // Mock database miss
       (mockPrisma.exchangeRate.findUnique as jest.Mock).mockResolvedValue(null);
@@ -339,7 +351,10 @@ describe('Point Service', () => {
         return await callback(mockPrisma);
       });
 
-      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue({ userId, balance: 1000 });
+      (mockPrisma.pointAccount.findUnique as jest.Mock).mockResolvedValue({
+        userId,
+        balance: 1000,
+      });
       (mockPrisma.pointAccount.update as jest.Mock).mockResolvedValue({ userId, balance: 1200 });
       (mockPrisma.pointTransaction.create as jest.Mock).mockResolvedValue({});
       (mockPrisma.user.update as jest.Mock).mockResolvedValue({});
@@ -354,7 +369,9 @@ describe('Point Service', () => {
       const amount = 200;
       const reason = '';
 
-      await expect(pointService.adjustPoints(userId, amount, reason)).rejects.toThrow('Reason is required for point adjustment');
+      await expect(pointService.adjustPoints(userId, amount, reason)).rejects.toThrow(
+        'Reason is required for point adjustment'
+      );
     });
   });
 });

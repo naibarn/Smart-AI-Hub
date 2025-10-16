@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Function to find all markdown files in directories
 function findMarkdownFiles(dir) {
@@ -47,7 +47,7 @@ function parseFrontMatter(content) {
 }
 
 // Function to add comprehensive sections to functional requirements
-function addComprehensiveFunctionalSections(content, fileName) {
+function addComprehensiveFunctionalSections(content) {
   const lines = content.split('\n');
   let enhanced = [];
 
@@ -142,7 +142,7 @@ function addComprehensiveFunctionalSections(content, fileName) {
 }
 
 // Function to add comprehensive sections to data models
-function addComprehensiveDataModelSections(content, fileName) {
+function addComprehensiveDataModelSections(content) {
   const lines = content.split('\n');
   let enhanced = [];
 
@@ -224,7 +224,7 @@ function addComprehensiveDataModelSections(content, fileName) {
 }
 
 // Function to add comprehensive sections to service specifications
-function addComprehensiveServiceSections(content, fileName) {
+function addComprehensiveServiceSections(content) {
   const lines = content.split('\n');
   let enhanced = [];
 
@@ -306,7 +306,7 @@ function addComprehensiveServiceSections(content, fileName) {
 }
 
 // Function to enhance general documentation
-function enhanceGeneralDocumentation(content, fileName) {
+function enhanceGeneralDocumentation(content) {
   const lines = content.split('\n');
   let enhanced = [];
 
@@ -373,13 +373,13 @@ function updateFileComprehensively(filePath) {
 
   // Enhance content based on file type and location
   if (filePath.includes('functional') || fileName.startsWith('fr_')) {
-    newBody = addComprehensiveFunctionalSections(body, fileName);
+    newBody = addComprehensiveFunctionalSections(body);
   } else if (filePath.includes('data_models') || filePath.includes('models')) {
-    newBody = addComprehensiveDataModelSections(body, fileName);
+    newBody = addComprehensiveDataModelSections(body);
   } else if (filePath.includes('services')) {
-    newBody = addComprehensiveServiceSections(body, fileName);
+    newBody = addComprehensiveServiceSections(body);
   } else {
-    newBody = enhanceGeneralDocumentation(body, fileName);
+    newBody = enhanceGeneralDocumentation(body);
   }
 
   // Ensure minimum content length

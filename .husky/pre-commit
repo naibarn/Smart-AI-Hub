@@ -63,7 +63,7 @@ echo "✅ Tests passed"
 
 # Check for sensitive information
 echo "🔒 Checking for sensitive information..."
-node scripts/check-sensitive-info.js
+node scripts/check-sensitive-info.cjs
 SENSITIVE_CHECK_EXIT_CODE=$?
 
 if [ $SENSITIVE_CHECK_EXIT_CODE -ne 0 ]; then
@@ -89,7 +89,7 @@ fi
 
 # Check file sizes
 echo "📏 Checking file sizes..."
-node scripts/check-file-sizes.js
+node scripts/check-file-sizes.cjs
 FILE_SIZE_CHECK_EXIT_CODE=$?
 
 if [ $FILE_SIZE_CHECK_EXIT_CODE -ne 0 ]; then
@@ -167,7 +167,7 @@ echo "✅ Build check passed"
 echo "📝 Checking commit message format..."
 COMMIT_MSG_FILE=".git/COMMIT_EDITMSG"
 if [ -f "$COMMIT_MSG_FILE" ]; then
-    node scripts/check-commit-message.js "$COMMIT_MSG_FILE"
+    node scripts/check-commit-message.cjs "$COMMIT_MSG_FILE"
     COMMIT_MSG_CHECK_EXIT_CODE=$?
 
     if [ $COMMIT_MSG_CHECK_EXIT_CODE -ne 0 ]; then

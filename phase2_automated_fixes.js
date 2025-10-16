@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Function to find all markdown files in directories
 function findMarkdownFiles(dir) {
@@ -47,7 +47,7 @@ function parseFrontMatter(content) {
 }
 
 // Function to enhance content for functional requirements
-function enhanceFunctionalRequirement(content, fileName) {
+function enhanceFunctionalRequirement(content) {
   const lines = content.split('\n');
   let enhanced = [];
   let hasRequirements = false;
@@ -120,7 +120,7 @@ function enhanceFunctionalRequirement(content, fileName) {
 }
 
 // Function to enhance data model content
-function enhanceDataModel(content, fileName) {
+function enhanceDataModel(content) {
   const lines = content.split('\n');
   let enhanced = [];
   let hasFields = false;
@@ -185,7 +185,7 @@ function enhanceDataModel(content, fileName) {
 }
 
 // Function to enhance service specification content
-function enhanceServiceSpec(content, fileName) {
+function enhanceServiceSpec(content) {
   const lines = content.split('\n');
   let enhanced = [];
   let hasEndpoints = false;
@@ -250,7 +250,7 @@ function enhanceServiceSpec(content, fileName) {
 }
 
 // Function to enhance general documentation
-function enhanceGeneralDoc(content, fileName) {
+function enhanceGeneralDoc(content) {
   const lines = content.split('\n');
   let enhanced = [];
 
@@ -306,13 +306,13 @@ function updateFile(filePath) {
 
   // Enhance content based on file type and location
   if (filePath.includes('functional') || fileName.startsWith('fr_')) {
-    newBody = enhanceFunctionalRequirement(body, fileName);
+    newBody = enhanceFunctionalRequirement(body);
   } else if (filePath.includes('data_models') || filePath.includes('models')) {
-    newBody = enhanceDataModel(body, fileName);
+    newBody = enhanceDataModel(body);
   } else if (filePath.includes('services')) {
-    newBody = enhanceServiceSpec(body, fileName);
+    newBody = enhanceServiceSpec(body);
   } else {
-    newBody = enhanceGeneralDoc(body, fileName);
+    newBody = enhanceGeneralDoc(body);
   }
 
   // Improve language clarity

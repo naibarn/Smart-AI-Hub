@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@smart-ai-hub/shared';
 import { AuthenticatedRequest } from './auth.middleware';

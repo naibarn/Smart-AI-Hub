@@ -93,7 +93,7 @@ export const getExchangeRate = async (name: string): Promise<number> => {
 
     // Cache the result for 5 minutes
     await redisClient.setEx(cacheKey, 300, exchangeRate.rate.toString());
-    
+
     return exchangeRate.rate;
   } catch (error) {
     console.error('Error getting exchange rate:', error);
@@ -178,15 +178,12 @@ export const checkAndTriggerAutoTopup = async (userId: string): Promise<boolean>
       // Execute auto top-up in a transaction
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         // Deduct Credits
-        await creditService.deductCredits(
-          userId,
-          'auto_topup',
-          AUTO_TOPUP_AMOUNT_CREDITS,
-          { autoTopup: true }
-        );
+        await creditService.deductCredits(userId, 'auto_topup', AUTO_TOPUP_AMOUNT_CREDITS, {
+          autoTopup: true,
+        });
 
         // Add Points
-        const pointsToAdd = AUTO_TOPUP_AMOUNT_CREDITS * await getExchangeRate('credit_to_points');
+        const pointsToAdd = AUTO_TOPUP_AMOUNT_CREDITS * (await getExchangeRate('credit_to_points'));
         await addPointsInTransaction(
           userId,
           pointsToAdd,
@@ -224,12 +221,9 @@ export const exchangeCreditsToPoints = async (
     // Use Prisma transaction for atomic operation
     const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Deduct Credits
-      await creditService.deductCredits(
-        userId,
-        'exchange_to_points',
-        creditAmount,
-        { exchangeToPoints: true }
-      );
+      await creditService.deductCredits(userId, 'exchange_to_points', creditAmount, {
+        exchangeToPoints: true,
+      });
 
       // Add Points
       await addPointsInTransaction(
@@ -359,7 +353,12 @@ export const deductPoints = async (
   amount: number,
   description?: string,
   metadata?: any
-): Promise<{ status: string; new_balance: number; transaction_id: string; autoTopupTriggered?: boolean }> => {
+): Promise<{
+  status: string;
+  new_balance: number;
+  transaction_id: string;
+  autoTopupTriggered?: boolean;
+}> => {
   try {
     if (amount <= 0) {
       throw new Error('Amount must be positive');
@@ -433,14 +432,16 @@ export const deductPoints = async (
 /**
  * Claim daily login reward
  */
-export const claimDailyReward = async (userId: string): Promise<{ points: number; message: string }> => {
+export const claimDailyReward = async (
+  userId: string
+): Promise<{ points: number; message: string }> => {
   try {
     if (!DAILY_REWARD_ENABLED) {
       throw new Error('Daily rewards are currently disabled');
     }
 
     const rewardAmount = await getExchangeRate('daily_reward_amount');
-    
+
     // Get user's timezone from profile or default to UTC
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -448,7 +449,7 @@ export const claimDailyReward = async (userId: string): Promise<{ points: number
     });
 
     const userTimezone = (user?.profile?.preferences as any)?.timezone || DAILY_REWARD_TIMEZONE;
-    
+
     // Get current date in user's timezone
     const now = new Date();
     const rewardDate = new Date(now.toLocaleString('en-US', { timeZone: userTimezone }));
@@ -502,15 +503,17 @@ export const claimDailyReward = async (userId: string): Promise<{ points: number
 /**
  * Check daily reward status
  */
-export const getDailyRewardStatus = async (userId: string): Promise<{ 
-  canClaim: boolean; 
-  nextClaimDate?: Date; 
-  lastClaimDate?: Date; 
+export const getDailyRewardStatus = async (
+  userId: string
+): Promise<{
+  canClaim: boolean;
+  nextClaimDate?: Date;
+  lastClaimDate?: Date;
   rewardAmount: number;
 }> => {
   try {
     const rewardAmount = await getExchangeRate('daily_reward_amount');
-    
+
     // Get user's timezone from profile or default to UTC
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -518,7 +521,7 @@ export const getDailyRewardStatus = async (userId: string): Promise<{
     });
 
     const userTimezone = (user?.profile?.preferences as any)?.timezone || DAILY_REWARD_TIMEZONE;
-    
+
     // Get current date in user's timezone
     const now = new Date();
     const rewardDate = new Date(now.toLocaleString('en-US', { timeZone: userTimezone }));
@@ -538,7 +541,7 @@ export const getDailyRewardStatus = async (userId: string): Promise<{
       // Calculate next claim date (tomorrow in user's timezone)
       const tomorrow = new Date(rewardDate);
       tomorrow.setDate(tomorrow.getDate() + 1);
-      
+
       return {
         canClaim: false,
         nextClaimDate: tomorrow,
@@ -687,25 +690,21 @@ export const getPointsStats = async (): Promise<{
   totalTransactions: number;
 }> => {
   try {
-    const [
-      totalPointsResult,
-      totalUsersResult,
-      activeUsersResult,
-      totalTransactionsResult,
-    ] = await Promise.all([
-      prisma.pointAccount.aggregate({
-        _sum: { balance: true },
-      }),
-      prisma.pointAccount.count(),
-      prisma.pointAccount.count({
-        where: {
-          balance: {
-            gt: 0,
+    const [totalPointsResult, totalUsersResult, activeUsersResult, totalTransactionsResult] =
+      await Promise.all([
+        prisma.pointAccount.aggregate({
+          _sum: { balance: true },
+        }),
+        prisma.pointAccount.count(),
+        prisma.pointAccount.count({
+          where: {
+            balance: {
+              gt: 0,
+            },
           },
-        },
-      }),
-      prisma.pointTransaction.count(),
-    ]);
+        }),
+        prisma.pointTransaction.count(),
+      ]);
 
     const totalPoints = totalPointsResult._sum.balance || 0;
     const totalUsers = totalUsersResult;

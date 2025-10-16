@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { Request, Response, NextFunction } from 'express';
 import RedisService from '../services/redis.service';
 import { errorResponse } from '../utils/response';
