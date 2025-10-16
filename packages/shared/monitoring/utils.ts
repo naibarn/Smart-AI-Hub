@@ -23,7 +23,7 @@ export function createHealthCheckEndpoint(metrics: PrometheusMetrics) {
         uptime: process.uptime(),
         memory: process.memoryUsage(),
         activeConnections: await metrics.getActiveConnections(),
-        service: 'running'
+        service: 'running',
       };
 
       res.json(healthStatus);
@@ -32,7 +32,7 @@ export function createHealthCheckEndpoint(metrics: PrometheusMetrics) {
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   };
@@ -49,8 +49,8 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} service has been down for more than 1 minute`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
+        team: 'platform',
+      },
     },
     {
       name: `${serviceName}_HighErrorRate`,
@@ -61,8 +61,8 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} error rate is above 10% for more than 2 minutes`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
+        team: 'platform',
+      },
     },
     {
       name: `${serviceName}_HighResponseTime`,
@@ -73,8 +73,8 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} 95th percentile response time is above 1 second for more than 3 minutes`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
+        team: 'platform',
+      },
     },
     {
       name: `${serviceName}_HighMemoryUsage`,
@@ -85,8 +85,8 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} memory usage is above 512MB for more than 5 minutes`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
+        team: 'platform',
+      },
     },
     {
       name: `${serviceName}_HighCPUUsage`,
@@ -97,8 +97,8 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} CPU usage is above 80% for more than 5 minutes`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
+        team: 'platform',
+      },
     },
     {
       name: `${serviceName}_UnusualTraffic`,
@@ -109,8 +109,8 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} is receiving more than 100 requests per second for more than 2 minutes`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
+        team: 'platform',
+      },
     },
     {
       name: `${serviceName}_DatabaseConnectionIssues`,
@@ -121,19 +121,19 @@ export function generateAlertRules(serviceName: string): AlertRule[] {
       description: `${serviceName} has no active database connections for more than 1 minute`,
       labels: {
         service: serviceName,
-        team: 'platform'
-      }
-    }
+        team: 'platform',
+      },
+    },
   ];
 }
 
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
@@ -141,7 +141,7 @@ export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m ${secs}s`;
   } else if (minutes > 0) {
@@ -153,10 +153,10 @@ export function formatDuration(seconds: number): string {
 
 export function calculatePercentile(values: number[], percentile: number): number {
   if (values.length === 0) return 0;
-  
+
   const sorted = values.sort((a, b) => a - b);
   const index = Math.ceil((percentile / 100) * sorted.length) - 1;
-  
+
   return sorted[index];
 }
 
@@ -177,21 +177,24 @@ export function extractServiceNameFromLabels(labels: Record<string, string>): st
   return labels.service || labels.job || labels.instance || 'unknown';
 }
 
-export function createMetricLabels(baseLabels: Record<string, string>, additionalLabels?: Record<string, string>): Record<string, string> {
+export function createMetricLabels(
+  baseLabels: Record<string, string>,
+  additionalLabels?: Record<string, string>
+): Record<string, string> {
   const sanitized: Record<string, string> = {};
-  
+
   // Sanitize all label names and values
   Object.entries(baseLabels).forEach(([key, value]) => {
     const sanitizedKey = sanitizeLabelName(key);
     sanitized[sanitizedKey] = String(value);
   });
-  
+
   if (additionalLabels) {
     Object.entries(additionalLabels).forEach(([key, value]) => {
       const sanitizedKey = sanitizeLabelName(key);
       sanitized[sanitizedKey] = String(value);
     });
   }
-  
+
   return sanitized;
 }

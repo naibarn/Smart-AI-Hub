@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -105,21 +99,21 @@ const SecurityDashboard: React.FC = () => {
 
   // Calculate security score
   const calculateSecurityScore = () => {
-    const enabledHeaders = securityHeaders.filter(h => h.enabled).length;
+    const enabledHeaders = securityHeaders.filter((h) => h.enabled).length;
     const totalHeaders = securityHeaders.length;
     const headerScore = (enabledHeaders / totalHeaders) * 50;
 
     const unresolvedIssues = cspStats?.unresolved || 0;
-    const violationScore = Math.max(0, 30 - (unresolvedIssues * 2));
+    const violationScore = Math.max(0, 30 - unresolvedIssues * 2);
 
-    const hasHsts = securityHeaders.find(h => h.name === 'Strict-Transport-Security')?.enabled;
+    const hasHsts = securityHeaders.find((h) => h.name === 'Strict-Transport-Security')?.enabled;
     const hstsBonus = hasHsts ? 10 : 0;
 
-    const hasCsp = securityHeaders.find(h => h.name === 'Content-Security-Policy')?.enabled;
+    const hasCsp = securityHeaders.find((h) => h.name === 'Content-Security-Policy')?.enabled;
     const cspBonus = hasCsp ? 10 : 0;
 
     const totalScore = Math.round(headerScore + violationScore + hstsBonus + cspBonus);
-    
+
     let grade = 'F';
     if (totalScore >= 90) grade = 'A+';
     else if (totalScore >= 85) grade = 'A';
@@ -205,11 +199,8 @@ const SecurityDashboard: React.FC = () => {
     const loadData = async () => {
       setLoading(true);
       setError(null);
-      
-      await Promise.all([
-        fetchSecurityHeaders(),
-        fetchCspViolations(),
-      ]);
+
+      await Promise.all([fetchSecurityHeaders(), fetchCspViolations()]);
 
       setLoading(false);
     };
@@ -274,13 +265,19 @@ const SecurityDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
-              <div className={`text-4xl font-bold ${
-                securityScore.grade === 'A+' ? 'text-green-600' :
-                securityScore.grade.startsWith('A') ? 'text-green-500' :
-                securityScore.grade.startsWith('B') ? 'text-yellow-500' :
-                securityScore.grade.startsWith('C') ? 'text-orange-500' :
-                'text-red-500'
-              }`}>
+              <div
+                className={`text-4xl font-bold ${
+                  securityScore.grade === 'A+'
+                    ? 'text-green-600'
+                    : securityScore.grade.startsWith('A')
+                      ? 'text-green-500'
+                      : securityScore.grade.startsWith('B')
+                        ? 'text-yellow-500'
+                        : securityScore.grade.startsWith('C')
+                          ? 'text-orange-500'
+                          : 'text-red-500'
+                }`}
+              >
                 {securityScore.grade}
               </div>
               <div className="flex-1">
@@ -288,7 +285,7 @@ const SecurityDashboard: React.FC = () => {
                 <div className="text-2xl font-semibold">{securityScore.score}/100</div>
               </div>
             </div>
-            
+
             {securityScore.issues.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-sm font-medium text-red-600 mb-2">Issues:</h4>
@@ -354,9 +351,7 @@ const SecurityDashboard: React.FC = () => {
                           {header.enabled ? 'Enabled' : 'Disabled'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {header.value || '-'}
-                      </TableCell>
+                      <TableCell className="max-w-xs truncate">{header.value || '-'}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {header.description}
                       </TableCell>
@@ -374,15 +369,9 @@ const SecurityDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>CSP Violations</CardTitle>
-                  <CardDescription>
-                    Recent Content Security Policy violations
-                  </CardDescription>
+                  <CardDescription>Recent Content Security Policy violations</CardDescription>
                 </div>
-                <Button
-                  onClick={clearResolvedViolations}
-                  variant="outline"
-                  size="sm"
-                >
+                <Button onClick={clearResolvedViolations} variant="outline" size="sm">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Clear Resolved
                 </Button>
@@ -467,9 +456,7 @@ const SecurityDashboard: React.FC = () => {
                 <CardTitle className="text-sm font-medium">Unresolved</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">
-                  {cspStats?.unresolved || 0}
-                </div>
+                <div className="text-2xl font-bold text-red-600">{cspStats?.unresolved || 0}</div>
               </CardContent>
             </Card>
             <Card>
@@ -486,7 +473,7 @@ const SecurityDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
-                  {securityHeaders.filter(h => h.enabled).length}/{securityHeaders.length}
+                  {securityHeaders.filter((h) => h.enabled).length}/{securityHeaders.length}
                 </div>
               </CardContent>
             </Card>

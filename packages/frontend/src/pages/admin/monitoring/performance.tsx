@@ -23,14 +23,8 @@ import {
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
-import {
-  PerformanceChart,
-  MetricCard,
-} from '../../../components/monitoring';
-import {
-  useGetPerformanceQuery,
-  useGetOverviewQuery,
-} from '../../../services/monitoring.service';
+import { PerformanceChart, MetricCard } from '../../../components/monitoring';
+import { useGetPerformanceQuery, useGetOverviewQuery } from '../../../services/monitoring.service';
 import { GlassCard } from '../../../components/common';
 
 const PerformanceMonitoring: React.FC = () => {
@@ -76,40 +70,38 @@ const PerformanceMonitoring: React.FC = () => {
   if (performanceError || overviewError) {
     return (
       <Box p={3}>
-        <Alert severity="error">
-          Failed to load performance data. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load performance data. Please try again later.</Alert>
       </Box>
     );
   }
 
   const formatResponseTimeData = () => {
     if (!performanceData?.data?.responseTime) return [];
-    
-    return performanceData.data.responseTime.map(item => ({
+
+    return performanceData.data.responseTime.map((item) => ({
       timestamp: new Date(item.timestamp).getTime() / 1000,
       value: item.value,
-      label: new Date(item.timestamp).toLocaleTimeString()
+      label: new Date(item.timestamp).toLocaleTimeString(),
     }));
   };
 
   const formatThroughputData = () => {
     if (!performanceData?.data?.throughput) return [];
-    
-    return performanceData.data.throughput.map(item => ({
+
+    return performanceData.data.throughput.map((item) => ({
       timestamp: new Date(item.timestamp).getTime() / 1000,
       value: item.value,
-      label: new Date(item.timestamp).toLocaleTimeString()
+      label: new Date(item.timestamp).toLocaleTimeString(),
     }));
   };
 
   const formatErrorRateData = () => {
     if (!performanceData?.data?.errorRate) return [];
-    
-    return performanceData.data.errorRate.map(item => ({
+
+    return performanceData.data.errorRate.map((item) => ({
       timestamp: new Date(item.timestamp).getTime() / 1000,
       value: item.value,
-      label: new Date(item.timestamp).toLocaleTimeString()
+      label: new Date(item.timestamp).toLocaleTimeString(),
     }));
   };
 
@@ -120,12 +112,7 @@ const PerformanceMonitoring: React.FC = () => {
         <Typography variant="h4" fontWeight="bold">
           Performance Monitoring
           {serviceParam && (
-            <Chip
-              label={`Service: ${serviceParam}`}
-              color="primary"
-              size="small"
-              sx={{ ml: 2 }}
-            />
+            <Chip label={`Service: ${serviceParam}`} color="primary" size="small" sx={{ ml: 2 }} />
           )}
         </Typography>
         <Box display="flex" alignItems="center" gap={2}>
@@ -165,7 +152,13 @@ const PerformanceMonitoring: React.FC = () => {
             <MetricCard
               title="Avg Response Time"
               value={`${overviewData.data.avgResponseTime.toFixed(0)}ms`}
-              status={overviewData.data.avgResponseTime > 1000 ? 'critical' : overviewData.data.avgResponseTime > 500 ? 'warning' : 'healthy'}
+              status={
+                overviewData.data.avgResponseTime > 1000
+                  ? 'critical'
+                  : overviewData.data.avgResponseTime > 500
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<SpeedIcon />}
               description="Average API response time"
             />
@@ -174,7 +167,13 @@ const PerformanceMonitoring: React.FC = () => {
             <MetricCard
               title="Error Rate"
               value={`${overviewData.data.errorRate.toFixed(2)}%`}
-              status={overviewData.data.errorRate > 5 ? 'critical' : overviewData.data.errorRate > 1 ? 'warning' : 'healthy'}
+              status={
+                overviewData.data.errorRate > 5
+                  ? 'critical'
+                  : overviewData.data.errorRate > 1
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<ErrorIcon />}
               description="Percentage of failed requests"
             />
@@ -287,11 +286,7 @@ const PerformanceMonitoring: React.FC = () => {
               ) : (
                 <Box>
                   {performanceData?.data?.topEndpoints?.map((endpoint, index) => (
-                    <Card
-                      key={index}
-                      variant="outlined"
-                      sx={{ mb: 2, p: 2 }}
-                    >
+                    <Card key={index} variant="outlined" sx={{ mb: 2, p: 2 }}>
                       <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Box>
                           <Typography variant="subtitle2" fontWeight="bold">
@@ -305,12 +300,24 @@ const PerformanceMonitoring: React.FC = () => {
                           <Chip
                             label={`${endpoint.avgResponseTime.toFixed(0)}ms`}
                             size="small"
-                            color={endpoint.avgResponseTime > 1000 ? 'error' : endpoint.avgResponseTime > 500 ? 'warning' : 'success'}
+                            color={
+                              endpoint.avgResponseTime > 1000
+                                ? 'error'
+                                : endpoint.avgResponseTime > 500
+                                  ? 'warning'
+                                  : 'success'
+                            }
                           />
                           <Chip
                             label={`${(endpoint.errorRate * 100).toFixed(2)}%`}
                             size="small"
-                            color={endpoint.errorRate > 0.05 ? 'error' : endpoint.errorRate > 0.01 ? 'warning' : 'success'}
+                            color={
+                              endpoint.errorRate > 0.05
+                                ? 'error'
+                                : endpoint.errorRate > 0.01
+                                  ? 'warning'
+                                  : 'success'
+                            }
                           />
                         </Box>
                       </Box>

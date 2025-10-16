@@ -25,7 +25,7 @@ import {
   DatabaseMonitoring,
   AlertsMonitoring,
   SystemMonitoring,
-  GrafanaDashboards
+  GrafanaDashboards,
 } from './pages/admin/monitoring/index-pages';
 import CommandPalette from './components/common/CommandPalette';
 import { api } from './services/api';
@@ -169,7 +169,7 @@ const AppContent: React.FC = () => {
             <Route path="/webhooks" element={<Webhooks />} />
             <Route path="/test-connection" element={<TestConnection />} />
             <Route path="/chat" element={<ChatInterface />} />
-            
+
             {/* Admin monitoring routes with RBAC protection */}
             <Route element={<AdminProtectedRoute />}>
               <Route path="/admin/monitoring" element={<MonitoringDashboard />} />
@@ -179,7 +179,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/monitoring/system" element={<SystemMonitoring />} />
               <Route path="/admin/monitoring/grafana" element={<GrafanaDashboards />} />
             </Route>
-            
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Route>

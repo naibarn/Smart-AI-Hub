@@ -33,9 +33,7 @@ import {
   NotificationsOff as NotificationsOffIcon,
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
-import {
-  AlertsList,
-} from '../../../components/monitoring';
+import { AlertsList } from '../../../components/monitoring';
 import {
   useGetAlertsQuery,
   useAcknowledgeAlertMutation,
@@ -60,9 +58,9 @@ const AlertsMonitoring: React.FC = () => {
     error: alertsError,
     isLoading: alertsLoading,
     refetch: refetchAlerts,
-  } = useGetAlertsQuery({ 
-    status: statusFilter || undefined, 
-    severity: severityFilter || undefined 
+  } = useGetAlertsQuery({
+    status: statusFilter || undefined,
+    severity: severityFilter || undefined,
   });
 
   // Mutations for alert actions
@@ -86,7 +84,10 @@ const AlertsMonitoring: React.FC = () => {
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
-      await acknowledgeAlert({ alertId, comment: 'Acknowledged from monitoring dashboard' }).unwrap();
+      await acknowledgeAlert({
+        alertId,
+        comment: 'Acknowledged from monitoring dashboard',
+      }).unwrap();
     } catch (error) {
       console.error('Failed to acknowledge alert:', error);
     }
@@ -101,10 +102,10 @@ const AlertsMonitoring: React.FC = () => {
     if (!selectedAlert) return;
 
     try {
-      await silenceAlert({ 
-        alertId: selectedAlert.id, 
-        duration: silenceDuration, 
-        comment: silenceComment 
+      await silenceAlert({
+        alertId: selectedAlert.id,
+        duration: silenceDuration,
+        comment: silenceComment,
       }).unwrap();
       setSilenceDialogOpen(false);
       setSelectedAlert(null);
@@ -114,32 +115,34 @@ const AlertsMonitoring: React.FC = () => {
     }
   };
 
-  const filteredAlerts = alertsData?.data?.filter(alert => {
-    if (searchTerm && !alert.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !alert.message.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false;
-    }
-    return true;
-  }) || [];
+  const filteredAlerts =
+    alertsData?.data?.filter((alert) => {
+      if (
+        searchTerm &&
+        !alert.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !alert.message.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        return false;
+      }
+      return true;
+    }) || [];
 
   const getAlertStats = () => {
     const alerts = alertsData?.data || [];
     return {
       total: alerts.length,
-      critical: alerts.filter(a => a.severity === 'critical').length,
-      warning: alerts.filter(a => a.severity === 'warning').length,
-      info: alerts.filter(a => a.severity === 'info').length,
-      active: alerts.filter(a => a.status === 'active').length,
-      resolved: alerts.filter(a => a.status === 'resolved').length,
+      critical: alerts.filter((a) => a.severity === 'critical').length,
+      warning: alerts.filter((a) => a.severity === 'warning').length,
+      info: alerts.filter((a) => a.severity === 'info').length,
+      active: alerts.filter((a) => a.status === 'active').length,
+      resolved: alerts.filter((a) => a.status === 'resolved').length,
     };
   };
 
   if (alertsError) {
     return (
       <Box p={3}>
-        <Alert severity="error">
-          Failed to load alerts data. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load alerts data. Please try again later.</Alert>
       </Box>
     );
   }
@@ -332,7 +335,7 @@ const AlertsMonitoring: React.FC = () => {
             </Box>
           ) : (
             <AlertsList
-              alerts={filteredAlerts.map(alert => ({
+              alerts={filteredAlerts.map((alert) => ({
                 id: alert.id,
                 name: alert.name,
                 severity: alert.severity,
@@ -341,8 +344,8 @@ const AlertsMonitoring: React.FC = () => {
                 description: alert.message,
                 startsAt: alert.timestamp,
                 status: {
-                  state: alert.status as 'active' | 'suppressed' | 'resolved'
-                }
+                  state: alert.status as 'active' | 'suppressed' | 'resolved',
+                },
               }))}
               onAcknowledge={handleAcknowledgeAlert}
               onSuppress={handleSilenceAlert}
@@ -352,7 +355,12 @@ const AlertsMonitoring: React.FC = () => {
       </GlassCard>
 
       {/* Silence Dialog */}
-      <Dialog open={silenceDialogOpen} onClose={() => setSilenceDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={silenceDialogOpen}
+        onClose={() => setSilenceDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Silence Alert</DialogTitle>
         <DialogContent>
           {selectedAlert && (
@@ -391,9 +399,9 @@ const AlertsMonitoring: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSilenceDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleConfirmSilence} 
-            variant="contained" 
+          <Button
+            onClick={handleConfirmSilence}
+            variant="contained"
             color="warning"
             disabled={isSilencing}
           >

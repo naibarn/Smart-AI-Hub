@@ -55,7 +55,7 @@ export class CalculateBaselinesJob {
     this.prisma = new PrismaClient();
     this.prometheusUrl = process.env.PROMETHEUS_URL || 'http://prometheus:9090';
     this.slaConfig = this.loadSLAConfig();
-    
+
     // Schedule job to run daily at 2 AM
     this.cronJob = new CronJob(
       this.slaConfig.baselineCalculation.schedule,
@@ -66,7 +66,7 @@ export class CalculateBaselinesJob {
     );
 
     logger.info('Baselines calculation job initialized', {
-      schedule: this.slaConfig.baselineCalculation.schedule
+      schedule: this.slaConfig.baselineCalculation.schedule,
     });
   }
 
@@ -85,7 +85,7 @@ export class CalculateBaselinesJob {
     try {
       const response = await axios.get(`${this.prometheusUrl}/api/v1/query`, {
         params: { query },
-        timeout: 30000
+        timeout: 30000,
       });
       return response.data;
     } catch (error) {
@@ -97,13 +97,13 @@ export class CalculateBaselinesJob {
   private async queryPrometheusRange(query: string, start: number, end: number): Promise<any> {
     try {
       const response = await axios.get(`${this.prometheusUrl}/api/v1/query_range`, {
-        params: { 
-          query, 
-          start, 
-          end, 
-          step: '5m' 
+        params: {
+          query,
+          start,
+          end,
+          step: '5m',
         },
-        timeout: 30000
+        timeout: 30000,
       });
       return response.data;
     } catch (error) {
@@ -135,18 +135,24 @@ export class CalculateBaselinesJob {
     return route === pattern;
   }
 
-  private async calculatePercentiles(service: string, route: string, method: string, start: number, end: number): Promise<any> {
+  private async calculatePercentiles(
+    service: string,
+    route: string,
+    method: string,
+    start: number,
+    end: number
+  ): Promise<any> {
     const percentiles = this.slaConfig.baselineCalculation.percentiles;
     const results: any = {};
 
     for (const percentile of percentiles) {
       const percentileValue = parseFloat(percentile.replace('p', '')) / 100;
       const query = `histogram_quantile(${percentileValue}, rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m]))`;
-      
+
       try {
         const result = await this.queryPrometheusRange(query, start, end);
         const values = result.data.result[0]?.values || [];
-        
+
         if (values.length > 0) {
           const validValues = values.filter((v: any[]) => parseFloat(v[1]) > 0);
           if (validValues.length >= this.slaConfig.baselineCalculation.minSampleSize) {
@@ -155,20 +161,32 @@ export class CalculateBaselinesJob {
           }
         }
       } catch (error) {
-        logger.warn('Failed to calculate percentile', { service, route, method, percentile, error });
+        logger.warn('Failed to calculate percentile', {
+          service,
+          route,
+          method,
+          percentile,
+          error,
+        });
       }
     }
 
     return results;
   }
 
-  private async calculateAverage(service: string, route: string, method: string, start: number, end: number): Promise<number> {
+  private async calculateAverage(
+    service: string,
+    route: string,
+    method: string,
+    start: number,
+    end: number
+  ): Promise<number> {
     const query = `rate(http_response_time_milliseconds_sum{service="${service}",route="${route}",method="${method}"}[5m]) / rate(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m])`;
-    
+
     try {
       const result = await this.queryPrometheusRange(query, start, end);
       const values = result.data.result[0]?.values || [];
-      
+
       if (values.length > 0) {
         const validValues = values.filter((v: any[]) => parseFloat(v[1]) > 0);
         if (validValues.length >= this.slaConfig.baselineCalculation.minSampleSize) {
@@ -183,13 +201,19 @@ export class CalculateBaselinesJob {
     return 0;
   }
 
-  private async getRequestCount(service: string, route: string, method: string, start: number, end: number): Promise<number> {
+  private async getRequestCount(
+    service: string,
+    route: string,
+    method: string,
+    start: number,
+    end: number
+  ): Promise<number> {
     const query = `sum(increase(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m]))`;
-    
+
     try {
       const result = await this.queryPrometheusRange(query, start, end);
       const values = result.data.result[0]?.values || [];
-      
+
       if (values.length > 0) {
         return values.reduce((acc: number, v: any[]) => acc + parseFloat(v[1]), 0);
       }
@@ -200,17 +224,24 @@ export class CalculateBaselinesJob {
     return 0;
   }
 
-  private async calculateSLACompliance(service: string, route: string, method: string, start: number, end: number, slaTier: string): Promise<number> {
+  private async calculateSLACompliance(
+    service: string,
+    route: string,
+    method: string,
+    start: number,
+    end: number,
+    slaTier: string
+  ): Promise<number> {
     const slaConfig = this.slaConfig.slaTiers[slaTier];
     if (!slaConfig) return 0;
 
     const threshold = slaConfig.thresholdMs;
     const query = `sum(increase(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}",le="${threshold}"}[5m])) / sum(increase(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m]))`;
-    
+
     try {
       const result = await this.queryPrometheusRange(query, start, end);
       const values = result.data.result[0]?.values || [];
-      
+
       if (values.length > 0) {
         const sum = values.reduce((acc: number, v: any[]) => acc + parseFloat(v[1]), 0);
         return (sum / values.length) * 100; // Return percentage
@@ -222,15 +253,18 @@ export class CalculateBaselinesJob {
     return 0;
   }
 
-  private async getTopEndpoints(): Promise<Array<{service: string, route: string, method: string}>> {
-    const query = 'topk(100, sum by (service, route, method) (rate(http_response_time_milliseconds_count[5m])))';
-    
+  private async getTopEndpoints(): Promise<
+    Array<{ service: string; route: string; method: string }>
+  > {
+    const query =
+      'topk(100, sum by (service, route, method) (rate(http_response_time_milliseconds_count[5m])))';
+
     try {
       const result = await this.queryPrometheus(query);
       return result.data.result.map((r: any) => ({
         service: r.metric.service,
         route: r.metric.route,
-        method: r.metric.method
+        method: r.metric.method,
       }));
     } catch (error) {
       logger.error('Failed to get top endpoints', { error });
@@ -240,10 +274,10 @@ export class CalculateBaselinesJob {
 
   public async execute(): Promise<void> {
     logger.info('Starting baselines calculation job');
-    
+
     try {
       const now = Math.floor(Date.now() / 1000);
-      const yesterday = now - (24 * 60 * 60); // 24 hours ago
+      const yesterday = now - 24 * 60 * 60; // 24 hours ago
       const date = new Date(yesterday * 1000);
 
       const endpoints = await this.getTopEndpoints();
@@ -259,7 +293,7 @@ export class CalculateBaselinesJob {
             this.calculatePercentiles(service, route, method, yesterday, now),
             this.calculateAverage(service, route, method, yesterday, now),
             this.getRequestCount(service, route, method, yesterday, now),
-            this.calculateSLACompliance(service, route, method, yesterday, now, slaTier)
+            this.calculateSLACompliance(service, route, method, yesterday, now, slaTier),
           ]);
 
           if (count >= this.slaConfig.baselineCalculation.minSampleSize) {
@@ -276,7 +310,7 @@ export class CalculateBaselinesJob {
               count,
               slaTier,
               slaThreshold,
-              slaCompliance
+              slaCompliance,
             };
 
             baselines.push(baseline);
@@ -295,9 +329,8 @@ export class CalculateBaselinesJob {
       logger.info('Baselines calculation completed', {
         totalEndpoints: endpoints.length,
         calculatedBaselines: baselines.length,
-        date: date.toISOString()
+        date: date.toISOString(),
       });
-
     } catch (error) {
       logger.error('Baselines calculation job failed', { error });
       throw error;
@@ -314,8 +347,8 @@ export class CalculateBaselinesJob {
               service: baseline.service,
               route: baseline.route,
               method: baseline.method,
-              date: baseline.date
-            }
+              date: baseline.date,
+            },
           },
           update: {
             p50: baseline.p50,
@@ -326,9 +359,9 @@ export class CalculateBaselinesJob {
             count: baseline.count,
             slaTier: baseline.slaTier,
             slaThreshold: baseline.slaThreshold,
-            slaCompliance: baseline.slaCompliance
+            slaCompliance: baseline.slaCompliance,
           },
-          create: baseline
+          create: baseline,
         });
       }
     } catch (error) {
@@ -340,14 +373,16 @@ export class CalculateBaselinesJob {
   private async cleanOldBaselines(): Promise<void> {
     try {
       const retentionDate = new Date();
-      retentionDate.setDate(retentionDate.getDate() - this.slaConfig.baselineCalculation.retentionDays);
+      retentionDate.setDate(
+        retentionDate.getDate() - this.slaConfig.baselineCalculation.retentionDays
+      );
 
       const result = await this.prisma.performanceBaseline.deleteMany({
         where: {
           date: {
-            lt: retentionDate
-          }
-        }
+            lt: retentionDate,
+          },
+        },
       });
 
       logger.info('Cleaned old baselines', { deletedCount: result.count });

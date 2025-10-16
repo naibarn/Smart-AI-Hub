@@ -97,96 +97,96 @@ const ResponseTimeAnalytics: React.FC = () => {
   // Fetch functions
   const fetchOverview = async () => {
     try {
-      setLoading(prev => ({ ...prev, overview: true }));
+      setLoading((prev) => ({ ...prev, overview: true }));
       const response = await monitoringService.getResponseTimeOverview();
       setOverviewData(response.data);
-      setErrors(prev => ({ ...prev, overview: null }));
+      setErrors((prev) => ({ ...prev, overview: null }));
     } catch (error) {
-      setErrors(prev => ({ ...prev, overview: error as any }));
+      setErrors((prev) => ({ ...prev, overview: error as any }));
     } finally {
-      setLoading(prev => ({ ...prev, overview: false }));
+      setLoading((prev) => ({ ...prev, overview: false }));
     }
   };
 
   const fetchEndpoints = async () => {
     try {
-      setLoading(prev => ({ ...prev, endpoints: true }));
+      setLoading((prev) => ({ ...prev, endpoints: true }));
       const response = await monitoringService.getResponseTimeEndpoints({
         service: selectedService,
         sla_tier: selectedSLATier,
       });
       setEndpointsData(response.data);
-      setErrors(prev => ({ ...prev, endpoints: null }));
+      setErrors((prev) => ({ ...prev, endpoints: null }));
     } catch (error) {
-      setErrors(prev => ({ ...prev, endpoints: error as any }));
+      setErrors((prev) => ({ ...prev, endpoints: error as any }));
     } finally {
-      setLoading(prev => ({ ...prev, endpoints: false }));
+      setLoading((prev) => ({ ...prev, endpoints: false }));
     }
   };
 
   const fetchTrends = async () => {
     try {
-      setLoading(prev => ({ ...prev, trends: true }));
+      setLoading((prev) => ({ ...prev, trends: true }));
       const response = await monitoringService.getResponseTimeTrends({
         timeframe,
         service: selectedService,
       });
       setTrendsData(response.data);
-      setErrors(prev => ({ ...prev, trends: null }));
+      setErrors((prev) => ({ ...prev, trends: null }));
     } catch (error) {
-      setErrors(prev => ({ ...prev, trends: error as any }));
+      setErrors((prev) => ({ ...prev, trends: error as any }));
     } finally {
-      setLoading(prev => ({ ...prev, trends: false }));
+      setLoading((prev) => ({ ...prev, trends: false }));
     }
   };
 
   const fetchViolations = async () => {
     try {
-      setLoading(prev => ({ ...prev, violations: true }));
+      setLoading((prev) => ({ ...prev, violations: true }));
       const response = await monitoringService.getResponseTimeViolations({
         timeframe,
         sla_tier: selectedSLATier,
         service: selectedService,
       });
       setViolationsData(response.data);
-      setErrors(prev => ({ ...prev, violations: null }));
+      setErrors((prev) => ({ ...prev, violations: null }));
     } catch (error) {
-      setErrors(prev => ({ ...prev, violations: error as any }));
+      setErrors((prev) => ({ ...prev, violations: error as any }));
     } finally {
-      setLoading(prev => ({ ...prev, violations: false }));
+      setLoading((prev) => ({ ...prev, violations: false }));
     }
   };
 
   const fetchBaselines = async () => {
     try {
-      setLoading(prev => ({ ...prev, baselines: true }));
+      setLoading((prev) => ({ ...prev, baselines: true }));
       const response = await monitoringService.getResponseTimeBaselines({
         service: selectedService,
         route: searchTerm,
       });
       setBaselinesData(response.data);
-      setErrors(prev => ({ ...prev, baselines: null }));
+      setErrors((prev) => ({ ...prev, baselines: null }));
     } catch (error) {
-      setErrors(prev => ({ ...prev, baselines: error as any }));
+      setErrors((prev) => ({ ...prev, baselines: error as any }));
     } finally {
-      setLoading(prev => ({ ...prev, baselines: false }));
+      setLoading((prev) => ({ ...prev, baselines: false }));
     }
   };
 
   const fetchComparison = async () => {
     try {
-      setLoading(prev => ({ ...prev, comparison: true }));
+      setLoading((prev) => ({ ...prev, comparison: true }));
       const response = await monitoringService.getResponseTimeCompare({
         endpoints: 'core-service:/api/v1/users,mcp-server:/api/v1/mcp/chat',
         timeframe,
         metric: 'p95',
       });
       setComparisonData(response.data);
-      setErrors(prev => ({ ...prev, comparison: null }));
+      setErrors((prev) => ({ ...prev, comparison: null }));
     } catch (error) {
-      setErrors(prev => ({ ...prev, comparison: error as any }));
+      setErrors((prev) => ({ ...prev, comparison: error as any }));
     } finally {
-      setLoading(prev => ({ ...prev, comparison: false }));
+      setLoading((prev) => ({ ...prev, comparison: false }));
     }
   };
 
@@ -232,14 +232,12 @@ const ResponseTimeAnalytics: React.FC = () => {
     console.log('Endpoint clicked:', endpoint);
   };
 
-  const hasErrors = Object.values(errors).some(error => error !== null);
+  const hasErrors = Object.values(errors).some((error) => error !== null);
 
   if (hasErrors) {
     return (
       <Box p={3}>
-        <Alert severity="error">
-          Failed to load response time data. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load response time data. Please try again later.</Alert>
       </Box>
     );
   }
@@ -265,7 +263,7 @@ const ResponseTimeAnalytics: React.FC = () => {
               ),
             }}
           />
-          
+
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Time Range</InputLabel>
             <Select
@@ -318,7 +316,7 @@ const ResponseTimeAnalytics: React.FC = () => {
             onClick={() => setAutoRefresh(!autoRefresh)}
             style={{ cursor: 'pointer' }}
           />
-          
+
           <Tooltip title="Refresh data">
             <IconButton onClick={handleRefresh} color="primary">
               <RefreshIcon />
@@ -334,8 +332,13 @@ const ResponseTimeAnalytics: React.FC = () => {
             <MetricCard
               title="Average Response Time"
               value={`${overviewData.avgResponseTime?.p95 || '0'}ms`}
-              status={parseFloat(overviewData.avgResponseTime?.p95 || '0') > 1000 ? 'critical' : 
-                     parseFloat(overviewData.avgResponseTime?.p95 || '0') > 500 ? 'warning' : 'healthy'}
+              status={
+                parseFloat(overviewData.avgResponseTime?.p95 || '0') > 1000
+                  ? 'critical'
+                  : parseFloat(overviewData.avgResponseTime?.p95 || '0') > 500
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<SpeedIcon />}
               description="P95 response time across all endpoints"
             />
@@ -344,8 +347,13 @@ const ResponseTimeAnalytics: React.FC = () => {
             <MetricCard
               title="SLA Compliance"
               value={`${overviewData.slaCompliance?.[0]?.compliance || '100'}%`}
-              status={parseFloat(overviewData.slaCompliance?.[0]?.compliance || '100') < 95 ? 'critical' : 
-                     parseFloat(overviewData.slaCompliance?.[0]?.compliance || '100') < 98 ? 'warning' : 'healthy'}
+              status={
+                parseFloat(overviewData.slaCompliance?.[0]?.compliance || '100') < 95
+                  ? 'critical'
+                  : parseFloat(overviewData.slaCompliance?.[0]?.compliance || '100') < 98
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<CheckCircleIcon />}
               description="Overall SLA compliance rate"
             />
@@ -354,8 +362,13 @@ const ResponseTimeAnalytics: React.FC = () => {
             <MetricCard
               title="Violations Count"
               value={overviewData.violationsCount || '0'}
-              status={parseInt(overviewData.violationsCount || '0') > 10 ? 'critical' : 
-                     parseInt(overviewData.violationsCount || '0') > 5 ? 'warning' : 'healthy'}
+              status={
+                parseInt(overviewData.violationsCount || '0') > 10
+                  ? 'critical'
+                  : parseInt(overviewData.violationsCount || '0') > 5
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<ErrorIcon />}
               description="Current SLA violations"
             />
@@ -364,8 +377,13 @@ const ResponseTimeAnalytics: React.FC = () => {
             <MetricCard
               title="Slowest Endpoint"
               value={`${overviewData.slowestEndpoints?.[0]?.p95 || '0'}ms`}
-              status={parseFloat(overviewData.slowestEndpoints?.[0]?.p95 || '0') > 2000 ? 'critical' : 
-                     parseFloat(overviewData.slowestEndpoints?.[0]?.p95 || '0') > 1000 ? 'warning' : 'healthy'}
+              status={
+                parseFloat(overviewData.slowestEndpoints?.[0]?.p95 || '0') > 2000
+                  ? 'critical'
+                  : parseFloat(overviewData.slowestEndpoints?.[0]?.p95 || '0') > 1000
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<TimelineIcon />}
               description={`Slowest: ${overviewData.slowestEndpoints?.[0]?.service || 'N/A'}`}
             />

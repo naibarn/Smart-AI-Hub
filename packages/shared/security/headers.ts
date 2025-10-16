@@ -37,16 +37,74 @@ export const SecurityConfig = {
       preload: true,
     },
   },
-  
+
   development: {
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        styleSrc: ["'self'", "'unsafe-inline'", 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        imgSrc: ["'self'", 'data:', 'https:', 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        fontSrc: ["'self'", 'data:', 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        connectSrc: ["'self'", 'ws:', 'wss:', 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
+        defaultSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'https:',
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        fontSrc: [
+          "'self'",
+          'data:',
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        connectSrc: [
+          "'self'",
+          'ws:',
+          'wss:',
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
         frameAncestors: ["'self'"],
         formAction: ["'self'"],
         baseUri: ["'self'"],
@@ -64,12 +122,70 @@ export const SecurityConfig = {
   staging: {
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        styleSrc: ["'self'", "'unsafe-inline'", 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        imgSrc: ["'self'", 'data:', 'https:', 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        fontSrc: ["'self'", 'data:', 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
-        connectSrc: ["'self'", 'ws:', 'wss:', 'localhost:3000', 'localhost:3001', 'localhost:3002', 'localhost:3003', 'localhost:3004', 'localhost:8080'],
+        defaultSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'https:',
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        fontSrc: [
+          "'self'",
+          'data:',
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
+        connectSrc: [
+          "'self'",
+          'ws:',
+          'wss:',
+          'localhost:3000',
+          'localhost:3001',
+          'localhost:3002',
+          'localhost:3003',
+          'localhost:3004',
+          'localhost:8080',
+        ],
         frameAncestors: ["'self'"],
         formAction: ["'self'"],
         baseUri: ["'self'"],
@@ -89,7 +205,7 @@ export const SecurityConfig = {
  * CSP nonce generation middleware
  */
 export const cspNonceMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const crypto = require('crypto');
+  const crypto = require('crypto') as typeof import('crypto');
   req.locals = req.locals || {};
   req.locals.cspNonce = crypto.randomBytes(16).toString('base64');
   res.locals.cspNonce = req.locals.cspNonce;
@@ -101,7 +217,7 @@ export const cspNonceMiddleware = (req: Request, res: Response, next: NextFuncti
  */
 export const getSecurityConfig = () => {
   const env = process.env.NODE_ENV || 'development';
-  
+
   switch (env) {
     case 'production':
       return SecurityConfig.production;
@@ -120,10 +236,7 @@ export const securityHeaders = helmet(getSecurityConfig());
 /**
  * Complete security middleware stack (should be applied FIRST)
  */
-export const applySecurityHeaders = [
-  cspNonceMiddleware,
-  securityHeaders,
-];
+export const applySecurityHeaders = [cspNonceMiddleware, securityHeaders];
 
 /**
  * Security headers for API endpoints (no CSP needed)
@@ -142,7 +255,7 @@ export const apiSecurityHeaders = helmet({
  * Generate CSP nonce for templates
  */
 export const generateCspNonce = (): string => {
-  const crypto = require('crypto');
+  const crypto = require('crypto') as typeof import('crypto');
   return crypto.randomBytes(16).toString('base64');
 };
 
@@ -164,11 +277,11 @@ export const validateCspReport = (report: any): boolean => {
 export interface CspViolationReport {
   'csp-report': {
     'document-uri'?: string;
-    'referrer'?: string;
+    referrer?: string;
     'violated-directive'?: string;
     'effective-directive'?: string;
     'original-policy'?: string;
-    'disposition'?: string;
+    disposition?: string;
     'blocked-uri'?: string;
     'line-number'?: number;
     'column-number'?: number;
@@ -211,9 +324,10 @@ export const getSecurityHeadersStatus = (): SecurityHeadersStatus => {
     },
     'Strict-Transport-Security': {
       enabled: true,
-      value: process.env.NODE_ENV === 'production' 
-        ? 'max-age=31536000; includeSubDomains; preload'
-        : 'max-age=3600; includeSubDomains',
+      value:
+        process.env.NODE_ENV === 'production'
+          ? 'max-age=31536000; includeSubDomains; preload'
+          : 'max-age=3600; includeSubDomains',
       description: 'Enforces HTTPS connections',
     },
     'Referrer-Policy': {

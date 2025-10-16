@@ -27,7 +27,7 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
   violations,
   loading = false,
   timeframe = '1h',
-  onTimeframeChange
+  onTimeframeChange,
 }) => {
   const [expandedViolation, setExpandedViolation] = useState<string | null>(null);
 
@@ -49,16 +49,21 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
 
   const getSLATierColor = (tier: string) => {
     switch (tier) {
-      case 'critical': return 'text-red-400 bg-red-400/10';
-      case 'high': return 'text-orange-400 bg-orange-400/10';
-      case 'medium': return 'text-yellow-400 bg-yellow-400/10';
-      case 'low': return 'text-green-400 bg-green-400/10';
-      default: return 'text-gray-400 bg-gray-400/10';
+      case 'critical':
+        return 'text-red-400 bg-red-400/10';
+      case 'high':
+        return 'text-orange-400 bg-orange-400/10';
+      case 'medium':
+        return 'text-yellow-400 bg-yellow-400/10';
+      case 'low':
+        return 'text-green-400 bg-green-400/10';
+      default:
+        return 'text-gray-400 bg-gray-400/10';
     }
   };
 
   const toggleExpansion = (violationId: string) => {
-    setExpandedViolation(prev => prev === violationId ? null : violationId);
+    setExpandedViolation((prev) => (prev === violationId ? null : violationId));
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -85,7 +90,7 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-white">SLA Violations</h3>
-          
+
           {onTimeframeChange && (
             <select
               value={timeframe}
@@ -98,7 +103,7 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
             </select>
           )}
         </div>
-        
+
         {violations.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-green-400 text-4xl mb-2">✓</div>
@@ -109,7 +114,7 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
             {violations.map((violation, index) => {
               const violationId = `${violation.service}-${violation.route}-${violation.method}`;
               const isExpanded = expandedViolation === violationId;
-              
+
               return (
                 <div
                   key={index}
@@ -129,52 +134,57 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
                             {violation.method}
                           </span>
                         </div>
-                        
-                        <span className={`px-2 py-1 rounded text-xs ${getSLATierColor(violation.slaTier)}`}>
+
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${getSLATierColor(violation.slaTier)}`}
+                        >
                           {violation.slaTier.charAt(0).toUpperCase() + violation.slaTier.slice(1)}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-3">
                         <div className="text-right">
-                          <div className={`text-sm font-medium ${getSeverityColor(violation.violationRate)}`}>
+                          <div
+                            className={`text-sm font-medium ${getSeverityColor(violation.violationRate)}`}
+                          >
                             {getSeverityLabel(violation.violationRate)}
                           </div>
                           <div className="text-xs text-gray-400">
                             {violation.violationRate}% violations
                           </div>
                         </div>
-                        
-                        <div className="text-gray-400">
-                          {isExpanded ? '▼' : '▶'}
-                        </div>
+
+                        <div className="text-gray-400">{isExpanded ? '▼' : '▶'}</div>
                       </div>
                     </div>
-                    
+
                     <div className="mt-2 flex items-center justify-between">
                       <div className="text-sm text-gray-400">
                         SLA Threshold: {violation.slaThreshold}ms
                       </div>
-                      
+
                       <div className="text-sm text-gray-400">
                         {violation.trend.length > 0 && (
-                          <>Last violation: {formatTimestamp(violation.trend[violation.trend.length - 1].timestamp)}</>
+                          <>
+                            Last violation:{' '}
+                            {formatTimestamp(violation.trend[violation.trend.length - 1].timestamp)}
+                          </>
                         )}
                       </div>
                     </div>
                   </div>
-                  
+
                   {isExpanded && violation.trend.length > 0 && (
                     <div className="border-t border-gray-600 p-4 bg-gray-700/30">
                       <h4 className="text-sm font-medium text-gray-300 mb-3">Violation Trend</h4>
-                      
+
                       <div className="h-32 relative">
                         {/* Simple trend visualization */}
                         <div className="absolute inset-0 flex items-end space-x-1">
                           {violation.trend.map((point, pointIndex) => {
-                            const maxValue = Math.max(...violation.trend.map(p => p.value));
+                            const maxValue = Math.max(...violation.trend.map((p) => p.value));
                             const height = (point.value / maxValue) * 100;
-                            
+
                             return (
                               <div
                                 key={pointIndex}
@@ -190,10 +200,16 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
                           })}
                         </div>
                       </div>
-                      
+
                       <div className="mt-3 text-xs text-gray-400">
-                        <div>Time range: {formatTimestamp(violation.trend[0].timestamp)} - {formatTimestamp(violation.trend[violation.trend.length - 1].timestamp)}</div>
-                        <div>Peak violation rate: {Math.max(...violation.trend.map(p => p.value)).toFixed(2)}%</div>
+                        <div>
+                          Time range: {formatTimestamp(violation.trend[0].timestamp)} -{' '}
+                          {formatTimestamp(violation.trend[violation.trend.length - 1].timestamp)}
+                        </div>
+                        <div>
+                          Peak violation rate:{' '}
+                          {Math.max(...violation.trend.map((p) => p.value)).toFixed(2)}%
+                        </div>
                       </div>
                     </div>
                   )}
@@ -203,12 +219,19 @@ const ViolationsList: React.FC<ViolationsListProps> = ({
           </div>
         )}
       </div>
-      
+
       {violations.length > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-600">
           <div className="flex justify-between text-sm text-gray-400">
             <span>Total violations: {violations.length}</span>
-            <span>Average violation rate: {(violations.reduce((sum, v) => sum + parseFloat(v.violationRate), 0) / violations.length).toFixed(2)}%</span>
+            <span>
+              Average violation rate:{' '}
+              {(
+                violations.reduce((sum, v) => sum + parseFloat(v.violationRate), 0) /
+                violations.length
+              ).toFixed(2)}
+              %
+            </span>
           </div>
         </div>
       )}

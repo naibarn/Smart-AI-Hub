@@ -38,7 +38,7 @@ export const webhookRateLimiter = rateLimit({
   max: 100, // 100 requests per minute per webhook
   keyGenerator: (req: Request) => {
     // Use webhook ID from params if available, otherwise use IP
-    return req.params.webhookId || req.ip;
+    return req.params.webhookId || req.ip || 'unknown';
   },
   message: {
     error: 'Webhook rate limit exceeded',
@@ -92,7 +92,7 @@ export const createWebhookEndpointRateLimiter = (
     max: maxRequests,
     keyGenerator: (req: Request) => {
       // Use webhook ID from params
-      return `webhook:${req.params.webhookId}`;
+      return `webhook:${req.params.webhookId || 'unknown'}`;
     },
     message: {
       error: 'Webhook endpoint rate limit exceeded',
@@ -121,7 +121,7 @@ export const createWebhookEndpointRateLimiter = (
  */
 export const payloadSizeLimiter = (maxSize: number = 1024 * 1024) => {
   // 1MB default
-  return (req: Request, res: Response, next: Function) => {
+  return (req: Request, res: Response, next: (err?: any) => void) => {
     const contentLength = req.get('Content-Length');
 
     if (contentLength && parseInt(contentLength) > maxSize) {
@@ -145,7 +145,7 @@ export const payloadSizeLimiter = (maxSize: number = 1024 * 1024) => {
 /**
  * Webhook URL validation middleware
  */
-export const webhookUrlValidator = (req: Request, res: Response, next: Function) => {
+export const webhookUrlValidator = (req: Request, res: Response, next: (err?: any) => void) => {
   if (req.body.url) {
     try {
       const url = new URL(req.body.url);

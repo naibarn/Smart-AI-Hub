@@ -85,7 +85,7 @@ const GrafanaDashboards: React.FC = () => {
     { value: '1d', label: '1 day' },
   ];
 
-  const currentDashboard = grafanaDashboards.find(d => d.id === selectedDashboard);
+  const currentDashboard = grafanaDashboards.find((d) => d.id === selectedDashboard);
 
   const getGrafanaIframeUrl = () => {
     const baseUrl = `${grafanaUrl}${currentDashboard?.path || ''}`;
@@ -205,13 +205,13 @@ const GrafanaDashboards: React.FC = () => {
               </Box>
               <Box display="flex" alignItems="center" gap={1}>
                 <Chip
-                  label={`Time: ${timeRanges.find(r => r.value === timeRange)?.label}`}
+                  label={`Time: ${timeRanges.find((r) => r.value === timeRange)?.label}`}
                   size="small"
                   color="primary"
                   variant="outlined"
                 />
                 <Chip
-                  label={`Refresh: ${refreshIntervals.find(r => r.value === refreshInterval)?.label}`}
+                  label={`Refresh: ${refreshIntervals.find((r) => r.value === refreshInterval)?.label}`}
                   size="small"
                   color="secondary"
                   variant="outlined"
@@ -267,19 +267,21 @@ const GrafanaDashboards: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            
+
             <Alert severity="info">
               <Typography variant="body2">
                 <strong>Grafana URL:</strong> {grafanaUrl}
               </Typography>
               <Typography variant="body2" sx={{ mt: 1 }}>
-                Configure the Grafana URL in your environment variables (VITE_GRAFANA_URL) if needed.
+                Configure the Grafana URL in your environment variables (VITE_GRAFANA_URL) if
+                needed.
               </Typography>
             </Alert>
 
             <Alert severity="warning">
               <Typography variant="body2">
-                Make sure your Grafana instance is accessible from this domain and that the dashboards are properly configured.
+                Make sure your Grafana instance is accessible from this domain and that the
+                dashboards are properly configured.
               </Typography>
             </Alert>
           </Box>

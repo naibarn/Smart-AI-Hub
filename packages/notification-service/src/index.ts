@@ -1,7 +1,13 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { redisSubscriber, connectRedisClients } from '@shared/redis-client';
-import { initializeMetrics, createMetricsMiddleware, createMetricsEndpoint, createHealthCheckEndpoint, apiSecurityHeaders } from '@smart-ai-hub/shared';
+import {
+  initializeMetrics,
+  createMetricsMiddleware,
+  createMetricsEndpoint,
+  createHealthCheckEndpoint,
+  apiSecurityHeaders,
+} from '@smart-ai-hub/shared';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3006;
@@ -15,8 +21,8 @@ const metrics = initializeMetrics({
   defaultLabels: {
     service: 'notification-service',
     version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  }
+    environment: process.env.NODE_ENV || 'development',
+  },
 });
 
 // Security middleware (API-specific - no CSP needed)

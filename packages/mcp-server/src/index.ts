@@ -55,20 +55,22 @@ const metrics = initializeMetrics({
   defaultLabels: {
     service: 'mcp-server',
     version: '1.0.0',
-    environment: config.NODE_ENV || 'development'
-  }
+    environment: config.NODE_ENV || 'development',
+  },
 });
 
 // Security middleware (API-specific - no CSP needed)
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: config.NODE_ENV === 'production',
-  },
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: config.NODE_ENV === 'production',
+    },
+  })
+);
 
 // CORS middleware
 app.use(cors());
@@ -77,16 +79,16 @@ app.use(express.json());
 // Basic metrics middleware
 app.use((req: Request, res: Response, next) => {
   const startTime = Date.now();
-  
+
   res.on('finish', () => {
     const duration = (Date.now() - startTime) / 1000;
     const route = req.route?.path || req.path || 'unknown';
-    
+
     // Record basic metrics
     metrics.incrementHttpRequests(req.method, route, res.statusCode);
     metrics.recordHttpRequestDuration(req.method, route, res.statusCode, duration);
   });
-  
+
   next();
 });
 
@@ -107,14 +109,14 @@ app.get('/api/v1/health', async (req: Request, res: Response) => {
   try {
     const stats = connectionService.getStats();
     const detailedProviderStatus = providerManager.getDetailedStatus();
-    
+
     // Check if any providers are available
     const availableProviders = Object.entries(detailedProviderStatus.availability)
       .filter(([_, available]) => available)
       .map(([name]) => name);
-    
+
     const overallStatus = availableProviders.length > 0 ? 'OK' : 'DEGRADED';
-    
+
     const response = {
       status: overallStatus,
       timestamp: new Date().toISOString(),
@@ -124,7 +126,7 @@ app.get('/api/v1/health', async (req: Request, res: Response) => {
       availableProviders,
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      service: 'mcp-server'
+      service: 'mcp-server',
     };
 
     // Generate request ID
@@ -161,7 +163,7 @@ app.get('/api/v1/stats', async (req: Request, res: Response) => {
   try {
     const stats = connectionService.getStats();
     const detailedProviderStatus = providerManager.getDetailedStatus();
-    
+
     const response = {
       ...stats,
       providers: detailedProviderStatus,

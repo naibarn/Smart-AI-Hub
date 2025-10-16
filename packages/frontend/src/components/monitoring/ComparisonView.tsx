@@ -26,13 +26,13 @@ const METRICS = [
   { value: 'p90', label: 'P90' },
   { value: 'p95', label: 'P95' },
   { value: 'p99', label: 'P99' },
-  { value: 'avg', label: 'Average' }
+  { value: 'avg', label: 'Average' },
 ];
 
 const TIMEFRAMES = [
   { value: '1h', label: 'Last Hour' },
   { value: '6h', label: 'Last 6 Hours' },
-  { value: '24h', label: 'Last 24 Hours' }
+  { value: '24h', label: 'Last 24 Hours' },
 ];
 
 const DEFAULT_COLORS = [
@@ -51,30 +51,30 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
   timeframe = '1h',
   onMetricChange,
   onTimeframeChange,
-  onEndpointsChange
+  onEndpointsChange,
 }) => {
   const [selectedEndpoints, setSelectedEndpoints] = useState<string[]>(
-    comparison.map(c => c.endpoint)
+    comparison.map((c) => c.endpoint)
   );
 
   const handleEndpointToggle = (endpoint: string) => {
     const newSelection = selectedEndpoints.includes(endpoint)
-      ? selectedEndpoints.filter(e => e !== endpoint)
+      ? selectedEndpoints.filter((e) => e !== endpoint)
       : [...selectedEndpoints, endpoint];
-    
+
     setSelectedEndpoints(newSelection);
     onEndpointsChange?.(newSelection);
   };
 
   const getFilteredComparison = () => {
-    return comparison.filter(c => selectedEndpoints.includes(c.endpoint));
+    return comparison.filter((c) => selectedEndpoints.includes(c.endpoint));
   };
 
   const getEndpointStats = (endpoint: string) => {
-    const series = comparison.find(c => c.endpoint === endpoint);
+    const series = comparison.find((c) => c.endpoint === endpoint);
     if (!series || series.data.length === 0) return null;
 
-    const values = series.data.map(d => d.value);
+    const values = series.data.map((d) => d.value);
     const min = Math.min(...values);
     const max = Math.max(...values);
     const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
@@ -83,7 +83,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
     return { min, max, avg, current };
   };
 
-  const metricLabel = METRICS.find(m => m.value === metric)?.label || metric;
+  const metricLabel = METRICS.find((m) => m.value === metric)?.label || metric;
 
   if (loading) {
     return (
@@ -108,7 +108,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
           <h3 className="text-lg font-semibold text-white mb-4 md:mb-0">Performance Comparison</h3>
-          
+
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
             {onMetricChange && (
               <select
@@ -116,26 +116,30 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
                 onChange={(e) => onMetricChange(e.target.value)}
                 className="px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-400 focus:outline-none"
               >
-                {METRICS.map(m => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
+                {METRICS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
                 ))}
               </select>
             )}
-            
+
             {onTimeframeChange && (
               <select
                 value={timeframe}
                 onChange={(e) => onTimeframeChange(e.target.value)}
                 className="px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-400 focus:outline-none"
               >
-                {TIMEFRAMES.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {TIMEFRAMES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
             )}
           </div>
         </div>
-        
+
         {/* Endpoint Selection */}
         <div className="flex flex-wrap gap-2 mb-4">
           {comparison.map((series, index) => (
@@ -149,8 +153,8 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
               }`}
             >
               <div className="flex items-center space-x-2">
-                <div 
-                  className="w-2 h-2 rounded-full" 
+                <div
+                  className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: DEFAULT_COLORS[index % DEFAULT_COLORS.length] }}
                 ></div>
                 <span>{series.endpoint}</span>
@@ -172,8 +176,8 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
               {metricLabel} Response Time Comparison
             </h4>
             <div className="h-64 bg-gray-700/30 rounded-lg p-4">
-              <SimpleComparisonChart 
-                data={filteredComparison} 
+              <SimpleComparisonChart
+                data={filteredComparison}
                 colors={DEFAULT_COLORS}
                 metric={metricLabel}
               />
@@ -189,13 +193,13 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({
               return (
                 <div key={endpoint} className="bg-gray-700/30 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-3">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: DEFAULT_COLORS[index % DEFAULT_COLORS.length] }}
                     ></div>
                     <h5 className="text-sm font-medium text-white">{endpoint}</h5>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-400">Current:</span>
@@ -235,8 +239,8 @@ const SimpleComparisonChart: React.FC<SimpleComparisonChartProps> = ({ data, col
   if (data.length === 0) return null;
 
   // Calculate average values for each endpoint
-  const averages = data.map(series => {
-    const values = series.data.map(d => d.value);
+  const averages = data.map((series) => {
+    const values = series.data.map((d) => d.value);
     return values.reduce((sum, val) => sum + val, 0) / values.length;
   });
 
@@ -247,18 +251,16 @@ const SimpleComparisonChart: React.FC<SimpleComparisonChartProps> = ({ data, col
       {data.map((series, index) => {
         const average = averages[index];
         const height = (average / maxValue) * 100;
-        
+
         return (
           <div key={series.endpoint} className="flex flex-col items-center flex-1">
             <div className="w-full flex flex-col items-center">
-              <div className="text-xs text-gray-400 mb-1">
-                {average.toFixed(2)}ms
-              </div>
-              <div 
+              <div className="text-xs text-gray-400 mb-1">{average.toFixed(2)}ms</div>
+              <div
                 className="w-16 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t transition-all duration-300 hover:from-blue-500 hover:to-blue-300"
-                style={{ 
+                style={{
                   height: `${height}%`,
-                  backgroundColor: colors[index % colors.length]
+                  backgroundColor: colors[index % colors.length],
                 }}
                 title={`${series.endpoint}: ${average.toFixed(2)}ms (${metric})`}
               ></div>

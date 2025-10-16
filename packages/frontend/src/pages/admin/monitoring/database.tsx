@@ -25,14 +25,8 @@ import {
   DataUsage as DataUsageIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
-import {
-  SlowQueriesTable,
-  MetricCard,
-  PerformanceChart,
-} from '../../../components/monitoring';
-import {
-  useGetDatabaseQuery,
-} from '../../../services/monitoring.service';
+import { SlowQueriesTable, MetricCard, PerformanceChart } from '../../../components/monitoring';
+import { useGetDatabaseQuery } from '../../../services/monitoring.service';
 import { GlassCard } from '../../../components/common';
 
 interface TabPanelProps {
@@ -90,20 +84,18 @@ const DatabaseMonitoring: React.FC = () => {
   if (databaseError) {
     return (
       <Box p={3}>
-        <Alert severity="error">
-          Failed to load database metrics. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load database metrics. Please try again later.</Alert>
       </Box>
     );
   }
 
   const formatQueryTimeData = () => {
     if (!databaseData?.data?.queryTime) return [];
-    
-    return databaseData.data.queryTime.map(item => ({
+
+    return databaseData.data.queryTime.map((item) => ({
       timestamp: new Date(item.timestamp).getTime() / 1000,
       value: item.value,
-      label: new Date(item.timestamp).toLocaleTimeString()
+      label: new Date(item.timestamp).toLocaleTimeString(),
     }));
   };
 
@@ -176,7 +168,13 @@ const DatabaseMonitoring: React.FC = () => {
             <MetricCard
               title="Slow Queries"
               value={databaseData.data.slowQueries.length.toString()}
-              status={databaseData.data.slowQueries.length > 10 ? 'critical' : databaseData.data.slowQueries.length > 5 ? 'warning' : 'healthy'}
+              status={
+                databaseData.data.slowQueries.length > 10
+                  ? 'critical'
+                  : databaseData.data.slowQueries.length > 5
+                    ? 'warning'
+                    : 'healthy'
+              }
               icon={<TimerIcon />}
               description="Queries exceeding threshold"
             />
@@ -185,7 +183,14 @@ const DatabaseMonitoring: React.FC = () => {
             <MetricCard
               title="Avg Query Time"
               value={`${databaseData.data.queryTime.length > 0 ? (databaseData.data.queryTime.reduce((sum, item) => sum + item.value, 0) / databaseData.data.queryTime.length).toFixed(2) : 0}ms`}
-              status={databaseData.data.queryTime.length > 0 && (databaseData.data.queryTime.reduce((sum, item) => sum + item.value, 0) / databaseData.data.queryTime.length) > 1000 ? 'warning' : 'healthy'}
+              status={
+                databaseData.data.queryTime.length > 0 &&
+                databaseData.data.queryTime.reduce((sum, item) => sum + item.value, 0) /
+                  databaseData.data.queryTime.length >
+                  1000
+                  ? 'warning'
+                  : 'healthy'
+              }
               icon={<SpeedIcon />}
               description="Average query execution time"
             />
@@ -262,7 +267,13 @@ const DatabaseMonitoring: React.FC = () => {
                       <Typography variant="subtitle2" color="text.secondary">
                         Slow Queries Count
                       </Typography>
-                      <Typography variant="h6" fontWeight="bold" color={(databaseData?.data?.slowQueries?.length || 0) > 0 ? 'error' : 'success'}>
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        color={
+                          (databaseData?.data?.slowQueries?.length || 0) > 0 ? 'error' : 'success'
+                        }
+                      >
                         {databaseData?.data?.slowQueries?.length || 0}
                       </Typography>
                     </Card>
@@ -286,15 +297,20 @@ const DatabaseMonitoring: React.FC = () => {
               </Box>
             ) : (
               <SlowQueriesTable
-                queries={databaseData?.data?.slowQueries?.map(query => ({
-                  table: query.query.split(' ').find((word: string) => word.toUpperCase() === 'FROM') ?
-                    query.query.split(' ')[query.query.split(' ').indexOf('FROM') + 1] : 'unknown',
-                  queryType: query.query.split(' ')[0] || 'unknown',
-                  avgDuration: query.duration,
-                  maxDuration: query.duration,
-                  count: query.frequency,
-                  lastSeen: query.timestamp
-                })) || []}
+                queries={
+                  databaseData?.data?.slowQueries?.map((query) => ({
+                    table: query.query
+                      .split(' ')
+                      .find((word: string) => word.toUpperCase() === 'FROM')
+                      ? query.query.split(' ')[query.query.split(' ').indexOf('FROM') + 1]
+                      : 'unknown',
+                    queryType: query.query.split(' ')[0] || 'unknown',
+                    avgDuration: query.duration,
+                    maxDuration: query.duration,
+                    count: query.frequency,
+                    lastSeen: query.timestamp,
+                  })) || []
+                }
               />
             )}
           </CardContent>
@@ -313,7 +329,8 @@ const DatabaseMonitoring: React.FC = () => {
               </Box>
             ) : (
               <Box>
-                {databaseData?.data?.indexUsage && Object.keys(databaseData.data.indexUsage).length > 0 ? (
+                {databaseData?.data?.indexUsage &&
+                Object.keys(databaseData.data.indexUsage).length > 0 ? (
                   Object.entries(databaseData.data.indexUsage).map(([indexName, usage]) => (
                     <Card key={indexName} variant="outlined" sx={{ mb: 2, p: 2 }}>
                       <Box display="flex" justifyContent="space-between" alignItems="center">

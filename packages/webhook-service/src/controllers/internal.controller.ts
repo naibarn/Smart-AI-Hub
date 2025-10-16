@@ -60,11 +60,11 @@ export class InternalController {
   async healthCheck(req: Request, res: Response): Promise<void> {
     try {
       // Check database connection
-      const { prisma } = require('../config/database');
+      const { prisma } = await import('../config/database');
       await prisma.$queryRaw`SELECT 1`;
 
       // Check Redis connection
-      const { testRedisConnection } = require('../config/redis');
+      const { testRedisConnection } = await import('../config/redis');
       const redisStatus = await testRedisConnection();
 
       const response: WebhookSuccessResponse = {
@@ -97,8 +97,8 @@ export class InternalController {
    */
   async getStats(req: Request, res: Response): Promise<void> {
     try {
-      const { getQueueStats } = require('../config/queue');
-      const { prisma } = require('../config/database');
+      const { getQueueStats } = await import('../config/queue');
+      const { prisma } = await import('../config/database');
 
       const [queueStats, totalWebhooks, activeWebhooks, totalLogs] = await Promise.all([
         getQueueStats(),

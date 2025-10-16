@@ -15,10 +15,7 @@ interface SlowQueriesTableProps {
   loading?: boolean;
 }
 
-const SlowQueriesTable: React.FC<SlowQueriesTableProps> = ({
-  queries,
-  loading = false
-}) => {
+const SlowQueriesTable: React.FC<SlowQueriesTableProps> = ({ queries, loading = false }) => {
   const getDurationColor = (duration: number) => {
     if (duration > 5) return 'text-red-400';
     if (duration > 2) return 'text-yellow-400';
@@ -94,10 +91,11 @@ const SlowQueriesTable: React.FC<SlowQueriesTableProps> = ({
             </thead>
             <tbody>
               {sortedQueries.map((query, index) => (
-                <tr key={index} className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-white">
-                    {query.table}
-                  </td>
+                <tr
+                  key={index}
+                  className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium text-white">{query.table}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
                       <span>{getQueryTypeIcon(query.queryType)}</span>
@@ -115,23 +113,26 @@ const SlowQueriesTable: React.FC<SlowQueriesTableProps> = ({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={
-                      query.count > 100 ? 'text-red-400' :
-                      query.count > 50 ? 'text-yellow-400' : 'text-gray-400'
-                    }>
+                    <span
+                      className={
+                        query.count > 100
+                          ? 'text-red-400'
+                          : query.count > 50
+                            ? 'text-yellow-400'
+                            : 'text-gray-400'
+                      }
+                    >
                       {query.count}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">
-                    {formatDate(query.lastSeen)}
-                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{formatDate(query.lastSeen)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-      
+
       {sortedQueries.length > 0 && (
         <div className="mt-4 p-3 bg-yellow-400/10 border border-yellow-400/30 rounded">
           <p className="text-sm text-yellow-400">

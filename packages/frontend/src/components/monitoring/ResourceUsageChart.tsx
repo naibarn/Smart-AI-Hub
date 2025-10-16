@@ -28,7 +28,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
   showCpu = true,
   showMemory = true,
   showDisk = false,
-  showNetwork = false
+  showNetwork = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -53,17 +53,17 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
     const chartHeight = canvas.height - padding * 2;
 
     // Find max values
-    const maxCpu = Math.max(...data.map(d => d.cpu));
-    const maxMemory = Math.max(...data.map(d => d.memory));
-    const maxDisk = showDisk ? Math.max(...data.map(d => d.disk || 0)) : 0;
-    const maxNetwork = showNetwork ? Math.max(...data.map(d => d.network || 0)) : 0;
-    
+    const maxCpu = Math.max(...data.map((d) => d.cpu));
+    const maxMemory = Math.max(...data.map((d) => d.memory));
+    const maxDisk = showDisk ? Math.max(...data.map((d) => d.disk || 0)) : 0;
+    const maxNetwork = showNetwork ? Math.max(...data.map((d) => d.network || 0)) : 0;
+
     const maxValue = Math.max(maxCpu, maxMemory, maxDisk, maxNetwork, 100);
 
     // Draw grid
     ctx.strokeStyle = '#374151';
     ctx.lineWidth = 0.5;
-    
+
     // Horizontal grid lines
     for (let i = 0; i <= 5; i++) {
       const y = padding + (chartHeight / 5) * i;
@@ -71,7 +71,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
       ctx.moveTo(padding, y);
       ctx.lineTo(padding + chartWidth, y);
       ctx.stroke();
-      
+
       // Y-axis labels
       const value = maxValue - (maxValue / 5) * i;
       ctx.fillStyle = '#9CA3AF';
@@ -79,7 +79,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
       ctx.textAlign = 'right';
       ctx.fillText(`${value.toFixed(0)}%`, padding - 5, y + 3);
     }
-    
+
     // Vertical grid lines
     const xStep = chartWidth / (data.length - 1 || 1);
     for (let i = 0; i < data.length; i++) {
@@ -102,29 +102,29 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
     // Draw data lines
     const drawLine = (values: number[], color: string) => {
       if (values.length === 0) return;
-      
+
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      
+
       values.forEach((value, index) => {
         const x = padding + xStep * index;
         const y = padding + chartHeight - (value / maxValue) * chartHeight;
-        
+
         if (index === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
       });
-      
+
       ctx.stroke();
-      
+
       // Draw data points
       values.forEach((value, index) => {
         const x = padding + xStep * index;
         const y = padding + chartHeight - (value / maxValue) * chartHeight;
-        
+
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, 3, 0, 2 * Math.PI);
@@ -134,34 +134,49 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
 
     // Draw lines for enabled metrics
     if (showCpu) {
-      drawLine(data.map(d => d.cpu), '#EF4444'); // Red
+      drawLine(
+        data.map((d) => d.cpu),
+        '#EF4444'
+      ); // Red
     }
     if (showMemory) {
-      drawLine(data.map(d => d.memory), '#3B82F6'); // Blue
+      drawLine(
+        data.map((d) => d.memory),
+        '#3B82F6'
+      ); // Blue
     }
     if (showDisk) {
-      drawLine(data.map(d => d.disk || 0), '#10B981'); // Green
+      drawLine(
+        data.map((d) => d.disk || 0),
+        '#10B981'
+      ); // Green
     }
     if (showNetwork) {
-      drawLine(data.map(d => d.network || 0), '#F59E0B'); // Yellow
+      drawLine(
+        data.map((d) => d.network || 0),
+        '#F59E0B'
+      ); // Yellow
     }
-    
+
     // Draw X-axis labels (time)
     if (data.length > 1) {
       ctx.fillStyle = '#9CA3AF';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      
+
       // Show first, middle, and last timestamps
       const firstTime = new Date(data[0].timestamp * 1000);
       const middleTime = new Date(data[Math.floor(data.length / 2)].timestamp * 1000);
       const lastTime = new Date(data[data.length - 1].timestamp * 1000);
-      
+
       ctx.fillText(firstTime.toLocaleTimeString(), padding, padding + chartHeight + 15);
-      ctx.fillText(middleTime.toLocaleTimeString(), padding + chartWidth / 2, padding + chartHeight + 15);
+      ctx.fillText(
+        middleTime.toLocaleTimeString(),
+        padding + chartWidth / 2,
+        padding + chartHeight + 15
+      );
       ctx.fillText(lastTime.toLocaleTimeString(), padding + chartWidth, padding + chartHeight + 15);
     }
-
   }, [data, loading, height, showCpu, showMemory, showDisk, showNetwork]);
 
   if (loading) {
@@ -207,11 +222,7 @@ const ResourceUsageChart: React.FC<ResourceUsageChartProps> = ({
         </div>
       </div>
       <div className="relative" style={{ height }}>
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full"
-          style={{ display: 'block' }}
-        />
+        <canvas ref={canvasRef} className="w-full h-full" style={{ display: 'block' }} />
       </div>
     </GlassCard>
   );

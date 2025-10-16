@@ -15,7 +15,7 @@ async function queryPrometheus(query: string): Promise<any> {
   try {
     const response = await axios.get(`${PROMETHEUS_URL}/api/v1/query`, {
       params: { query },
-      timeout: 5000
+      timeout: 5000,
     });
     return response.data;
   } catch (error) {
@@ -25,11 +25,16 @@ async function queryPrometheus(query: string): Promise<any> {
 }
 
 // Helper function to query Prometheus range
-async function queryPrometheusRange(query: string, start: number, end: number, step: string = '30s'): Promise<any> {
+async function queryPrometheusRange(
+  query: string,
+  start: number,
+  end: number,
+  step: string = '30s'
+): Promise<any> {
   try {
     const response = await axios.get(`${PROMETHEUS_URL}/api/v1/query_range`, {
       params: { query, start, end, step },
-      timeout: 10000
+      timeout: 10000,
     });
     return response.data;
   } catch (error) {
@@ -42,7 +47,7 @@ async function queryPrometheusRange(query: string, start: number, end: number, s
 async function queryAlertmanager(path: string): Promise<any> {
   try {
     const response = await axios.get(`${ALERTMANAGER_URL}${path}`, {
-      timeout: 5000
+      timeout: 5000,
     });
     return response.data;
   } catch (error) {
@@ -58,12 +63,19 @@ router.get('/overview', async (req: Request, res: Response) => {
     const oneHourAgo = now - 3600;
 
     // Get service status
-    const services = ['auth-service', 'core-service', 'mcp-server', 'webhook-service', 'notification-service'];
+    const services = [
+      'auth-service',
+      'core-service',
+      'mcp-server',
+      'webhook-service',
+      'notification-service',
+    ];
     const serviceStatus = await Promise.all(
       services.map(async (service) => {
         try {
           const result = await queryPrometheus(`up{job="${service}"}`);
-          const isUp = result.data.result.length > 0 ? result.data.result[0].value[1] === '1' : false;
+          const isUp =
+            result.data.result.length > 0 ? result.data.result[0].value[1] === '1' : false;
           return { service, status: isUp ? 'up' : 'down' };
         } catch (error) {
           return { service, status: 'unknown' };
@@ -72,24 +84,33 @@ router.get('/overview', async (req: Request, res: Response) => {
     );
 
     // Get total requests in last hour
-    const totalRequestsQuery = services.map(s => `sum(rate(${s.replace('-', '_')}_http_requests_total[1m]))`).join(' + ');
+    const totalRequestsQuery = services
+      .map((s) => `sum(rate(${s.replace('-', '_')}_http_requests_total[1m]))`)
+      .join(' + ');
     const totalRequests = await queryPrometheus(totalRequestsQuery || '0');
 
     // Get average response time
-    const avgResponseTimeQuery = services.map(s => 
-      `histogram_quantile(0.95, rate(${s.replace('-', '_')}_http_request_duration_seconds_bucket[5m]))`
-    ).join(' + ');
+    const avgResponseTimeQuery = services
+      .map(
+        (s) =>
+          `histogram_quantile(0.95, rate(${s.replace('-', '_')}_http_request_duration_seconds_bucket[5m]))`
+      )
+      .join(' + ');
     const avgResponseTime = await queryPrometheus(avgResponseTimeQuery || '0');
 
     // Get error rate
-    const errorRateQuery = services.map(s => 
-      `sum(rate(${s.replace('-', '_')}_http_requests_total{status_code=~"5.."}[5m])) / sum(rate(${s.replace('-', '_')}_http_requests_total[5m]))`
-    ).join(' + ');
+    const errorRateQuery = services
+      .map(
+        (s) =>
+          `sum(rate(${s.replace('-', '_')}_http_requests_total{status_code=~"5.."}[5m])) / sum(rate(${s.replace('-', '_')}_http_requests_total[5m]))`
+      )
+      .join(' + ');
     const errorRate = await queryPrometheus(errorRateQuery || '0');
 
     // Get active alerts count
     const alerts = await queryAlertmanager('/api/v1/alerts');
-    const activeAlerts = alerts.data?.alerts?.filter((alert: any) => alert.status.state === 'active') || [];
+    const activeAlerts =
+      alerts.data?.alerts?.filter((alert: any) => alert.status.state === 'active') || [];
 
     res.json({
       status: 'success',
@@ -99,16 +120,16 @@ router.get('/overview', async (req: Request, res: Response) => {
           totalRequests: totalRequests.data.result[0]?.value[1] || '0',
           avgResponseTime: avgResponseTime.data.result[0]?.value[1] || '0',
           errorRate: errorRate.data.result[0]?.value[1] || '0',
-          activeAlerts: activeAlerts.length
+          activeAlerts: activeAlerts.length,
         },
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching overview data:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch overview data'
+      message: 'Failed to fetch overview data',
     });
   }
 });
@@ -134,8 +155,14 @@ router.get('/performance', async (req: Request, res: Response) => {
         start = now - 3600;
     }
 
-    const services = ['auth-service', 'core-service', 'mcp-server', 'webhook-service', 'notification-service'];
-    
+    const services = [
+      'auth-service',
+      'core-service',
+      'mcp-server',
+      'webhook-service',
+      'notification-service',
+    ];
+
     // Get response time trends
     const responseTimeTrends = await Promise.all(
       services.map(async (service) => {
@@ -144,7 +171,7 @@ router.get('/performance', async (req: Request, res: Response) => {
           const result = await queryPrometheusRange(query, start, now);
           return {
             service,
-            data: result.data.result[0]?.values || []
+            data: result.data.result[0]?.values || [],
           };
         } catch (error) {
           return { service, data: [] };
@@ -162,8 +189,8 @@ router.get('/performance', async (req: Request, res: Response) => {
             service,
             endpoints: result.data.result.map((r: any) => ({
               route: r.metric.route,
-              value: r.value[1]
-            }))
+              value: r.value[1],
+            })),
           };
         } catch (error) {
           return { service, endpoints: [] };
@@ -177,14 +204,14 @@ router.get('/performance', async (req: Request, res: Response) => {
         responseTimeTrends,
         slowEndpoints,
         timeframe,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching performance data:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch performance data'
+      message: 'Failed to fetch performance data',
     });
   }
 });
@@ -206,14 +233,10 @@ router.get('/database', async (req: Request, res: Response) => {
     );
 
     // Get database connections
-    const dbConnections = await queryPrometheus(
-      'sum(database_connections)'
-    );
+    const dbConnections = await queryPrometheus('sum(database_connections)');
 
     // Get database errors
-    const dbErrors = await queryPrometheus(
-      'rate(database_errors_total[5m])'
-    );
+    const dbErrors = await queryPrometheus('rate(database_errors_total[5m])');
 
     res.json({
       status: 'success',
@@ -222,14 +245,14 @@ router.get('/database', async (req: Request, res: Response) => {
         slowQueries: slowQueries.data.result,
         connections: dbConnections.data.result,
         errors: dbErrors.data.result,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching database data:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch database data'
+      message: 'Failed to fetch database data',
     });
   }
 });
@@ -239,11 +262,12 @@ router.get('/alerts', async (req: Request, res: Response) => {
   try {
     // Get active alerts
     const alerts = await queryAlertmanager('/api/v1/alerts');
-    const activeAlerts = alerts.data?.alerts?.filter((alert: any) => alert.status.state === 'active') || [];
-    
+    const activeAlerts =
+      alerts.data?.alerts?.filter((alert: any) => alert.status.state === 'active') || [];
+
     // Get alert groups
     const alertGroups = await queryAlertmanager('/api/v1/alerts/groups');
-    
+
     // Get silence status
     const silences = await queryAlertmanager('/api/v1/silences');
 
@@ -258,18 +282,18 @@ router.get('/alerts', async (req: Request, res: Response) => {
           summary: alert.annotations.summary,
           description: alert.annotations.description,
           startsAt: alert.startsAt,
-          status: alert.status
+          status: alert.status,
         })),
         alertGroups: alertGroups.data?.groups || [],
         silences: silences.data?.silences || [],
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching alerts data:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch alerts data'
+      message: 'Failed to fetch alerts data',
     });
   }
 });
@@ -313,14 +337,14 @@ router.get('/system', async (req: Request, res: Response) => {
         memory: memoryUsage.data.result,
         disk: diskUsage.data.result,
         network: networkIO.data.result,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching system data:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch system data'
+      message: 'Failed to fetch system data',
     });
   }
 });
@@ -328,23 +352,27 @@ router.get('/system', async (req: Request, res: Response) => {
 // GET /api/v1/monitoring/services - Detailed service status
 router.get('/services', async (req: Request, res: Response) => {
   try {
-    const services = ['auth-service', 'core-service', 'mcp-server', 'webhook-service', 'notification-service'];
-    
+    const services = [
+      'auth-service',
+      'core-service',
+      'mcp-server',
+      'webhook-service',
+      'notification-service',
+    ];
+
     const serviceDetails = await Promise.all(
       services.map(async (service) => {
         try {
-          const [
-            uptime,
-            requestRate,
-            errorRate,
-            responseTime,
-            memoryUsage
-          ] = await Promise.all([
+          const [uptime, requestRate, errorRate, responseTime, memoryUsage] = await Promise.all([
             queryPrometheus(`process_start_time_seconds{job="${service}"}`),
             queryPrometheus(`sum(rate(${service.replace('-', '_')}_http_requests_total[5m]))`),
-            queryPrometheus(`sum(rate(${service.replace('-', '_')}_http_requests_total{status_code=~"5.."}[5m])) / sum(rate(${service.replace('-', '_')}_http_requests_total[5m]))`),
-            queryPrometheus(`histogram_quantile(0.95, rate(${service.replace('-', '_')}_http_request_duration_seconds_bucket[5m]))`),
-            queryPrometheus(`process_resident_memory_bytes{job="${service}"}`)
+            queryPrometheus(
+              `sum(rate(${service.replace('-', '_')}_http_requests_total{status_code=~"5.."}[5m])) / sum(rate(${service.replace('-', '_')}_http_requests_total[5m]))`
+            ),
+            queryPrometheus(
+              `histogram_quantile(0.95, rate(${service.replace('-', '_')}_http_request_duration_seconds_bucket[5m]))`
+            ),
+            queryPrometheus(`process_resident_memory_bytes{job="${service}"}`),
           ]);
 
           return {
@@ -354,7 +382,7 @@ router.get('/services', async (req: Request, res: Response) => {
             requestRate: requestRate.data.result[0]?.value[1] || '0',
             errorRate: errorRate.data.result[0]?.value[1] || '0',
             responseTime: responseTime.data.result[0]?.value[1] || '0',
-            memoryUsage: memoryUsage.data.result[0]?.value[1] || '0'
+            memoryUsage: memoryUsage.data.result[0]?.value[1] || '0',
           };
         } catch (error) {
           return {
@@ -364,7 +392,7 @@ router.get('/services', async (req: Request, res: Response) => {
             requestRate: '0',
             errorRate: '0',
             responseTime: '0',
-            memoryUsage: '0'
+            memoryUsage: '0',
           };
         }
       })
@@ -374,14 +402,14 @@ router.get('/services', async (req: Request, res: Response) => {
       status: 'success',
       data: {
         services: serviceDetails,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching services data:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch services data'
+      message: 'Failed to fetch services data',
     });
   }
 });
@@ -443,26 +471,26 @@ router.get('/response-time/overview', async (req: Request, res: Response) => {
           p50: avgResponseTime.data.result[0]?.value[1] || '0',
           p90: avgResponseTime.data.result[1]?.value[1] || '0',
           p95: avgResponseTime.data.result[2]?.value[1] || '0',
-          p99: avgResponseTime.data.result[3]?.value[1] || '0'
+          p99: avgResponseTime.data.result[3]?.value[1] || '0',
         },
         slaCompliance: slaCompliance.data.result.map((r: any) => ({
           tier: r.metric.sla_tier,
-          compliance: ((1 - parseFloat(r.value[1])) * 100).toFixed(2)
+          compliance: ((1 - parseFloat(r.value[1])) * 100).toFixed(2),
         })),
         slowestEndpoints: slowestEndpoints.data.result.map((r: any) => ({
           service: r.metric.service,
           route: r.metric.route,
-          p95: parseFloat(r.value[1]).toFixed(2)
+          p95: parseFloat(r.value[1]).toFixed(2),
         })),
         violationsCount: violations.data.result[0]?.value[1] || '0',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching response time overview:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch response time overview'
+      message: 'Failed to fetch response time overview',
     });
   }
 });
@@ -470,22 +498,15 @@ router.get('/response-time/overview', async (req: Request, res: Response) => {
 // GET /api/v1/monitoring/response-time/endpoints - Endpoint analysis
 router.get('/response-time/endpoints', async (req: Request, res: Response) => {
   try {
-    const {
-      service,
-      sla_tier,
-      page = '1',
-      limit = '50',
-      sort = 'p95',
-      order = 'desc'
-    } = req.query;
+    const { service, sla_tier, page = '1', limit = '50', sort = 'p95', order = 'desc' } = req.query;
 
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-    
+
     // Build query filters
     let filters = [];
     if (service) filters.push(`service="${service}"`);
     if (sla_tier) filters.push(`sla_tier="${sla_tier}"`);
-    
+
     const filterClause = filters.length > 0 ? `{${filters.join(',')}}` : '';
 
     // Get endpoint metrics
@@ -501,35 +522,51 @@ router.get('/response-time/endpoints', async (req: Request, res: Response) => {
 
     // Get additional metrics for each endpoint
     const detailedEndpoints = await Promise.all(
-      endpoints.data.result.slice(offset, offset + parseInt(limit as string)).map(async (endpoint: any) => {
-        const { service, route, method, sla_tier } = endpoint.metric;
-        
-        const [p50, p90, p95, p99, avg, count, slaCompliance] = await Promise.all([
-          queryPrometheus(`histogram_quantile(0.50, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`),
-          queryPrometheus(`histogram_quantile(0.90, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`),
-          queryPrometheus(`histogram_quantile(0.95, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`),
-          queryPrometheus(`histogram_quantile(0.99, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`),
-          queryPrometheus(`sum(rate(http_response_time_milliseconds_sum{service="${service}",route="${route}",method="${method}"}[5m])) / sum(rate(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m]))`),
-          queryPrometheus(`sum(rate(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m]))`),
-          queryPrometheus(`sla_compliance{service="${service}",route="${route}",method="${method}"`)
-        ]);
+      endpoints.data.result
+        .slice(offset, offset + parseInt(limit as string))
+        .map(async (endpoint: any) => {
+          const { service, route, method, sla_tier } = endpoint.metric;
 
-        return {
-          service,
-          route,
-          method,
-          slaTier: sla_tier,
-          metrics: {
-            p50: parseFloat(p50.data.result[0]?.value[1] || '0').toFixed(2),
-            p90: parseFloat(p90.data.result[0]?.value[1] || '0').toFixed(2),
-            p95: parseFloat(p95.data.result[0]?.value[1] || '0').toFixed(2),
-            p99: parseFloat(p99.data.result[0]?.value[1] || '0').toFixed(2),
-            avg: parseFloat(avg.data.result[0]?.value[1] || '0').toFixed(2),
-            count: parseInt(count.data.result[0]?.value[1] || '0'),
-            slaCompliance: parseFloat(slaCompliance.data.result[0]?.value[1] || '0')
-          }
-        };
-      })
+          const [p50, p90, p95, p99, avg, count, slaCompliance] = await Promise.all([
+            queryPrometheus(
+              `histogram_quantile(0.50, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`
+            ),
+            queryPrometheus(
+              `histogram_quantile(0.90, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`
+            ),
+            queryPrometheus(
+              `histogram_quantile(0.95, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`
+            ),
+            queryPrometheus(
+              `histogram_quantile(0.99, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}",method="${method}"}[5m])) by (le)`
+            ),
+            queryPrometheus(
+              `sum(rate(http_response_time_milliseconds_sum{service="${service}",route="${route}",method="${method}"}[5m])) / sum(rate(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m]))`
+            ),
+            queryPrometheus(
+              `sum(rate(http_response_time_milliseconds_count{service="${service}",route="${route}",method="${method}"}[5m]))`
+            ),
+            queryPrometheus(
+              `sla_compliance{service="${service}",route="${route}",method="${method}"`
+            ),
+          ]);
+
+          return {
+            service,
+            route,
+            method,
+            slaTier: sla_tier,
+            metrics: {
+              p50: parseFloat(p50.data.result[0]?.value[1] || '0').toFixed(2),
+              p90: parseFloat(p90.data.result[0]?.value[1] || '0').toFixed(2),
+              p95: parseFloat(p95.data.result[0]?.value[1] || '0').toFixed(2),
+              p99: parseFloat(p99.data.result[0]?.value[1] || '0').toFixed(2),
+              avg: parseFloat(avg.data.result[0]?.value[1] || '0').toFixed(2),
+              count: parseInt(count.data.result[0]?.value[1] || '0'),
+              slaCompliance: parseFloat(slaCompliance.data.result[0]?.value[1] || '0'),
+            },
+          };
+        })
     );
 
     // Sort results
@@ -546,16 +583,16 @@ router.get('/response-time/endpoints', async (req: Request, res: Response) => {
         pagination: {
           page: parseInt(page as string),
           limit: parseInt(limit as string),
-          total: endpoints.data.result.length
+          total: endpoints.data.result.length,
         },
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching endpoint analysis:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch endpoint analysis'
+      message: 'Failed to fetch endpoint analysis',
     });
   }
 });
@@ -588,15 +625,31 @@ router.get('/response-time/trends', async (req: Request, res: Response) => {
     let filters = [];
     if (service) filters.push(`service="${service}"`);
     if (route) filters.push(`route="${route}"`);
-    
+
     const filterClause = filters.length > 0 ? `{${filters.join(',')}}` : '';
 
     // Get trends for different percentiles
     const [p50Trend, p90Trend, p95Trend, p99Trend] = await Promise.all([
-      queryPrometheusRange(`histogram_quantile(0.50, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`, start, now),
-      queryPrometheusRange(`histogram_quantile(0.90, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`, start, now),
-      queryPrometheusRange(`histogram_quantile(0.95, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`, start, now),
-      queryPrometheusRange(`histogram_quantile(0.99, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`, start, now)
+      queryPrometheusRange(
+        `histogram_quantile(0.50, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`,
+        start,
+        now
+      ),
+      queryPrometheusRange(
+        `histogram_quantile(0.90, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`,
+        start,
+        now
+      ),
+      queryPrometheusRange(
+        `histogram_quantile(0.95, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`,
+        start,
+        now
+      ),
+      queryPrometheusRange(
+        `histogram_quantile(0.99, sum(rate(http_response_time_milliseconds_bucket${filterClause}[5m])) by (le, service, route))`,
+        start,
+        now
+      ),
     ]);
 
     // Process trend data
@@ -607,8 +660,8 @@ router.get('/response-time/trends', async (req: Request, res: Response) => {
         percentile,
         data: result.values.map((value: any[]) => ({
           timestamp: new Date(parseInt(value[0]) * 1000).toISOString(),
-          value: parseFloat(value[1]).toFixed(2)
-        }))
+          value: parseFloat(value[1]).toFixed(2),
+        })),
       }));
     };
 
@@ -616,7 +669,7 @@ router.get('/response-time/trends', async (req: Request, res: Response) => {
       ...processTrendData(p50Trend, 'p50'),
       ...processTrendData(p90Trend, 'p90'),
       ...processTrendData(p95Trend, 'p95'),
-      ...processTrendData(p99Trend, 'p99')
+      ...processTrendData(p99Trend, 'p99'),
     ];
 
     res.json({
@@ -624,14 +677,14 @@ router.get('/response-time/trends', async (req: Request, res: Response) => {
       data: {
         trends,
         timeframe,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching response time trends:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch response time trends'
+      message: 'Failed to fetch response time trends',
     });
   }
 });
@@ -661,7 +714,7 @@ router.get('/response-time/violations', async (req: Request, res: Response) => {
     let filters = [];
     if (sla_tier) filters.push(`sla_tier="${sla_tier}"`);
     if (service) filters.push(`service="${service}"`);
-    
+
     const filterClause = filters.length > 0 ? `{${filters.join(',')}}` : '';
 
     // Get SLA violations
@@ -685,12 +738,13 @@ router.get('/response-time/violations', async (req: Request, res: Response) => {
       slaTier: violation.metric.sla_tier,
       slaThreshold: violation.metric.sla_threshold,
       violationRate: parseFloat(violation.value[1]).toFixed(2),
-      trend: violationTrends.data.result
-        .find((t: any) =>
-          t.metric.service === violation.metric.service &&
-          t.metric.route === violation.metric.route &&
-          t.metric.method === violation.metric.method
-        )?.values || []
+      trend:
+        violationTrends.data.result.find(
+          (t: any) =>
+            t.metric.service === violation.metric.service &&
+            t.metric.route === violation.metric.route &&
+            t.metric.method === violation.metric.method
+        )?.values || [],
     }));
 
     res.json({
@@ -698,14 +752,14 @@ router.get('/response-time/violations', async (req: Request, res: Response) => {
       data: {
         violations: processedViolations,
         timeframe,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching SLA violations:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch SLA violations'
+      message: 'Failed to fetch SLA violations',
     });
   }
 });
@@ -720,8 +774,8 @@ router.get('/response-time/baselines', async (req: Request, res: Response) => {
     // Build database query filters
     const whereClause: any = {
       date: {
-        gte: startDate
-      }
+        gte: startDate,
+      },
     };
 
     if (service) whereClause.service = service;
@@ -731,9 +785,9 @@ router.get('/response-time/baselines', async (req: Request, res: Response) => {
     const baselines = await prisma.performanceBaseline.findMany({
       where: whereClause,
       orderBy: {
-        date: 'desc'
+        date: 'desc',
       },
-      take: 100
+      take: 100,
     });
 
     // Group baselines by endpoint
@@ -746,7 +800,7 @@ router.get('/response-time/baselines', async (req: Request, res: Response) => {
           method: baseline.method,
           slaTier: baseline.slaTier,
           slaThreshold: baseline.slaThreshold,
-          data: []
+          data: [],
         };
       }
       acc[key].data.push({
@@ -757,7 +811,7 @@ router.get('/response-time/baselines', async (req: Request, res: Response) => {
         p99: baseline.p99,
         avg: baseline.avg,
         count: baseline.count,
-        slaCompliance: baseline.slaCompliance
+        slaCompliance: baseline.slaCompliance,
       });
       return acc;
     }, {});
@@ -767,14 +821,14 @@ router.get('/response-time/baselines', async (req: Request, res: Response) => {
       data: {
         baselines: Object.values(groupedBaselines),
         period: days,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching performance baselines:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch performance baselines'
+      message: 'Failed to fetch performance baselines',
     });
   }
 });
@@ -782,16 +836,12 @@ router.get('/response-time/baselines', async (req: Request, res: Response) => {
 // GET /api/v1/monitoring/response-time/compare - Performance comparison
 router.get('/response-time/compare', async (req: Request, res: Response) => {
   try {
-    const {
-      endpoints,
-      timeframe = '1h',
-      metric = 'p95'
-    } = req.query;
+    const { endpoints, timeframe = '1h', metric = 'p95' } = req.query;
 
     if (!endpoints) {
       return res.status(400).json({
         status: 'error',
-        message: 'Endpoints parameter is required (comma-separated list)'
+        message: 'Endpoints parameter is required (comma-separated list)',
       });
     }
 
@@ -817,25 +867,25 @@ router.get('/response-time/compare', async (req: Request, res: Response) => {
     const comparisonData = await Promise.all(
       endpointList.map(async (endpoint) => {
         const [service, route] = endpoint.trim().split(':');
-        
+
         const percentile = parseFloat((metric as string).replace('p', '')) / 100;
         const query = `histogram_quantile(${percentile}, sum(rate(http_response_time_milliseconds_bucket{service="${service}",route="${route}"}[5m])) by (le))`;
-        
+
         try {
           const result = await queryPrometheusRange(query, start, now);
           const values = result.data.result[0]?.values || [];
-          
+
           return {
             endpoint: endpoint.trim(),
             data: values.map((value: any[]) => ({
               timestamp: new Date(parseInt(value[0]) * 1000).toISOString(),
-              value: parseFloat(value[1]).toFixed(2)
-            }))
+              value: parseFloat(value[1]).toFixed(2),
+            })),
           };
         } catch (error) {
           return {
             endpoint: endpoint.trim(),
-            data: []
+            data: [],
           };
         }
       })
@@ -847,14 +897,14 @@ router.get('/response-time/compare', async (req: Request, res: Response) => {
         comparison: comparisonData,
         metric,
         timeframe,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error fetching performance comparison:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch performance comparison'
+      message: 'Failed to fetch performance comparison',
     });
   }
 });

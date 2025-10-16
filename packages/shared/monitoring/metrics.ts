@@ -15,7 +15,7 @@ export class PrometheusMetrics {
       service: this.config.serviceName,
       version: this.config.version,
       environment: this.config.environment,
-      ...this.config.defaultLabels
+      ...this.config.defaultLabels,
     };
 
     return {
@@ -23,40 +23,40 @@ export class PrometheusMetrics {
         name: `${this.config.serviceName}_http_requests_total`,
         help: 'Total number of HTTP requests',
         labelNames: ['method', 'route', 'status_code', ...Object.keys(defaultLabels)],
-        registers: [register]
+        registers: [register],
       }),
       httpRequestDuration: new Histogram({
         name: `${this.config.serviceName}_http_request_duration_seconds`,
         help: 'Duration of HTTP requests in seconds',
         labelNames: ['method', 'route', 'status_code', ...Object.keys(defaultLabels)],
         buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
-        registers: [register]
+        registers: [register],
       }),
       activeConnections: new Gauge({
         name: `${this.config.serviceName}_active_connections`,
         help: 'Number of active connections',
         labelNames: [...Object.keys(defaultLabels)],
-        registers: [register]
+        registers: [register],
       }),
       databaseConnections: new Gauge({
         name: `${this.config.serviceName}_database_connections`,
         help: 'Number of active database connections',
         labelNames: ['database', ...Object.keys(defaultLabels)],
-        registers: [register]
+        registers: [register],
       }),
       errorRate: new Gauge({
         name: `${this.config.serviceName}_error_rate`,
         help: 'Error rate percentage',
         labelNames: ['error_type', ...Object.keys(defaultLabels)],
-        registers: [register]
+        registers: [register],
       }),
       queueSize: new Gauge({
         name: `${this.config.serviceName}_queue_size`,
         help: 'Current queue size',
         labelNames: ['queue_name', ...Object.keys(defaultLabels)],
-        registers: [register]
+        registers: [register],
       }),
-      customMetrics: new Map()
+      customMetrics: new Map(),
     };
   }
 
@@ -78,7 +78,7 @@ export class PrometheusMetrics {
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     this.metrics.httpRequestsTotal.inc(allLabels);
@@ -99,7 +99,7 @@ export class PrometheusMetrics {
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     this.metrics.httpRequestDuration.observe(allLabels, duration);
@@ -111,7 +111,7 @@ export class PrometheusMetrics {
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     this.metrics.activeConnections.set(count, allLabels);
@@ -123,20 +123,24 @@ export class PrometheusMetrics {
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     return this.metrics.activeConnections.get(allLabels);
   }
 
-  public setDatabaseConnections(database: string, count: number, labels?: Record<string, string>): void {
+  public setDatabaseConnections(
+    database: string,
+    count: number,
+    labels?: Record<string, string>
+  ): void {
     const allLabels = {
       database,
       service: this.config.serviceName,
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     this.metrics.databaseConnections.set(count, allLabels);
@@ -149,7 +153,7 @@ export class PrometheusMetrics {
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     this.metrics.errorRate.set(rate, allLabels);
@@ -162,7 +166,7 @@ export class PrometheusMetrics {
       version: this.config.version,
       environment: this.config.environment,
       ...this.config.defaultLabels,
-      ...labels
+      ...labels,
     };
 
     this.metrics.queueSize.set(size, allLabels);
@@ -173,7 +177,7 @@ export class PrometheusMetrics {
       name: `${this.config.serviceName}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
-      registers: [register]
+      registers: [register],
     });
 
     return counter;
@@ -185,7 +189,7 @@ export class PrometheusMetrics {
       help: options.help,
       labelNames: options.labelNames || [],
       buckets: buckets || [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
-      registers: [register]
+      registers: [register],
     });
 
     return histogram;
@@ -196,7 +200,7 @@ export class PrometheusMetrics {
       name: `${this.config.serviceName}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
-      registers: [register]
+      registers: [register],
     });
 
     return gauge;
@@ -207,7 +211,7 @@ export class PrometheusMetrics {
       name: `${this.config.serviceName}_${options.name}`,
       help: options.help,
       labelNames: options.labelNames || [],
-      registers: [register]
+      registers: [register],
     });
 
     return summary;

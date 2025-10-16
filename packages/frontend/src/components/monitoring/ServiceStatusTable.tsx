@@ -16,10 +16,7 @@ interface ServiceStatusTableProps {
   loading?: boolean;
 }
 
-const ServiceStatusTable: React.FC<ServiceStatusTableProps> = ({
-  services,
-  loading = false
-}) => {
+const ServiceStatusTable: React.FC<ServiceStatusTableProps> = ({ services, loading = false }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'up':
@@ -74,12 +71,15 @@ const ServiceStatusTable: React.FC<ServiceStatusTableProps> = ({
           </thead>
           <tbody>
             {services.map((service, index) => (
-              <tr key={service.name} className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors">
-                <td className="px-4 py-3 font-medium text-white">
-                  {service.name}
-                </td>
+              <tr
+                key={service.name}
+                className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors"
+              >
+                <td className="px-4 py-3 font-medium text-white">{service.name}</td>
                 <td className="px-4 py-3">
-                  <div className={`inline-flex items-center space-x-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}>
+                  <div
+                    className={`inline-flex items-center space-x-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}
+                  >
                     <span>{getStatusIcon(service.status)}</span>
                     <span className="uppercase">{service.status}</span>
                   </div>
@@ -87,18 +87,28 @@ const ServiceStatusTable: React.FC<ServiceStatusTableProps> = ({
                 <td className="px-4 py-3">{service.uptime}</td>
                 <td className="px-4 py-3">{service.requestRate}</td>
                 <td className="px-4 py-3">
-                  <span className={
-                    parseFloat(service.errorRate) > 0.05 ? 'text-red-400' : 
-                    parseFloat(service.errorRate) > 0.01 ? 'text-yellow-400' : 'text-green-400'
-                  }>
+                  <span
+                    className={
+                      parseFloat(service.errorRate) > 0.05
+                        ? 'text-red-400'
+                        : parseFloat(service.errorRate) > 0.01
+                          ? 'text-yellow-400'
+                          : 'text-green-400'
+                    }
+                  >
                     {service.errorRate}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={
-                    parseFloat(service.responseTime) > 1 ? 'text-red-400' : 
-                    parseFloat(service.responseTime) > 0.5 ? 'text-yellow-400' : 'text-green-400'
-                  }>
+                  <span
+                    className={
+                      parseFloat(service.responseTime) > 1
+                        ? 'text-red-400'
+                        : parseFloat(service.responseTime) > 0.5
+                          ? 'text-yellow-400'
+                          : 'text-green-400'
+                    }
+                  >
                     {service.responseTime}s
                   </span>
                 </td>

@@ -24,8 +24,8 @@ const metrics = initializeMetrics({
   defaultLabels: {
     service: 'core-service',
     version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  }
+    environment: process.env.NODE_ENV || 'development',
+  },
 });
 
 // Security middleware (API-specific - no CSP needed)
@@ -37,16 +37,16 @@ app.use(cors());
 // Basic metrics middleware
 app.use((req: Request, res: Response, next) => {
   const startTime = Date.now();
-  
+
   res.on('finish', () => {
     const duration = (Date.now() - startTime) / 1000;
     const route = req.route?.path || req.path || 'unknown';
-    
+
     // Record basic metrics
     metrics.incrementHttpRequests(req.method, route, res.statusCode);
     metrics.recordHttpRequestDuration(req.method, route, res.statusCode, duration);
   });
-  
+
   next();
 });
 
@@ -123,7 +123,7 @@ app.get('/health', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      service: 'core-service'
+      service: 'core-service',
     };
 
     // Test database connection
@@ -136,7 +136,7 @@ app.get('/health', async (req: Request, res: Response) => {
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });

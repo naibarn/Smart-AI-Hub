@@ -45,11 +45,14 @@ export class SimpleLogger {
   }
 
   error(message: string, error?: Error | any, meta?: any): void {
-    const errorMeta = error instanceof Error ? {
-      error: error.message,
-      stack: error.stack,
-    } : { error };
-    
+    const errorMeta =
+      error instanceof Error
+        ? {
+            error: error.message,
+            stack: error.stack,
+          }
+        : { error };
+
     this.log('error', message, { ...errorMeta, ...meta });
   }
 

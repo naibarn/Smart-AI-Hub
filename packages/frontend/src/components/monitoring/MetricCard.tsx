@@ -23,7 +23,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   status = 'unknown',
   description,
   icon,
-  loading = false
+  loading = false,
 }) => {
   const getStatusColor = () => {
     switch (status) {
@@ -86,11 +86,17 @@ const MetricCard: React.FC<MetricCardProps> = ({
   }
 
   return (
-    <GlassCard className={`p-6 ${getStatusBgColor()} border-l-4 ${
-      status === 'healthy' ? 'border-green-400' :
-      status === 'warning' ? 'border-yellow-400' :
-      status === 'critical' ? 'border-red-400' : 'border-gray-400'
-    }`}>
+    <GlassCard
+      className={`p-6 ${getStatusBgColor()} border-l-4 ${
+        status === 'healthy'
+          ? 'border-green-400'
+          : status === 'warning'
+            ? 'border-yellow-400'
+            : status === 'critical'
+              ? 'border-red-400'
+              : 'border-gray-400'
+      }`}
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           {icon && <div className="text-gray-300">{icon}</div>}
@@ -103,19 +109,13 @@ const MetricCard: React.FC<MetricCardProps> = ({
           </div>
         )}
       </div>
-      
+
       <div className="flex items-baseline space-x-2 mb-2">
-        <span className={`text-2xl font-semibold ${getStatusColor()}`}>
-          {value}
-        </span>
-        {unit && (
-          <span className="text-sm text-gray-400">{unit}</span>
-        )}
+        <span className={`text-2xl font-semibold ${getStatusColor()}`}>{value}</span>
+        {unit && <span className="text-sm text-gray-400">{unit}</span>}
       </div>
-      
-      {description && (
-        <p className="text-xs text-gray-400">{description}</p>
-      )}
+
+      {description && <p className="text-xs text-gray-400">{description}</p>}
     </GlassCard>
   );
 };

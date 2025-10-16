@@ -25,13 +25,8 @@ import {
   Computer as ComputerIcon,
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
-import {
-  ResourceUsageChart,
-  MetricCard,
-} from '../../../components/monitoring';
-import {
-  useGetSystemQuery,
-} from '../../../services/monitoring.service';
+import { ResourceUsageChart, MetricCard } from '../../../components/monitoring';
+import { useGetSystemQuery } from '../../../services/monitoring.service';
 import { GlassCard } from '../../../components/common';
 
 const SystemMonitoring: React.FC = () => {
@@ -65,9 +60,7 @@ const SystemMonitoring: React.FC = () => {
   if (systemError) {
     return (
       <Box p={3}>
-        <Alert severity="error">
-          Failed to load system metrics. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load system metrics. Please try again later.</Alert>
       </Box>
     );
   }
@@ -76,7 +69,7 @@ const SystemMonitoring: React.FC = () => {
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (days > 0) {
       return `${days}d ${hours}h ${minutes}m`;
     } else if (hours > 0) {
@@ -98,13 +91,13 @@ const SystemMonitoring: React.FC = () => {
 
   const formatResourceData = (data: any[]) => {
     if (!data) return [];
-    
-    return data.map(item => ({
+
+    return data.map((item) => ({
       timestamp: new Date(item.timestamp).getTime() / 1000,
       cpu: item.value,
       memory: item.value,
       disk: item.value,
-      network: item.value
+      network: item.value,
     }));
   };
 
@@ -201,7 +194,17 @@ const SystemMonitoring: React.FC = () => {
                   CPU Usage
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold" color={latestCpuUsage > 80 ? 'error.main' : latestCpuUsage > 60 ? 'warning.main' : 'success.main'}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                color={
+                  latestCpuUsage > 80
+                    ? 'error.main'
+                    : latestCpuUsage > 60
+                      ? 'warning.main'
+                      : 'success.main'
+                }
+              >
                 {latestCpuUsage.toFixed(1)}%
               </Typography>
               <LinearProgress
@@ -226,13 +229,25 @@ const SystemMonitoring: React.FC = () => {
                   Memory Usage
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold" color={latestMemoryUsage > 80 ? 'error.main' : latestMemoryUsage > 60 ? 'warning.main' : 'success.main'}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                color={
+                  latestMemoryUsage > 80
+                    ? 'error.main'
+                    : latestMemoryUsage > 60
+                      ? 'warning.main'
+                      : 'success.main'
+                }
+              >
                 {latestMemoryUsage.toFixed(1)}%
               </Typography>
               <LinearProgress
                 variant="determinate"
                 value={latestMemoryUsage}
-                color={latestMemoryUsage > 80 ? 'error' : latestMemoryUsage > 60 ? 'warning' : 'success'}
+                color={
+                  latestMemoryUsage > 80 ? 'error' : latestMemoryUsage > 60 ? 'warning' : 'success'
+                }
                 sx={{ mt: 1 }}
               />
               <Typography variant="body2" color="text.secondary" mt={1}>
@@ -251,13 +266,25 @@ const SystemMonitoring: React.FC = () => {
                   Disk Usage
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold" color={latestDiskUsage > 80 ? 'error.main' : latestDiskUsage > 60 ? 'warning.main' : 'success.main'}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                color={
+                  latestDiskUsage > 80
+                    ? 'error.main'
+                    : latestDiskUsage > 60
+                      ? 'warning.main'
+                      : 'success.main'
+                }
+              >
                 {latestDiskUsage.toFixed(1)}%
               </Typography>
               <LinearProgress
                 variant="determinate"
                 value={latestDiskUsage}
-                color={latestDiskUsage > 80 ? 'error' : latestDiskUsage > 60 ? 'warning' : 'success'}
+                color={
+                  latestDiskUsage > 80 ? 'error' : latestDiskUsage > 60 ? 'warning' : 'success'
+                }
                 sx={{ mt: 1 }}
               />
               <Typography variant="body2" color="text.secondary" mt={1}>
@@ -276,13 +303,29 @@ const SystemMonitoring: React.FC = () => {
                   Network Usage
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold" color={latestNetworkUsage > 80 ? 'error.main' : latestNetworkUsage > 60 ? 'warning.main' : 'success.main'}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                color={
+                  latestNetworkUsage > 80
+                    ? 'error.main'
+                    : latestNetworkUsage > 60
+                      ? 'warning.main'
+                      : 'success.main'
+                }
+              >
                 {latestNetworkUsage.toFixed(1)}%
               </Typography>
               <LinearProgress
                 variant="determinate"
                 value={latestNetworkUsage}
-                color={latestNetworkUsage > 80 ? 'error' : latestNetworkUsage > 60 ? 'warning' : 'success'}
+                color={
+                  latestNetworkUsage > 80
+                    ? 'error'
+                    : latestNetworkUsage > 60
+                      ? 'warning'
+                      : 'success'
+                }
                 sx={{ mt: 1 }}
               />
               <Typography variant="body2" color="text.secondary" mt={1}>

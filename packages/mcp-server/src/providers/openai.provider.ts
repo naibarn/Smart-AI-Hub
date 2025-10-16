@@ -71,10 +71,10 @@ export class OpenAIProvider extends BaseLLMProvider {
         });
 
         let chunkCount = 0;
-        
+
         for await (const chunk of stream) {
           chunkCount++;
-          
+
           // Handle rate limiting
           if (chunk.choices[0]?.finish_reason === 'length') {
             logger.warn('OpenAI streaming hit length limit', {
@@ -85,11 +85,11 @@ export class OpenAIProvider extends BaseLLMProvider {
 
           const content = chunk.choices[0]?.delta?.content || '';
           const finishReason = chunk.choices[0]?.finish_reason || '';
-          
+
           // Buffer management for smooth streaming
           if (content) {
             buffer += content;
-            
+
             // Yield buffered content when it reaches a reasonable size or on punctuation
             if (buffer.length >= maxBufferSize || /[.!?]\s*$/.test(content)) {
               yield {
@@ -101,7 +101,7 @@ export class OpenAIProvider extends BaseLLMProvider {
               buffer = '';
             }
           }
-          
+
           // Handle final chunk with usage
           if (finishReason) {
             // Yield any remaining buffered content
@@ -114,13 +114,15 @@ export class OpenAIProvider extends BaseLLMProvider {
               };
               buffer = '';
             }
-            
+
             // Get usage information from the final chunk
-            const usage = chunk.usage ? {
-              promptTokens: chunk.usage.prompt_tokens,
-              completionTokens: chunk.usage.completion_tokens,
-              totalTokens: chunk.usage.total_tokens,
-            } : undefined;
+            const usage = chunk.usage
+              ? {
+                  promptTokens: chunk.usage.prompt_tokens,
+                  completionTokens: chunk.usage.completion_tokens,
+                  totalTokens: chunk.usage.total_tokens,
+                }
+              : undefined;
 
             yield {
               content: '',
@@ -128,18 +130,18 @@ export class OpenAIProvider extends BaseLLMProvider {
               finishReason,
               usage,
             };
-            
+
             logger.debug('OpenAI streaming completed', {
               model: request.model,
               chunks: chunkCount,
               finishReason,
               usage,
             });
-            
+
             return; // Exit the function successfully
           }
         }
-        
+
         // If we get here without a finish_reason, handle incomplete stream
         if (buffer) {
           yield {
@@ -149,7 +151,7 @@ export class OpenAIProvider extends BaseLLMProvider {
             usage: undefined,
           };
         }
-        
+
         return; // Exit after processing all chunks
       } catch (error: any) {
         logger.error('Error in OpenAI streaming request', {
@@ -167,13 +169,13 @@ export class OpenAIProvider extends BaseLLMProvider {
           retryCount++;
           continue;
         }
-        
+
         // For other errors, throw immediately
         this.handleOpenAIError(error);
         throw error;
       }
     }
-    
+
     throw new Error(`OpenAI streaming request failed after ${this.MAX_RETRIES} retries`);
   }
 
@@ -243,13 +245,13 @@ export class OpenAIProvider extends BaseLLMProvider {
           retryCount++;
           continue;
         }
-        
+
         // For other errors, throw immediately
         this.handleOpenAIError(error);
         throw error;
       }
     }
-    
+
     throw new Error(`OpenAI non-streaming request failed after ${this.MAX_RETRIES} retries`);
   }
 
@@ -270,23 +272,26 @@ export class OpenAIProvider extends BaseLLMProvider {
     switch (error.status) {
       case 401:
         throw new Error('OpenAI API key is invalid or expired. Please check your configuration.');
-      
-      case 429:
+
+      case 429: {
         const retryAfter = error.headers?.['retry-after'] || '60';
         throw new Error(`OpenAI rate limit exceeded. Please try again in ${retryAfter} seconds.`);
-      
+      }
+
       case 400:
-        throw new Error(`Invalid request to OpenAI: ${error.message}. Please check your parameters.`);
-      
+        throw new Error(
+          `Invalid request to OpenAI: ${error.message}. Please check your parameters.`
+        );
+
       case 404:
         throw new Error(`OpenAI model not found: ${error.message}. Please check the model name.`);
-      
+
       case 500:
       case 502:
       case 503:
       case 504:
         throw new Error('OpenAI service is temporarily unavailable. Please try again later.');
-      
+
       default:
         throw new Error(`OpenAI API error: ${error.message}`);
     }
@@ -296,7 +301,7 @@ export class OpenAIProvider extends BaseLLMProvider {
    * Sleep utility for retry delays
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -305,25 +310,25 @@ export class OpenAIProvider extends BaseLLMProvider {
   public async checkAvailability(): Promise<boolean> {
     try {
       logger.debug('Checking OpenAI API availability');
-      
+
       // Make a minimal request to check API availability
       const response = await this.openai.models.list();
-      
+
       // Check if our supported models are available
-      const availableModels = response.data.map(model => model.id);
-      const hasSupportedModels = this.supportedModels.some(model =>
+      const availableModels = response.data.map((model) => model.id);
+      const hasSupportedModels = this.supportedModels.some((model) =>
         availableModels.includes(model)
       );
-      
+
       if (!hasSupportedModels) {
         logger.warn('None of the supported OpenAI models are available', {
           supportedModels: this.supportedModels,
-          availableModels: availableModels.filter(m =>
-            this.supportedModels.some(sm => m.includes(sm))
+          availableModels: availableModels.filter((m) =>
+            this.supportedModels.some((sm) => m.includes(sm))
           ),
         });
       }
-      
+
       logger.debug('OpenAI API availability check passed');
       return true;
     } catch (error: any) {

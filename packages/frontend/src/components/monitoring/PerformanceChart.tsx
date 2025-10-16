@@ -26,7 +26,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
   height = 200,
   loading = false,
   showGrid = true,
-  showLegend = true
+  showLegend = true,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -51,7 +51,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
     const chartHeight = canvas.height - padding * 2;
 
     // Find min and max values
-    const values = data.map(d => d.value);
+    const values = data.map((d) => d.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
     const valueRange = maxValue - minValue || 1;
@@ -60,7 +60,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
     if (showGrid) {
       ctx.strokeStyle = '#374151';
       ctx.lineWidth = 0.5;
-      
+
       // Horizontal grid lines
       for (let i = 0; i <= 5; i++) {
         const y = padding + (chartHeight / 5) * i;
@@ -68,7 +68,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
         ctx.moveTo(padding, y);
         ctx.lineTo(padding + chartWidth, y);
         ctx.stroke();
-        
+
         // Y-axis labels
         const value = maxValue - (valueRange / 5) * i;
         ctx.fillStyle = '#9CA3AF';
@@ -76,7 +76,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
         ctx.textAlign = 'right';
         ctx.fillText(value.toFixed(2) + unit, padding - 5, y + 3);
       }
-      
+
       // Vertical grid lines
       const xStep = chartWidth / (data.length - 1 || 1);
       for (let i = 0; i < data.length; i++) {
@@ -100,52 +100,59 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
     // Draw data line
     if (data.length > 0) {
       const xStep = chartWidth / (data.length - 1 || 1);
-      
+
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      
+
       data.forEach((point, index) => {
         const x = padding + xStep * index;
         const y = padding + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
-        
+
         if (index === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
       });
-      
+
       ctx.stroke();
-      
+
       // Draw data points
       data.forEach((point, index) => {
         const x = padding + xStep * index;
         const y = padding + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
-        
+
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, 3, 0, 2 * Math.PI);
         ctx.fill();
       });
-      
+
       // Draw X-axis labels (time)
       if (data.length > 1) {
         ctx.fillStyle = '#9CA3AF';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        
+
         // Show first, middle, and last timestamps
         const firstTime = new Date(data[0].timestamp * 1000);
         const middleTime = new Date(data[Math.floor(data.length / 2)].timestamp * 1000);
         const lastTime = new Date(data[data.length - 1].timestamp * 1000);
-        
+
         ctx.fillText(firstTime.toLocaleTimeString(), padding, padding + chartHeight + 15);
-        ctx.fillText(middleTime.toLocaleTimeString(), padding + chartWidth / 2, padding + chartHeight + 15);
-        ctx.fillText(lastTime.toLocaleTimeString(), padding + chartWidth, padding + chartHeight + 15);
+        ctx.fillText(
+          middleTime.toLocaleTimeString(),
+          padding + chartWidth / 2,
+          padding + chartHeight + 15
+        );
+        ctx.fillText(
+          lastTime.toLocaleTimeString(),
+          padding + chartWidth,
+          padding + chartHeight + 15
+        );
       }
     }
-
   }, [data, loading, color, height, showGrid, unit]);
 
   if (loading) {
@@ -165,22 +172,16 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
         <h3 className="text-lg font-semibold text-white">{title}</h3>
         {showLegend && data.length > 0 && (
           <div className="flex items-center space-x-2 mt-2">
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: color }}
-            ></div>
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
             <span className="text-sm text-gray-400">
-              Current: {data[data.length - 1]?.value.toFixed(2)}{unit}
+              Current: {data[data.length - 1]?.value.toFixed(2)}
+              {unit}
             </span>
           </div>
         )}
       </div>
       <div className="relative" style={{ height }}>
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full"
-          style={{ display: 'block' }}
-        />
+        <canvas ref={canvasRef} className="w-full h-full" style={{ display: 'block' }} />
       </div>
     </GlassCard>
   );

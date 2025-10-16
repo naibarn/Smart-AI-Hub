@@ -27,8 +27,8 @@ const metrics = initializeMetrics({
   defaultLabels: {
     service: 'webhook-service',
     version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  }
+    environment: process.env.NODE_ENV || 'development',
+  },
 });
 
 // Security middleware (API-specific - no CSP needed)
@@ -49,16 +49,16 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // Basic metrics middleware
 app.use((req, res, next) => {
   const startTime = Date.now();
-  
+
   res.on('finish', () => {
     const duration = (Date.now() - startTime) / 1000;
     const route = req.route?.path || req.path || 'unknown';
-    
+
     // Record basic metrics
     metrics.incrementHttpRequests(req.method, route, res.statusCode);
     metrics.recordHttpRequestDuration(req.method, route, res.statusCode, duration);
   });
-  
+
   next();
 });
 
@@ -85,11 +85,11 @@ app.get('/metrics', async (req, res) => {
 app.get('/health', async (req, res) => {
   try {
     // Check database connection
-    const { prisma } = require('./config/database');
+    const { prisma } = await import('./config/database');
     await prisma.$queryRaw`SELECT 1`;
 
     // Check Redis connection
-    const { testRedisConnection } = require('./config/redis');
+    const { testRedisConnection } = await import('./config/redis');
     const redisStatus = await testRedisConnection();
 
     res.json({
@@ -149,7 +149,7 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 
 // Initialize webhook queue processor
 webhookQueue.process('deliver-webhook', async (job) => {
-  const { webhookDeliveryService } = require('./services/webhook-delivery.service');
+  const { webhookDeliveryService } = await import('./services/webhook-delivery.service');
   return await webhookDeliveryService.processWebhookDelivery(job.data);
 });
 

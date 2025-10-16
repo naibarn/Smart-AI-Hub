@@ -41,7 +41,7 @@ const TrendChart: React.FC<TrendChartProps> = ({
   loading = false,
   showLegend = true,
   colors = DEFAULT_COLORS,
-  timeFormat = 'short'
+  timeFormat = 'short',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hoveredPoint, setHoveredPoint] = useState<{
@@ -74,15 +74,15 @@ const TrendChart: React.FC<TrendChartProps> = ({
     const chartHeight = rect.height - padding.top - padding.bottom;
 
     // Collect all data points to find min/max
-    const allDataPoints = data.flatMap(series => series.data);
+    const allDataPoints = data.flatMap((series) => series.data);
     if (allDataPoints.length === 0) return;
 
-    const values = allDataPoints.map(d => d.value);
+    const values = allDataPoints.map((d) => d.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
     const valueRange = maxValue - minValue || 1;
 
-    const timestamps = allDataPoints.map(d => new Date(d.timestamp).getTime());
+    const timestamps = allDataPoints.map((d) => new Date(d.timestamp).getTime());
     const minTime = Math.min(...timestamps);
     const maxTime = Math.max(...timestamps);
     const timeRange = maxTime - minTime || 1;
@@ -90,7 +90,7 @@ const TrendChart: React.FC<TrendChartProps> = ({
     // Draw grid
     ctx.strokeStyle = '#374151';
     ctx.lineWidth = 0.5;
-    
+
     // Horizontal grid lines
     for (let i = 0; i <= 5; i++) {
       const y = padding.top + (chartHeight / 5) * i;
@@ -98,7 +98,7 @@ const TrendChart: React.FC<TrendChartProps> = ({
       ctx.moveTo(padding.left, y);
       ctx.lineTo(padding.left + chartWidth, y);
       ctx.stroke();
-      
+
       // Y-axis labels
       const value = maxValue - (valueRange / 5) * i;
       ctx.fillStyle = '#9CA3AF';
@@ -106,7 +106,7 @@ const TrendChart: React.FC<TrendChartProps> = ({
       ctx.textAlign = 'right';
       ctx.fillText(value.toFixed(1) + 'ms', padding.left - 5, y + 3);
     }
-    
+
     // Vertical grid lines
     for (let i = 0; i <= 6; i++) {
       const x = padding.left + (chartWidth / 6) * i;
@@ -114,16 +114,20 @@ const TrendChart: React.FC<TrendChartProps> = ({
       ctx.moveTo(x, padding.top);
       ctx.lineTo(x, padding.top + chartHeight);
       ctx.stroke();
-      
+
       // X-axis labels
       const time = minTime + (timeRange / 6) * i;
       const date = new Date(time);
       ctx.fillStyle = '#9CA3AF';
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
-      
+
       if (timeFormat === 'short') {
-        ctx.fillText(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), x, padding.top + chartHeight + 15);
+        ctx.fillText(
+          date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          x,
+          padding.top + chartHeight + 15
+        );
       } else {
         ctx.fillText(date.toLocaleString(), x, padding.top + chartHeight + 15);
       }
@@ -143,30 +147,32 @@ const TrendChart: React.FC<TrendChartProps> = ({
       if (series.data.length === 0) return;
 
       const color = colors[seriesIndex % colors.length];
-      
+
       // Draw line
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      
+
       series.data.forEach((point, index) => {
-        const x = padding.left + ((new Date(point.timestamp).getTime() - minTime) / timeRange) * chartWidth;
+        const x =
+          padding.left + ((new Date(point.timestamp).getTime() - minTime) / timeRange) * chartWidth;
         const y = padding.top + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
-        
+
         if (index === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
       });
-      
+
       ctx.stroke();
-      
+
       // Draw data points
       series.data.forEach((point) => {
-        const x = padding.left + ((new Date(point.timestamp).getTime() - minTime) / timeRange) * chartWidth;
+        const x =
+          padding.left + ((new Date(point.timestamp).getTime() - minTime) / timeRange) * chartWidth;
         const y = padding.top + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
-        
+
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, 3, 0, 2 * Math.PI);
@@ -179,16 +185,19 @@ const TrendChart: React.FC<TrendChartProps> = ({
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      
+
       // Find closest data point
       let closestPoint: typeof hoveredPoint | null = null;
       let minDistance = Infinity;
-      
+
       data.forEach((series) => {
         series.data.forEach((point) => {
-          const px = padding.left + ((new Date(point.timestamp).getTime() - minTime) / timeRange) * chartWidth;
-          const py = padding.top + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
-          
+          const px =
+            padding.left +
+            ((new Date(point.timestamp).getTime() - minTime) / timeRange) * chartWidth;
+          const py =
+            padding.top + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
+
           const distance = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
           if (distance < minDistance && distance < 10) {
             minDistance = distance;
@@ -196,7 +205,7 @@ const TrendChart: React.FC<TrendChartProps> = ({
           }
         });
       });
-      
+
       setHoveredPoint(closestPoint);
     };
 
@@ -228,8 +237,8 @@ const TrendChart: React.FC<TrendChartProps> = ({
           <div className="flex flex-wrap gap-4 mt-2">
             {data.map((series, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <div 
-                  className="w-3 h-3 rounded-full" 
+                <div
+                  className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: colors[index % colors.length] }}
                 ></div>
                 <span className="text-sm text-gray-400">
@@ -240,26 +249,24 @@ const TrendChart: React.FC<TrendChartProps> = ({
           </div>
         )}
       </div>
-      
+
       <div className="relative" style={{ height }}>
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full"
-          style={{ display: 'block' }}
-        />
-        
+        <canvas ref={canvasRef} className="w-full h-full" style={{ display: 'block' }} />
+
         {/* Tooltip */}
         {hoveredPoint && (
           <div
             className="absolute bg-gray-800 text-white p-2 rounded shadow-lg border border-gray-600 text-sm pointer-events-none z-10"
             style={{
               left: hoveredPoint.x + 10,
-              top: hoveredPoint.y - 30
+              top: hoveredPoint.y - 30,
             }}
           >
             <div className="font-semibold">{hoveredPoint.series.service}</div>
             <div>{hoveredPoint.series.route}</div>
-            <div>{hoveredPoint.series.percentile}: {hoveredPoint.point.value.toFixed(2)}ms</div>
+            <div>
+              {hoveredPoint.series.percentile}: {hoveredPoint.point.value.toFixed(2)}ms
+            </div>
             <div>{new Date(hoveredPoint.point.timestamp).toLocaleString()}</div>
           </div>
         )}

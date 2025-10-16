@@ -10,10 +10,10 @@ interface AdminProtectedRouteProps {
   requiredPermissions?: string[];
 }
 
-const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ 
-  children, 
+const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
+  children,
   requiredRoles = ['admin', 'manager'],
-  requiredPermissions = ['monitoring:read', 'system:read']
+  requiredPermissions = ['monitoring:read', 'system:read'],
 }) => {
   const { isAuthenticated, user } = useSelector((state: { app: any }) => state.app.auth);
 
@@ -28,10 +28,10 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
   const userPermissions = user?.permissions || []; // Default to empty if no permissions
 
   // Check if user has required role
-  const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
+  const hasRequiredRole = requiredRoles.some((role) => userRoles.includes(role));
 
   // Check if user has required permissions
-  const hasRequiredPermissions = requiredPermissions.every(permission => 
+  const hasRequiredPermissions = requiredPermissions.every((permission) =>
     userPermissions.includes(permission)
   );
 
@@ -46,19 +46,16 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
         minHeight="100vh"
         p={3}
       >
-        <Alert 
-          severity="error" 
-          sx={{ mb: 3, maxWidth: 500 }}
-        >
+        <Alert severity="error" sx={{ mb: 3, maxWidth: 500 }}>
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             Access Denied
           </Typography>
           <Typography variant="body2">
-            You don't have the required permissions to access the monitoring dashboard.
-            This area is restricted to administrators and managers only.
+            You don't have the required permissions to access the monitoring dashboard. This area is
+            restricted to administrators and managers only.
           </Typography>
         </Alert>
-        
+
         <Box textAlign="center">
           <Typography variant="body2" color="text.secondary" mb={2}>
             Required roles: {requiredRoles.join(', ')}
@@ -66,11 +63,11 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
           <Typography variant="body2" color="text.secondary" mb={3}>
             Your current roles: {userRoles.join(', ') || 'None'}
           </Typography>
-          
+
           <Button
             variant="contained"
             startIcon={<HomeIcon />}
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={() => (window.location.href = '/dashboard')}
           >
             Back to Dashboard
           </Button>

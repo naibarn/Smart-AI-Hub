@@ -108,9 +108,7 @@ const MonitoringDashboard: React.FC = () => {
   if (overviewError || systemError || alertsError) {
     return (
       <Box p={3}>
-        <Alert severity="error">
-          Failed to load monitoring data. Please try again later.
-        </Alert>
+        <Alert severity="error">Failed to load monitoring data. Please try again later.</Alert>
       </Box>
     );
   }
@@ -165,7 +163,13 @@ const MonitoringDashboard: React.FC = () => {
                 <MetricCard
                   title="Error Rate"
                   value={`${overviewData.data.errorRate.toFixed(2)}%`}
-                  status={overviewData.data.errorRate > 5 ? 'critical' : overviewData.data.errorRate > 1 ? 'warning' : 'healthy'}
+                  status={
+                    overviewData.data.errorRate > 5
+                      ? 'critical'
+                      : overviewData.data.errorRate > 1
+                        ? 'warning'
+                        : 'healthy'
+                  }
                   icon={overviewData.data.errorRate > 5 ? <ErrorIcon /> : <CheckCircleIcon />}
                 />
               </Grid>
@@ -173,8 +177,16 @@ const MonitoringDashboard: React.FC = () => {
                 <MetricCard
                   title="Avg Response Time"
                   value={`${overviewData.data.avgResponseTime.toFixed(0)}ms`}
-                  status={overviewData.data.avgResponseTime > 1000 ? 'critical' : overviewData.data.avgResponseTime > 500 ? 'warning' : 'healthy'}
-                  icon={overviewData.data.avgResponseTime > 500 ? <WarningIcon /> : <CheckCircleIcon />}
+                  status={
+                    overviewData.data.avgResponseTime > 1000
+                      ? 'critical'
+                      : overviewData.data.avgResponseTime > 500
+                        ? 'warning'
+                        : 'healthy'
+                  }
+                  icon={
+                    overviewData.data.avgResponseTime > 500 ? <WarningIcon /> : <CheckCircleIcon />
+                  }
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -204,15 +216,22 @@ const MonitoringDashboard: React.FC = () => {
                 </Box>
               ) : (
                 <ServiceStatusTable
-                  services={overviewData?.data?.services?.map(service => ({
-                    name: service.name,
-                    status: service.status === 'healthy' ? 'up' : service.status === 'critical' ? 'down' : 'unknown',
-                    uptime: `${service.uptime.toFixed(1)}%`,
-                    requestRate: 'N/A',
-                    errorRate: `${(service.errorRate || 0).toFixed(2)}%`,
-                    responseTime: `${(service.responseTime || 0).toFixed(0)}ms`,
-                    memoryUsage: 'N/A'
-                  })) || []}
+                  services={
+                    overviewData?.data?.services?.map((service) => ({
+                      name: service.name,
+                      status:
+                        service.status === 'healthy'
+                          ? 'up'
+                          : service.status === 'critical'
+                            ? 'down'
+                            : 'unknown',
+                      uptime: `${service.uptime.toFixed(1)}%`,
+                      requestRate: 'N/A',
+                      errorRate: `${(service.errorRate || 0).toFixed(2)}%`,
+                      responseTime: `${(service.responseTime || 0).toFixed(0)}ms`,
+                      memoryUsage: 'N/A',
+                    })) || []
+                  }
                 />
               )}
             </CardContent>
@@ -239,18 +258,20 @@ const MonitoringDashboard: React.FC = () => {
                 </Box>
               ) : (
                 <AlertsList
-                  alerts={alertsData?.data?.map(alert => ({
-                    id: alert.id,
-                    name: alert.name,
-                    severity: alert.severity,
-                    service: alert.service || 'Unknown',
-                    summary: alert.message,
-                    description: alert.message,
-                    startsAt: alert.timestamp,
-                    status: {
-                      state: alert.status as 'active' | 'suppressed' | 'resolved'
-                    }
-                  })) || []}
+                  alerts={
+                    alertsData?.data?.map((alert) => ({
+                      id: alert.id,
+                      name: alert.name,
+                      severity: alert.severity,
+                      service: alert.service || 'Unknown',
+                      summary: alert.message,
+                      description: alert.message,
+                      startsAt: alert.timestamp,
+                      status: {
+                        state: alert.status as 'active' | 'suppressed' | 'resolved',
+                      },
+                    })) || []
+                  }
                 />
               )}
             </CardContent>
@@ -271,13 +292,15 @@ const MonitoringDashboard: React.FC = () => {
               ) : (
                 <ResourceUsageChart
                   title="System Resource Usage"
-                  data={systemData?.data?.cpu?.map((item, index) => ({
-                    timestamp: new Date(item.timestamp).getTime() / 1000,
-                    cpu: item.value,
-                    memory: systemData?.data?.memory?.[index]?.value || 0,
-                    disk: systemData?.data?.disk?.[index]?.value || 0,
-                    network: systemData?.data?.network?.[index]?.value || 0
-                  })) || []}
+                  data={
+                    systemData?.data?.cpu?.map((item, index) => ({
+                      timestamp: new Date(item.timestamp).getTime() / 1000,
+                      cpu: item.value,
+                      memory: systemData?.data?.memory?.[index]?.value || 0,
+                      disk: systemData?.data?.disk?.[index]?.value || 0,
+                      network: systemData?.data?.network?.[index]?.value || 0,
+                    })) || []
+                  }
                   height={300}
                   showCpu={true}
                   showMemory={true}

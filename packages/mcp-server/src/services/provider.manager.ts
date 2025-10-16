@@ -22,7 +22,7 @@ export class ProviderManager {
       this.providerStatus.set(name, 'healthy');
       this.providerAvailability.set(name, true);
       this.lastAvailabilityCheck.set(name, 0);
-      
+
       const breaker = new CircuitBreaker((req: LLMRequest) => this.executeWithProvider(name, req), {
         timeout: 15000, // 15 seconds
         errorThresholdPercentage: 50,
@@ -73,7 +73,7 @@ export class ProviderManager {
     }
 
     // Check if provider is available
-    if (!await this.isProviderAvailable(providerName)) {
+    if (!(await this.isProviderAvailable(providerName))) {
       throw new Error(`Provider ${providerName} is currently unavailable.`);
     }
 
@@ -153,7 +153,8 @@ export class ProviderManager {
           }
         } catch (lastResortError) {
           logger.error(`All providers failed.`, {
-            error: lastResortError instanceof Error ? lastResortError.message : String(lastResortError)
+            error:
+              lastResortError instanceof Error ? lastResortError.message : String(lastResortError),
           });
         }
 
@@ -199,7 +200,7 @@ export class ProviderManager {
   private async isProviderAvailable(providerName: ProviderName): Promise<boolean> {
     const now = Date.now();
     const lastCheck = this.lastAvailabilityCheck.get(providerName) || 0;
-    
+
     // Use cached result if check was done recently
     if (now - lastCheck < this.AVAILABILITY_CHECK_INTERVAL) {
       return this.providerAvailability.get(providerName) || false;
@@ -216,12 +217,14 @@ export class ProviderManager {
         const isAvailable = await (provider as any).checkAvailability();
         this.providerAvailability.set(providerName, isAvailable);
         this.lastAvailabilityCheck.set(providerName, now);
-        
-        logger.debug(`Provider ${providerName} availability check: ${isAvailable ? 'available' : 'unavailable'}`);
-        
+
+        logger.debug(
+          `Provider ${providerName} availability check: ${isAvailable ? 'available' : 'unavailable'}`
+        );
+
         return isAvailable;
       }
-      
+
       // Default to available if no check method exists
       this.providerAvailability.set(providerName, true);
       this.lastAvailabilityCheck.set(providerName, now);
@@ -230,7 +233,7 @@ export class ProviderManager {
       logger.error(`Error checking availability for provider ${providerName}`, {
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       this.providerAvailability.set(providerName, false);
       this.lastAvailabilityCheck.set(providerName, now);
       return false;
@@ -243,7 +246,7 @@ export class ProviderManager {
   private startAvailabilityChecks(): void {
     // Check availability immediately on startup
     this.checkAllProvidersAvailability();
-    
+
     // Then check periodically
     setInterval(() => {
       this.checkAllProvidersAvailability();
@@ -255,7 +258,7 @@ export class ProviderManager {
    */
   private async checkAllProvidersAvailability(): Promise<void> {
     const providerNames: ProviderName[] = ['openai', 'claude'];
-    
+
     for (const providerName of providerNames) {
       try {
         await this.isProviderAvailable(providerName);

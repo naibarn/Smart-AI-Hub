@@ -30,7 +30,7 @@ const testUser = {
 
 let authToken = null;
 let testWebhookId = null;
-let receivedWebhooks = [];
+// let receivedWebhooks = []; // Reserved for future use
 
 // Utility functions
 function log(message, type = 'info') {
@@ -393,7 +393,7 @@ async function testRateLimiting() {
   logInfo('Testing rate limiting...');
 
   const requests = [];
-  const startTime = performance.now();
+  // const startTime = performance.now(); // Not used currently
 
   // Make multiple rapid requests
   for (let i = 0; i < 10; i++) {
@@ -409,8 +409,8 @@ async function testRateLimiting() {
   }
 
   const responses = await Promise.all(requests);
-  const endTime = performance.now();
-  const duration = endTime - startTime;
+  // const endTime = performance.now(); // Not used currently
+  // const duration = endTime - startTime; // Not used currently
 
   const rateLimitedResponses = responses.filter(
     (response) => response.response && response.response.status === 429

@@ -16,9 +16,9 @@ class AnalyticsService {
     const shutdown = (signal: string) => {
       logger.info(`Received ${signal}, shutting down gracefully`);
       this.isShuttingDown = true;
-      
+
       calculateBaselinesJob.stop();
-      
+
       process.exit(0);
     };
 
@@ -42,7 +42,7 @@ class AnalyticsService {
 
   public async stop(): Promise<void> {
     if (this.isShuttingDown) return;
-    
+
     logger.info('Stopping Analytics Service');
     calculateBaselinesJob.stop();
     logger.info('Analytics Service stopped');

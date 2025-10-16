@@ -25,7 +25,7 @@ const AlertsList: React.FC<AlertsListProps> = ({
   alerts,
   loading = false,
   onAcknowledge,
-  onSuppress
+  onSuppress,
 }) => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -70,14 +70,12 @@ const AlertsList: React.FC<AlertsListProps> = ({
     );
   }
 
-  const activeAlerts = alerts.filter(alert => alert.status.state === 'active');
+  const activeAlerts = alerts.filter((alert) => alert.status.state === 'active');
 
   return (
     <GlassCard className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-white">
-          Active Alerts ({activeAlerts.length})
-        </h2>
+        <h2 className="text-xl font-semibold text-white">Active Alerts ({activeAlerts.length})</h2>
         <div className="flex items-center space-x-2 text-sm text-gray-400">
           <div className="w-3 h-3 bg-red-400 rounded-full"></div>
           <span>Critical</span>
@@ -103,25 +101,19 @@ const AlertsList: React.FC<AlertsListProps> = ({
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-white">
-                      {alert.name}
-                    </span>
-                    <span className={`text-xs px-2 py-1 rounded-full ${getSeverityColor(alert.severity)}`}>
+                    <span className="font-medium text-white">{alert.name}</span>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${getSeverityColor(alert.severity)}`}
+                    >
                       {alert.severity.toUpperCase()}
                     </span>
-                    <span className="text-xs text-gray-400">
-                      {alert.service}
-                    </span>
+                    <span className="text-xs text-gray-400">{alert.service}</span>
                   </div>
-                  
-                  <p className="text-sm text-gray-300 mb-1">
-                    {alert.summary}
-                  </p>
-                  
-                  <p className="text-xs text-gray-400 mb-2">
-                    {alert.description}
-                  </p>
-                  
+
+                  <p className="text-sm text-gray-300 mb-1">{alert.summary}</p>
+
+                  <p className="text-xs text-gray-400 mb-2">{alert.description}</p>
+
                   <div className="flex items-center space-x-4 text-xs text-gray-400">
                     <span>Started: {formatDate(alert.startsAt)}</span>
                     <span className={getStatusColor(alert.status.state)}>
@@ -129,7 +121,7 @@ const AlertsList: React.FC<AlertsListProps> = ({
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 ml-4">
                   {onAcknowledge && (
                     <button

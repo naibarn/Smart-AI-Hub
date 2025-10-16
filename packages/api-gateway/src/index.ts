@@ -12,15 +12,17 @@ const CORE_SERVICE_URL = process.env.CORE_SERVICE_URL || 'http://localhost:3002'
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3003';
 
 // Security middleware (API-specific - no CSP needed)
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: process.env.NODE_ENV === 'production',
-  },
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: process.env.NODE_ENV === 'production',
+    },
+  })
+);
 
 // CORS middleware
 app.use(

@@ -170,14 +170,17 @@ export const monitoringApi = createApi({
       providesTags: ['Monitoring'],
     }),
 
-    getResponseTimeEndpoints: builder.query<MonitoringResponse<any>, {
-      service?: string;
-      sla_tier?: string;
-      page?: string;
-      limit?: string;
-      sort?: string;
-      order?: string;
-    }>({
+    getResponseTimeEndpoints: builder.query<
+      MonitoringResponse<any>,
+      {
+        service?: string;
+        sla_tier?: string;
+        page?: string;
+        limit?: string;
+        sort?: string;
+        order?: string;
+      }
+    >({
       query: ({ service, sla_tier, page, limit, sort, order }) => {
         const params = new URLSearchParams();
         if (service) params.append('service', service);
@@ -191,11 +194,14 @@ export const monitoringApi = createApi({
       providesTags: ['Monitoring'],
     }),
 
-    getResponseTimeTrends: builder.query<MonitoringResponse<any>, {
-      timeframe?: string;
-      service?: string;
-      route?: string;
-    }>({
+    getResponseTimeTrends: builder.query<
+      MonitoringResponse<any>,
+      {
+        timeframe?: string;
+        service?: string;
+        route?: string;
+      }
+    >({
       query: ({ timeframe, service, route }) => {
         const params = new URLSearchParams();
         if (timeframe) params.append('timeframe', timeframe);
@@ -206,11 +212,14 @@ export const monitoringApi = createApi({
       providesTags: ['Monitoring'],
     }),
 
-    getResponseTimeViolations: builder.query<MonitoringResponse<any>, {
-      timeframe?: string;
-      sla_tier?: string;
-      service?: string;
-    }>({
+    getResponseTimeViolations: builder.query<
+      MonitoringResponse<any>,
+      {
+        timeframe?: string;
+        sla_tier?: string;
+        service?: string;
+      }
+    >({
       query: ({ timeframe, sla_tier, service }) => {
         const params = new URLSearchParams();
         if (timeframe) params.append('timeframe', timeframe);
@@ -221,11 +230,14 @@ export const monitoringApi = createApi({
       providesTags: ['Monitoring'],
     }),
 
-    getResponseTimeBaselines: builder.query<MonitoringResponse<any>, {
-      service?: string;
-      route?: string;
-      days?: string;
-    }>({
+    getResponseTimeBaselines: builder.query<
+      MonitoringResponse<any>,
+      {
+        service?: string;
+        route?: string;
+        days?: string;
+      }
+    >({
       query: ({ service, route, days }) => {
         const params = new URLSearchParams();
         if (service) params.append('service', service);
@@ -236,11 +248,14 @@ export const monitoringApi = createApi({
       providesTags: ['Monitoring'],
     }),
 
-    getResponseTimeCompare: builder.query<MonitoringResponse<any>, {
-      endpoints?: string;
-      timeframe?: string;
-      metric?: string;
-    }>({
+    getResponseTimeCompare: builder.query<
+      MonitoringResponse<any>,
+      {
+        endpoints?: string;
+        timeframe?: string;
+        metric?: string;
+      }
+    >({
       query: ({ endpoints, timeframe, metric }) => {
         const params = new URLSearchParams();
         if (endpoints) params.append('endpoints', endpoints);
