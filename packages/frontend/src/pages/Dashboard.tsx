@@ -15,6 +15,7 @@ import {
   ListItemText,
   IconButton,
   Fab,
+  Button,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
@@ -33,8 +34,11 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownRight,
+  Coins,
+  Gift,
 } from 'lucide-react';
 import { GlassCard, GradientButton, CreditBadge, LoadingSpinner } from '../components/common';
+import { useGetWalletBalanceQuery, useGetDailyRewardStatusQuery } from '../services/api';
 
 interface StatCardProps {
   title: string;
@@ -144,6 +148,10 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = React.useState(true);
 
+  // Fetch wallet balance
+  const { data: walletBalance, isLoading: walletLoading } = useGetWalletBalanceQuery();
+  const { data: dailyRewardStatus } = useGetDailyRewardStatusQuery();
+
   React.useEffect(() => {
     // Simulate loading data
     const timer = setTimeout(() => {
@@ -252,7 +260,7 @@ const Dashboard: React.FC = () => {
           <Grid item xs={12} sm={6} lg={3}>
             <StatCard
               title="Total Credits"
-              value={1250}
+              value={walletBalance?.credits || 0}
               change={12}
               icon={<CreditCard size={24} />}
               color="primary"
@@ -261,30 +269,30 @@ const Dashboard: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <StatCard
-              title="API Calls Today"
-              value={342}
+              title="Total Points"
+              value={walletBalance?.points || 0}
               change={8}
-              icon={<Zap size={24} />}
+              icon={<Coins size={24} />}
               color="secondary"
               delay={0.2}
             />
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <StatCard
-              title="Active Services"
-              value={5}
+              title="API Calls Today"
+              value={342}
               change={0}
-              icon={<Activity size={24} />}
+              icon={<Zap size={24} />}
               color="accent"
               delay={0.3}
             />
           </Grid>
           <Grid item xs={12} sm={6} lg={3}>
             <StatCard
-              title="Team Members"
-              value={8}
+              title="Active Services"
+              value={5}
               change={25}
-              icon={<Users size={24} />}
+              icon={<Activity size={24} />}
               color="success"
               delay={0.4}
             />
@@ -306,7 +314,7 @@ const Dashboard: React.FC = () => {
                   </Typography>
 
                   <CreditBadge
-                    credits={1250}
+                    credits={walletBalance?.credits || 0}
                     change={150}
                     animated
                     showParticles
@@ -373,6 +381,77 @@ const Dashboard: React.FC = () => {
                     </Box>
                     <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
                       Based on current usage, you'll need more credits in 12 days
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </GlassCard>
+            </motion.div>
+          </Grid>
+
+          {/* Points Balance Card */}
+          <Grid item xs={12} lg={4}>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <GlassCard glow="secondary" sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Points Balance
+                    </Typography>
+                    {dailyRewardStatus?.canClaim && (
+                      <Chip
+                        icon={<Gift size={16} />}
+                        label="Reward Available"
+                        size="small"
+                        color="secondary"
+                        clickable
+                        onClick={() => navigate('/points')}
+                      />
+                    )}
+                  </Box>
+
+                  <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 700, color: theme.palette.secondary.main }}>
+                      {walletBalance?.points?.toLocaleString() || '0'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                      Points available
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Coins size={16} />}
+                      onClick={() => navigate('/points')}
+                      sx={{ flex: 1 }}
+                    >
+                      Manage Points
+                    </Button>
+                    {dailyRewardStatus?.canClaim && (
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        size="small"
+                        startIcon={<Gift size={16} />}
+                        onClick={() => navigate('/points')}
+                        sx={{ flex: 1 }}
+                      >
+                        Claim Reward
+                      </Button>
+                    )}
+                  </Box>
+
+                  <Box sx={{ p: 2, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 2 }}>
+                    <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 1 }}>
+                      Exchange Rate
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                      1 Credit = 1,000 Points
                     </Typography>
                   </Box>
                 </CardContent>

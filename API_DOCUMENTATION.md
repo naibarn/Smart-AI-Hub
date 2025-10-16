@@ -84,7 +84,7 @@ Content-Type: application/json
 #### OAuth Login
 
 ```http
-GET /api/auth/google?redirect_uri=https://your-app.com/auth/callback
+GET /api/auth/google?redirect_uri=https://smartaihub.com/auth/callback
 ```
 
 ### Refreshing Tokens
@@ -112,6 +112,32 @@ Authorization: Bearer <your-jwt-token>
 | Development | `http://localhost:3001` |
 | Staging | `https://api-staging.smartaihub.com` |
 | Production | `https://api.smartaihub.com` |
+
+## Environment-Specific URLs
+
+### Redirect URIs
+
+| Environment | OAuth Redirect URI |
+|-------------|-------------------|
+| Production | `https://smartaihub.com/auth/callback` |
+| Staging | `https://staging.smartaihub.com/auth/callback` |
+| Development | `http://localhost:3000/auth/callback` |
+
+### Webhook URLs
+
+| Environment | Webhook URL |
+|-------------|-------------|
+| Production | `https://smartaihub.com/webhooks/smartaihub` |
+| Staging | `https://staging.smartaihub.com/webhooks/smartaihub` |
+| Development | `http://localhost:3000/webhooks/smartaihub` |
+
+### Application URLs
+
+| Environment | Application URL |
+|-------------|-----------------|
+| Production | `https://smartaihub.com` |
+| Staging | `https://staging.smartaihub.com` |
+| Development | `http://localhost:3000` |
 
 ## Common Headers
 
@@ -779,7 +805,7 @@ Authorization: Bearer <your-admin-jwt-token>
 **Request Body:**
 ```json
 {
-  "url": "https://your-app.com/webhooks/smartaihub",
+  "url": "https://smartaihub.com/webhooks/smartaihub",
   "events": ["user.created", "credit.purchased", "payment.completed"],
   "secret": "your-webhook-secret",
   "active": true

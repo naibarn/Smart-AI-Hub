@@ -122,7 +122,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Credits'],
+  tagTypes: ['User', 'Credits', 'Points'],
   endpoints: (builder) => ({
     // Get available credit packages
     getCreditPackages: builder.query<CreditPackage[], void>({
@@ -221,4 +221,135 @@ export const {
   useConfirmPasswordResetMutation,
   useVerifyEmailMutation,
   useResendVerificationMutation,
+
+  // Get user's point balance
+  getPointBalance: builder.query<
+    {
+      balance: number;
+    },
+    void
+  >({
+    query: () => '/api/points/balance',
+    providesTags: ['Points'],
+  }),
+
+  // Get user's point transaction history
+  getPointHistory: builder.query<
+    {
+      data: Array<{
+        id: string;
+        amount: number;
+        type: string;
+        description: string | null;
+        createdAt: string;
+      }>;
+      total: number;
+    },
+    { page?: number; limit?: number }
+  >({
+    query: ({ page = 1, limit = 20 }) =>
+      `/api/points/history?page=${page}&limit=${limit}`,
+    providesTags: ['Points'],
+  }),
+
+  // Exchange Credits to Points
+  exchangeCreditsToPoints: builder.mutation<
+    {
+      newCreditBalance: number;
+      newPointBalance: number;
+      pointsReceived: number;
+      message: string;
+    },
+    { creditAmount: number }
+  >({
+    query: (data) => ({
+      url: '/api/points/exchange-from-credits',
+      method: 'POST',
+      body: data,
+    }),
+    invalidatesTags: ['Credits', 'Points'],
+  }),
+
+  // Purchase Points
+  purchasePoints: builder.mutation<
+    {
+      newBalance: number;
+      transactionId: string;
+      message: string;
+    },
+    {
+      pointsAmount: number;
+      paymentDetails: {
+        stripeSessionId: string;
+        stripePaymentIntentId?: string;
+        amount: number;
+      };
+    }
+  >({
+    query: (data) => ({
+      url: '/api/points/purchase',
+      method: 'POST',
+      body: data,
+    }),
+    invalidatesTags: ['Points'],
+  }),
+
+  // Claim daily reward
+  claimDailyReward: builder.mutation<
+    {
+      points: number;
+      message: string;
+    },
+    void
+  >({
+    query: () => ({
+      url: '/api/points/claim-daily-reward',
+      method: 'POST',
+    }),
+    invalidatesTags: ['Points'],
+  }),
+
+  // Get daily reward status
+  getDailyRewardStatus: builder.query<
+    {
+      canClaim: boolean;
+      nextClaimDate?: string;
+      lastClaimDate?: string;
+      rewardAmount: number;
+    },
+    void
+  >({
+    query: () => '/api/points/daily-reward-status',
+    providesTags: ['Points'],
+  }),
+
+  // Get wallet balance (both Credits and Points)
+  getWalletBalance: builder.query<
+    {
+      credits: number;
+      points: number;
+    },
+    void
+  >({
+    query: () => '/api/wallet/balance',
+    providesTags: ['Credits', 'Points'],
+  }),
 } = api;
+
+export const {
+  useGetCreditPackagesQuery,
+  useCreateCheckoutSessionMutation,
+  useGetCreditBalanceQuery,
+  useRegisterUserMutation,
+  useLoginUserMutation,
+  useRequestPasswordResetMutation,
+  useConfirmPasswordResetMutation,
+  useVerifyEmailMutation,
+  useResendVerificationMutation,
+  useGetPointBalanceQuery,
+  useGetPointHistoryQuery,
+  useExchangeCreditsToPointsMutation,
+  usePurchasePointsMutation,
+  useClaimDailyRewardMutation,
+  useGetDailyRewardStatusQuery,
+  useGetWalletBalanceQuery,

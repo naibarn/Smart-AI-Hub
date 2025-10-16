@@ -41,8 +41,12 @@ model User {
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
   credits            Int      @default(0)
+  points             Int      @default(0)
   creditAccount      CreditAccount?
+  pointAccount       PointAccount?
   creditTransactions CreditTransaction[]
+  pointTransactions  PointTransaction[]
+  dailyLoginRewards  DailyLoginReward[]
   profile            UserProfile?
   userRoles          UserRole[]
   promoCodeUsages    PromoCodeUsage[]
@@ -86,6 +90,63 @@ model CreditTransaction {
   user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("credit_transactions")
+}
+
+model PointAccount {
+  userId    String   @id @map("user_id") @db.Uuid
+  balance   Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("point_accounts")
+}
+
+model PointTransaction {
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String            @map("user_id") @db.Uuid
+  type         PointTransactionType
+  amount       Int
+  balanceAfter Int               @map("balance_after")
+  description  String?
+  metadata     Json              @default("{}")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("point_transactions")
+}
+
+enum PointTransactionType {
+  purchase
+  usage
+  exchange_from_credit
+  auto_topup_from_credit
+  daily_reward
+  admin_adjustment
+  refund
+}
+
+model DailyLoginReward {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  rewardDate DateTime @map("reward_date") @db.Date
+  points    Int
+  claimedAt DateTime @default(now()) @map("claimed_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rewardDate])
+  @@map("daily_login_rewards")
+}
+
+model ExchangeRate {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique
+  rate        Float
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("exchange_rates")
 }
 
 enum TransactionType {
@@ -153,6 +214,7 @@ model Payment {
   userId                  String   @map("user_id") @db.Uuid
   amount                  Int
   credits                 Int
+  points                  Int      @default(0)
   status                  String
   stripeSessionId         String   @unique @map("stripe_session_id")
   stripePaymentIntentId   String?  @map("stripe_payment_intent_id")
@@ -171,6 +233,8 @@ model UsageLog {
   model     String?  @db.VarChar(100)
   tokens    Int?
   credits   Int
+  points    Int      @default(0)
+  currency  String   @default("credits") @db.VarChar(20)
   metadata  Json     @default("{}")
   createdAt DateTime @default(now()) @map("created_at")
 

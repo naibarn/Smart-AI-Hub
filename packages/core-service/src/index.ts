@@ -3,6 +3,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import { initializeMetrics, apiSecurityHeaders } from '@smart-ai-hub/shared';
 import creditRoutes from './routes/credit.routes';
+import pointRoutes from './routes/point.routes';
 import paymentRoutes from './routes/payment.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import monitoringRoutes from './routes/monitoring.routes';
@@ -64,6 +65,7 @@ app.use(rateLimiter);
 
 // Routes - Versioned (v1)
 app.use('/api/v1', creditRoutes);
+app.use('/api/v1', pointRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/monitoring', monitoringRoutes);
@@ -82,6 +84,22 @@ app.use(
     next();
   },
   creditRoutes
+);
+
+// Legacy point routes for backward compatibility
+app.use(
+  '/api',
+  (req, res, next) => {
+    // Set deprecation headers
+    res.setHeader('Deprecation', 'true');
+    res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString()); // 90 days from now
+    res.setHeader('Link', '</api/v1' + req.url + '>; rel="successor-version"');
+
+    // Forward to versioned routes
+    req.url = '/api/v1' + req.url;
+    next();
+  },
+  pointRoutes
 );
 
 // Legacy analytics routes for backward compatibility

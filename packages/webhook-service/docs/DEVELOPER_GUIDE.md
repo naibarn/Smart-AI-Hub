@@ -69,7 +69,7 @@ curl -X POST http://localhost:3005/api/v1/webhooks \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://your-app.com/webhook",
+    "url": "https://smartaihub.com/webhooks/smartaihub",
     "eventTypes": ["user.created", "credit.low"],
     "secret": "your_webhook_secret"
   }'
@@ -90,6 +90,32 @@ curl -X POST http://localhost:3005/api/v1/webhooks/WEBHOOK_ID/test \
     }
   }'
 ```
+
+## Environment-Specific URLs
+
+### Webhook Endpoints
+
+| Environment | Webhook URL |
+|-------------|-------------|
+| Production | `https://smartaihub.com/webhooks/smartaihub` |
+| Staging | `https://staging.smartaihub.com/webhooks/smartaihub` |
+| Development | `http://localhost:3000/webhooks/smartaihub` |
+
+### Application URLs
+
+| Environment | Application URL |
+|-------------|-----------------|
+| Production | `https://smartaihub.com` |
+| Staging | `https://staging.smartaihub.com` |
+| Development | `http://localhost:3000` |
+
+### OAuth Redirect URIs
+
+| Environment | OAuth Redirect URI |
+|-------------|-------------------|
+| Production | `https://smartaihub.com/auth/callback` |
+| Staging | `https://staging.smartaihub.com/auth/callback` |
+| Development | `http://localhost:3000/auth/callback` |
 
 ## Event Reference
 

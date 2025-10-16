@@ -18,6 +18,7 @@ import Dashboard from './pages/Dashboard';
 import TestConnection from './pages/TestConnection';
 import ChatInterface from './pages/ChatInterface';
 import Billing from './pages/Billing';
+import Points from './pages/Points';
 import Webhooks from './pages/Webhooks';
 import {
   MonitoringDashboard,
@@ -163,6 +164,7 @@ const AppContent: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/credits" element={<Dashboard />} />
             <Route path="/billing" element={<Billing />} />
+            <Route path="/points" element={<Points />} />
             <Route path="/team" element={<Dashboard />} />
             <Route path="/services/*" element={<Dashboard />} />
             <Route path="/settings" element={<Dashboard />} />
