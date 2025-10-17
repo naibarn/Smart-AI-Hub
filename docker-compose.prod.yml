@@ -219,6 +219,45 @@ services:
       - nginx
     restart: unless-stopped
 
+  # Backup Service
+  backup-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=smart_ai_hub
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+      - ADMIN_EMAILS=${ADMIN_EMAILS}
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
+      - TZ=Asia/Bangkok
+    volumes:
+      - ./backups:/backups
+      - ./scripts:/scripts:ro
+      - ./.env.production:/config/.env.production:ro
+      - ./docker-compose.prod.yml:/config/docker-compose.prod.yml:ro
+      - ./nginx.prod.conf:/config/nginx.prod.conf:ro
+      - ./ssl:/config/ssl:ro
+      - ./logs/backup:/var/log
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["/scripts/backup-monitor.sh"]
+      interval: 1h
+      timeout: 10s
+      retries: 3
+
 volumes:
   postgres_data:
   redis_data:

@@ -1,0 +1,64 @@
+FROM postgres:15-alpine
+
+# Install required packages
+RUN apk add --no-cache \
+    bash \
+    curl \
+    gzip \
+    tar \
+    mailx \
+    ssmtp \
+    ca-certificates \
+    tzdata
+
+# Set timezone
+ENV TZ=Asia/Bangkok
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Create backup user and directories
+RUN addgroup -g 1001 backup && \
+    adduser -D -u 1001 -G backup backup
+
+# Create required directories
+RUN mkdir -p /backups /scripts /var/log && \
+    chown -R backup:backup /backups /scripts /var/log
+
+# Copy backup scripts
+COPY scripts/backup-lightweight.sh /scripts/backup-lightweight.sh
+COPY scripts/send-backup-email.sh /scripts/send-backup-email.sh
+COPY scripts/backup-monitor.sh /scripts/backup-monitor.sh
+
+# Make scripts executable
+RUN chmod +x /scripts/*.sh && \
+    chown -R backup:backup /scripts
+
+# Create crontab for backup user
+RUN echo "0 2 * * * /scripts/backup-lightweight.sh" | crontab -u backup -
+
+# Configure ssmtp for email sending
+RUN echo "# SSMTP Configuration" > /etc/ssmtp/ssmtp.conf && \
+    echo "root=\${SMTP_FROM}" >> /etc/ssmtp/ssmtp.conf && \
+    echo "mailhub=\${SMTP_HOST}:\${SMTP_PORT}" >> /etc/ssmtp/ssmtp.conf && \
+    echo "hostname=\${HOSTNAME}" >> /etc/ssmtp/ssmtp.conf && \
+    echo "AuthUser=\${SMTP_USER}" >> /etc/ssmtp/ssmtp.conf && \
+    echo "AuthPass=\${SMTP_PASS}" >> /etc/ssmtp/ssmtp.conf && \
+    echo "UseSTARTTLS=YES" >> /etc/ssmtp/ssmtp.conf && \
+    echo "UseTLS=YES" >> /etc/ssmtp/ssmtp.conf
+
+# Create healthcheck script
+RUN echo '#!/bin/bash' > /scripts/healthcheck.sh && \
+    echo '/scripts/backup-monitor.sh' >> /scripts/healthcheck.sh && \
+    chmod +x /scripts/healthcheck.sh
+
+# Switch to backup user
+USER backup
+
+# Set working directory
+WORKDIR /backups
+
+# Health check
+HEALTHCHECK --interval=1h --timeout=10s --retries=3 \
+    CMD /scripts/healthcheck.sh
+
+# Default command: start cron in foreground
+CMD ["crond", "-f", "-l", "2"]
