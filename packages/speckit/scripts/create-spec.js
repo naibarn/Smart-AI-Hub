@@ -11,7 +11,7 @@ const readline = require('readline');
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 // Template file paths
@@ -23,24 +23,32 @@ const templates = {
   integration: path.join(__dirname, '../templates/integration-template.md'),
   infrastructure: path.join(__dirname, '../templates/infrastructure-template.md'),
   bugfix: path.join(__dirname, '../templates/bug-fix-template.md'),
-  epic: path.join(__dirname, '../templates/epic-template.md')
+  epic: path.join(__dirname, '../templates/epic-template.md'),
 };
 const examplePath = path.join(__dirname, '../templates/specification-example.md');
 
 // Questions for user input
 const templateQuestions = [
-  { name: 'template', message: 'Template type (standard, feature, api, ui, integration, infrastructure, bugfix, epic):' }
+  {
+    name: 'template',
+    message:
+      'Template type (standard, feature, api, ui, integration, infrastructure, bugfix, epic):',
+  },
 ];
 
 const questions = {
   standard: [
     { name: 'title', message: 'Specification title:' },
-    { name: 'type', message: 'Specification type (user_story, functional_requirement, data_model, service_spec, epic, api_spec, ui_spec):' },
+    {
+      name: 'type',
+      message:
+        'Specification type (user_story, functional_requirement, data_model, service_spec, epic, api_spec, ui_spec):',
+    },
     { name: 'category', message: 'Category (requirements, architecture, backlog, documentation):' },
     { name: 'author', message: 'Author name:' },
     { name: 'priority', message: 'Priority (low, medium, high, critical):' },
     { name: 'featureName', message: 'Feature name (for ID generation):' },
-    { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' }
+    { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
   ],
   feature: [
     { name: 'title', message: 'Feature title:' },
@@ -50,7 +58,7 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'featureCategory', message: 'Feature category:' },
     { name: 'team', message: 'Team responsible:' },
-    { name: 'epicSpecId', message: 'Epic specification ID:' }
+    { name: 'epicSpecId', message: 'Epic specification ID:' },
   ],
   api: [
     { name: 'title', message: 'API title:' },
@@ -60,7 +68,7 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'apiCategory', message: 'API category:' },
     { name: 'protocol', message: 'Protocol (REST, GraphQL, SOAP, etc.):' },
-    { name: 'parentSpecId', message: 'Parent specification ID:' }
+    { name: 'parentSpecId', message: 'Parent specification ID:' },
   ],
   ui: [
     { name: 'title', message: 'UI/UX feature title:' },
@@ -70,7 +78,7 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'featureCategory', message: 'Feature category:' },
     { name: 'platform', message: 'Platform (web, mobile, desktop):' },
-    { name: 'parentSpecId', message: 'Parent specification ID:' }
+    { name: 'parentSpecId', message: 'Parent specification ID:' },
   ],
   integration: [
     { name: 'title', message: 'Integration title:' },
@@ -80,7 +88,7 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'integrationType', message: 'Integration type:' },
     { name: 'thirdParty', message: 'Third-party system:' },
-    { name: 'parentSpecId', message: 'Parent specification ID:' }
+    { name: 'parentSpecId', message: 'Parent specification ID:' },
   ],
   infrastructure: [
     { name: 'title', message: 'Infrastructure title:' },
@@ -90,7 +98,7 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'infrastructureType', message: 'Infrastructure type:' },
     { name: 'environment', message: 'Environment (dev, staging, prod):' },
-    { name: 'parentSpecId', message: 'Parent specification ID:' }
+    { name: 'parentSpecId', message: 'Parent specification ID:' },
   ],
   bugfix: [
     { name: 'title', message: 'Bug title:' },
@@ -100,7 +108,7 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'component', message: 'Component affected:' },
     { name: 'severity', message: 'Severity (critical, high, medium, low):' },
-    { name: 'parentSpecId', message: 'Parent specification ID:' }
+    { name: 'parentSpecId', message: 'Parent specification ID:' },
   ],
   epic: [
     { name: 'title', message: 'Epic title:' },
@@ -110,8 +118,8 @@ const questions = {
     { name: 'sequenceNumber', message: 'Sequence number (e.g., 001, 002):' },
     { name: 'epicCategory', message: 'Epic category:' },
     { name: 'initiative', message: 'Initiative:' },
-    { name: 'initiativeSpecId', message: 'Initiative specification ID:' }
-  ]
+    { name: 'initiativeSpecId', message: 'Initiative specification ID:' },
+  ],
 };
 
 // Function to prompt user for input
@@ -138,7 +146,7 @@ function getTodayDate() {
 // Function to replace placeholders in template
 function replacePlaceholders(template, answers) {
   const id = generateId(answers.category, answers.featureName, answers.sequenceNumber);
-  
+
   let content = template
     .replace(/{{Feature Name}}/g, answers.title)
     .replace(/{{specification-type}}/g, answers.type)
@@ -170,7 +178,7 @@ function replacePlaceholders(template, answers) {
 async function main() {
   console.log('📝 SpeckIt Specification Creator\n');
   console.log('This script will help you create a new specification from the template.\n');
-  
+
   // Collect template type
   const templateAnswers = {};
   for (const q of templateQuestions) {
@@ -197,7 +205,7 @@ async function main() {
   // Collect user input based on template type
   const answers = { ...templateAnswers };
   const templateQuestionsList = questions[templateAnswers.template] || questions.standard;
-  
+
   for (const q of templateQuestionsList) {
     answers[q.name] = await question(q.message);
   }
@@ -217,15 +225,22 @@ async function main() {
 
   // Generate specification content
   const content = replacePlaceholders(template, answers);
-  const id = generateId(answers.category || getDefaultCategory(templateAnswers.template),
-                      answers.featureName || answers.apiName || answers.integrationName ||
-                      answers.infrastructureName || answers.epicName || answers.bugId || 'spec',
-                      answers.sequenceNumber);
+  const id = generateId(
+    answers.category || getDefaultCategory(templateAnswers.template),
+    answers.featureName ||
+      answers.apiName ||
+      answers.integrationName ||
+      answers.infrastructureName ||
+      answers.epicName ||
+      answers.bugId ||
+      'spec',
+    answers.sequenceNumber
+  );
   const filename = `${id}.md`;
 
   // Write specification file
   fs.writeFileSync(filename, content);
-  
+
   console.log(`\n✅ Specification created successfully!`);
   console.log(`📁 File: ${filename}`);
   console.log(`🆔 ID: ${id}`);
@@ -248,7 +263,7 @@ function getDefaultSpecType(template) {
     integration: 'service_spec',
     infrastructure: 'service_spec',
     bugfix: 'functional_requirement',
-    epic: 'epic'
+    epic: 'epic',
   };
   return defaults[template] || 'functional_requirement';
 }
@@ -262,7 +277,7 @@ function getDefaultCategory(template) {
     integration: 'architecture',
     infrastructure: 'architecture',
     bugfix: 'backlog',
-    epic: 'backlog'
+    epic: 'backlog',
   };
   return defaults[template] || 'requirements';
 }
@@ -313,7 +328,7 @@ if (args.includes('--example')) {
 }
 
 // Run main function
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Error:', error.message);
   rl.close();
   process.exit(1);

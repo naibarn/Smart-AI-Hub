@@ -1,0 +1,844 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Promo System & Discounts API",
+    "description": "API for managing promotional codes, discounts, and redemption tracking",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Development Team",
+      "email": "dev@smarthub.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.smarthub.com/v1",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.smarthub.com/v1",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:3000/v1",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/promo-codes": {
+      "post": {
+        "tags": ["Promo Codes"],
+        "summary": "Create a new promotional code",
+        "description": "Creates a new promotional code with specified attributes",
+        "operationId": "createPromoCode",
+        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePromoCodeRequest"
+              },
+              "examples": {
+                "standard": {
+                  "summary": "Standard promo code",
+                  "value": {
+                    "code": "WELCOME2025",
+                    "credits": 100,
+                    "maxUses": 1000,
+                    "expiresAt": "2025-12-31T23:59:59Z"
+                  }
+                },
+                "unlimited": {
+                  "summary": "Unlimited usage promo code",
+                  "value": {
+                    "code": "LOYALTY",
+                    "credits": 50,
+                    "expiresAt": null
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Promo code created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromoCode"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Promo Codes"],
+        "summary": "List promotional codes",
+        "description": "Retrieves a list of promotional codes with optional filtering",
+        "operationId": "listPromoCodes",
+        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "parameters": [
+          {
+            "name": "active",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "Filter by expired status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of promo codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PromoCode"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/promo-codes/{code}": {
+      "get": {
+        "tags": ["Promo Codes"],
+        "summary": "Get promo code details",
+        "description": "Retrieves detailed information about a specific promo code",
+        "operationId": "getPromoCode",
+        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The promo code to retrieve",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Promo code details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromoCode"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Promo Codes"],
+        "summary": "Update promo code",
+        "description": "Updates an existing promo code",
+        "operationId": "updatePromoCode",
+        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The promo code to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePromoCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated promo code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromoCode"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Promo Codes"],
+        "summary": "Delete promo code",
+        "description": "Soft deletes a promo code (marks as inactive)",
+        "operationId": "deletePromoCode",
+        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The promo code to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Promo code deleted successfully"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/promo-codes/{code}/validate": {
+      "get": {
+        "tags": ["Promo Codes"],
+        "summary": "Validate promo code",
+        "description": "Validates if a promo code is available for use",
+        "operationId": "validatePromoCode",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The promo code to validate",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatePromoCodeResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/promo-codes/{code}/redeem": {
+      "post": {
+        "tags": ["Promo Codes"],
+        "summary": "Redeem promo code",
+        "description": "Redeems a promo code for the authenticated user",
+        "operationId": "redeemPromoCode",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The promo code to redeem",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Promo code redeemed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedeemPromoCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "410": {
+            "$ref": "#/components/responses/Gone"
+          }
+        }
+      }
+    },
+    "/users/redemptions": {
+      "get": {
+        "tags": ["Redemptions"],
+        "summary": "Get user redemption history",
+        "description": "Retrieves redemption history for the authenticated user",
+        "operationId": "getUserRedemptions",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User redemption history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PromoRedemption"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/promo-codes/analytics": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Get promo code analytics",
+        "description": "Retrieves analytics data for promo codes",
+        "operationId": "getPromoCodeAnalytics",
+        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date for analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "groupBy",
+            "in": "query",
+            "description": "Grouping dimension for analytics",
+            "schema": {
+              "type": "string",
+              "enum": ["day", "week", "month", "code"],
+              "default": "day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analytics data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromoCodeAnalytics"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PromoCode": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the promo code"
+          },
+          "code": {
+            "type": "string",
+            "description": "The promo code string"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Number of credits awarded upon redemption"
+          },
+          "maxUses": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Maximum number of times the code can be redeemed"
+          },
+          "usedCount": {
+            "type": "integer",
+            "description": "Number of times the code has been redeemed"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Expiration date for the promo code"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the promo code is currently active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the promo code was created"
+          }
+        }
+      },
+      "CreatePromoCodeRequest": {
+        "type": "object",
+        "required": ["code", "credits"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50,
+            "pattern": "^[A-Za-z0-9-]+$",
+            "description": "The promo code string"
+          },
+          "credits": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of credits awarded upon redemption"
+          },
+          "maxUses": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of times the code can be redeemed"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Expiration date for the promo code"
+          }
+        }
+      },
+      "UpdatePromoCodeRequest": {
+        "type": "object",
+        "properties": {
+          "credits": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of credits awarded upon redemption"
+          },
+          "maxUses": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of times the code can be redeemed"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Expiration date for the promo code"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the promo code is currently active"
+          }
+        }
+      },
+      "ValidatePromoCodeResponse": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "Whether the promo code is valid for redemption"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Number of credits awarded upon redemption"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Expiration date for the promo code"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason why the code is not valid (if invalid)"
+          }
+        }
+      },
+      "RedeemPromoCodeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the redemption was successful"
+          },
+          "creditsAdded": {
+            "type": "integer",
+            "description": "Number of credits added to the user account"
+          },
+          "redemptionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the redemption transaction"
+          },
+          "newBalance": {
+            "type": "integer",
+            "description": "User's new credit balance"
+          }
+        }
+      },
+      "PromoRedemption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the redemption"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the user who redeemed the code"
+          },
+          "codeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the promo code that was redeemed"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Number of credits awarded"
+          },
+          "redeemedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the redemption occurred"
+          },
+          "promoCode": {
+            "$ref": "#/components/schemas/PromoCode"
+          }
+        }
+      },
+      "PromoCodeAnalytics": {
+        "type": "object",
+        "properties": {
+          "totalRedemptions": {
+            "type": "integer",
+            "description": "Total number of redemptions in the period"
+          },
+          "totalCreditsIssued": {
+            "type": "integer",
+            "description": "Total credits issued in the period"
+          },
+          "uniqueUsers": {
+            "type": "integer",
+            "description": "Number of unique users who redeemed codes"
+          },
+          "topCodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "redemptions": {
+                  "type": "integer"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "redemptionsByTime": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "period": {
+                  "type": "string"
+                },
+                "redemptions": {
+                  "type": "integer"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of items per page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Resource conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Gone": {
+        "description": "Resource no longer available",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "adminAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Admin-Key"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Promo Codes",
+      "description": "Promo code management operations"
+    },
+    {
+      "name": "Redemptions",
+      "description": "Promo code redemption operations"
+    },
+    {
+      "name": "Analytics",
+      "description": "Analytics and reporting operations"
+    }
+  ]
+}

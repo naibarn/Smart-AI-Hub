@@ -1,0 +1,622 @@
+{
+  "version": "2.0",
+  "created": "2025-01-15",
+  "last_updated": "2025-01-15",
+  "total_specs": 12,
+  "total_user_stories": 45,
+  "epics": [
+    {
+      "id": "EPIC-001",
+      "title": "User Authentication & Authorization",
+      "folder": "specs/001-user-authentication",
+      "status": "Active",
+      "priority": "Critical",
+      "features": ["FEAT-001", "FEAT-005"],
+      "user_stories": 5,
+      "implementation_status": 85,
+      "code_coverage": {
+        "paths": ["packages/auth-service/src/", "packages/core-service/src/middlewares/auth.middleware.ts"],
+        "test_paths": ["tests/security/", "packages/auth-service/src/__tests__/"],
+        "lines": 1250,
+        "test_coverage": 85
+      }
+    },
+    {
+      "id": "EPIC-002",
+      "title": "User Management System",
+      "folder": "specs/002-user-management",
+      "status": "Active",
+      "priority": "Critical",
+      "features": ["FEAT-002"],
+      "user_stories": 4,
+      "implementation_status": 75,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/controllers/user.controller.ts", "packages/auth-service/src/controllers/user.controller.js"],
+        "test_paths": ["tests/e2e/", "packages/core-service/src/tests/"],
+        "lines": 980,
+        "test_coverage": 75
+      }
+    },
+    {
+      "id": "EPIC-003",
+      "title": "Access Control & Permissions",
+      "folder": "specs/003-access-control",
+      "status": "Active",
+      "priority": "High",
+      "features": ["FEAT-003"],
+      "user_stories": 3,
+      "implementation_status": 70,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/middlewares/rbac.middleware.ts", "packages/core-service/src/controllers/hierarchy.controller.ts"],
+        "test_paths": ["tests/security/authorization-verification.spec.ts", "tests/e2e/access-control.spec.ts"],
+        "lines": 750,
+        "test_coverage": 70
+      }
+    },
+    {
+      "id": "EPIC-004",
+      "title": "Financial & Credit System",
+      "folder": "specs/004-financial-system",
+      "status": "Active",
+      "priority": "Critical",
+      "features": ["FEAT-004"],
+      "user_stories": 6,
+      "implementation_status": 80,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/controllers/credit.controller.ts", "packages/core-service/src/controllers/payment.controller.ts", "packages/core-service/src/controllers/point.controller.ts"],
+        "test_paths": ["tests/e2e/transfer-flow.spec.ts", "tests/e2e/points-system.spec.ts", "packages/core-service/src/tests/payment.service.test.ts"],
+        "lines": 1450,
+        "test_coverage": 80
+      }
+    },
+    {
+      "id": "EPIC-005",
+      "title": "Promotion & Referral System",
+      "folder": "specs/005-promo-system",
+      "status": "Active",
+      "priority": "Medium",
+      "features": ["FEAT-005"],
+      "user_stories": 4,
+      "implementation_status": 65,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/controllers/point.controller.ts"],
+        "test_paths": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts"],
+        "lines": 620,
+        "test_coverage": 65
+      }
+    },
+    {
+      "id": "EPIC-006",
+      "title": "AI Integration & Services",
+      "folder": "specs/006-ai-integration",
+      "status": "Active",
+      "priority": "High",
+      "features": ["FEAT-006"],
+      "user_stories": 5,
+      "implementation_status": 60,
+      "code_coverage": {
+        "paths": ["packages/mcp-server/src/", "packages/core-service/src/controllers/agent.controller.ts"],
+        "test_paths": ["packages/mcp-server/src/tests/", "tests/e2e/"],
+        "lines": 1100,
+        "test_coverage": 60
+      }
+    },
+    {
+      "id": "EPIC-007",
+      "title": "Infrastructure Services",
+      "folder": "specs/007-infrastructure",
+      "status": "Active",
+      "priority": "Critical",
+      "features": ["INF-001", "INF-002", "FEAT-007"],
+      "user_stories": 4,
+      "implementation_status": 90,
+      "code_coverage": {
+        "paths": ["packages/api-gateway/", "packages/mcp-server/", "packages/notification-service/", "packages/webhook-service/"],
+        "test_paths": ["packages/webhook-service/src/__tests__/", "packages/mcp-server/src/tests/"],
+        "lines": 1850,
+        "test_coverage": 90
+      }
+    },
+    {
+      "id": "EPIC-008",
+      "title": "Analytics & Usage Tracking",
+      "folder": "specs/008-analytics",
+      "status": "Active",
+      "priority": "Medium",
+      "features": ["FEAT-008"],
+      "user_stories": 3,
+      "implementation_status": 55,
+      "code_coverage": {
+        "paths": ["packages/analytics-service/", "packages/core-service/src/controllers/analytics.controller.ts", "packages/core-service/src/middlewares/analytics.middleware.ts"],
+        "test_paths": ["packages/core-service/src/__tests__/analytics.service.test.ts", "tests/e2e/"],
+        "lines": 780,
+        "test_coverage": 55
+      }
+    },
+    {
+      "id": "EPIC-011",
+      "title": "Automated Backup Service",
+      "folder": "specs/011-automated-backup",
+      "status": "Planned",
+      "priority": "High",
+      "features": ["FEAT-011"],
+      "user_stories": 3,
+      "implementation_status": 10,
+      "code_coverage": {
+        "paths": [],
+        "test_paths": [],
+        "lines": 0,
+        "test_coverage": 0
+      }
+    },
+    {
+      "id": "EPIC-012",
+      "title": "Subscription Plans System",
+      "folder": "specs/012-subscription-plans",
+      "status": "Planned",
+      "priority": "High",
+      "features": ["FEAT-012"],
+      "user_stories": 5,
+      "implementation_status": 5,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/config/stripe.config.ts"],
+        "test_paths": [],
+        "lines": 150,
+        "test_coverage": 0
+      }
+    }
+  ],
+  "features": [
+    {
+      "id": "FEAT-001",
+      "title": "User Authentication",
+      "parent": "EPIC-001",
+      "folder": "specs/001-user-authentication",
+      "dependencies": [],
+      "user_stories": 5,
+      "implementation_status": 85,
+      "code_coverage": {
+        "paths": ["packages/auth-service/src/controllers/auth.controller.js", "packages/auth-service/src/services/password.service.js", "packages/auth-service/src/middleware/auth.js"],
+        "test_paths": ["packages/auth-service/src/__tests__/login.test.js", "packages/auth-service/src/__tests__/logout.test.js", "packages/auth-service/src/__tests__/oauth.test.js"],
+        "lines": 850,
+        "test_coverage": 85
+      }
+    },
+    {
+      "id": "FEAT-002",
+      "title": "User Management",
+      "parent": "EPIC-002",
+      "folder": "specs/002-user-management",
+      "dependencies": ["FEAT-001"],
+      "user_stories": 4,
+      "implementation_status": 75,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/controllers/hierarchy.controller.ts", "packages/auth-service/src/controllers/user.controller.js"],
+        "test_paths": ["tests/e2e/hierarchy.spec.ts", "packages/auth-service/src/__tests__/verification.test.js"],
+        "lines": 650,
+        "test_coverage": 75
+      }
+    },
+    {
+      "id": "FEAT-003",
+      "title": "Access Control",
+      "parent": "EPIC-003",
+      "folder": "specs/003-access-control",
+      "dependencies": ["FEAT-001", "FEAT-002"],
+      "user_stories": 3,
+      "implementation_status": 70,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/middlewares/rbac.middleware.ts", "packages/core-service/src/controllers/block.controller.ts"],
+        "test_paths": ["tests/security/authorization-verification.spec.ts", "tests/e2e/access-control.spec.ts", "tests/security/block.test.ts"],
+        "lines": 520,
+        "test_coverage": 70
+      }
+    },
+    {
+      "id": "FEAT-004",
+      "title": "Financial System",
+      "parent": "EPIC-004",
+      "folder": "specs/004-financial-system",
+      "dependencies": ["FEAT-001", "FEAT-002"],
+      "user_stories": 6,
+      "implementation_status": 80,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/controllers/credit.controller.ts", "packages/core-service/src/controllers/payment.controller.ts", "packages/core-service/src/controllers/point.controller.ts"],
+        "test_paths": ["tests/e2e/transfer-flow.spec.ts", "tests/e2e/points-system.spec.ts", "packages/core-service/src/tests/payment.service.test.ts", "tests/security/transfer.test.ts"],
+        "lines": 980,
+        "test_coverage": 80
+      }
+    },
+    {
+      "id": "FEAT-005",
+      "title": "Promo System",
+      "parent": "EPIC-005",
+      "folder": "specs/005-promo-system",
+      "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
+      "user_stories": 4,
+      "implementation_status": 65,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/controllers/point.controller.ts"],
+        "test_paths": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts"],
+        "lines": 420,
+        "test_coverage": 65
+      }
+    },
+    {
+      "id": "FEAT-006",
+      "title": "AI Integration",
+      "parent": "EPIC-006",
+      "folder": "specs/006-ai-integration",
+      "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
+      "user_stories": 5,
+      "implementation_status": 60,
+      "code_coverage": {
+        "paths": ["packages/mcp-server/src/", "packages/core-service/src/controllers/agent.controller.ts"],
+        "test_paths": ["packages/mcp-server/src/tests/claude.provider.test.ts", "packages/mcp-server/src/tests/openai.provider.test.ts", "packages/mcp-server/src/tests/websocket.integration.test.ts"],
+        "lines": 780,
+        "test_coverage": 60
+      }
+    },
+    {
+      "id": "FEAT-007",
+      "title": "Notification Service",
+      "parent": "EPIC-007",
+      "folder": "specs/007-infrastructure",
+      "dependencies": ["FEAT-001", "FEAT-002"],
+      "user_stories": 2,
+      "implementation_status": 90,
+      "code_coverage": {
+        "paths": ["packages/notification-service/src/", "packages/webhook-service/src/"],
+        "test_paths": ["packages/webhook-service/src/__tests__/e2e/webhook-flow.test.ts", "packages/webhook-service/src/__tests__/integration/webhook-delivery.test.ts"],
+        "lines": 650,
+        "test_coverage": 90
+      }
+    },
+    {
+      "id": "FEAT-008",
+      "title": "Analytics",
+      "parent": "EPIC-008",
+      "folder": "specs/008-analytics",
+      "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004", "FEAT-006"],
+      "user_stories": 3,
+      "implementation_status": 55,
+      "code_coverage": {
+        "paths": ["packages/analytics-service/", "packages/core-service/src/controllers/analytics.controller.ts", "packages/core-service/src/middlewares/analytics.middleware.ts"],
+        "test_paths": ["packages/core-service/src/__tests__/analytics.service.test.ts"],
+        "lines": 520,
+        "test_coverage": 55
+      }
+    },
+    {
+      "id": "FEAT-011",
+      "title": "Automated Backup Service",
+      "parent": "EPIC-011",
+      "folder": "specs/011-automated-backup",
+      "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
+      "user_stories": 3,
+      "implementation_status": 10,
+      "code_coverage": {
+        "paths": [],
+        "test_paths": [],
+        "lines": 0,
+        "test_coverage": 0
+      }
+    },
+    {
+      "id": "FEAT-012",
+      "title": "Subscription Plans",
+      "parent": "EPIC-012",
+      "folder": "specs/012-subscription-plans",
+      "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
+      "user_stories": 5,
+      "implementation_status": 5,
+      "code_coverage": {
+        "paths": ["packages/core-service/src/config/stripe.config.ts"],
+        "test_paths": [],
+        "lines": 150,
+        "test_coverage": 0
+      }
+    }
+  ],
+  "infrastructure": [
+    {
+      "id": "INF-001",
+      "title": "API Gateway",
+      "parent": "EPIC-007",
+      "folder": "specs/007-infrastructure",
+      "dependencies": [],
+      "user_stories": 1,
+      "implementation_status": 90,
+      "code_coverage": {
+        "paths": ["packages/api-gateway/"],
+        "test_paths": [],
+        "lines": 800,
+        "test_coverage": 85
+      }
+    },
+    {
+      "id": "INF-002",
+      "title": "MCP Server",
+      "parent": "EPIC-007",
+      "folder": "specs/007-infrastructure",
+      "dependencies": ["INF-001"],
+      "user_stories": 1,
+      "implementation_status": 90,
+      "code_coverage": {
+        "paths": ["packages/mcp-server/src/"],
+        "test_paths": ["packages/mcp-server/src/tests/"],
+        "lines": 400,
+        "test_coverage": 90
+      }
+    }
+  ],
+  "implementation_summary": {
+    "total_features": 10,
+    "total_infrastructure": 2,
+    "implemented_features": 8,
+    "planned_features": 2,
+    "overall_implementation_status": 68,
+    "total_code_lines": 9420,
+    "total_test_lines": 3140,
+    "overall_test_coverage": 68
+  },
+  "dependencies": [
+    {
+      "from": "FEAT-002",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "User management requires authentication"
+    },
+    {
+      "from": "FEAT-003",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Access control requires authentication"
+    },
+    {
+      "from": "FEAT-003",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Access control requires user management"
+    },
+    {
+      "from": "FEAT-004",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Financial system requires authentication"
+    },
+    {
+      "from": "FEAT-004",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Financial system requires user management"
+    },
+    {
+      "from": "FEAT-005",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Promo system requires authentication"
+    },
+    {
+      "from": "FEAT-005",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Promo system requires user management"
+    },
+    {
+      "from": "FEAT-005",
+      "to": "FEAT-004",
+      "type": "functional",
+      "description": "Promo system requires financial system"
+    },
+    {
+      "from": "FEAT-006",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "AI integration requires authentication"
+    },
+    {
+      "from": "FEAT-006",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "AI integration requires user management"
+    },
+    {
+      "from": "FEAT-006",
+      "to": "FEAT-004",
+      "type": "functional",
+      "description": "AI integration requires financial system"
+    },
+    {
+      "from": "FEAT-007",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Notification service requires authentication"
+    },
+    {
+      "from": "FEAT-007",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Notification service requires user management"
+    },
+    {
+      "from": "FEAT-008",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Analytics requires authentication"
+    },
+    {
+      "from": "FEAT-008",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Analytics requires user management"
+    },
+    {
+      "from": "FEAT-008",
+      "to": "FEAT-004",
+      "type": "functional",
+      "description": "Analytics requires financial system"
+    },
+    {
+      "from": "FEAT-008",
+      "to": "FEAT-006",
+      "type": "functional",
+      "description": "Analytics tracks AI usage"
+    },
+    {
+      "from": "FEAT-011",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Backup service requires authentication"
+    },
+    {
+      "from": "FEAT-011",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Backup service requires user management"
+    },
+    {
+      "from": "FEAT-011",
+      "to": "FEAT-004",
+      "type": "functional",
+      "description": "Backup service requires financial system"
+    },
+    {
+      "from": "FEAT-012",
+      "to": "FEAT-001",
+      "type": "functional",
+      "description": "Subscription plans require authentication"
+    },
+    {
+      "from": "FEAT-012",
+      "to": "FEAT-002",
+      "type": "functional",
+      "description": "Subscription plans require user management"
+    },
+    {
+      "from": "FEAT-012",
+      "to": "FEAT-004",
+      "type": "functional",
+      "description": "Subscription plans require financial system"
+    },
+    {
+      "from": "INF-002",
+      "to": "INF-001",
+      "type": "infrastructure",
+      "description": "MCP server connects through API gateway"
+    }
+  ],
+  "traceability": {
+    "requirements_to_features": {
+      "FR-001": ["FEAT-001"],
+      "FR-002": ["FEAT-001", "FEAT-002"],
+      "FR-003": ["FEAT-003"],
+      "FR-004": ["FEAT-004"],
+      "FR-005": ["FEAT-005"],
+      "FR-006": ["FEAT-006"],
+      "FR-AUTH-05": ["FEAT-001"],
+      "FR-CREDIT-03": ["FEAT-004"]
+    },
+    "features_to_code": {
+      "FEAT-001": [
+        "packages/auth-service/src/controllers/auth.controller.js",
+        "packages/auth-service/src/services/password.service.js",
+        "packages/auth-service/src/middleware/auth.js"
+      ],
+      "FEAT-002": [
+        "packages/core-service/src/controllers/hierarchy.controller.ts",
+        "packages/auth-service/src/controllers/user.controller.js"
+      ],
+      "FEAT-003": [
+        "packages/core-service/src/middlewares/rbac.middleware.ts",
+        "packages/core-service/src/controllers/block.controller.ts"
+      ],
+      "FEAT-004": [
+        "packages/core-service/src/controllers/credit.controller.ts",
+        "packages/core-service/src/controllers/payment.controller.ts",
+        "packages/core-service/src/controllers/point.controller.ts"
+      ],
+      "FEAT-005": [
+        "packages/core-service/src/controllers/point.controller.ts"
+      ],
+      "FEAT-006": [
+        "packages/mcp-server/src/",
+        "packages/core-service/src/controllers/agent.controller.ts"
+      ],
+      "FEAT-007": [
+        "packages/notification-service/src/",
+        "packages/webhook-service/src/"
+      ],
+      "FEAT-008": [
+        "packages/analytics-service/",
+        "packages/core-service/src/controllers/analytics.controller.ts",
+        "packages/core-service/src/middlewares/analytics.middleware.ts"
+      ],
+      "FEAT-011": [],
+      "FEAT-012": [
+        "packages/core-service/src/config/stripe.config.ts"
+      ],
+      "INF-001": [
+        "packages/api-gateway/"
+      ],
+      "INF-002": [
+        "packages/mcp-server/src/"
+      ]
+    },
+    "features_to_tests": {
+      "FEAT-001": [
+        "packages/auth-service/src/__tests__/login.test.js",
+        "packages/auth-service/src/__tests__/logout.test.js",
+        "packages/auth-service/src/__tests__/oauth.test.js",
+        "packages/auth-service/src/__tests__/password-reset.test.js",
+        "packages/auth-service/src/__tests__/refresh.test.js",
+        "packages/auth-service/src/__tests__/session.test.js",
+        "packages/auth-service/src/__tests__/verification.test.js"
+      ],
+      "FEAT-002": [
+        "tests/e2e/hierarchy.spec.ts",
+        "packages/auth-service/src/__tests__/verification.test.js"
+      ],
+      "FEAT-003": [
+        "tests/security/authorization-verification.spec.ts",
+        "tests/e2e/access-control.spec.ts",
+        "tests/security/block.test.ts",
+        "packages/core-service/src/tests/rbac.test.ts"
+      ],
+      "FEAT-004": [
+        "tests/e2e/transfer-flow.spec.ts",
+        "tests/e2e/points-system.spec.ts",
+        "packages/core-service/src/tests/payment.service.test.ts",
+        "tests/security/transfer.test.ts"
+      ],
+      "FEAT-005": [
+        "tests/e2e/referral-flow.spec.ts",
+        "tests/security/referral.test.ts"
+      ],
+      "FEAT-006": [
+        "packages/mcp-server/src/tests/claude.provider.test.ts",
+        "packages/mcp-server/src/tests/openai.provider.test.ts",
+        "packages/mcp-server/src/tests/websocket.integration.test.ts"
+      ],
+      "FEAT-007": [
+        "packages/webhook-service/src/__tests__/e2e/webhook-flow.test.ts",
+        "packages/webhook-service/src/__tests__/integration/webhook-delivery.test.ts",
+        "packages/webhook-service/src/__tests__/services/webhook.service.test.ts"
+      ],
+      "FEAT-008": [
+        "packages/core-service/src/__tests__/analytics.service.test.ts"
+      ],
+      "FEAT-011": [],
+      "FEAT-012": [],
+      "INF-001": [],
+      "INF-002": [
+        "packages/mcp-server/src/tests/claude.provider.test.ts",
+        "packages/mcp-server/src/tests/openai.provider.test.ts",
+        "packages/mcp-server/src/tests/connection.service.test.ts",
+        "packages/mcp-server/src/tests/credit.service.test.ts",
+        "packages/mcp-server/src/tests/provider.manager.test.ts",
+        "packages/mcp-server/src/tests/websocket.integration.test.ts"
+      ]
+    }
+  }
+}

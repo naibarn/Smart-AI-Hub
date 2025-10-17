@@ -1,0 +1,826 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Analytics and Usage Tracking API",
+    "description": "API specification for Analytics and Usage Tracking system",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Development Team",
+      "email": "dev@smartaihub.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.smartaihub.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.smartaihub.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/analytics/usage/{userId}": {
+      "get": {
+        "tags": ["Usage Analytics"],
+        "summary": "Get user usage analytics",
+        "description": "Retrieve usage analytics for a specific user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "description": "Start date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "description": "End date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "required": false,
+            "description": "Filter by service",
+            "schema": {
+              "type": "string",
+              "enum": ["openai", "claude", "mcp"]
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "description": "Filter by model",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "description": "Time granularity for the analytics",
+            "schema": {
+              "type": "string",
+              "enum": ["hourly", "daily", "weekly", "monthly"],
+              "default": "daily"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserUsageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/analytics/services/{service}": {
+      "get": {
+        "tags": ["Service Analytics"],
+        "summary": "Get service analytics",
+        "description": "Retrieve analytics for a specific service",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "service",
+            "in": "path",
+            "required": true,
+            "description": "Service name",
+            "schema": {
+              "type": "string",
+              "enum": ["openai", "claude", "mcp"]
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "description": "Start date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "description": "End date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "description": "Filter by model",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "description": "Time granularity for the analytics",
+            "schema": {
+              "type": "string",
+              "enum": ["hourly", "daily", "weekly", "monthly"],
+              "default": "daily"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAnalyticsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/analytics/costs": {
+      "get": {
+        "tags": ["Cost Analytics"],
+        "summary": "Get cost analysis",
+        "description": "Retrieve cost breakdown analysis",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "description": "Start date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "description": "End date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "groupBy",
+            "in": "query",
+            "required": false,
+            "description": "Group cost analysis by",
+            "schema": {
+              "type": "string",
+              "enum": ["user", "service", "model"],
+              "default": "service"
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "description": "Time granularity for the analytics",
+            "schema": {
+              "type": "string",
+              "enum": ["hourly", "daily", "weekly", "monthly"],
+              "default": "daily"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostAnalysisResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/analytics/performance": {
+      "get": {
+        "tags": ["Performance Analytics"],
+        "summary": "Get performance metrics",
+        "description": "Retrieve performance metrics for services",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "description": "Start date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "description": "End date for the analytics period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "required": false,
+            "description": "Filter by service",
+            "schema": {
+              "type": "string",
+              "enum": ["openai", "claude", "mcp"]
+            }
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "required": false,
+            "description": "Filter by endpoint",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerformanceMetricsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/analytics/reports": {
+      "post": {
+        "tags": ["Reports"],
+        "summary": "Generate analytics report",
+        "description": "Generate a comprehensive analytics report",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserUsageResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User ID"
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "totalTokens": {
+            "type": "integer",
+            "description": "Total tokens used"
+          },
+          "totalCredits": {
+            "type": "integer",
+            "description": "Total credits consumed"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "description": "Total number of requests"
+          },
+          "breakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageBreakdown"
+            }
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageTimeline"
+            }
+          }
+        }
+      },
+      "UsageBreakdown": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "Service name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model name"
+          },
+          "tokens": {
+            "type": "integer",
+            "description": "Tokens used for this service/model"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Credits consumed for this service/model"
+          },
+          "requests": {
+            "type": "integer",
+            "description": "Number of requests for this service/model"
+          }
+        }
+      },
+      "UsageTimeline": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date for the timeline entry"
+          },
+          "tokens": {
+            "type": "integer",
+            "description": "Tokens used on this date"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Credits consumed on this date"
+          },
+          "requests": {
+            "type": "integer",
+            "description": "Number of requests on this date"
+          }
+        }
+      },
+      "ServiceAnalyticsResponse": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "Service name"
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "totalTokens": {
+            "type": "integer",
+            "description": "Total tokens used"
+          },
+          "totalCredits": {
+            "type": "integer",
+            "description": "Total credits consumed"
+          },
+          "totalRequests": {
+            "type": "integer",
+            "description": "Total number of requests"
+          },
+          "uniqueUsers": {
+            "type": "integer",
+            "description": "Number of unique users"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelAnalytics"
+            }
+          }
+        }
+      },
+      "ModelAnalytics": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "Model name"
+          },
+          "tokens": {
+            "type": "integer",
+            "description": "Tokens used for this model"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Credits consumed for this model"
+          },
+          "requests": {
+            "type": "integer",
+            "description": "Number of requests for this model"
+          },
+          "users": {
+            "type": "integer",
+            "description": "Number of users for this model"
+          }
+        }
+      },
+      "CostAnalysisResponse": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "totalCost": {
+            "type": "integer",
+            "description": "Total cost in credits"
+          },
+          "breakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CostBreakdown"
+            }
+          }
+        }
+      },
+      "CostBreakdown": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "description": "Group name (user, service, or model)"
+          },
+          "cost": {
+            "type": "integer",
+            "description": "Cost for this group"
+          },
+          "percentage": {
+            "type": "number",
+            "description": "Percentage of total cost"
+          },
+          "trend": {
+            "type": "string",
+            "description": "Cost trend (e.g., '+5%')"
+          }
+        }
+      },
+      "PerformanceMetricsResponse": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "metrics": {
+            "type": "object",
+            "properties": {
+              "avgResponseTime": {
+                "type": "integer",
+                "description": "Average response time in milliseconds"
+              },
+              "p95ResponseTime": {
+                "type": "integer",
+                "description": "95th percentile response time"
+              },
+              "p99ResponseTime": {
+                "type": "integer",
+                "description": "99th percentile response time"
+              },
+              "successRate": {
+                "type": "number",
+                "description": "Success rate percentage"
+              },
+              "errorRate": {
+                "type": "number",
+                "description": "Error rate percentage"
+              },
+              "throughput": {
+                "type": "number",
+                "description": "Requests per second"
+              }
+            }
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PerformanceTimeline"
+            }
+          }
+        }
+      },
+      "PerformanceTimeline": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp for the metrics"
+          },
+          "avgResponseTime": {
+            "type": "integer",
+            "description": "Average response time at this timestamp"
+          },
+          "successRate": {
+            "type": "number",
+            "description": "Success rate at this timestamp"
+          }
+        }
+      },
+      "ReportRequest": {
+        "type": "object",
+        "required": ["type", "startDate", "endDate"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["usage", "cost", "performance", "comprehensive"],
+            "description": "Type of report to generate"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date for the report"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date for the report"
+          },
+          "filters": {
+            "type": "object",
+            "description": "Additional filters for the report",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "service": {
+                "type": "string",
+                "enum": ["openai", "claude", "mcp"]
+              },
+              "model": {
+                "type": "string"
+              }
+            }
+          },
+          "format": {
+            "type": "string",
+            "enum": ["json", "csv", "pdf"],
+            "default": "json",
+            "description": "Output format for the report"
+          }
+        }
+      },
+      "ReportResponse": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Report ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "failed"],
+            "description": "Report generation status"
+          },
+          "downloadUrl": {
+            "type": "string",
+            "description": "URL to download the report (when completed)"
+          },
+          "estimatedCompletion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Estimated completion time"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized access",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Usage Analytics",
+      "description": "User usage analytics operations"
+    },
+    {
+      "name": "Service Analytics",
+      "description": "Service-level analytics operations"
+    },
+    {
+      "name": "Cost Analytics",
+      "description": "Cost analysis operations"
+    },
+    {
+      "name": "Performance Analytics",
+      "description": "Performance metrics operations"
+    },
+    {
+      "name": "Reports",
+      "description": "Report generation operations"
+    }
+  ]
+}

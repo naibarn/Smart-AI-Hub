@@ -258,7 +258,7 @@ async function main() {
     const { execSync } = await import('child_process');
     execSync('npx tsx seed-agent-settings.ts', {
       cwd: __dirname,
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
   } catch (error) {
     console.error('Error seeding Agent Settings:', error);

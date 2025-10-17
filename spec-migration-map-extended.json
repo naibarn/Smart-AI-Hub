@@ -1,0 +1,961 @@
+{
+  "extended_migration_plan": {
+    "phase_1": {
+      "name": "Backend Specifications",
+      "source": "specs/backend/",
+      "files": 24,
+      "groups": 8,
+      "status": "ready",
+      "plan": {
+        "migration_plan": [
+          {
+            "source_file": "auth_service.md",
+            "destination": "specs/001-user-authentication/EPIC-001-user-authentication.md",
+            "action": "merge",
+            "merge_with": ["fr_auth_05.md"],
+            "new_spec_id": "EPIC-001",
+            "structure": {
+              "metadata": {
+                "spec_id": "EPIC-001",
+                "title": "User Authentication & Authorization",
+                "type": "Epic",
+                "status": "Active",
+                "business_domain": "User Management",
+                "priority": "Critical"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "auth_service.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "auth_service.md - features converted to user stories"
+                },
+                {
+                  "section": "Acceptance Criteria",
+                  "source": "fr_auth_05.md merged into detailed acceptance criteria"
+                },
+                {
+                  "section": "Technical Requirements",
+                  "source": "auth_service.md - technical requirements section"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "auth_service.md - API section",
+                  "move_to": "specs/001-user-authentication/contracts/api-spec.json"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "auth_service.md - database schema section"
+                }
+              ]
+            },
+            "estimated_effort": "3 hours",
+            "dependencies": ["user.md", "permission.md"],
+            "validation_required": ["Cross-reference updates", "API contract extraction"]
+          },
+          {
+            "source_file": "user.md",
+            "destination": "specs/002-user-management/FEAT-001-user-management.md",
+            "action": "merge",
+            "merge_with": ["user_role.md"],
+            "new_spec_id": "FEAT-001",
+            "structure": {
+              "metadata": {
+                "spec_id": "FEAT-001",
+                "title": "User Management & Profiles",
+                "type": "Feature",
+                "status": "Active",
+                "business_domain": "User Management",
+                "priority": "High",
+                "parent_epic": "EPIC-001"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "user.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "user.md - user stories section"
+                },
+                {
+                  "section": "User Profile Management",
+                  "source": "user.md - profile management content"
+                },
+                {
+                  "section": "User Role Assignment",
+                  "source": "user_role.md - role assignment content"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "user.md + user_role.md - database schemas"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "user.md + user_role.md - API sections",
+                  "move_to": "specs/002-user-management/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "2 hours",
+            "dependencies": ["auth_service.md", "permission.md"],
+            "validation_required": ["Role model consistency", "API endpoint deduplication"]
+          },
+          {
+            "source_file": "permission.md",
+            "destination": "specs/003-access-control/FEAT-002-access-control.md",
+            "action": "merge",
+            "merge_with": ["role_permission.md"],
+            "new_spec_id": "FEAT-002",
+            "structure": {
+              "metadata": {
+                "spec_id": "FEAT-002",
+                "title": "Access Control & Permissions",
+                "type": "Feature",
+                "status": "Active",
+                "business_domain": "Access Control",
+                "priority": "High",
+                "parent_epic": "EPIC-001"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "permission.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "permission.md - user stories section"
+                },
+                {
+                  "section": "Permission Management",
+                  "source": "permission.md - permission definition and management"
+                },
+                {
+                  "section": "Role-Permission Mapping",
+                  "source": "role_permission.md - mapping and management"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "permission.md + role_permission.md - database schemas"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "permission.md + role_permission.md - API sections",
+                  "move_to": "specs/003-access-control/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "2 hours",
+            "dependencies": ["user_role.md"],
+            "validation_required": ["RBAC model consistency", "Permission hierarchy validation"]
+          },
+          {
+            "source_file": "credit_account.md",
+            "destination": "specs/004-financial-system/EPIC-002-financial-system.md",
+            "action": "merge",
+            "merge_with": ["fr_credit_03.md"],
+            "new_spec_id": "EPIC-002",
+            "structure": {
+              "metadata": {
+                "spec_id": "EPIC-002",
+                "title": "Financial System & Credits",
+                "type": "Epic",
+                "status": "Active",
+                "business_domain": "Financial",
+                "priority": "Critical"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "credit_account.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "credit_account.md - user stories section"
+                },
+                {
+                  "section": "Acceptance Criteria",
+                  "source": "fr_credit_03.md merged into detailed acceptance criteria"
+                },
+                {
+                  "section": "Credit Account Management",
+                  "source": "credit_account.md - credit account features"
+                },
+                {
+                  "section": "Payment Integration",
+                  "source": "credit_account.md - Stripe integration"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "credit_account.md - database schema"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "credit_account.md - API section",
+                  "move_to": "specs/004-financial-system/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "3 hours",
+            "dependencies": ["user.md", "promo_code.md"],
+            "validation_required": ["Payment flow validation", "Credit calculation verification"]
+          },
+          {
+            "source_file": "promo_code.md",
+            "destination": "specs/005-promo-system/FEAT-003-promo-system.md",
+            "action": "merge",
+            "merge_with": ["promo_redemption.md"],
+            "new_spec_id": "FEAT-003",
+            "structure": {
+              "metadata": {
+                "spec_id": "FEAT-003",
+                "title": "Promo System & Discounts",
+                "type": "Feature",
+                "status": "Active",
+                "business_domain": "Financial",
+                "priority": "Medium",
+                "parent_epic": "EPIC-002"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "promo_code.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "promo_code.md - user stories section"
+                },
+                {
+                  "section": "Promo Code Management",
+                  "source": "promo_code.md - promo creation and management"
+                },
+                {
+                  "section": "Promo Redemption",
+                  "source": "promo_redemption.md - redemption tracking"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "promo_code.md + promo_redemption.md - database schemas"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "promo_code.md + promo_redemption.md - API sections",
+                  "move_to": "specs/005-promo-system/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "2 hours",
+            "dependencies": ["credit_account.md"],
+            "validation_required": ["Promo validation logic", "Redemption flow testing"]
+          },
+          {
+            "source_file": "mcp_server.md",
+            "destination": "specs/006-ai-integration/EPIC-003-ai-integration.md",
+            "action": "merge",
+            "merge_with": ["agents_marketplace.md"],
+            "new_spec_id": "EPIC-003",
+            "structure": {
+              "metadata": {
+                "spec_id": "EPIC-003",
+                "title": "AI Integration & Agents",
+                "type": "Epic",
+                "status": "Active",
+                "business_domain": "AI Integration",
+                "priority": "High"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "mcp_server.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "mcp_server.md + agents_marketplace.md - user stories combined"
+                },
+                {
+                  "section": "MCP Server Architecture",
+                  "source": "mcp_server.md - server architecture and protocols"
+                },
+                {
+                  "section": "Agents Marketplace",
+                  "source": "agents_marketplace.md - marketplace features"
+                },
+                {
+                  "section": "Agent Execution Methods",
+                  "source": "agents_marketplace.md - execution methods section"
+                },
+                {
+                  "section": "Billing & Integration",
+                  "source": "agents_marketplace.md - billing and credit integration"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "mcp_server.md + agents_marketplace.md - database schemas"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "mcp_server.md + agents_marketplace.md - API sections",
+                  "move_to": "specs/006-ai-integration/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "4 hours",
+            "dependencies": ["credit_account.md", "usage_log.md"],
+            "validation_required": ["WebSocket protocol validation", "Agent execution flow testing"]
+          },
+          {
+            "source_file": "api_gateway.md",
+            "destination": "specs/007-infrastructure/FEAT-004-infrastructure.md",
+            "action": "merge",
+            "merge_with": ["core_service.md"],
+            "new_spec_id": "FEAT-004",
+            "structure": {
+              "metadata": {
+                "spec_id": "FEAT-004",
+                "title": "Infrastructure & Core Services",
+                "type": "Feature",
+                "status": "Active",
+                "business_domain": "Infrastructure",
+                "priority": "High"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "api_gateway.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "api_gateway.md + core_service.md - user stories combined"
+                },
+                {
+                  "section": "API Gateway",
+                  "source": "api_gateway.md - gateway features and configuration"
+                },
+                {
+                  "section": "Core Service",
+                  "source": "core_service.md - core business logic service"
+                },
+                {
+                  "section": "Infrastructure Architecture",
+                  "source": "api_gateway.md + core_service.md - architecture overview"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "api_gateway.md + core_service.md - relevant schemas"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "api_gateway.md - API section",
+                  "move_to": "specs/007-infrastructure/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "2 hours",
+            "dependencies": ["auth_service.md"],
+            "validation_required": ["Gateway routing validation", "Service integration testing"]
+          },
+          {
+            "source_file": "usage_log.md",
+            "destination": "specs/008-analytics/FEAT-005-analytics.md",
+            "action": "move",
+            "merge_with": [],
+            "new_spec_id": "FEAT-005",
+            "structure": {
+              "metadata": {
+                "spec_id": "FEAT-005",
+                "title": "Analytics & Usage Tracking",
+                "type": "Feature",
+                "status": "Active",
+                "business_domain": "Analytics",
+                "priority": "Medium"
+              },
+              "sections": [
+                {
+                  "section": "Overview",
+                  "source": "usage_log.md - introduction and purpose"
+                },
+                {
+                  "section": "User Stories",
+                  "source": "usage_log.md - user stories section"
+                },
+                {
+                  "section": "Usage Tracking",
+                  "source": "usage_log.md - tracking mechanisms"
+                },
+                {
+                  "section": "Analytics & Reporting",
+                  "source": "usage_log.md - analytics features"
+                },
+                {
+                  "section": "Data Models",
+                  "source": "usage_log.md - database schema"
+                },
+                {
+                  "section": "API Contracts",
+                  "source": "usage_log.md - API section",
+                  "move_to": "specs/008-analytics/contracts/api-spec.json"
+                }
+              ]
+            },
+            "estimated_effort": "1 hour",
+            "dependencies": ["credit_account.md", "mcp_server.md", "agents_marketplace.md"],
+            "validation_required": ["Analytics data validation", "Performance testing"]
+          }
+        ],
+        "deletion_plan": [
+          {
+            "file": "fr_1.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          },
+          {
+            "file": "fr_2.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          },
+          {
+            "file": "fr_3.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          },
+          {
+            "file": "fr_4.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          },
+          {
+            "file": "fr_5.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          },
+          {
+            "file": "fr_6.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          },
+          {
+            "file": "epic_1.md",
+            "reason": "Template file with no specific content",
+            "action": "delete",
+            "backup_required": true
+          }
+        ],
+        "validation_rules": {
+          "required_sections": [
+            "Metadata",
+            "Overview",
+            "User Stories",
+            "Acceptance Criteria",
+            "Technical Requirements",
+            "Data Models",
+            "API Contracts"
+          ],
+          "spec_id_format": {
+            "epic": "EPIC-XXX",
+            "feature": "FEAT-XXX",
+            "user_story": "US-XXX"
+          },
+          "folder_naming": "XXX-kebab-case-name",
+          "file_naming": {
+            "spec": "SPEC-ID-kebab-case-name.md",
+            "contracts": "api-spec.json"
+          },
+          "metadata_requirements": [
+            "spec_id",
+            "title",
+            "type",
+            "status",
+            "business_domain",
+            "priority"
+          ],
+          "cross_reference_format": "[SPEC-ID](../folder/spec.md)"
+        },
+        "quality_checks": {
+          "content_validation": [
+            "All user stories have acceptance criteria",
+            "API contracts are properly formatted",
+            "Data models include relationships",
+            "Technical requirements are testable"
+          ],
+          "consistency_checks": [
+            "Terminology is consistent across specs",
+            "API naming conventions are followed",
+            "Data model relationships are bidirectional",
+            "Cross-references are valid"
+          ],
+          "completeness_checks": [
+            "All required sections are present",
+            "No content is lost during migration",
+            "All dependencies are documented",
+            "All orphaned content is addressed"
+          ]
+        },
+        "implementation_order": [
+          {
+            "phase": 1,
+            "name": "Setup and Cleanup",
+            "duration": "1 day",
+            "tasks": [
+              "Create backup of current specs",
+              "Delete template files",
+              "Create new folder structure",
+              "Set up validation scripts"
+            ]
+          },
+          {
+            "phase": 2,
+            "name": "Epic Migration",
+            "duration": "3 days",
+            "tasks": [
+              "Migrate EPIC-001 (User Authentication)",
+              "Migrate EPIC-002 (Financial System)",
+              "Migrate EPIC-003 (AI Integration)"
+            ]
+          },
+          {
+            "phase": 3,
+            "name": "Feature Migration",
+            "duration": "3 days",
+            "tasks": [
+              "Migrate FEAT-001 (User Management)",
+              "Migrate FEAT-002 (Access Control)",
+              "Migrate FEAT-003 (Promo System)",
+              "Migrate FEAT-004 (Infrastructure)",
+              "Migrate FEAT-005 (Analytics)"
+            ]
+          },
+          {
+            "phase": 4,
+            "name": "Validation and Finalization",
+            "duration": "2 days",
+            "tasks": [
+              "Run validation scripts",
+              "Update cross-references",
+              "Create master index",
+              "Final review and approval"
+            ]
+          }
+        ],
+        "total_estimated_effort": "19 hours",
+        "total_migration_duration": "9 days",
+        "risk_mitigation": [
+          "Create full backup before starting",
+          "Validate each migration step",
+          "Maintain change log of all modifications",
+          "Peer review for all merged content",
+          "Automated validation scripts"
+        ]
+      }
+    },
+    
+    "phase_2": {
+      "name": "System-Level Specifications",
+      "source": "specs/ (root level)",
+      "migrations": [
+        {
+          "source_file": "AUTOMATED_BACKUP_SERVICE_SPEC.md",
+          "destination": "specs/011-automated-backup/spec.md",
+          "action": "move_and_format",
+          "new_spec_id": "FEAT-011",
+          "structure": {
+            "metadata": {
+              "spec_id": "FEAT-011",
+              "title": "Automated Backup Service",
+              "type": "Feature",
+              "status": "Active",
+              "business_domain": "Infrastructure",
+              "priority": "Critical"
+            },
+            "sections": [
+              {
+                "section": "Overview",
+                "source": "Existing overview section"
+              },
+              {
+                "section": "Objectives",
+                "source": "Existing objectives section"
+              },
+              {
+                "section": "User Stories",
+                "source": "Existing user stories (5 stories)"
+              },
+              {
+                "section": "Scope",
+                "source": "Existing scope section"
+              },
+              {
+                "section": "Functional Requirements",
+                "source": "Existing FR-1 to FR-6"
+              },
+              {
+                "section": "Non-Functional Requirements",
+                "source": "Existing NFR-1 to NFR-5"
+              },
+              {
+                "section": "Data Models",
+                "source": "Existing data models section"
+              },
+              {
+                "section": "API Specifications",
+                "source": "Existing API section"
+              },
+              {
+                "section": "Business Logic",
+                "source": "Existing business logic section"
+              },
+              {
+                "section": "Security Considerations",
+                "source": "Existing SC-1 to SC-4"
+              },
+              {
+                "section": "Error Handling",
+                "source": "Existing error handling section"
+              },
+              {
+                "section": "Performance Requirements",
+                "source": "Existing PR-1 to PR-4"
+              },
+              {
+                "section": "Deployment Strategy",
+                "source": "Existing DS-1 to DS-4"
+              },
+              {
+                "section": "Testing Strategy",
+                "source": "Existing TS-1 to TS-4"
+              },
+              {
+                "section": "Documentation Requirements",
+                "source": "Existing DR-1 to DR-3"
+              },
+              {
+                "section": "Examples and Use Cases",
+                "source": "Existing examples section"
+              }
+            ]
+          },
+          "estimated_effort": "1 hour",
+          "validation_required": ["Verify all sections migrated", "Check internal links"]
+        },
+        {
+          "source_file": "SUBSCRIPTION_PLANS_SYSTEM_SPEC.md",
+          "destination": "specs/012-subscription-plans/spec.md",
+          "action": "move_and_format",
+          "new_spec_id": "FEAT-012",
+          "structure": {
+            "metadata": {
+              "spec_id": "FEAT-012",
+              "title": "Subscription Plans and Monetization System",
+              "type": "Feature",
+              "status": "Draft - Pending Development",
+              "business_domain": "Financial",
+              "priority": "High"
+            },
+            "sections": [
+              {
+                "section": "Overview",
+                "source": "Existing overview section"
+              },
+              {
+                "section": "Objectives",
+                "source": "Existing objectives section"
+              },
+              {
+                "section": "User Stories",
+                "source": "Existing 10 user stories"
+              },
+              {
+                "section": "Scope",
+                "source": "Existing scope section"
+              },
+              {
+                "section": "Functional Requirements",
+                "source": "Existing FR-1 to FR-5"
+              },
+              {
+                "section": "Non-Functional Requirements",
+                "source": "Existing NFR-1 to NFR-6"
+              },
+              {
+                "section": "Data Models",
+                "source": "Existing 7 data models"
+              },
+              {
+                "section": "API Specifications",
+                "source": "Existing API specifications"
+              },
+              {
+                "section": "Business Logic",
+                "source": "Existing business logic section"
+              },
+              {
+                "section": "Security Considerations",
+                "source": "Existing SC-1 to SC-5"
+              },
+              {
+                "section": "Error Handling",
+                "source": "Existing error handling table"
+              },
+              {
+                "section": "Performance Requirements",
+                "source": "Existing PR-1 to PR-4"
+              },
+              {
+                "section": "Deployment Strategy",
+                "source": "Existing DS-1 to DS-3"
+              },
+              {
+                "section": "Testing Strategy",
+                "source": "Existing TS-1 to TS-5"
+              },
+              {
+                "section": "Documentation Requirements",
+                "source": "Existing DR-1 to DR-4"
+              },
+              {
+                "section": "Examples and Use Cases",
+                "source": "Existing 5 examples"
+              }
+            ]
+          },
+          "estimated_effort": "1.5 hours",
+          "validation_required": ["Verify complex structure", "Check all tables and code blocks"]
+        },
+        {
+          "source_file": "TRACEABILITY.md",
+          "destination": "specs/specs-registry.yaml",
+          "action": "convert_to_registry",
+          "notes": "Parse existing traceability matrix and convert to YAML registry format",
+          "structure": {
+            "format": "YAML registry",
+            "content": {
+              "specs_registry": {
+                "version": "1.0",
+                "last_updated": "2025-01-17",
+                "entries": [
+                  {
+                    "spec_id": "US-1",
+                    "title": "User Registration with Email",
+                    "implements_requirement": "FR-1",
+                    "part_of_epic": "Epic 2",
+                    "location": "specs/01_requirements/user_stories/us_1.md"
+                  }
+                ]
+              }
+            }
+          },
+          "estimated_effort": "2 hours",
+          "validation_required": ["Verify all entries converted", "Validate YAML syntax"]
+        },
+        {
+          "source_file": "SPECKIT_MIGRATION_ANALYSIS.md",
+          "destination": "specs/_meta/migration-history.md",
+          "action": "archive",
+          "notes": "Keep as historical documentation of migration analysis",
+          "estimated_effort": "15 minutes",
+          "validation_required": ["Verify file moved correctly"]
+        }
+      ],
+      "total_effort": "4.75 hours",
+      "estimated_duration": "1 day"
+    },
+    
+    "phase_3": {
+      "name": "Other Folders Evaluation",
+      "folders": [
+        {
+          "folder": "01_requirements/",
+          "action": "analyze_and_decide",
+          "questions": [
+            "Does it contain feature requirements?",
+            "Should be merged with feature specs?",
+            "Or keep as separate requirements docs?"
+          ],
+          "recommendation": "Analyze content first",
+          "details": {
+            "functional": {
+              "files": ["fr_1.md", "fr_2.md", "fr_3.md", "fr_4.md", "fr_5.md", "fr_6.md", "fr_auth_05.md", "fr_auth_06.md", "fr_credit_03.md", "fr_credit_04.md"],
+              "action": "Review and potentially merge with existing specs",
+              "notes": "Some files may be duplicates of backend folder content"
+            },
+            "user_stories": {
+              "files": ["us_1.md", "us_2.md", "us_3.md", "us_4.md", "us_5.md", "us_6.md", "us_7.md", "us_8.md", "us_9.md", "us_10.md", "us_11.md"],
+              "action": "Extract and incorporate into relevant feature specs",
+              "notes": "User stories should be part of feature specifications"
+            },
+            "non_functional": {
+              "files": [],
+              "action": "No action needed",
+              "notes": "Directory is empty"
+            }
+          },
+          "estimated_effort": "4 hours"
+        },
+        {
+          "folder": "02_architecture/",
+          "action": "keep_separate",
+          "reason": "Architecture decisions are separate from feature specs",
+          "suggested_location": "specs/_architecture/",
+          "details": {
+            "data_models": {
+              "files": ["user.md", "permission.md", "role.md", "user_role.md", "role_permission.md", "credit_account.md", "credit_transaction.md", "promo_code.md", "promo_redemption.md", "usage_log.md"],
+              "action": "Move to _architecture/data_models/",
+              "notes": "These are architecture artifacts, not feature specs"
+            },
+            "services": {
+              "files": ["api_gateway.md", "auth_service.md", "core_service.md", "mcp_server.md"],
+              "action": "Move to _architecture/services/",
+              "notes": "Service architecture documentation"
+            }
+          },
+          "estimated_effort": "2 hours"
+        },
+        {
+          "folder": "03_frontend/",
+          "action": "separate_migration",
+          "reason": "Frontend specs may need their own Spec-Driven structure",
+          "details": {
+            "components": {
+              "subfolders": ["admin/", "auth/", "common/", "error/", "forms/", "layout/", "notifications/", "profile/"],
+              "action": "Consider separate frontend spec structure",
+              "notes": "May follow different template for UI/UX specs"
+            },
+            "pages": {
+              "files": ["dashboard.md", "chat_interface.md"],
+              "action": "Migrate to frontend-specific structure",
+              "notes": "Page specifications with UI/UX focus"
+            }
+          },
+          "estimated_effort": "8-12 hours"
+        },
+        {
+          "folder": "04_decisions/",
+          "action": "keep_separate",
+          "reason": "ADRs remain in decision log",
+          "suggested_location": "specs/_decisions/",
+          "details": {
+            "status": "Empty directory",
+            "action": "Keep structure for future ADRs",
+            "notes": "Architecture Decision Records format"
+          },
+          "estimated_effort": "30 minutes"
+        },
+        {
+          "folder": "05_glossary/",
+          "action": "keep_separate",
+          "reason": "Project-wide glossary",
+          "suggested_location": "specs/_glossary/",
+          "details": {
+            "status": "Empty directory",
+            "action": "Keep structure for future glossary terms",
+            "notes": "Project terminology and definitions"
+          },
+          "estimated_effort": "30 minutes"
+        },
+        {
+          "folder": "03_backlog/",
+          "action": "evaluate",
+          "reason": "May contain future features not yet specified",
+          "details": {
+            "epics": {
+              "files": ["epic_1.md", "epic_2.md", "epic_3.md", "epic_4.md", "epic_5.md", "epic_6.md"],
+              "action": "Review and either incorporate or archive",
+              "notes": "Check if already covered by migrated specs"
+            },
+            "other": {
+              "files": ["agents_marketplace_tasks.md"],
+              "action": "Review content",
+              "notes": "May be relevant to EPIC-003"
+            }
+          },
+          "estimated_effort": "2 hours"
+        }
+      ],
+      "total_effort": "16-20 hours",
+      "estimated_duration": "2 days"
+    }
+  },
+  
+  "final_structure_preview": {
+    "specs/": {
+      "feature_specs": [
+        "001-user-authentication/",
+        "002-user-management/",
+        "003-access-control/",
+        "004-financial-system/",
+        "005-promo-system/",
+        "006-ai-integration/",
+        "007-infrastructure/",
+        "008-analytics/",
+        "011-automated-backup/",
+        "012-subscription-plans/"
+      ],
+      "meta_folders": [
+        "_architecture/",
+        "_decisions/",
+        "_glossary/",
+        "_meta/"
+      ],
+      "registry_files": [
+        "specs-registry.yaml",
+        "specs-registry.json"
+      ]
+    }
+  },
+  
+  "revised_timeline": {
+    "phase_1_backend": "9 days (existing plan)",
+    "phase_2_system_specs": "1 day",
+    "phase_3_evaluation": "2 days",
+    "total": "12 days",
+    "total_effort": "25 hours",
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Backend Migration",
+        "duration": "9 days",
+        "effort": "19 hours",
+        "status": "Ready to start"
+      },
+      {
+        "phase": 2,
+        "name": "System-Level Specs",
+        "duration": "1 day",
+        "effort": "4.75 hours",
+        "status": "Planned"
+      },
+      {
+        "phase": 3,
+        "name": "Other Folders Evaluation",
+        "duration": "2 days",
+        "effort": "16-20 hours",
+        "status": "Needs planning"
+      }
+    ]
+  },
+  
+  "critical_path": [
+    "Resolve duplicate files before migration",
+    "Complete backend migration (Phase 1)",
+    "Migrate system-level specs (Phase 2)",
+    "Evaluate and organize other folders (Phase 3)",
+    "Final validation and cleanup"
+  ],
+  
+  "success_criteria": [
+    "All duplicate files resolved",
+    "Backend folder successfully migrated",
+    "Root-level specs integrated into new structure",
+    "Other folders properly organized or archived",
+    "No content lost during migration",
+    "All cross-references updated",
+    "New structure follows Spec-Driven Development standards"
+  ]
+}

@@ -1,0 +1,112 @@
+// Prisma schema for Automated Backup Service
+// This schema defines the data structures needed for backup management
+
+model BackupRecord {
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  sizeMb      Float    @map("size_mb")
+  status      BackupStatus @default(IN_PROGRESS)
+  fileName    String?  @map("file_name")
+  filePath    String?  @map("file_path")
+  checksum    String?
+  errorMessage String? @map("error_message")
+  startedAt   DateTime @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  retentionAt DateTime @map("retention_at")
+  
+  // Relations
+  backupItems BackupItem[]
+  
+  @@map("backup_records")
+}
+
+model BackupItem {
+  id         String @id @default(cuid())
+  backupId   String @map("backup_id")
+  itemType   BackupItemType
+  itemName   String @map("item_name")
+  itemSizeMb Float  @map("item_size_mb")
+  status     BackupItemStatus @default(SUCCESS)
+  errorMessage String? @map("error_message")
+  
+  // Relations
+  backupRecord BackupRecord @relation(fields: [backupId], references: [id], onDelete: Cascade)
+  
+  @@map("backup_items")
+}
+
+model BackupConfig {
+  id                       String @id @default(cuid())
+  key                      String @unique
+  value                    String
+  description              String?
+  updatedAt                DateTime @updatedAt
+  updatedBy                String? @map("updated_by")
+  
+  @@map("backup_configs")
+}
+
+model BackupSchedule {
+  id            String @id @default(cuid())
+  name          String @unique
+  cronExpression String @map("cron_expression")
+  enabled       Boolean @default(true)
+  lastRunAt     DateTime? @map("last_run_at")
+  nextRunAt     DateTime @map("next_run_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  @@map("backup_schedules")
+}
+
+model BackupNotification {
+  id        String @id @default(cuid())
+  backupId  String @map("backup_id")
+  type      NotificationType
+  recipient String
+  subject   String
+  content   String
+  status    NotificationStatus @default(PENDING)
+  sentAt    DateTime? @map("sent_at")
+  errorMessage String? @map("error_message")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("backup_notifications")
+}
+
+enum BackupStatus {
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum BackupItemType {
+  DATABASE_TABLE
+  CONFIGURATION_FILE
+  SSL_CERTIFICATE
+  LOG_FILE
+  COMPRESSED_ARCHIVE
+}
+
+enum BackupItemStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+enum NotificationType {
+  SUCCESS
+  FAILURE
+  WARNING
+  RETENTION_REMINDER
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}

@@ -39,15 +39,14 @@ console.log('Testing migration with sample content...');
 try {
   const result = migrateSpec(testFile, 'feature');
   console.log('Migration test result:', result);
-  
+
   // Read the migrated file
   const migratedContent = fs.readFileSync(testFile, 'utf8');
   console.log('\nMigrated content preview:');
   console.log(migratedContent.substring(0, 500) + '...');
-  
+
   // Clean up
   fs.unlinkSync(testFile);
-  
 } catch (error) {
   console.error('Migration test failed:', error);
 }

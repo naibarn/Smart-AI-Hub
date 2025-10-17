@@ -1,0 +1,398 @@
+openapi: 3.0.3
+info:
+  title: Automated Backup Service API
+  description: API endpoints for the Automated Backup Service
+  version: 1.0.0
+  contact:
+    name: Development Team
+    email: dev@smartaihub.com
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the backup service
+      operationId: getHealthStatus
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  last_backup:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the last successful backup
+                  last_backup_size_mb:
+                    type: number
+                    format: float
+                    description: Size of the last backup in MB
+                  uptime_seconds:
+                    type: integer
+                    description: Service uptime in seconds
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: unhealthy
+                  error:
+                    type: string
+                    description: Error message
+                  last_backup:
+                    type: string
+                    format: date-time
+                    description: Timestamp of the last successful backup
+                  last_backup_age_hours:
+                    type: number
+                    format: float
+                    description: Hours since the last backup
+
+  /backup/status:
+    get:
+      summary: Get backup status
+      description: Returns detailed information about the backup status
+      operationId: getBackupStatus
+      tags:
+        - Backup
+      responses:
+        '200':
+          description: Backup status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_backup:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                        format: date-time
+                      size_mb:
+                        type: number
+                        format: float
+                      status:
+                        type: string
+                        enum: [success, failed, in_progress]
+                      error_message:
+                        type: string
+                        nullable: true
+                  backup_schedule:
+                    type: object
+                    properties:
+                      cron_expression:
+                        type: string
+                        example: "0 2 * * *"
+                      next_backup:
+                        type: string
+                        format: date-time
+                  retention:
+                    type: object
+                    properties:
+                      days:
+                        type: integer
+                        example: 30
+                      count:
+                        type: integer
+                        description: Number of backups currently stored
+                  disk_usage:
+                    type: object
+                    properties:
+                      total_mb:
+                        type: number
+                        format: float
+                      available_mb:
+                        type: number
+                        format: float
+                      usage_percentage:
+                        type: number
+                        format: float
+
+  /backup/trigger:
+    post:
+      summary: Trigger manual backup
+      description: Manually trigger a backup process
+      operationId: triggerManualBackup
+      tags:
+        - Backup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                force:
+                  type: boolean
+                  default: false
+                  description: Force backup even if recent backup exists
+                notification:
+                  type: boolean
+                  default: true
+                  description: Send email notification after backup
+      responses:
+        '200':
+          description: Backup triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Backup triggered successfully"
+                  backup_id:
+                    type: string
+                    format: uuid
+                  estimated_completion:
+                    type: string
+                    format: date-time
+        '409':
+          description: Backup already in progress
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Backup already in progress"
+                  current_backup:
+                    type: object
+                    properties:
+                      started_at:
+                        type: string
+                        format: date-time
+                      progress_percentage:
+                        type: number
+                        format: float
+
+  /backup/history:
+    get:
+      summary: Get backup history
+      description: Returns a list of recent backups
+      operationId: getBackupHistory
+      tags:
+        - Backup
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of backups to return
+          required: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          description: Number of backups to skip
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Backup history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  backups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        timestamp:
+                          type: string
+                          format: date-time
+                        size_mb:
+                          type: number
+                          format: float
+                        status:
+                          type: string
+                          enum: [success, failed, in_progress]
+                        file_name:
+                          type: string
+                        error_message:
+                          type: string
+                          nullable: true
+                        retention_expires:
+                          type: string
+                          format: date-time
+                  total:
+                    type: integer
+                    description: Total number of backups
+
+  /backup/config:
+    get:
+      summary: Get backup configuration
+      description: Returns the current backup configuration
+      operationId: getBackupConfig
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: Configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schedule:
+                    type: object
+                    properties:
+                      cron_expression:
+                        type: string
+                        example: "0 2 * * *"
+                      enabled:
+                        type: boolean
+                  retention:
+                    type: object
+                    properties:
+                      days:
+                        type: integer
+                        example: 30
+                  email:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                      recipients:
+                        type: array
+                        items:
+                          type: string
+                          format: email
+                      attachment_threshold_mb:
+                        type: number
+                        format: float
+                        example: 25
+                  backup_scope:
+                    type: object
+                    properties:
+                      databases:
+                        type: array
+                        items:
+                          type: string
+                      tables:
+                        type: array
+                        items:
+                          type: string
+                      transaction_days:
+                        type: integer
+                        example: 90
+                      include_configs:
+                        type: boolean
+    put:
+      summary: Update backup configuration
+      description: Updates the backup configuration
+      operationId: updateBackupConfig
+      tags:
+        - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schedule:
+                  type: object
+                  properties:
+                    cron_expression:
+                      type: string
+                      example: "0 2 * * *"
+                    enabled:
+                      type: boolean
+                retention:
+                  type: object
+                  properties:
+                    days:
+                      type: integer
+                      minimum: 1
+                      maximum: 365
+                email:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    recipients:
+                      type: array
+                      items:
+                        type: string
+                        format: email
+                    attachment_threshold_mb:
+                      type: number
+                      format: float
+                      minimum: 1
+                      maximum: 100
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Configuration updated successfully"
+        '400':
+          description: Invalid configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: object
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Backup
+    description: Backup management endpoints
+  - name: Configuration
+    description: Configuration management endpoints

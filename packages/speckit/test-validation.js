@@ -30,29 +30,29 @@ try {
       version: '1.0.0',
       author: 'test',
       status: 'draft',
-      priority: 'medium'
+      priority: 'medium',
     },
     validation: {
       required: ['id', 'title', 'content'],
-      patterns: []
-    }
+      patterns: [],
+    },
   };
-  
+
   const result = engine.validateSpecification(specObj);
   console.log('\n=== Validation Results ===');
   console.log('Valid:', result.valid);
   console.log('Score:', result.score);
   console.log('Errors:', result.errors.length);
   console.log('Warnings:', result.warnings.length);
-  
+
   if (result.errors.length > 0) {
     console.log('\n--- Errors ---');
-    result.errors.forEach(err => console.log(err.message));
+    result.errors.forEach((err) => console.log(err.message));
   }
-  
+
   if (result.warnings.length > 0) {
     console.log('\n--- Warnings ---');
-    result.warnings.forEach(warn => console.log(warn.message));
+    result.warnings.forEach((warn) => console.log(warn.message));
   }
 } catch (e) {
   console.log('\nError:', e.message);
