@@ -80,9 +80,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       bodyStyle={{ padding: '16px' }}
     >
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          Loading images...
-        </div>
+        <div style={{ textAlign: 'center', padding: '40px' }}>Loading images...</div>
       ) : (
         <>
           <Row gutter={[16, 16]}>
@@ -118,7 +116,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
                   />
-                  
+
                   {showPreview && (
                     <div
                       style={{

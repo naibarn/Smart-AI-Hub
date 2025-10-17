@@ -47,7 +47,7 @@ router.get('/agents', async (req: Request, res: Response) => {
       search,
       type,
       sortBy = 'newest',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = req.query;
 
     // Parse query parameters
@@ -55,7 +55,7 @@ router.get('/agents', async (req: Request, res: Response) => {
       page: parseInt(page as string) || 1,
       limit: Math.min(parseInt(limit as string) || 12, 50), // Cap at 50 for performance
       category: category as string,
-      tags: tags ? (tags as string).split(',').map(tag => tag.trim()) : undefined,
+      tags: tags ? (tags as string).split(',').map((tag) => tag.trim()) : undefined,
       search: search as string,
       type: type as AgentType,
       sortBy: sortBy as any,
@@ -64,7 +64,7 @@ router.get('/agents', async (req: Request, res: Response) => {
 
     // Generate cache key
     const cacheKey = `public_agents:${JSON.stringify(options)}`;
-    
+
     // Try to get from cache first
     try {
       const cachedResult = await redisClient.get(cacheKey);
@@ -73,7 +73,7 @@ router.get('/agents', async (req: Request, res: Response) => {
           success: true,
           data: JSON.parse(cachedResult).agents,
           pagination: JSON.parse(cachedResult).pagination,
-          cached: true
+          cached: true,
         });
       }
     } catch (redisError) {
@@ -93,7 +93,7 @@ router.get('/agents', async (req: Request, res: Response) => {
     if (options.category) {
       where.category = {
         contains: options.category,
-        mode: 'insensitive'
+        mode: 'insensitive',
       };
     }
 
@@ -115,7 +115,7 @@ router.get('/agents', async (req: Request, res: Response) => {
     if (options.tags && options.tags.length > 0) {
       where.metadata = {
         path: ['tags'],
-        array_contains: options.tags
+        array_contains: options.tags,
       };
     }
 
@@ -169,9 +169,9 @@ router.get('/agents', async (req: Request, res: Response) => {
               select: {
                 firstName: true,
                 lastName: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         // Include usage stats for popularity sorting
         usageLogs: {
@@ -179,24 +179,24 @@ router.get('/agents', async (req: Request, res: Response) => {
             id: true,
           },
           where: {
-            status: 'completed'
-          }
-        }
-      }
+            status: 'completed',
+          },
+        },
+      },
     });
 
     // Process agents to add usage count and format creator name
-    const processedAgents = agents.map(agent => ({
+    const processedAgents = agents.map((agent) => ({
       ...agent,
       usageCount: agent.usageLogs.length,
       creator: {
         ...agent.creator,
-        displayName: agent.creator.profile?.firstName 
+        displayName: agent.creator.profile?.firstName
           ? `${agent.creator.profile.firstName} ${agent.creator.profile?.lastName || ''}`.trim()
-          : 'Anonymous'
+          : 'Anonymous',
       },
       // Remove usageLogs from final response
-      usageLogs: undefined
+      usageLogs: undefined,
     }));
 
     const result = {
@@ -206,7 +206,7 @@ router.get('/agents', async (req: Request, res: Response) => {
         limit: options.limit,
         total,
         pages: Math.ceil(total / options.limit!),
-      }
+      },
     };
 
     // Cache the result for 5 minutes
@@ -221,7 +221,7 @@ router.get('/agents', async (req: Request, res: Response) => {
       success: true,
       data: result.agents,
       pagination: result.pagination,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Error getting public agents:', error);
@@ -249,7 +249,7 @@ router.get('/agents/:id', async (req: Request, res: Response) => {
 
     // Generate cache key
     const cacheKey = `public_agent:${id}`;
-    
+
     // Try to get from cache first
     try {
       const cachedAgent = await redisClient.get(cacheKey);
@@ -257,7 +257,7 @@ router.get('/agents/:id', async (req: Request, res: Response) => {
         return res.json({
           success: true,
           data: JSON.parse(cachedAgent),
-          cached: true
+          cached: true,
         });
       }
     } catch (redisError) {
@@ -293,9 +293,9 @@ router.get('/agents/:id', async (req: Request, res: Response) => {
                 firstName: true,
                 lastName: true,
                 avatarUrl: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         // Include usage stats
         usageLogs: {
@@ -305,10 +305,10 @@ router.get('/agents/:id', async (req: Request, res: Response) => {
             status: true,
           },
           where: {
-            status: 'completed'
-          }
-        }
-      }
+            status: 'completed',
+          },
+        },
+      },
     });
 
     if (!agent) {
@@ -332,9 +332,9 @@ router.get('/agents/:id', async (req: Request, res: Response) => {
       usageCount: agent.usageLogs.length,
       creator: {
         ...agent.creator,
-        displayName: agent.creator.profile?.firstName 
+        displayName: agent.creator.profile?.firstName
           ? `${agent.creator.profile.firstName} ${agent.creator.profile?.lastName || ''}`.trim()
-          : 'Anonymous'
+          : 'Anonymous',
       },
       // Remove sensitive data
       usageLogs: undefined,
@@ -353,7 +353,7 @@ router.get('/agents/:id', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: processedAgent,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Error getting public agent details:', error);
@@ -372,7 +372,7 @@ router.get('/categories', async (req: Request, res: Response) => {
   try {
     // Generate cache key
     const cacheKey = 'public_categories';
-    
+
     // Try to get from cache first
     try {
       const cachedCategories = await redisClient.get(cacheKey);
@@ -380,7 +380,7 @@ router.get('/categories', async (req: Request, res: Response) => {
         return res.json({
           success: true,
           data: JSON.parse(cachedCategories),
-          cached: true
+          cached: true,
         });
       }
     } catch (redisError) {
@@ -395,25 +395,25 @@ router.get('/categories', async (req: Request, res: Response) => {
         visibility: AgentVisibility.PUBLIC,
         status: AgentStatus.APPROVED,
         category: {
-          not: null
-        }
+          not: null,
+        },
       },
       _count: {
-        category: true
+        category: true,
       },
       orderBy: {
         _count: {
-          category: 'desc'
-        }
-      }
+          category: 'desc',
+        },
+      },
     });
 
     // Process categories
     const processedCategories = categories
-      .filter(cat => cat.category) // Remove null categories
-      .map(cat => ({
+      .filter((cat) => cat.category) // Remove null categories
+      .map((cat) => ({
         name: cat.category,
-        count: cat._count.category
+        count: cat._count.category,
       }));
 
     // Cache the result for 1 hour
@@ -427,7 +427,7 @@ router.get('/categories', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: processedCategories,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Error getting categories:', error);
@@ -446,7 +446,7 @@ router.get('/tags', async (req: Request, res: Response) => {
   try {
     // Generate cache key
     const cacheKey = 'public_tags';
-    
+
     // Try to get from cache first
     try {
       const cachedTags = await redisClient.get(cacheKey);
@@ -454,7 +454,7 @@ router.get('/tags', async (req: Request, res: Response) => {
         return res.json({
           success: true,
           data: JSON.parse(cachedTags),
-          cached: true
+          cached: true,
         });
       }
     } catch (redisError) {
@@ -468,18 +468,18 @@ router.get('/tags', async (req: Request, res: Response) => {
         visibility: AgentVisibility.PUBLIC,
         status: AgentStatus.APPROVED,
         metadata: {
-          not: Prisma.JsonNull
-        }
+          not: Prisma.JsonNull,
+        },
       },
       select: {
-        metadata: true
-      }
+        metadata: true,
+      },
     });
 
     // Extract and count tags
     const tagCounts: Record<string, number> = {};
-    
-    agents.forEach(agent => {
+
+    agents.forEach((agent) => {
       // Type assertion for metadata
       const metadata = agent.metadata as any;
       const tags = metadata?.tags;
@@ -510,7 +510,7 @@ router.get('/tags', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: processedTags,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Error getting tags:', error);
@@ -529,7 +529,7 @@ router.get('/stats', async (req: Request, res: Response) => {
   try {
     // Generate cache key
     const cacheKey = 'public_stats';
-    
+
     // Try to get from cache first
     try {
       const cachedStats = await redisClient.get(cacheKey);
@@ -537,7 +537,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         return res.json({
           success: true,
           data: JSON.parse(cachedStats),
-          cached: true
+          cached: true,
         });
       }
     } catch (redisError) {
@@ -546,32 +546,27 @@ router.get('/stats', async (req: Request, res: Response) => {
     }
 
     // Get statistics
-    const [
-      totalAgents,
-      agentsByType,
-      agentsByCategory,
-      recentAgents
-    ] = await Promise.all([
+    const [totalAgents, agentsByType, agentsByCategory, recentAgents] = await Promise.all([
       // Total public agents
       prisma.agent.count({
         where: {
           visibility: AgentVisibility.PUBLIC,
-          status: AgentStatus.APPROVED
-        }
+          status: AgentStatus.APPROVED,
+        },
       }),
-      
+
       // Agents by type
       prisma.agent.groupBy({
         by: ['type'],
         where: {
           visibility: AgentVisibility.PUBLIC,
-          status: AgentStatus.APPROVED
+          status: AgentStatus.APPROVED,
         },
         _count: {
-          type: true
-        }
+          type: true,
+        },
       }),
-      
+
       // Agents by category
       prisma.agent.groupBy({
         by: ['category'],
@@ -579,45 +574,45 @@ router.get('/stats', async (req: Request, res: Response) => {
           visibility: AgentVisibility.PUBLIC,
           status: AgentStatus.APPROVED,
           category: {
-            not: null
-          }
+            not: null,
+          },
         },
         _count: {
-          category: true
+          category: true,
         },
         orderBy: {
           _count: {
-            category: 'desc'
-          }
+            category: 'desc',
+          },
         },
-        take: 10
+        take: 10,
       }),
-      
+
       // Recent agents (last 7 days)
       prisma.agent.count({
         where: {
           visibility: AgentVisibility.PUBLIC,
           status: AgentStatus.APPROVED,
           createdAt: {
-            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
-          }
-        }
-      })
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+          },
+        },
+      }),
     ]);
 
     const stats = {
       totalAgents,
       recentAgents,
-      agentsByType: agentsByType.map(stat => ({
+      agentsByType: agentsByType.map((stat) => ({
         type: stat.type,
-        count: stat._count.type
+        count: stat._count.type,
       })),
       agentsByCategory: agentsByCategory
-        .filter(stat => stat.category)
-        .map(stat => ({
+        .filter((stat) => stat.category)
+        .map((stat) => ({
           category: stat.category,
-          count: stat._count.category
-        }))
+          count: stat._count.category,
+        })),
     };
 
     // Cache the result for 30 minutes
@@ -631,7 +626,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: stats,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Error getting marketplace statistics:', error);

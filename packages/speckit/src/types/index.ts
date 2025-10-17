@@ -12,6 +12,8 @@ export interface Specification {
   validation: ValidationRules;
   dependencies?: string[];
   tags?: string[];
+  parent?: string;
+  related?: string[];
 }
 
 export enum SpecificationType {

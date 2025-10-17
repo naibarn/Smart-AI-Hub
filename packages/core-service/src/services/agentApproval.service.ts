@@ -27,12 +27,7 @@ export class AgentApprovalService {
    */
   async getPendingAgents(options: GetPendingAgentsOptions = {}) {
     try {
-      const {
-        page = 1,
-        limit = 10,
-        type,
-        search
-      } = options;
+      const { page = 1, limit = 10, type, search } = options;
 
       const skip = (page - 1) * limit;
 
@@ -71,15 +66,15 @@ export class AgentApprovalService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           approvalLogs: {
             orderBy: { createdAt: 'desc' },
             take: 1,
-          }
-        }
+          },
+        },
       });
 
       return {
@@ -89,7 +84,7 @@ export class AgentApprovalService {
           limit,
           total,
           pages: Math.ceil(total / limit),
-        }
+        },
       };
     } catch (error) {
       console.error('Error getting pending agents:', error);
@@ -110,7 +105,7 @@ export class AgentApprovalService {
           status: true,
           name: true,
           createdBy: true,
-        }
+        },
       });
 
       if (!existingAgent) {
@@ -137,11 +132,11 @@ export class AgentApprovalService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       });
 
       // Log approval action
@@ -171,7 +166,7 @@ export class AgentApprovalService {
           status: true,
           name: true,
           createdBy: true,
-        }
+        },
       });
 
       if (!existingAgent) {
@@ -198,11 +193,11 @@ export class AgentApprovalService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       });
 
       // Log rejection action
@@ -229,9 +224,9 @@ export class AgentApprovalService {
               id: true,
               name: true,
               status: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       return approvalLogs;
@@ -250,18 +245,18 @@ export class AgentApprovalService {
         by: ['status'],
         _count: {
           id: true,
-        }
+        },
       });
 
       const result: Record<string, number> = {};
-      
+
       // Initialize all statuses with 0
-      Object.values(AgentStatus).forEach(status => {
+      Object.values(AgentStatus).forEach((status) => {
         result[status] = 0;
       });
 
       // Fill in actual counts
-      stats.forEach(stat => {
+      stats.forEach((stat) => {
         result[stat.status] = stat._count.id;
       });
 
@@ -273,23 +268,23 @@ export class AgentApprovalService {
         by: ['action'],
         where: {
           createdAt: {
-            gte: sevenDaysAgo
-          }
+            gte: sevenDaysAgo,
+          },
         },
         _count: {
           id: true,
-        }
+        },
       });
 
       const activity: Record<string, number> = {};
-      
+
       // Initialize all actions with 0
-      Object.values(ApprovalAction).forEach(action => {
+      Object.values(ApprovalAction).forEach((action) => {
         activity[action] = 0;
       });
 
       // Fill in actual counts
-      recentActivity.forEach(stat => {
+      recentActivity.forEach((stat) => {
         activity[stat.action] = stat._count.id;
       });
 
@@ -326,11 +321,11 @@ export class AgentApprovalService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       });
 
       return agents;
@@ -428,7 +423,7 @@ export class AgentApprovalService {
           action,
           performedBy,
           reason,
-        }
+        },
       });
     } catch (error) {
       console.error('Error logging approval action:', error);

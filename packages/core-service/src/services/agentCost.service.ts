@@ -21,7 +21,10 @@ export class AgentCostService {
   /**
    * Calculate agent cost with markup
    */
-  async calculateAgentCost(tokensUsed: number, modelName: string): Promise<{
+  async calculateAgentCost(
+    tokensUsed: number,
+    modelName: string
+  ): Promise<{
     baseCost: number;
     markupCost: number;
     totalCost: number;
@@ -29,13 +32,13 @@ export class AgentCostService {
   }> {
     // Get base cost from OpenAI pricing
     const baseCost = this.calculateBaseCost(tokensUsed, modelName);
-    
+
     // Get markup percentage from settings
     const markupPercentage = await this.getMarkupPercentage();
-    
+
     // Calculate markup cost
     const markupCost = baseCost * (markupPercentage / 100);
-    
+
     // Calculate total cost
     const totalCost = baseCost + markupCost;
 
@@ -43,7 +46,7 @@ export class AgentCostService {
       baseCost: Math.round(baseCost),
       markupCost: Math.round(markupCost),
       totalCost: Math.round(totalCost),
-      markupPercentage
+      markupPercentage,
     };
   }
 
@@ -67,7 +70,7 @@ export class AgentCostService {
 
     // Get price for model, default to gpt-3.5-turbo pricing
     const pricePer1K = pricing[modelName] || pricing['gpt-3.5-turbo'];
-    
+
     // Calculate cost (tokens are in units, convert to thousands)
     return (tokensUsed / 1000) * pricePer1K;
   }
@@ -88,7 +91,9 @@ export class AgentCostService {
   /**
    * Get agent setting with caching
    */
-  private async getAgentSetting(key: string): Promise<{ key: string; value: string; dataType: string }> {
+  private async getAgentSetting(
+    key: string
+  ): Promise<{ key: string; value: string; dataType: string }> {
     // Check cache first
     if (this.isCacheValid()) {
       const cached = this.agentSettingsCache.get(key);
@@ -99,7 +104,7 @@ export class AgentCostService {
 
     // Fetch from database
     const setting = await prisma.agentSetting.findUnique({
-      where: { key }
+      where: { key },
     });
 
     if (!setting) {
@@ -108,11 +113,11 @@ export class AgentCostService {
 
     // Update cache
     this.updateCache();
-    
+
     return {
       key: setting.key,
       value: setting.value,
-      dataType: setting.dataType
+      dataType: setting.dataType,
     };
   }
 
@@ -129,16 +134,16 @@ export class AgentCostService {
   private async updateCache(): Promise<void> {
     try {
       const settings = await prisma.agentSetting.findMany();
-      
+
       this.agentSettingsCache.clear();
-      settings.forEach(setting => {
+      settings.forEach((setting) => {
         this.agentSettingsCache.set(setting.key, {
           key: setting.key,
           value: setting.value,
-          dataType: setting.dataType
+          dataType: setting.dataType,
         });
       });
-      
+
       this.lastCacheUpdate = new Date();
     } catch (error) {
       console.error('Failed to update agent settings cache:', error);
@@ -161,10 +166,10 @@ export class AgentCostService {
     // Get agent details to estimate output tokens
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
-      select: { 
+      select: {
         flowDefinition: true,
-        executionConfig: true 
-      }
+        executionConfig: true,
+      },
     });
 
     if (!agent) {
@@ -183,12 +188,12 @@ export class AgentCostService {
     // Calculate costs
     const inputCost = await this.calculateAgentCost(inputTokens, modelName);
     const outputCost = await this.calculateAgentCost(estimatedOutputTokens, modelName);
-    
+
     return {
       estimatedInputCost: inputCost.totalCost,
       estimatedOutputCost: outputCost.totalCost,
       estimatedTotalCost: inputCost.totalCost + outputCost.totalCost,
-      estimatedTokens: estimatedTotalTokens
+      estimatedTokens: estimatedTotalTokens,
     };
   }
 
@@ -206,7 +211,7 @@ export class AgentCostService {
     // Adjust based on flow complexity
     if (flowDefinition && flowDefinition.steps) {
       const stepCount = flowDefinition.steps.length;
-      
+
       // More complex flows with more steps generate more output
       if (stepCount > 5) {
         multiplier += 0.5;
@@ -215,10 +220,8 @@ export class AgentCostService {
       }
 
       // Check for LLM calls which generate more output
-      const llmSteps = flowDefinition.steps.filter((step: any) => 
-        step.type === 'llm_call'
-      ).length;
-      
+      const llmSteps = flowDefinition.steps.filter((step: any) => step.type === 'llm_call').length;
+
       multiplier += llmSteps * 0.3;
     }
 
@@ -252,11 +255,11 @@ export class AgentCostService {
     try {
       // Get cost estimation
       const estimation = await this.getCostEstimation(agentId, inputTokens, modelName);
-      
+
       // Check user's credit balance
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { credits: true }
+        select: { credits: true },
       });
 
       if (!user) {
@@ -292,7 +295,7 @@ export class AgentCostService {
     try {
       // Calculate actual cost
       const costBreakdown = await this.calculateAgentCost(actualTokensUsed, modelName);
-      
+
       // Use existing credit service to deduct credits
       const deductionResult = await deductCredits(
         userId,
@@ -309,7 +312,7 @@ export class AgentCostService {
       // Get remaining credits
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { credits: true }
+        select: { credits: true },
       });
 
       const remainingCredits = user?.credits || 0;
@@ -317,7 +320,7 @@ export class AgentCostService {
       return {
         success: true,
         costBreakdown,
-        remainingCredits
+        remainingCredits,
       };
     } catch (error) {
       console.error('Error deducting credits:', error);
@@ -327,9 +330,9 @@ export class AgentCostService {
           baseCost: 0,
           markupCost: 0,
           totalCost: 0,
-          markupPercentage: 0
+          markupPercentage: 0,
         },
-        remainingCredits: 0
+        remainingCredits: 0,
       };
     }
   }
@@ -346,14 +349,10 @@ export class AgentCostService {
     try {
       // Calculate cost to refund
       const costBreakdown = await this.calculateAgentCost(tokensUsed, modelName);
-      
+
       // Use existing credit service to refund (adjust credits with negative amount)
       try {
-        const result = await adjustCredits(
-          userId,
-          -tokensUsed,
-          reason || 'Agent execution failed'
-        );
+        const result = await adjustCredits(userId, -tokensUsed, reason || 'Agent execution failed');
         return result > 0;
       } catch (error) {
         console.error('Error refunding credits:', error);
@@ -368,7 +367,10 @@ export class AgentCostService {
   /**
    * Get agent cost statistics
    */
-  async getAgentCostStats(agentId: string, timeRange?: { from: Date; to: Date }): Promise<{
+  async getAgentCostStats(
+    agentId: string,
+    timeRange?: { from: Date; to: Date }
+  ): Promise<{
     totalExecutions: number;
     totalTokensUsed: number;
     totalCost: number;
@@ -377,11 +379,11 @@ export class AgentCostService {
   }> {
     try {
       const whereClause: any = { agentId };
-      
+
       if (timeRange) {
         whereClause.createdAt = {
           gte: timeRange.from,
-          lte: timeRange.to
+          lte: timeRange.to,
         };
       }
 
@@ -389,15 +391,15 @@ export class AgentCostService {
         where: whereClause,
         _sum: {
           tokensUsed: true,
-          costInCredits: true
+          costInCredits: true,
         },
         _count: {
-          id: true
+          id: true,
         },
         _avg: {
           tokensUsed: true,
-          costInCredits: true
-        }
+          costInCredits: true,
+        },
       });
 
       return {
@@ -405,7 +407,7 @@ export class AgentCostService {
         totalTokensUsed: stats._sum.tokensUsed || 0,
         totalCost: stats._sum.costInCredits || 0,
         averageCostPerExecution: Math.round(stats._avg.costInCredits || 0),
-        averageTokensPerExecution: Math.round(stats._avg.tokensUsed || 0)
+        averageTokensPerExecution: Math.round(stats._avg.tokensUsed || 0),
       };
     } catch (error) {
       console.error('Error getting agent cost stats:', error);
@@ -414,7 +416,7 @@ export class AgentCostService {
         totalTokensUsed: 0,
         totalCost: 0,
         averageCostPerExecution: 0,
-        averageTokensPerExecution: 0
+        averageTokensPerExecution: 0,
       };
     }
   }
@@ -435,20 +437,20 @@ export class AgentCostService {
           value,
           description,
           updatedBy,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         create: {
           key,
           value,
           description: description || `Setting for ${key}`,
           dataType: this.inferDataType(value),
-          updatedBy
-        }
+          updatedBy,
+        },
       });
 
       // Invalidate cache
       this.lastCacheUpdate = new Date(0);
-      
+
       return true;
     } catch (error) {
       console.error('Error updating agent setting:', error);
@@ -483,25 +485,27 @@ export class AgentCostService {
   /**
    * Get all agent settings
    */
-  async getAllAgentSettings(): Promise<Array<{ key: string; value: string; description: string; dataType: string }>> {
+  async getAllAgentSettings(): Promise<
+    Array<{ key: string; value: string; description: string; dataType: string }>
+  > {
     try {
       const settings = await prisma.agentSetting.findMany({
         select: {
           key: true,
           value: true,
           description: true,
-          dataType: true
+          dataType: true,
         },
         orderBy: {
-          key: 'asc'
-        }
+          key: 'asc',
+        },
       });
 
-      return settings.map(setting => ({
+      return settings.map((setting) => ({
         key: setting.key,
         value: setting.value,
         description: setting.description || '',
-        dataType: setting.dataType
+        dataType: setting.dataType,
       }));
     } catch (error) {
       console.error('Error getting all agent settings:', error);

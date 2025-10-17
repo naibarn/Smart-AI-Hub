@@ -79,20 +79,20 @@ const Marketplace: React.FC = () => {
       }
 
       const response = await fetch(`/api/public/agents?${params}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch agents');
       }
 
       const data = await response.json();
-      
+
       if (reset) {
         setAgents(data.data);
       } else {
-        setAgents(prev => page === 1 ? data.data : [...prev, ...data.data]);
+        setAgents((prev) => (page === 1 ? data.data : [...prev, ...data.data]));
       }
-      
-      setPagination(prev => ({
+
+      setPagination((prev) => ({
         ...prev,
         current: data.pagination.page,
         total: data.pagination.total,
@@ -140,25 +140,25 @@ const Marketplace: React.FC = () => {
   // Handle search
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPagination(prev => ({ ...prev, current: 1 }));
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   // Handle category change
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    setPagination(prev => ({ ...prev, current: 1 }));
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   // Handle type change
   const handleTypeChange = (type: string) => {
     setActiveType(type);
     setActiveCategory(type);
-    setPagination(prev => ({ ...prev, current: 1 }));
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   // Handle pagination change
   const handlePaginationChange = (page: number, pageSize?: number) => {
-    setPagination(prev => ({
+    setPagination((prev) => ({
       ...prev,
       current: page,
       pageSize: pageSize || prev.pageSize,
@@ -180,10 +180,8 @@ const Marketplace: React.FC = () => {
         <Title level={2} style={{ marginBottom: '8px' }}>
           Agent Marketplace
         </Title>
-        <Text type="secondary">
-          Discover and explore AI agents created by our community
-        </Text>
-        
+        <Text type="secondary">Discover and explore AI agents created by our community</Text>
+
         {stats && (
           <Row gutter={16} style={{ marginTop: '16px' }}>
             <Col span={6}>
@@ -244,12 +242,7 @@ const Marketplace: React.FC = () => {
           </Col>
           <Col xs={24} md={12}>
             <Space wrap>
-              <Select
-                value={sortBy}
-                onChange={setSortBy}
-                style={{ width: 120 }}
-                size="middle"
-              >
+              <Select value={sortBy} onChange={setSortBy} style={{ width: 120 }} size="middle">
                 <Option value="newest">Newest</Option>
                 <Option value="oldest">Oldest</Option>
                 <Option value="name">Name</Option>
@@ -270,7 +263,7 @@ const Marketplace: React.FC = () => {
 
       {/* Category Tabs */}
       <CategoryTabs
-        categories={categories.map(cat => ({ ...cat, key: cat.name }))}
+        categories={categories.map((cat) => ({ ...cat, key: cat.name }))}
         activeCategory={activeCategory}
         onChange={handleCategoryChange}
         showCount

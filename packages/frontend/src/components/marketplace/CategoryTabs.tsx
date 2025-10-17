@@ -1,6 +1,11 @@
 import React from 'react';
 import { Tabs, Badge, Space } from 'antd';
-import { AppstoreOutlined, CodeOutlined, RobotOutlined, ExperimentOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  CodeOutlined,
+  RobotOutlined,
+  ExperimentOutlined,
+} from '@ant-design/icons';
 
 const { TabPane } = Tabs;
 
@@ -66,7 +71,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
         name: 'All',
         icon: <AppstoreOutlined />,
       },
-      ...categories.map(cat => ({
+      ...categories.map((cat) => ({
         key: cat.name,
         name: cat.name,
         count: cat.count,

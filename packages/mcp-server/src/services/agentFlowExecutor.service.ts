@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger';
-import { 
-  AgentFlowRequest, 
-  AgentFlowDefinition, 
-  AgentFlowStep, 
+import {
+  AgentFlowRequest,
+  AgentFlowDefinition,
+  AgentFlowStep,
   AgentFlowExecution,
   MCPResponse,
-  TokenUsage 
+  TokenUsage,
 } from '../types/mcp.types';
 import { OpenAIProvider } from '../providers/openai.provider';
 import { creditService } from './credit.service';
@@ -56,13 +56,13 @@ export class AgentFlowExecutor {
         type: step.type,
         config: step.config,
         next: step.next,
-        condition: step.condition
+        condition: step.condition,
       };
     });
 
     return {
       steps,
-      variables: flowDefinition.variables || {}
+      variables: flowDefinition.variables || {},
     };
   }
 
@@ -72,7 +72,7 @@ export class AgentFlowExecutor {
   async validateInput(agentId: string, input: Record<string, any>): Promise<void> {
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
-      select: { inputSchema: true }
+      select: { inputSchema: true },
     });
 
     if (!agent) {
@@ -83,7 +83,7 @@ export class AgentFlowExecutor {
       // Basic JSON schema validation
       const schema = agent.inputSchema;
       const required = schema.required || [];
-      
+
       for (const field of required) {
         if (!(field in input)) {
           throw new Error(`Required field missing: ${field}`);
@@ -96,9 +96,11 @@ export class AgentFlowExecutor {
           if (field in input) {
             const value = input[field];
             const expectedType = (fieldSchema as any).type;
-            
+
             if (expectedType && typeof value !== expectedType) {
-              throw new Error(`Field ${field} must be of type ${expectedType}, got ${typeof value}`);
+              throw new Error(
+                `Field ${field} must be of type ${expectedType}, got ${typeof value}`
+              );
             }
           }
         }
@@ -110,8 +112,8 @@ export class AgentFlowExecutor {
    * Execute agent flow
    */
   async executeFlow(
-    agentId: string, 
-    userId: string, 
+    agentId: string,
+    userId: string,
     input: Record<string, any>,
     stream: boolean = false,
     timeout: number = 300000 // 5 minutes default
@@ -123,9 +125,9 @@ export class AgentFlowExecutor {
         approvalLogs: {
           where: { action: 'APPROVED' },
           orderBy: { createdAt: 'desc' },
-          take: 1
-        }
-      }
+          take: 1,
+        },
+      },
     });
 
     if (!agent) {
@@ -153,7 +155,7 @@ export class AgentFlowExecutor {
       userId,
       input,
       status: 'running',
-      startTime: new Date()
+      startTime: new Date(),
     };
 
     this.executions.set(execution.id, execution);
@@ -161,7 +163,7 @@ export class AgentFlowExecutor {
     try {
       // Execute the flow
       const result = await this.runFlow(execution, flowDefinition, stream, timeout);
-      
+
       // Update execution status
       execution.status = 'completed';
       execution.endTime = new Date();
@@ -222,7 +224,7 @@ export class AgentFlowExecutor {
 
       while (currentSteps.length > 0) {
         const step = currentSteps.shift()!;
-        
+
         if (executedSteps.has(step.id)) {
           throw new Error(`Circular reference detected: step ${step.id} already executed`);
         }
@@ -230,7 +232,7 @@ export class AgentFlowExecutor {
         executedSteps.add(step.id);
 
         const stepResult = await this.executeStep(step, context, stream);
-        
+
         // Update context with step results
         Object.assign(context, stepResult.output);
 
@@ -245,12 +247,12 @@ export class AgentFlowExecutor {
         // Determine next steps
         if (step.next) {
           if (Array.isArray(step.next)) {
-            const nextSteps = step.next.map(nextId =>
-              flowDefinition.steps.find(s => s.id === nextId)
-            ).filter((step): step is AgentFlowStep => step !== undefined);
+            const nextSteps = step.next
+              .map((nextId) => flowDefinition.steps.find((s) => s.id === nextId))
+              .filter((step): step is AgentFlowStep => step !== undefined);
             currentSteps.push(...nextSteps);
           } else {
-            const nextStep = flowDefinition.steps.find(s => s.id === step.next);
+            const nextStep = flowDefinition.steps.find((s) => s.id === step.next);
             if (nextStep) {
               currentSteps.push(nextStep);
             }
@@ -273,7 +275,7 @@ export class AgentFlowExecutor {
     return {
       output: context,
       tokensUsed: totalTokensUsed,
-      costInCredits: totalCostInCredits
+      costInCredits: totalCostInCredits,
     };
   }
 
@@ -292,19 +294,19 @@ export class AgentFlowExecutor {
     switch (step.type) {
       case 'llm_call':
         return this.executeLLMCall(step, context, stream);
-      
+
       case 'condition':
         return this.executeCondition(step, context);
-      
+
       case 'loop':
         return this.executeLoop(step, context, stream);
-      
+
       case 'parallel':
         return this.executeParallel(step, context, stream);
-      
+
       case 'function_call':
         return this.executeFunctionCall(step, context);
-      
+
       default:
         throw new Error(`Unknown step type: ${step.type}`);
     }
@@ -324,10 +326,10 @@ export class AgentFlowExecutor {
   }> {
     const config = step.config;
     const prompt = this.interpolateTemplate(config.prompt, context);
-    
+
     const messages = [
       { role: 'system' as const, content: config.system || '' },
-      { role: 'user' as const, content: prompt }
+      { role: 'user' as const, content: prompt },
     ];
 
     const llmRequest = {
@@ -341,11 +343,11 @@ export class AgentFlowExecutor {
       topP: config.topP,
       frequencyPenalty: config.frequencyPenalty,
       presencePenalty: config.presencePenalty,
-      stop: config.stop
+      stop: config.stop,
     };
 
     const response = await this.openAIProvider.execute(llmRequest);
-    
+
     if ('content' in response) {
       // Non-streaming response
       const output = { [step.id]: response.content };
@@ -357,7 +359,7 @@ export class AgentFlowExecutor {
       // Streaming response - collect all chunks
       let fullContent = '';
       let totalTokens = 0;
-      
+
       for await (const chunk of response) {
         fullContent += chunk.content;
         if (chunk.usage?.totalTokens) {
@@ -380,7 +382,7 @@ export class AgentFlowExecutor {
     context: Record<string, any>
   ): Promise<{ output: Record<string, any> }> {
     const condition = this.interpolateTemplate(step.condition!, context);
-    
+
     // Simple condition evaluation - in production, use a safer expression evaluator
     try {
       const result = Function('"use strict"; return (' + condition + ')')();
@@ -404,14 +406,14 @@ export class AgentFlowExecutor {
 
     for (let i = 0; i < iterations; i++) {
       const loopContext = { ...context, iteration: i };
-      
+
       if (config.steps) {
         for (const loopStep of config.steps) {
           const stepResult = await this.executeStep(loopStep, loopContext, stream);
           Object.assign(loopContext, stepResult.output);
         }
       }
-      
+
       results.push({ ...loopContext });
     }
 
@@ -436,7 +438,7 @@ export class AgentFlowExecutor {
     }
 
     const results = await Promise.all(promises);
-    const output = { [step.id]: results.map(r => r.output) };
+    const output = { [step.id]: results.map((r) => r.output) };
 
     return { output };
   }
@@ -450,11 +452,13 @@ export class AgentFlowExecutor {
   ): Promise<{ output: Record<string, any> }> {
     const config = step.config;
     const functionName = config.function;
-    const args = config.args ? this.interpolateTemplate(JSON.stringify(config.args), context) : '{}';
+    const args = config.args
+      ? this.interpolateTemplate(JSON.stringify(config.args), context)
+      : '{}';
 
     // In production, implement a secure function registry
     // For now, we'll support basic utility functions
-    const functions: Record<string, Function> = {
+    const functions: Record<string, (...args: any[]) => any> = {
       'text.length': (text: string) => text.length,
       'text.upper': (text: string) => text.toUpperCase(),
       'text.lower': (text: string) => text.toLowerCase(),
@@ -489,28 +493,28 @@ export class AgentFlowExecutor {
           id: execution.id,
           type: 'chunk' as const,
           data: JSON.stringify({ status: 'processing', step: 'initializing' }),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
 
         // Simulate processing
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         yield {
           id: execution.id,
           type: 'chunk' as const,
           data: JSON.stringify({ status: 'processing', step: 'executing' }),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         yield {
           id: execution.id,
           type: 'done' as const,
           data: JSON.stringify(execution.output),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
-      }
+      },
     };
   }
 
@@ -527,15 +531,12 @@ export class AgentFlowExecutor {
   /**
    * Create regular response
    */
-  private createResponse(
-    execution: AgentFlowExecution,
-    result: any
-  ): MCPResponse {
+  private createResponse(execution: AgentFlowExecution, result: any): MCPResponse {
     return {
       id: execution.id,
       type: 'done',
       data: JSON.stringify(result.output),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -552,13 +553,13 @@ export class AgentFlowExecutor {
           outputData: execution.output,
           tokensUsed: execution.tokensUsed || 0,
           costInCredits: execution.costInCredits || 0,
-          executionTime: execution.endTime 
+          executionTime: execution.endTime
             ? execution.endTime.getTime() - execution.startTime.getTime()
             : 0,
           status: execution.status,
           errorMessage: execution.error,
-          createdAt: execution.startTime
-        }
+          createdAt: execution.startTime,
+        },
       });
     } catch (error) {
       logger.error('Failed to log agent usage:', error);

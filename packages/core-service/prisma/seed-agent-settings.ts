@@ -7,7 +7,7 @@ async function seedAgentSettings() {
 
   // Find or create a system user for updated_by field
   let systemUser = await prisma.user.findFirst({
-    where: { email: 'system@smarthub.ai' }
+    where: { email: 'system@smarthub.ai' },
   });
 
   if (!systemUser) {

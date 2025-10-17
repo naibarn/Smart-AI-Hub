@@ -1,349 +1,307 @@
-# Speckit - Specification Validation & Analysis Toolkit
+# SpeckIt - Enhanced Specification Validation System
 
-Speckit is a comprehensive toolkit for validating, analyzing, and reporting on software specifications in the Smart AI Hub project. It ensures specification quality, consistency, and completeness through automated validation and analysis.
+SpeckIt is a powerful validation system for software specifications that provides configurable rules, comprehensive reporting, and traceability validation.
 
 ## Features
 
-- **Multi-format Support**: Parse specifications from Markdown, YAML, and JSON files
-- **Comprehensive Validation**: Validate specifications against quality standards and best practices
-- **Type-specific Rules**: Specialized validation for different specification types (user stories, data models, APIs, etc.)
-- **Relationship Analysis**: Analyze dependencies and relationships between specifications
-- **Impact Assessment**: Assess the impact of changes across your specification ecosystem
-- **Quality Metrics**: Generate detailed quality scores and metrics
-- **Multiple Output Formats**: Export reports in JSON, Markdown, HTML, and PDF formats
-- **CLI Interface**: Easy-to-use command-line interface for integration into CI/CD pipelines
-- **Configurable Rules**: Customize validation rules to match your project requirements
+### 🔧 Configurable Validation Rules
+- **Flexible Configuration**: Customize validation rules through JSON configuration files
+- **Project Presets**: Built-in presets for different project phases (draft, review, production)
+- **Custom Patterns**: Add your own validation patterns with regex
+- **Strictness Levels**: Adjust strictness for different aspects of validation
 
-## Installation
+### 📊 Comprehensive Reporting
+- **Detailed Reports**: Generate markdown or JSON reports with fix suggestions
+- **Score Distribution**: View quality scores across all specifications
+- **Priority-based Fixes**: Get prioritized fix suggestions with effort estimates
+- **Recommendations**: Receive actionable recommendations for improving specification quality
 
-```bash
-npm install @smart-ai-hub/speckit
-```
+### 🔍 Advanced Validation Features
+- **Traceability Validation**: Validate parent, dependency, and related links
+- **User Story Format Validation**: Check user stories follow proper format with variations
+- **Content Length Validation**: Smart content extraction that ignores markdown syntax
+- **Type-specific Rules**: Specialized validation for different specification types
 
 ## Quick Start
 
-### Command Line Usage
+### Installation
 
 ```bash
-# Analyze all specifications in a directory
-speckit analyze specs/
-
-# Validate a single specification file
-speckit validate specs/user-stories/us-1.md
-
-# Check quality thresholds
-speckit check specs/ --min-score 80 --max-errors 0 --max-warnings 5
-
-# Initialize configuration
-speckit init
+npm install @speckit/core
 ```
 
-### Programmatic Usage
+### Basic Usage
 
-```javascript
-import { analyzeSpecifications, validateSpecification } from '@smart-ai-hub/speckit';
+```typescript
+import { ValidationEngine } from '@speckit/core';
+import { Specification, SpecificationType } from '@speckit/types';
 
-// Analyze all specifications
-const report = await analyzeSpecifications('specs/', {
-  outputPath: 'analysis-report.json',
-  verbose: true,
-  strict: true
-});
+// Create a validation engine with a preset
+const engine = new ValidationEngine(undefined, 'draft');
 
-console.log(`Found ${report.summary.totalSpecifications} specifications`);
-console.log(`Average quality score: ${report.summary.averageScore}`);
+// Validate a specification
+const result = engine.validateSpecification(specification);
 
-// Validate a single specification
-const result = await validateSpecification(specification, {
-  verbose: true
-});
+console.log(`Score: ${result.score}`);
+console.log(`Valid: ${result.valid}`);
+console.log(`Errors: ${result.errors.length}`);
+console.log(`Warnings: ${result.warnings.length}`);
+```
 
-if (result.valid) {
-  console.log('✅ Specification is valid');
-} else {
-  console.log('❌ Specification has issues');
-  result.errors.forEach(error => console.log(`- ${error.message}`));
-}
+### Using Custom Configuration
+
+```typescript
+// Create a validation engine with custom config
+const engine = new ValidationEngine('./validation-config.json', 'review');
+
+// Generate a comprehensive report
+import { ValidationReportGenerator } from '@speckit/reporting';
+
+const reportGenerator = new ValidationReportGenerator(engine.config);
+const report = reportGenerator.generateReport(specifications, results);
+const markdown = reportGenerator.generateMarkdownReport(report);
 ```
 
 ## Configuration
 
-Create a `speckit.config.json` file in your project root:
+### Configuration File Structure
 
 ```json
 {
-  "format": "json",
-  "verbose": false,
-  "strict": false,
-  "includeWarnings": true,
-  "reporters": [
-    {
-      "type": "console",
-      "enabled": true,
-      "options": {}
-    },
-    {
-      "type": "file",
-      "enabled": true,
-      "options": {
-        "path": "speckit-report.json"
-      }
+  "enabled": {
+    "contentLength": true,
+    "titleFormat": true,
+    "idFormat": true,
+    "versionFormat": false,
+    "userStoryFormat": true,
+    "traceability": true
+  },
+  "thresholds": {
+    "minContentLength": 10,
+    "shortContentThreshold": 50,
+    "veryShortContentThreshold": 20,
+    "minTitleLength": 3,
+    "maxTitleLength": 100,
+    "excellentScoreThreshold": 90,
+    "goodScoreThreshold": 70,
+    "acceptableScoreThreshold": 50
+  },
+  "strictness": {
+    "contentLength": 70,
+    "formatValidation": 80,
+    "completeness": 60,
+    "clarity": 50,
+    "consistency": 90,
+    "traceability": 70
+  },
+  "traceability": {
+    "requireParent": false,
+    "requireDependencies": false,
+    "requireRelated": false,
+    "validateLinksExist": true
+  },
+  "userStory": {
+    "requireExactFormat": false,
+    "allowVariations": true,
+    "variations": [
+      "as a\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+",
+      "as an?\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+"
+    ],
+    "requireAcceptanceCriteria": false,
+    "acceptanceCriteriaPatterns": [
+      "acceptance criteria",
+      "given\\s+.+\\s+when\\s+.+\\s+then\\s+.+"
+    ]
+  },
+  "customPatterns": {
+    "require_business_value": {
+      "pattern": "business\\s+value|value\\s+proposition|benefit",
+      "description": "Specification should mention business value",
+      "required": false,
+      "type": "warning"
     }
-  ]
-}
-```
-
-## Specification Format
-
-Speckit supports specifications in multiple formats with YAML front matter:
-
-### Markdown Example
-
-```markdown
----
-id: user-authentication
-title: User Authentication
-type: functional_requirement
-category: requirements
-author: "John Doe"
-version: "1.0.0"
-status: draft
-priority: high
-dependencies:
-  - user-management
-  - security-policy
-tags:
-  - authentication
-  - security
-  - user-experience
----
-
-# User Authentication
-
-The system SHALL provide secure user authentication capabilities that allow users to register, login, and manage their accounts.
-
-## Requirements
-
-### User Registration
-- **SHALL** allow users to register with email and password
-- **SHALL** validate email format and password strength
-- **SHALL** send verification email upon registration
-
-### User Login
-- **SHALL** authenticate users with email/password
-- **SHALL** provide password reset functionality
-- **SHALL** implement session management
-
-## Acceptance Criteria
-
-**Given** a user is not authenticated
-**When** they visit the login page
-**Then** they SHALL see email and password fields
-
-**Given** a user enters valid credentials
-**When** they click the login button
-**Then** they SHALL be redirected to the dashboard
-```
-
-### YAML Example
-
-```yaml
-- id: user-data-model
-  title: User Data Model
-  type: data_model
-  category: architecture
-  version: "1.2.0"
-  status: approved
-  priority: high
-  content: |
-    # User Data Model
-    
-    ## Fields
-    - id: string (UUID, primary key)
-    - email: string (unique, required)
-    - firstName: string (required)
-    - lastName: string (required)
-    - createdAt: datetime (auto-generated)
-    - updatedAt: datetime (auto-updated)
-    - status: enum (active, inactive, suspended)
-    
-    ## Relationships
-    - hasMany: UserSession
-    - hasMany: UserPermission
-    - belongsTo: Role
-```
-
-## Validation Rules
-
-Speckit validates specifications against various rules:
-
-### General Rules
-- **Required Fields**: Title, ID, content, version
-- **Format Validation**: Proper ID format, semantic versioning
-- **Content Quality**: Minimum content length, clarity
-- **Metadata Completeness**: Author, status, priority
-
-### Type-Specific Rules
-
-#### User Stories
-- Format validation: "As a [user], I want to [action], so that [benefit]"
-- Acceptance criteria presence
-- Clear user value proposition
-
-#### Functional Requirements
-- Use of clear language (shall, must, should, will)
-- Testable and unambiguous requirements
-- Sufficient detail for implementation
-
-#### Data Models
-- Field definitions with types
-- Relationship specifications
-- Data validation rules
-
-#### Service Specifications
-- API endpoint definitions
-- HTTP method specifications
-- Request/response schemas
-
-## Quality Metrics
-
-Speckit calculates various quality metrics:
-
-- **Completeness**: How complete is the specification
-- **Clarity**: How clear and unambiguous is the content
-- **Consistency**: How consistent is the formatting and structure
-- **Traceability**: How well are dependencies and relationships documented
-- **Overall Score**: Weighted average of all metrics (0-100)
-
-## CLI Commands
-
-### analyze
-Analyze specifications in a directory:
-
-```bash
-speckit analyze <path> [options]
-```
-
-Options:
-- `-o, --output <path>`: Output file path
-- `-f, --format <format>`: Output format (json, markdown, html)
-- `-v, --verbose`: Verbose output
-- `-s, --strict`: Strict mode (fail on warnings)
-- `--no-warnings`: Ignore warnings
-- `--config <path>`: Configuration file path
-
-### validate
-Validate a single specification file:
-
-```bash
-speckit validate <file> [options]
-```
-
-Options:
-- `-v, --verbose`: Verbose output
-- `-s, --strict`: Strict mode (fail on warnings)
-- `--no-warnings`: Ignore warnings
-
-### check
-Check if specifications meet quality thresholds:
-
-```bash
-speckit check <path> [options]
-```
-
-Options:
-- `--min-score <score>`: Minimum acceptable score (0-100, default: 70)
-- `--max-errors <count>`: Maximum allowed errors (default: 0)
-- `--max-warnings <count>`: Maximum allowed warnings (default: 10)
-
-### init
-Initialize Speckit configuration:
-
-```bash
-speckit init [options]
-```
-
-Options:
-- `-f, --force`: Overwrite existing configuration
-
-## Integration with CI/CD
-
-### GitHub Actions Example
-
-```yaml
-name: Specification Quality Check
-
-on: [push, pull_request]
-
-jobs:
-  speckit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-      - name: Install Speckit
-        run: npm install -g @smart-ai-hub/speckit
-      - name: Check Specification Quality
-        run: speckit check specs/ --min-score 80 --max-errors 0 --max-warnings 5
-```
-
-### npm Scripts Example
-
-```json
-{
-  "scripts": {
-    "speckit:analyze": "speckit analyze specs/ --output reports/speckit-report.json",
-    "speckit:validate": "speckit validate specs/**/*.md",
-    "speckit:check": "speckit check specs/ --min-score 80",
-    "speckit:watch": "speckit analyze specs/ --verbose --watch"
   }
 }
 ```
 
+### Presets
+
+#### Draft Preset
+- Lenient validation for early-stage specifications
+- Focus on basic structure and completeness
+- Version format validation disabled
+- Lower strictness levels
+
+#### Review Preset
+- Moderate validation for specifications under review
+- Enables acceptance criteria validation
+- Higher strictness levels
+- Traceability validation enabled
+
+#### Production Preset
+- Strict validation for production-ready specifications
+- All validations enabled
+- Highest strictness levels
+- Stricter score thresholds
+
+## Validation Features
+
+### Content Length Validation
+Smart content extraction that:
+- Removes markdown front matter
+- Strips markdown syntax (headers, lists, links, code blocks)
+- Preserves actual text content for accurate length validation
+- Uses configurable thresholds for different content lengths
+
+### User Story Format Validation
+Supports multiple user story formats:
+- "As a [user], I want to [action], so that [benefit]"
+- "As an [user], I want to [action], so that [benefit]"
+- "As a [user], I would like to [action], so that [benefit]"
+- "As a [user], I need to [action], so that [benefit]"
+
+### Traceability Validation
+Validates:
+- Parent links for hierarchical relationships
+- Dependencies for specification relationships
+- Related links for cross-references
+- Link format validation
+- Optional requirement based on configuration
+
+### Type-specific Validation
+Different validation rules for:
+- **User Stories**: Format and acceptance criteria
+- **Functional Requirements**: Clear language and modal verbs
+- **Data Models**: Field definitions and data types
+- **Service Specifications**: API endpoints and HTTP methods
+
+## Reporting
+
+### Validation Reports
+Generate comprehensive reports that include:
+- Summary statistics and score distribution
+- Individual specification reports with metrics
+- Prioritized fix suggestions with effort estimates
+- Configuration summary
+- Actionable recommendations
+
+### Fix Suggestions
+Each issue includes:
+- Category classification
+- Priority level (high, medium, low)
+- Effort estimate (quick, moderate, significant)
+- Specific fix suggestions
+- Impact assessment
+
 ## API Reference
 
-### Classes
-
-#### SpeckitEngine
-Main engine for specification analysis and validation.
+### ValidationEngine
 
 ```typescript
-import { SpeckitEngine } from '@smart-ai-hub/speckit';
-
-const engine = new SpeckitEngine(config);
-const report = await engine.analyzeSpecifications('specs/');
+class ValidationEngine {
+  constructor(configPath?: string, preset?: 'draft' | 'review' | 'production');
+  
+  validateSpecification(specification: Specification): ValidationResult;
+}
 ```
 
-#### SpecificationParser
-Parse specifications from various file formats.
+### ValidationReportGenerator
 
 ```typescript
-import { SpecificationParser } from '@smart-ai-hub/speckit';
-
-const parser = new SpecificationParser();
-const result = await parser.parseDirectory('specs/');
+class ValidationReportGenerator {
+  constructor(config: ValidationConfig);
+  
+  generateReport(
+    specifications: Specification[],
+    results: ValidationResult[],
+    configPath?: string,
+    preset?: string
+  ): ValidationReport;
+  
+  generateMarkdownReport(report: ValidationReport): string;
+  generateJsonReport(report: ValidationReport): string;
+}
 ```
 
-#### ValidationEngine
-Validate specifications against quality rules.
+### ValidationResult
 
 ```typescript
-import { ValidationEngine } from '@smart-ai-hub/speckit';
-
-const validator = new ValidationEngine();
-const result = validator.validateSpecification(specification);
+interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+  score: number;
+  metrics: ValidationMetrics;
+}
 ```
 
-### Types
+## Templates and Tools
 
-See `src/types/index.ts` for complete type definitions including:
-- `Specification`: Main specification interface
-- `ValidationResult`: Validation result with errors, warnings, and metrics
-- `AnalysisReport`: Complete analysis report with recommendations
-- `SpeckitConfig`: Configuration options
+### Specification Templates
+
+SpeckIt provides specialized templates for different types of specifications, all designed to pass validation:
+
+#### Standard Template
+- **Use Case**: General purpose specifications
+- **Sections**: Metadata, Overview, User Stories, Functional Requirements, Non-Functional Requirements, Constraints, Dependencies, Data Models, API Specifications, Implementation Notes, Review and Approval
+
+#### Feature Template
+- **Use Case**: New features with comprehensive requirements
+- **Special Sections**: Feature Goals, Success Metrics, User Experience Design, Testing Strategy, Release and Deployment, Risks and Mitigation
+
+#### API Template
+- **Use Case**: API specifications with detailed contracts
+- **Special Sections**: API Contracts, Authentication/Authorization, Error Handling, Integration Requirements, Monitoring and Observability
+
+#### UI/UX Template
+- **Use Case**: UI features with design requirements
+- **Special Sections**: User Research, Design Requirements, User Journey, Screen and Component Designs, Usability Testing, Content Requirements
+
+#### Integration Template
+- **Use Case**: Third-party integrations
+- **Special Sections**: Third-Party System Information, Data Mapping and Transformation, Error Handling and Recovery, Security Considerations
+
+#### Infrastructure Template
+- **Use Case**: Infrastructure and deployment requirements
+- **Special Sections**: Architecture Overview, Infrastructure Components, Configuration Management, Disaster Recovery, Cost Management
+
+#### Bug Fix Template
+- **Use Case**: Bug fixes requiring specification
+- **Special Sections**: Bug Information, Root Cause Analysis, Fix Requirements, Testing Requirements, Implementation Plan
+
+#### Epic Template
+- **Use Case**: High-level epics with child specifications
+- **Special Sections**: Business Case, User Personas, Child Specifications, High-Level Architecture, Implementation Timeline
+
+### Create Specification Script
+
+Use the provided script to create new specifications from any template:
+
+```bash
+# Interactive mode with template selection
+node packages/speckit/scripts/create-spec.js
+
+# List available templates
+node packages/speckit/scripts/create-spec.js --templates
+
+# Show help
+node packages/speckit/scripts/create-spec.js --help
+
+# Show example
+node packages/speckit/scripts/create-spec.js --example
+```
+
+The script will guide you through selecting the appropriate template and filling in the required information for your specification type.
+
+## Examples
+
+See the `examples/` directory for comprehensive usage examples:
+- Basic validation with different presets
+- Custom configuration usage
+- Report generation
+- Custom validation rules
+- Traceability validation
+- Template usage examples
 
 ## Contributing
 
@@ -351,16 +309,8 @@ See `src/types/index.ts` for complete type definitions including:
 2. Create a feature branch
 3. Make your changes
 4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
+5. Submit a pull request
 
 ## License
 
 MIT License - see LICENSE file for details.
-
-## Support
-
-For issues and questions:
-- Create an issue in the GitHub repository
-- Check the documentation for common solutions
-- Review the examples for implementation guidance

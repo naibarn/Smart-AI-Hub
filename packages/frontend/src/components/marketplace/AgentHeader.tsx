@@ -63,7 +63,7 @@ const AgentHeader: React.FC<AgentHeaderProps> = ({ agent, loading = false }) => 
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -89,8 +89,8 @@ const AgentHeader: React.FC<AgentHeaderProps> = ({ agent, loading = false }) => 
     <div style={{ marginBottom: '32px' }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: '16px' }}>
-        <Button 
-          type="link" 
+        <Button
+          type="link"
           onClick={() => navigate('/marketplace')}
           style={{ padding: 0, height: 'auto' }}
         >
@@ -103,11 +103,7 @@ const AgentHeader: React.FC<AgentHeaderProps> = ({ agent, loading = false }) => 
         {/* Agent Icon */}
         <div style={{ flexShrink: 0 }}>
           {agent.icon ? (
-            <Avatar
-              size={120}
-              src={agent.icon}
-              style={{ border: '2px solid #f0f0f0' }}
-            />
+            <Avatar size={120} src={agent.icon} style={{ border: '2px solid #f0f0f0' }} />
           ) : (
             <Avatar
               size={120}
@@ -123,21 +119,22 @@ const AgentHeader: React.FC<AgentHeaderProps> = ({ agent, loading = false }) => 
 
         {/* Agent Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '12px',
+            }}
+          >
             <div style={{ flex: 1, minWidth: 0 }}>
               <Title level={2} style={{ marginBottom: '8px', lineHeight: '1.2' }}>
                 {agent.name}
               </Title>
-              
+
               <Space wrap size="small" style={{ marginBottom: '12px' }}>
-                <Tag color={getTypeColor(agent.type)}>
-                  {getTypeLabel(agent.type)}
-                </Tag>
-                {agent.category && (
-                  <Tag color="cyan">
-                    {agent.category}
-                  </Tag>
-                )}
+                <Tag color={getTypeColor(agent.type)}>{getTypeLabel(agent.type)}</Tag>
+                {agent.category && <Tag color="cyan">{agent.category}</Tag>}
                 {agent.metadata?.tags?.slice(0, 3).map((tag: string, index: number) => (
                   <Tag key={index} style={{ fontSize: '12px' }}>
                     {tag}
@@ -180,18 +177,10 @@ const AgentHeader: React.FC<AgentHeaderProps> = ({ agent, loading = false }) => 
           {/* Meta Information */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
             <Space>
-              <Avatar
-                size="small"
-                src={agent.creator.profile?.avatarUrl}
-                icon={<UserOutlined />}
-              />
+              <Avatar size="small" src={agent.creator.profile?.avatarUrl} icon={<UserOutlined />} />
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 500 }}>
-                  {agent.creator.displayName}
-                </div>
-                <div style={{ fontSize: '12px', color: '#666' }}>
-                  Creator
-                </div>
+                <div style={{ fontSize: '14px', fontWeight: 500 }}>{agent.creator.displayName}</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>Creator</div>
               </div>
             </Space>
 
@@ -199,27 +188,17 @@ const AgentHeader: React.FC<AgentHeaderProps> = ({ agent, loading = false }) => 
               <div style={{ fontSize: '14px', fontWeight: 500 }}>
                 <EyeOutlined /> {agent.usageCount.toLocaleString()}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                Uses
-              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>Uses</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 500 }}>
-                {formatDate(agent.createdAt)}
-              </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                Created
-              </div>
+              <div style={{ fontSize: '14px', fontWeight: 500 }}>{formatDate(agent.createdAt)}</div>
+              <div style={{ fontSize: '12px', color: '#666' }}>Created</div>
             </div>
 
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 500 }}>
-                {formatDate(agent.updatedAt)}
-              </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                Updated
-              </div>
+              <div style={{ fontSize: '14px', fontWeight: 500 }}>{formatDate(agent.updatedAt)}</div>
+              <div style={{ fontSize: '12px', color: '#666' }}>Updated</div>
             </div>
           </div>
         </div>

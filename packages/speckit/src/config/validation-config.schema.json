@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SpeckIt Validation Configuration",
+  "description": "Configuration schema for SpeckIt validation engine",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "object",
+      "description": "Enable/disable specific validation rules",
+      "properties": {
+        "contentLength": { "type": "boolean", "default": true },
+        "titleFormat": { "type": "boolean", "default": true },
+        "idFormat": { "type": "boolean", "default": true },
+        "versionFormat": { "type": "boolean", "default": false },
+        "userStoryFormat": { "type": "boolean", "default": true },
+        "acceptanceCriteria": { "type": "boolean", "default": false },
+        "requirementClarity": { "type": "boolean", "default": false },
+        "fieldDefinitions": { "type": "boolean", "default": true },
+        "dataTypes": { "type": "boolean", "default": true },
+        "apiEndpoints": { "type": "boolean", "default": true },
+        "httpMethods": { "type": "boolean", "default": true },
+        "metadata": { "type": "boolean", "default": false },
+        "dependencies": { "type": "boolean", "default": true },
+        "traceability": { "type": "boolean", "default": true }
+      },
+      "required": []
+    },
+    "thresholds": {
+      "type": "object",
+      "description": "Thresholds for validation rules",
+      "properties": {
+        "minContentLength": { "type": "number", "minimum": 0, "default": 10 },
+        "shortContentThreshold": { "type": "number", "minimum": 0, "default": 50 },
+        "veryShortContentThreshold": { "type": "number", "minimum": 0, "default": 20 },
+        "minTitleLength": { "type": "number", "minimum": 1, "default": 3 },
+        "maxTitleLength": { "type": "number", "minimum": 1, "default": 100 },
+        "excellentScoreThreshold": { "type": "number", "minimum": 0, "maximum": 100, "default": 90 },
+        "goodScoreThreshold": { "type": "number", "minimum": 0, "maximum": 100, "default": 70 },
+        "acceptableScoreThreshold": { "type": "number", "minimum": 0, "maximum": 100, "default": 50 },
+        "maxWarningsForGoodScore": { "type": "number", "minimum": 0, "default": 3 },
+        "maxErrorsForGoodScore": { "type": "number", "minimum": 0, "default": 0 },
+        "maxWarningsForAcceptableScore": { "type": "number", "minimum": 0, "default": 5 },
+        "maxErrorsForAcceptableScore": { "type": "number", "minimum": 0, "default": 1 }
+      },
+      "required": []
+    },
+    "strictness": {
+      "type": "object",
+      "description": "Strictness levels (0-100) for different validation aspects",
+      "properties": {
+        "contentLength": { "type": "number", "minimum": 0, "maximum": 100, "default": 70 },
+        "formatValidation": { "type": "number", "minimum": 0, "maximum": 100, "default": 80 },
+        "completeness": { "type": "number", "minimum": 0, "maximum": 100, "default": 60 },
+        "clarity": { "type": "number", "minimum": 0, "maximum": 100, "default": 50 },
+        "consistency": { "type": "number", "minimum": 0, "maximum": 100, "default": 90 },
+        "traceability": { "type": "number", "minimum": 0, "maximum": 100, "default": 70 }
+      },
+      "required": []
+    },
+    "customPatterns": {
+      "type": "object",
+      "description": "Custom validation patterns",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "properties": {
+            "pattern": { "type": "string", "description": "Regular expression pattern" },
+            "description": { "type": "string", "description": "Description of what this pattern checks" },
+            "required": { "type": "boolean", "default": false, "description": "Whether this pattern is required" },
+            "type": { "type": "string", "enum": ["error", "warning"], "default": "warning" }
+          },
+          "required": ["pattern", "description"]
+        }
+      },
+      "default": {}
+    },
+    "traceability": {
+      "type": "object",
+      "description": "Traceability validation settings",
+      "properties": {
+        "requireParent": { "type": "boolean", "default": false },
+        "requireDependencies": { "type": "boolean", "default": false },
+        "requireRelated": { "type": "boolean", "default": false },
+        "validateLinksExist": { "type": "boolean", "default": true },
+        "allowedLinkTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["parent", "dependency", "related", "child", "implements"]
+        }
+      },
+      "required": []
+    },
+    "userStory": {
+      "type": "object",
+      "description": "User story format validation settings",
+      "properties": {
+        "requireExactFormat": { "type": "boolean", "default": false },
+        "allowVariations": { "type": "boolean", "default": true },
+        "variations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed user story format variations (regex patterns)",
+          "default": [
+            "as a\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+",
+            "as an?\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+",
+            "as a\\s+.+\\s+i would like to\\s+.+\\s+so that\\s+.+",
+            "as a\\s+.+\\s+i need to\\s+.+\\s+so that\\s+.+"
+          ]
+        },
+        "requireAcceptanceCriteria": { "type": "boolean", "default": false },
+        "acceptanceCriteriaPatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Patterns that indicate acceptance criteria",
+          "default": [
+            "acceptance criteria",
+            "given\\s+.+\\s+when\\s+.+\\s+then\\s+.+",
+            "scenario:",
+            "examples:"
+          ]
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

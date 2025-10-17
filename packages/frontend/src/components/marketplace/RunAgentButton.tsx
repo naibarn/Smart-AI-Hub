@@ -97,9 +97,9 @@ const RunAgentButton: React.FC<RunAgentButtonProps> = ({
     >
       <div style={{ textAlign: 'center', padding: '20px 0' }}>
         <LoginOutlined style={{ fontSize: '48px', color: '#1890ff', marginBottom: '16px' }} />
-        
+
         <Title level={4}>Login to Run Agent</Title>
-        
+
         <Paragraph>
           You need to be logged in to run <strong>{agentName}</strong>.
         </Paragraph>
@@ -120,7 +120,11 @@ const RunAgentButton: React.FC<RunAgentButtonProps> = ({
 
         <div style={{ marginTop: '24px' }}>
           <Text type="secondary">
-            Don't have an account? <Button type="link" onClick={handleSignup} style={{ padding: 0 }}>Sign up</Button> for free and get started!
+            Don't have an account?{' '}
+            <Button type="link" onClick={handleSignup} style={{ padding: 0 }}>
+              Sign up
+            </Button>{' '}
+            for free and get started!
           </Text>
         </div>
       </div>
@@ -150,9 +154,10 @@ const RunAgentButton: React.FC<RunAgentButtonProps> = ({
     >
       <div style={{ padding: '20px 0' }}>
         <Title level={4}>Run {agentName}?</Title>
-        
+
         <Paragraph>
-          Are you sure you want to run this agent? {estimatedCost > 0 && `This will cost approximately ${estimatedCost} credits.`}
+          Are you sure you want to run this agent?{' '}
+          {estimatedCost > 0 && `This will cost approximately ${estimatedCost} credits.`}
         </Paragraph>
 
         {error && (
@@ -168,9 +173,7 @@ const RunAgentButton: React.FC<RunAgentButtonProps> = ({
         {loading && (
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <Spin size="large" />
-            <div style={{ marginTop: '16px' }}>
-              Running agent...
-            </div>
+            <div style={{ marginTop: '16px' }}>Running agent...</div>
           </div>
         )}
       </div>

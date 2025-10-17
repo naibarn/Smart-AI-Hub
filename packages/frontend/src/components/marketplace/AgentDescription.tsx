@@ -24,9 +24,8 @@ const AgentDescription: React.FC<AgentDescriptionProps> = ({
   }
 
   const shouldTruncate = showExpand && description.length > maxLength;
-  const displayText = shouldTruncate && !expanded 
-    ? description.substring(0, maxLength) + '...' 
-    : description;
+  const displayText =
+    shouldTruncate && !expanded ? description.substring(0, maxLength) + '...' : description;
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
@@ -88,13 +87,11 @@ const AgentDescription: React.FC<AgentDescriptionProps> = ({
       bodyStyle={{ padding: '20px' }}
     >
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          Loading description...
-        </div>
+        <div style={{ textAlign: 'center', padding: '20px' }}>Loading description...</div>
       ) : (
         <div>
           {renderContent()}
-          
+
           {shouldTruncate && (
             <div style={{ marginTop: '16px' }}>
               <Button

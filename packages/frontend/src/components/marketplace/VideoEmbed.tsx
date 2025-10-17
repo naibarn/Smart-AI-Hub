@@ -31,20 +31,20 @@ const VideoEmbed: React.FC<VideoEmbedProps> = ({
   const getYouTubeVideoId = (url: string): string | null => {
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     const match = url.match(regExp);
-    return (match && match[7].length === 11) ? match[7] : null;
+    return match && match[7].length === 11 ? match[7] : null;
   };
 
   // Generate YouTube embed URL
   const getYouTubeEmbedUrl = (url: string, autoplay: boolean = false): string => {
     const videoId = getYouTubeVideoId(url);
     if (!videoId) return url;
-    
+
     const params = new URLSearchParams({
       rel: '0',
       modestbranding: '1',
       autoplay: autoplay ? '1' : '0',
     });
-    
+
     return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
   };
 
@@ -52,7 +52,7 @@ const VideoEmbed: React.FC<VideoEmbedProps> = ({
   const getYouTubeThumbnailUrl = (url: string): string => {
     const videoId = getYouTubeVideoId(url);
     if (!videoId) return '';
-    
+
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   };
 
@@ -120,7 +120,7 @@ const VideoEmbed: React.FC<VideoEmbedProps> = ({
               }}
             />
           )}
-          
+
           {/* Play Button Overlay */}
           <div
             style={{

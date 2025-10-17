@@ -254,8 +254,12 @@ async function main() {
   // Seed Agent Settings
   console.log('\nSeeding Agent Settings...');
   try {
-    const { seedAgentSettings } = require('./seed-agent-settings');
-    await seedAgentSettings();
+    // Execute the seed-agent-settings script
+    const { execSync } = await import('child_process');
+    execSync('npx tsx seed-agent-settings.ts', {
+      cwd: __dirname,
+      stdio: 'inherit'
+    });
   } catch (error) {
     console.error('Error seeding Agent Settings:', error);
   }

@@ -38,7 +38,7 @@ const { Content } = Layout;
 const AgentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const [agent, setAgent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,12 +61,13 @@ const AgentDetail: React.FC = () => {
       setLoading(true);
       // TODO: Replace with actual API call
       // const response = await agentAPI.getAgentById(agentId);
-      
+
       // Mock data for development
       const mockAgent = {
         id: agentId,
         name: 'Advanced Code Generator',
-        description: 'An intelligent agent that generates high-quality code based on natural language descriptions. Supports multiple programming languages and frameworks.',
+        description:
+          'An intelligent agent that generates high-quality code based on natural language descriptions. Supports multiple programming languages and frameworks.',
         category: 'Code Generation',
         type: 'Agent Flow',
         tags: ['coding', 'development', 'automation'],
@@ -128,7 +129,7 @@ const AgentDetail: React.FC = () => {
           required: ['description', 'language'],
         },
       };
-      
+
       setAgent(mockAgent);
       setError(null);
     } catch (err) {
@@ -143,7 +144,7 @@ const AgentDetail: React.FC = () => {
     try {
       // TODO: Replace with actual API call
       // const response = await agentAPI.getRelatedAgents(agentId);
-      
+
       // Mock data for development
       const mockRelatedAgents = [
         {
@@ -167,7 +168,7 @@ const AgentDetail: React.FC = () => {
           rating: 4.5,
         },
       ];
-      
+
       setRelatedAgents(mockRelatedAgents);
     } catch (err) {
       console.error('Failed to fetch related agents:', err);
@@ -178,7 +179,7 @@ const AgentDetail: React.FC = () => {
     try {
       // TODO: Replace with actual API call
       // const response = await agentAPI.runAgent(agentId, input);
-      
+
       message.success('Agent execution started successfully!');
       // Navigate to execution results page
       navigate(`/executions/${agentId}`);
@@ -197,7 +198,7 @@ const AgentDetail: React.FC = () => {
       // Log usage before redirecting
       // TODO: Replace with actual API call
       // await agentAPI.runExternalAgent(agent.id, {});
-      
+
       message.success('Opening external agent...');
       // Open in new tab
       window.open(agent.externalUrl, '_blank');
@@ -276,15 +277,18 @@ const AgentDetail: React.FC = () => {
         </Breadcrumb>
 
         {/* Back Button */}
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={goBack}
-          style={{ marginBottom: '16px' }}
-        >
+        <Button icon={<ArrowLeftOutlined />} onClick={goBack} style={{ marginBottom: '16px' }}>
           Back
         </Button>
 
-        <div style={{ background: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+        <div
+          style={{
+            background: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          }}
+        >
           {/* Agent Header */}
           <AgentHeader agent={agent} />
 
@@ -368,20 +372,30 @@ const AgentDetail: React.FC = () => {
 
               {/* Images Gallery */}
               {agent.images && agent.images.length > 0 && (
-                <Card title="Screenshots" style={{ marginBottom: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+                <Card
+                  title="Screenshots"
+                  style={{
+                    marginBottom: '24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
                   <ImageGallery images={agent.images} />
                 </Card>
               )}
 
               {/* Videos */}
               {agent.videos && agent.videos.length > 0 && (
-                <Card title="Demo Videos" style={{ marginBottom: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+                <Card
+                  title="Demo Videos"
+                  style={{
+                    marginBottom: '24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
                   {agent.videos.map((video: any, index: number) => (
-                    <VideoEmbed
-                      key={index}
-                      videoUrl={video.embedUrl}
-                      title={video.title}
-                    />
+                    <VideoEmbed key={index} videoUrl={video.embedUrl} title={video.title} />
                   ))}
                 </Card>
               )}
@@ -390,8 +404,15 @@ const AgentDetail: React.FC = () => {
             {/* Right Column - Input Form, Info */}
             <Col xs={24} lg={8}>
               {/* Agent Input Form or External URL Button */}
-              {(agent.type === 'CUSTOMGPT' || agent.type === 'GEMINI_GEM') ? (
-                <Card title="Run Agent" style={{ marginBottom: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+              {agent.type === 'CUSTOMGPT' || agent.type === 'GEMINI_GEM' ? (
+                <Card
+                  title="Run Agent"
+                  style={{
+                    marginBottom: '24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <Paragraph type="secondary">
                       This is an external agent. Click the button below to open it in a new tab.
@@ -411,7 +432,14 @@ const AgentDetail: React.FC = () => {
                   </Space>
                 </Card>
               ) : (
-                <Card title="Run Agent" style={{ marginBottom: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+                <Card
+                  title="Run Agent"
+                  style={{
+                    marginBottom: '24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
                   <AgentInputForm
                     inputSchema={agent.inputSchema}
                     onSubmit={(values: any) => setAgentInput(values)}
@@ -420,7 +448,14 @@ const AgentDetail: React.FC = () => {
               )}
 
               {/* Agent Info */}
-              <Card title="Agent Information" style={{ marginBottom: '24px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+              <Card
+                title="Agent Information"
+                style={{
+                  marginBottom: '24px',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                }}
+              >
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <div>
                     <Text strong>Category:</Text>
@@ -440,7 +475,9 @@ const AgentDetail: React.FC = () => {
                   </div>
                   <div>
                     <Text strong>Rating:</Text>
-                    <div>{agent.rating} ({agent.reviews} reviews)</div>
+                    <div>
+                      {agent.rating} ({agent.reviews} reviews)
+                    </div>
                   </div>
                   <div>
                     <Text strong>Estimated Cost:</Text>
@@ -485,13 +522,9 @@ const AgentDetail: React.FC = () => {
                           <div>
                             <div>{relatedAgent.description}</div>
                             <div style={{ marginTop: '8px' }}>
-                              <Text type="secondary">
-                                {relatedAgent.estimatedCost} credits
-                              </Text>
+                              <Text type="secondary">{relatedAgent.estimatedCost} credits</Text>
                               <span style={{ margin: '0 8px' }}>•</span>
-                              <Text type="secondary">
-                                {relatedAgent.rating} ★
-                              </Text>
+                              <Text type="secondary">{relatedAgent.rating} ★</Text>
                             </div>
                           </div>
                         }

@@ -11,34 +11,108 @@ import {
   ErrorSeverity,
   SpecificationType,
 } from '../types';
+import * as fs from 'fs';
+import * as path from 'path';
+import { ValidationConfig, defaultValidationConfig, validationPresets } from '../config/validation-config';
 
 export class ValidationEngine {
-  private readonly defaultPatterns: ValidationPattern[] = [
-    {
-      name: 'title_format',
-      pattern: /^.{1,100}$/,
-      description: 'Title must be between 1 and 100 characters',
-      required: true,
-    },
-    {
-      name: 'content_min_length',
-      pattern: /^.{10,}$/,
-      description: 'Content must be at least 10 characters long',
-      required: true,
-    },
-    {
-      name: 'id_format',
-      pattern: /^[a-zA-Z0-9_-]+$/,
-      description: 'ID must contain only alphanumeric characters, hyphens, and underscores',
-      required: true,
-    },
-    {
-      name: 'version_format',
-      pattern: /^\d+\.\d+\.\d+$/,
-      description: 'Version must follow semantic versioning (x.y.z)',
-      required: true,
-    },
-  ];
+  private config: ValidationConfig;
+  constructor(configPath?: string, preset?: 'draft' | 'review' | 'production') {
+    // Load configuration
+    this.config = this.loadConfiguration(configPath, preset);
+    
+    // Initialize default patterns based on config
+    this.defaultPatterns = this.buildDefaultPatterns();
+  }
+
+  private loadConfiguration(configPath?: string, preset?: 'draft' | 'review' | 'production'): ValidationConfig {
+    let config: ValidationConfig;
+    
+    // Start with default config
+    config = { ...defaultValidationConfig };
+    
+    // Apply preset if specified
+    if (preset && validationPresets[preset]) {
+      config = { ...config, ...validationPresets[preset] };
+    }
+    
+    // Load custom config file if provided
+    if (configPath) {
+      try {
+        const fullPath = path.resolve(configPath);
+        if (fs.existsSync(fullPath)) {
+          const customConfig = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+          config = this.mergeConfigurations(config, customConfig);
+        }
+      } catch (error) {
+        console.warn(`Failed to load configuration from ${configPath}:`, error);
+      }
+    }
+    
+    return config;
+  }
+
+  private mergeConfigurations(base: ValidationConfig, override: Partial<ValidationConfig>): ValidationConfig {
+    const merged = { ...base };
+    
+    // Deep merge for nested objects
+    for (const key in override) {
+      if (override.hasOwnProperty(key)) {
+        const value = override[key as keyof ValidationConfig];
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+          merged[key as keyof ValidationConfig] = { ...base[key as keyof ValidationConfig], ...value } as any;
+        } else {
+          merged[key as keyof ValidationConfig] = value as any;
+        }
+      }
+    }
+    
+    return merged as ValidationConfig;
+  }
+
+  private buildDefaultPatterns(): ValidationPattern[] {
+    const patterns: ValidationPattern[] = [];
+    
+    if (this.config.enabled.titleFormat) {
+      patterns.push({
+        name: 'title_format',
+        pattern: new RegExp(`^.{${this.config.thresholds.minTitleLength},${this.config.thresholds.maxTitleLength}}$`),
+        description: `Title must be between ${this.config.thresholds.minTitleLength} and ${this.config.thresholds.maxTitleLength} characters`,
+        required: true,
+      });
+    }
+    
+    if (this.config.enabled.contentLength) {
+      patterns.push({
+        name: 'content_min_length',
+        pattern: new RegExp(`^.{${this.config.thresholds.minContentLength},}$`),
+        description: `Content must be at least ${this.config.thresholds.minContentLength} characters long`,
+        required: true,
+      });
+    }
+    
+    if (this.config.enabled.idFormat) {
+      patterns.push({
+        name: 'id_format',
+        pattern: /^[a-zA-Z0-9_-]+$/,
+        description: 'ID must contain only alphanumeric characters, hyphens, and underscores',
+        required: true,
+      });
+    }
+    
+    if (this.config.enabled.versionFormat) {
+      patterns.push({
+        name: 'version_format',
+        pattern: /^\d+\.\d+\.\d+$/,
+        description: 'Version must follow semantic versioning (x.y.z)',
+        required: true,
+      });
+    }
+    
+    return patterns;
+  }
+
+  private defaultPatterns: ValidationPattern[] = [];
 
   private readonly typeSpecificPatterns: Map<SpecificationType, ValidationPattern[]> = new Map([
     [
@@ -188,21 +262,33 @@ export class ValidationEngine {
 
     for (const pattern of allPatterns) {
       const testValue = this.getValueForPattern(specification, pattern.name);
-      if (testValue !== null) {
-        if (!pattern.pattern.test(testValue)) {
-          if (pattern.required) {
-            errors.push({
-              type: ErrorType.PATTERN_MISMATCH,
-              message: pattern.description,
-              severity: ErrorSeverity.ERROR,
-            });
-          } else {
-            warnings.push({
-              type: WarningType.INCOMPLETE_CONTENT,
-              message: pattern.description,
-              suggestion: `Consider updating content to match pattern: ${pattern.description}`,
-            });
-          }
+      
+      // Handle null or undefined values
+      if (testValue === null || testValue === undefined) {
+        if (pattern.required) {
+          errors.push({
+            type: ErrorType.MISSING_FIELD,
+            message: `Required field for pattern '${pattern.name}' is missing or empty`,
+            severity: ErrorSeverity.ERROR,
+          });
+        }
+        continue;
+      }
+      
+      // Test the pattern
+      if (!pattern.pattern.test(testValue)) {
+        if (pattern.required) {
+          errors.push({
+            type: ErrorType.PATTERN_MISMATCH,
+            message: pattern.description,
+            severity: ErrorSeverity.ERROR,
+          });
+        } else {
+          warnings.push({
+            type: WarningType.INCOMPLETE_CONTENT,
+            message: pattern.description,
+            suggestion: `Consider updating content to match pattern: ${pattern.description}`,
+          });
         }
       }
     }
@@ -213,25 +299,66 @@ export class ValidationEngine {
       case 'title_format':
         return specification.title;
       case 'content_min_length':
-        return specification.content;
+        return this.getActualContent(specification.content);
       case 'id_format':
         return specification.id;
       case 'version_format':
         return specification.metadata.version;
       case 'user_story_format':
       case 'acceptance_criteria':
-        return specification.content;
+        return this.getActualContent(specification.content);
       case 'requirement clarity':
-        return specification.content;
+        return this.getActualContent(specification.content);
       case 'field_definitions':
       case 'data_types':
-        return specification.content;
+        return this.getActualContent(specification.content);
       case 'api_endpoints':
       case 'methods':
-        return specification.content;
+        return this.getActualContent(specification.content);
       default:
         return null;
     }
+  }
+
+  /**
+   * Extract actual content from markdown by removing front matter and unnecessary whitespace
+   * @param content Raw content from specification
+   * @returns Cleaned content without front matter and excessive whitespace
+   */
+  private getActualContent(content: string): string {
+    if (!content) return '';
+    
+    // Remove front matter (between --- markers)
+    const frontMatterRegex = /^---\s*\n[\s\S]*?\n---\s*\n/;
+    let actualContent = content.replace(frontMatterRegex, '');
+    
+    // Remove markdown headers (# ## ### etc.) but keep the text
+    actualContent = actualContent.replace(/^#{1,6}\s+/gm, '');
+    
+    // Remove markdown list markers (-, *, 1., 2., etc.)
+    actualContent = actualContent.replace(/^[-*+]\s+/gm, '');
+    actualContent = actualContent.replace(/^\d+\.\s+/gm, '');
+    
+    // Remove markdown link syntax [text](url) but keep the text
+    actualContent = actualContent.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    
+    // Remove markdown code blocks
+    actualContent = actualContent.replace(/```[\s\S]*?```/g, '');
+    actualContent = actualContent.replace(/`([^`]+)`/g, '$1');
+    
+    // Remove markdown emphasis (*, _, **, __)
+    actualContent = actualContent.replace(/\*\*([^*]+)\*\*/g, '$1');
+    actualContent = actualContent.replace(/\*([^*]+)\*/g, '$1');
+    actualContent = actualContent.replace(/__([^_]+)__/g, '$1');
+    actualContent = actualContent.replace(/_([^_]+)_/g, '$1');
+    
+    // Remove blockquotes (> )
+    actualContent = actualContent.replace(/^>\s+/gm, '');
+    
+    // Remove excessive whitespace but preserve single spaces between words
+    actualContent = actualContent.replace(/\s+/g, ' ').trim();
+    
+    return actualContent;
   }
 
   private validateTypeSpecificRules(
@@ -253,6 +380,11 @@ export class ValidationEngine {
         this.validateServiceSpec(specification, errors, warnings);
         break;
     }
+    
+    // Validate traceability if enabled
+    if (this.config.enabled.traceability) {
+      this.validateTraceability(specification, errors, warnings);
+    }
   }
 
   private validateUserStory(
@@ -260,32 +392,124 @@ export class ValidationEngine {
     errors: ValidationError[],
     warnings: ValidationWarning[]
   ): void {
+    if (!this.config.enabled.userStoryFormat) return;
+    
     const content = specification.content.toLowerCase();
+    const userStoryConfig = this.config.userStory;
+    
+    // Check user story format
+    if (userStoryConfig.requireExactFormat || userStoryConfig.allowVariations) {
+      let formatMatched = false;
+      const patterns = userStoryConfig.allowVariations
+        ? userStoryConfig.variations
+        : ['as a\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+'];
+      
+      for (const pattern of patterns) {
+        if (new RegExp(pattern, 'i').test(content)) {
+          formatMatched = true;
+          break;
+        }
+      }
+      
+      if (!formatMatched) {
+        const message = userStoryConfig.requireExactFormat
+          ? 'User story must follow the exact format: "As a [user], I want to [action], so that [benefit]"'
+          : 'User story should follow the format: "As a [user], I want to [action], so that [benefit]"';
+        
+        if (userStoryConfig.requireExactFormat) {
+          errors.push({
+            type: ErrorType.PATTERN_MISMATCH,
+            message,
+            severity: ErrorSeverity.ERROR,
+          });
+        } else {
+          warnings.push({
+            type: WarningType.UNCLEAR_REQUIREMENT,
+            message,
+            suggestion: 'Restructure the user story to follow the standard format',
+          });
+        }
+      }
+    }
+    
+    // Check acceptance criteria
+    if (userStoryConfig.requireAcceptanceCriteria) {
+      let hasAcceptanceCriteria = false;
+      
+      for (const pattern of userStoryConfig.acceptanceCriteriaPatterns) {
+        if (new RegExp(pattern, 'i').test(content)) {
+          hasAcceptanceCriteria = true;
+          break;
+        }
+      }
+      
+      if (!hasAcceptanceCriteria) {
+        if (userStoryConfig.requireAcceptanceCriteria) {
+          errors.push({
+            type: ErrorType.MISSING_FIELD,
+            message: 'User story must include acceptance criteria',
+            severity: ErrorSeverity.ERROR,
+          });
+        } else {
+          warnings.push({
+            type: WarningType.MISSING_ACCEPTANCE_CRITERIA,
+            message: 'User story should include acceptance criteria',
+            suggestion: 'Add acceptance criteria using Given-When-Then format',
+          });
+        }
+      }
+    }
+  }
 
-    if (
-      !content.includes('as a') &&
-      !content.includes('i want to') &&
-      !content.includes('so that')
-    ) {
+  private validateTraceability(
+    specification: Specification,
+    errors: ValidationError[],
+    warnings: ValidationWarning[]
+  ): void {
+    const traceabilityConfig = this.config.traceability;
+    
+    // Check parent link
+    if (traceabilityConfig.requireParent && !specification.parent) {
       warnings.push({
-        type: WarningType.UNCLEAR_REQUIREMENT,
-        message:
-          'User story should follow the standard format: "As a [user], I want to [action], so that [benefit]"',
-        suggestion: 'Restructure the user story to follow the standard format',
+        type: WarningType.INCOMPLETE_CONTENT,
+        message: 'Specification should have a parent link',
+        suggestion: 'Add a parent link to establish traceability',
       });
     }
-
-    if (
-      !content.includes('acceptance criteria') &&
-      !content.includes('given') &&
-      !content.includes('when') &&
-      !content.includes('then')
-    ) {
+    
+    // Check dependencies
+    if (traceabilityConfig.requireDependencies && (!specification.dependencies || specification.dependencies.length === 0)) {
       warnings.push({
-        type: WarningType.MISSING_ACCEPTANCE_CRITERIA,
-        message: 'User story should include acceptance criteria',
-        suggestion: 'Add acceptance criteria using Given-When-Then format',
+        type: WarningType.INCOMPLETE_CONTENT,
+        message: 'Specification should have dependencies',
+        suggestion: 'Add dependencies to related specifications',
       });
+    }
+    
+    // Check related links
+    if (traceabilityConfig.requireRelated && (!specification.related || specification.related.length === 0)) {
+      warnings.push({
+        type: WarningType.INCOMPLETE_CONTENT,
+        message: 'Specification should have related links',
+        suggestion: 'Add related specifications for better traceability',
+      });
+    }
+    
+    // Validate link formats
+    const allLinks = [
+      ...(specification.dependencies || []),
+      ...(specification.related || []),
+      ...(specification.parent ? [specification.parent] : [])
+    ];
+    
+    for (const link of allLinks) {
+      if (typeof link !== 'string' || !link.trim()) {
+        errors.push({
+          type: ErrorType.DEPENDENCY_ERROR,
+          message: 'Invalid traceability link format',
+          severity: ErrorSeverity.ERROR,
+        });
+      }
     }
   }
 
@@ -478,6 +702,7 @@ export class ValidationEngine {
   private calculateCompleteness(specification: Specification): number {
     let score = 0;
     let maxScore = 0;
+    const thresholds = this.config.thresholds;
 
     // Check required fields
     maxScore += specification.validation.required.length;
@@ -492,16 +717,18 @@ export class ValidationEngine {
     if (specification.metadata.status) score++;
     if (specification.metadata.priority) score++;
 
-    // Check content quality
+    // Check content quality using configurable thresholds
     maxScore += 2;
-    if (specification.content.length >= 50) score++;
-    if (specification.content.length >= 200) score++;
+    const actualContent = this.getActualContent(specification.content);
+    if (actualContent.length >= thresholds.shortContentThreshold) score++;
+    if (actualContent.length >= thresholds.minContentLength) score++;
 
     return maxScore > 0 ? (score / maxScore) * 100 : 0;
   }
 
   private calculateClarity(specification: Specification, warnings: ValidationWarning[]): number {
     let score = 100;
+    const thresholds = this.config.thresholds;
 
     // Deduct points for clarity warnings
     const clarityWarnings = warnings.filter(
@@ -509,28 +736,32 @@ export class ValidationEngine {
     );
     score -= clarityWarnings.length * 15;
 
-    // Check content length
-    if (specification.content.length < 50) score -= 20;
-    if (specification.content.length < 20) score -= 30;
+    // Check content length using configurable thresholds
+    const actualContent = this.getActualContent(specification.content);
+    if (actualContent.length < thresholds.veryShortContentThreshold) score -= 30;
+    else if (actualContent.length < thresholds.shortContentThreshold) score -= 20;
 
     return Math.max(0, score);
   }
 
   private calculateConsistency(specification: Specification): number {
     let score = 100;
+    const thresholds = this.config.thresholds;
 
-    // Check ID format consistency
-    if (!/^[a-zA-Z0-9_-]+$/.test(specification.id)) {
+    // Check ID format consistency (only if enabled)
+    if (this.config.enabled.idFormat && !/^[a-zA-Z0-9_-]+$/.test(specification.id)) {
       score -= 20;
     }
 
-    // Check version format consistency
-    if (!/^\d+\.\d+\.\d+$/.test(specification.metadata.version)) {
+    // Check version format consistency (only if enabled)
+    if (this.config.enabled.versionFormat && specification.metadata.version &&
+        !/^\d+\.\d+\.\d+$/.test(specification.metadata.version)) {
       score -= 20;
     }
 
-    // Check title length
-    if (specification.title.length > 100 || specification.title.length < 3) {
+    // Check title length using configurable thresholds
+    if (specification.title.length > thresholds.maxTitleLength ||
+        specification.title.length < thresholds.minTitleLength) {
       score -= 15;
     }
 
@@ -556,7 +787,13 @@ export class ValidationEngine {
       score++;
     }
 
-    return maxScore > 0 ? (score / maxScore) * 100 : 0;
+    // Bonus points for traceability links if enabled
+    if (this.config.enabled.traceability) {
+      if (specification.parent) score += 0.5;
+      if (specification.related && specification.related.length > 0) score += 0.5;
+    }
+
+    return maxScore > 0 ? Math.min(100, (score / maxScore) * 100) : 0;
   }
 
   private calculateScore(
@@ -565,12 +802,23 @@ export class ValidationEngine {
     warnings: ValidationWarning[]
   ): number {
     let score = metrics.overall;
+    const scoreThresholds = this.config.thresholds;
 
-    // Deduct points for errors
-    score -= errors.length * 20;
+    // Use configurable penalty points based on score level
+    let errorPenalty = 20;
+    let warningPenalty = 5;
+    
+    if (score < scoreThresholds.acceptableScoreThreshold) {
+      errorPenalty = 25;
+      warningPenalty = 8;
+    } else if (score < scoreThresholds.goodScoreThreshold) {
+      errorPenalty = 22;
+      warningPenalty = 6;
+    }
 
-    // Deduct points for warnings
-    score -= warnings.length * 5;
+    // Deduct points for errors and warnings
+    score -= errors.length * errorPenalty;
+    score -= warnings.length * warningPenalty;
 
     return Math.max(0, Math.min(100, score));
   }

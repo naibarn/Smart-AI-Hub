@@ -5,9 +5,24 @@ import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 /**
  * Validate agent data for creation
  */
-export const validateAgentData = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateAgentData = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
-    const { name, description, category, type, visibility, flowDefinition, inputSchema, outputSchema, executionConfig, externalUrl } = req.body;
+    const {
+      name,
+      description,
+      category,
+      type,
+      visibility,
+      flowDefinition,
+      inputSchema,
+      outputSchema,
+      executionConfig,
+      externalUrl,
+    } = req.body;
 
     // Required fields validation
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -143,9 +158,22 @@ export const validateAgentData = (req: AuthenticatedRequest, res: Response, next
 /**
  * Validate agent data for update
  */
-export const validateUpdateAgentData = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateUpdateAgentData = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
-    const { name, description, category, flowDefinition, inputSchema, outputSchema, executionConfig, externalUrl } = req.body;
+    const {
+      name,
+      description,
+      category,
+      flowDefinition,
+      inputSchema,
+      outputSchema,
+      executionConfig,
+      externalUrl,
+    } = req.body;
 
     // Name validation if provided
     if (name !== undefined) {
@@ -167,7 +195,10 @@ export const validateUpdateAgentData = (req: AuthenticatedRequest, res: Response
     }
 
     // Optional fields validation
-    if (description !== undefined && (typeof description !== 'string' || description.length > 10000)) {
+    if (
+      description !== undefined &&
+      (typeof description !== 'string' || description.length > 10000)
+    ) {
       res.status(400).json({
         error: 'Validation Error',
         message: 'Description must be a string with less than 10,000 characters',
@@ -207,7 +238,11 @@ export const validateUpdateAgentData = (req: AuthenticatedRequest, res: Response
     }
 
     // JSON fields validation
-    if (flowDefinition !== undefined && flowDefinition !== null && typeof flowDefinition !== 'object') {
+    if (
+      flowDefinition !== undefined &&
+      flowDefinition !== null &&
+      typeof flowDefinition !== 'object'
+    ) {
       res.status(400).json({
         error: 'Validation Error',
         message: 'Flow definition must be a valid JSON object or null',
@@ -231,7 +266,11 @@ export const validateUpdateAgentData = (req: AuthenticatedRequest, res: Response
       return;
     }
 
-    if (executionConfig !== undefined && executionConfig !== null && typeof executionConfig !== 'object') {
+    if (
+      executionConfig !== undefined &&
+      executionConfig !== null &&
+      typeof executionConfig !== 'object'
+    ) {
       res.status(400).json({
         error: 'Validation Error',
         message: 'Execution config must be a valid JSON object or null',
@@ -252,7 +291,11 @@ export const validateUpdateAgentData = (req: AuthenticatedRequest, res: Response
 /**
  * Validate flow definition structure
  */
-export const validateFlowDefinition = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateFlowDefinition = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
     const { flowDefinition } = req.body;
 
@@ -310,7 +353,15 @@ export const validateFlowDefinition = (req: AuthenticatedRequest, res: Response,
       }
 
       // Validate step type
-      const validStepTypes = ['llm_call', 'condition', 'loop', 'data_transform', 'api_call', 'input', 'output'];
+      const validStepTypes = [
+        'llm_call',
+        'condition',
+        'loop',
+        'data_transform',
+        'api_call',
+        'input',
+        'output',
+      ];
       if (!validStepTypes.includes(step.type)) {
         res.status(400).json({
           error: 'Validation Error',
@@ -372,7 +423,11 @@ export const validateFlowDefinition = (req: AuthenticatedRequest, res: Response,
 /**
  * Validate input schema (JSON Schema)
  */
-export const validateInputSchema = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateInputSchema = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
     const { inputSchema } = req.body;
 
@@ -428,7 +483,11 @@ export const validateInputSchema = (req: AuthenticatedRequest, res: Response, ne
 /**
  * Validate external URL
  */
-export const validateExternalUrl = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateExternalUrl = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
     const { externalUrl } = req.body;
 
@@ -456,7 +515,7 @@ export const validateExternalUrl = (req: AuthenticatedRequest, res: Response, ne
 
     try {
       const url = new URL(externalUrl);
-      
+
       // Validate protocol
       if (!['http:', 'https:'].includes(url.protocol)) {
         res.status(400).json({
@@ -469,7 +528,12 @@ export const validateExternalUrl = (req: AuthenticatedRequest, res: Response, ne
       // Basic domain validation (prevent localhost in production)
       if (process.env.NODE_ENV === 'production') {
         const hostname = url.hostname.toLowerCase();
-        if (hostname === 'localhost' || hostname.startsWith('127.') || hostname.startsWith('192.168.') || hostname.startsWith('10.')) {
+        if (
+          hostname === 'localhost' ||
+          hostname.startsWith('127.') ||
+          hostname.startsWith('192.168.') ||
+          hostname.startsWith('10.')
+        ) {
           res.status(400).json({
             error: 'Validation Error',
             message: 'External URL cannot be a private IP address or localhost',

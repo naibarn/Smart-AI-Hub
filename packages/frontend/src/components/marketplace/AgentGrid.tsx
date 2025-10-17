@@ -61,9 +61,7 @@ const AgentGrid: React.FC<AgentGridProps> = ({
     return (
       <div style={{ textAlign: 'center', padding: '100px 0' }}>
         <Spin size="large" />
-        <div style={{ marginTop: '16px', color: '#666' }}>
-          Loading agents...
-        </div>
+        <div style={{ marginTop: '16px', color: '#666' }}>Loading agents...</div>
       </div>
     );
   }
@@ -71,10 +69,7 @@ const AgentGrid: React.FC<AgentGridProps> = ({
   if (!loading && agents.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 0' }}>
-        <Empty
-          description={emptyText}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
+        <Empty description={emptyText} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </div>
     );
   }
@@ -107,9 +102,10 @@ const AgentGrid: React.FC<AgentGridProps> = ({
             total={pagination.total}
             showSizeChanger={pagination.showSizeChanger !== false}
             showQuickJumper={pagination.showQuickJumper !== false}
-            showTotal={pagination.showTotal || ((total, range) =>
-              `${range[0]}-${range[1]} of ${total} agents`
-            )}
+            showTotal={
+              pagination.showTotal ||
+              ((total, range) => `${range[0]}-${range[1]} of ${total} agents`)
+            }
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
             pageSizeOptions={['12', '24', '36', '48']}

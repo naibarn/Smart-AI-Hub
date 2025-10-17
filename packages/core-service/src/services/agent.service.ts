@@ -1,4 +1,10 @@
-import { PrismaClient, AgentType, AgentVisibility, AgentStatus, ApprovalAction } from '@prisma/client';
+import {
+  PrismaClient,
+  AgentType,
+  AgentVisibility,
+  AgentStatus,
+  ApprovalAction,
+} from '@prisma/client';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import { validateAgentData } from '../utils/agentValidation';
 
@@ -73,7 +79,7 @@ export class AgentService {
           tier: true,
           parentOrganizationId: true,
           parentAgencyId: true,
-        }
+        },
       });
 
       if (!user) {
@@ -107,11 +113,11 @@ export class AgentService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       });
 
       return agent;
@@ -136,7 +142,7 @@ export class AgentService {
           type: true,
           externalUrl: true,
           flowDefinition: true,
-        }
+        },
       });
 
       if (!existingAgent) {
@@ -147,15 +153,22 @@ export class AgentService {
         throw new Error('Not authorized to update this agent');
       }
 
-      if (existingAgent.status !== AgentStatus.DRAFT && existingAgent.status !== AgentStatus.REJECTED) {
+      if (
+        existingAgent.status !== AgentStatus.DRAFT &&
+        existingAgent.status !== AgentStatus.REJECTED
+      ) {
         throw new Error('Can only update agents with DRAFT or REJECTED status');
       }
 
       // Validate agent data based on type (use existing type if not being updated)
       const agentType = (data as any).type || existingAgent.type;
-      const externalUrl = data.externalUrl !== undefined ? data.externalUrl : existingAgent.externalUrl || undefined;
-      const flowDefinition = data.flowDefinition !== undefined ? data.flowDefinition : existingAgent.flowDefinition || undefined;
-      
+      const externalUrl =
+        data.externalUrl !== undefined ? data.externalUrl : existingAgent.externalUrl || undefined;
+      const flowDefinition =
+        data.flowDefinition !== undefined
+          ? data.flowDefinition
+          : existingAgent.flowDefinition || undefined;
+
       const validation = validateAgentData(agentType, externalUrl, flowDefinition);
       if (!validation.isValid) {
         throw new Error(validation.error);
@@ -176,11 +189,11 @@ export class AgentService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       });
 
       return agent;
@@ -202,7 +215,7 @@ export class AgentService {
           id: true,
           createdBy: true,
           status: true,
-        }
+        },
       });
 
       if (!existingAgent) {
@@ -218,7 +231,7 @@ export class AgentService {
       }
 
       await prisma.agent.delete({
-        where: { id: agentId }
+        where: { id: agentId },
       });
 
       return { success: true, message: 'Agent deleted successfully' };
@@ -233,14 +246,7 @@ export class AgentService {
    */
   async getMyAgents(userId: string, options: GetMyAgentsOptions = {}) {
     try {
-      const {
-        page = 1,
-        limit = 10,
-        status,
-        type,
-        visibility,
-        search
-      } = options;
+      const { page = 1, limit = 10, status, type, visibility, search } = options;
 
       const skip = (page - 1) * limit;
 
@@ -287,9 +293,9 @@ export class AgentService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           approvalLogs: {
             select: {
@@ -300,8 +306,8 @@ export class AgentService {
             },
             orderBy: { createdAt: 'desc' },
             take: 1,
-          }
-        }
+          },
+        },
       });
 
       return {
@@ -311,7 +317,7 @@ export class AgentService {
           limit,
           total,
           pages: Math.ceil(total / limit),
-        }
+        },
       };
     } catch (error) {
       console.error('Error getting user agents:', error);
@@ -332,7 +338,7 @@ export class AgentService {
           createdBy: true,
           status: true,
           name: true,
-        }
+        },
       });
 
       if (!existingAgent) {
@@ -353,11 +359,16 @@ export class AgentService {
         data: {
           status: AgentStatus.PENDING,
           updatedAt: new Date(),
-        }
+        },
       });
 
       // Log approval action
-      await this.logApprovalAction(agentId, ApprovalAction.SUBMITTED, userId, 'Agent submitted for approval');
+      await this.logApprovalAction(
+        agentId,
+        ApprovalAction.SUBMITTED,
+        userId,
+        'Agent submitted for approval'
+      );
 
       return agent;
     } catch (error) {
@@ -382,17 +393,17 @@ export class AgentService {
                 select: {
                   firstName: true,
                   lastName: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           approvalLogs: {
             orderBy: { createdAt: 'desc' },
             include: {
               agent: false, // We don't need to include the agent again
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       if (!agent) {
@@ -430,7 +441,7 @@ export class AgentService {
         tier: true,
         parentOrganizationId: true,
         parentAgencyId: true,
-      }
+      },
     });
 
     if (!user) {
@@ -445,16 +456,16 @@ export class AgentService {
     switch (agent.visibility) {
       case AgentVisibility.PRIVATE:
         return false; // Only creator can view (handled above)
-      
+
       case AgentVisibility.ORGANIZATION:
         return agent.organizationId === user.parentOrganizationId;
-      
+
       case AgentVisibility.AGENCY:
         return agent.agencyId === user.parentAgencyId;
-      
+
       case AgentVisibility.PUBLIC:
         return true; // Any logged-in user can view approved public agents
-      
+
       default:
         return false;
     }
@@ -476,7 +487,7 @@ export class AgentService {
           action,
           performedBy,
           reason,
-        }
+        },
       });
     } catch (error) {
       console.error('Error logging approval action:', error);

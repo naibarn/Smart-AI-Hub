@@ -41,7 +41,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   // Update search options when suggestions change
   useEffect(() => {
-    const options = suggestions.map(suggestion => ({
+    const options = suggestions.map((suggestion) => ({
       value: suggestion,
       label: suggestion,
     }));
@@ -51,7 +51,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   // Debounced search
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
-    
+
     if (onChange) {
       onChange(newValue);
     }
@@ -116,12 +116,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           <Search
             placeholder={placeholder}
             enterButton={
-              <Button 
-                type="primary" 
-                icon={<SearchOutlined />}
-                loading={loading}
-                size={size}
-              >
+              <Button type="primary" icon={<SearchOutlined />} loading={loading} size={size}>
                 Search
               </Button>
             }
@@ -152,12 +147,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         value={inputValue}
         placeholder={placeholder}
         enterButton={
-          <Button 
-            type="primary" 
-            icon={<SearchOutlined />}
-            loading={loading}
-            size={size}
-          >
+          <Button type="primary" icon={<SearchOutlined />} loading={loading} size={size}>
             Search
           </Button>
         }
@@ -172,11 +162,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     );
   };
 
-  return (
-    <div className="search-bar">
-      {renderInput()}
-    </div>
-  );
+  return <div className="search-bar">{renderInput()}</div>;
 };
 
 export default SearchBar;

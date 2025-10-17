@@ -99,14 +99,17 @@ const AgentForm: React.FC<AgentFormProps> = ({
         message.error('External URL is required for this agent type');
         return;
       }
-      
+
       // Basic URL validation
-      const urlPattern = selectedType === AgentType.CUSTOMGPT 
-        ? /^https:\/\/chat\.openai\.com\/g\/g-[a-zA-Z0-9]+/
-        : /^https:\/\/gemini\.google\.com\/gem\/[a-zA-Z0-9\-_]+/;
-      
+      const urlPattern =
+        selectedType === AgentType.CUSTOMGPT
+          ? /^https:\/\/chat\.openai\.com\/g\/g-[a-zA-Z0-9]+/
+          : /^https:\/\/gemini\.google\.com\/gem\/[a-zA-Z0-9\-_]+/;
+
       if (!urlPattern.test(values.externalUrl)) {
-        message.error(`Invalid ${selectedType === AgentType.CUSTOMGPT ? 'Custom GPT' : 'Gemini Gem'} URL format`);
+        message.error(
+          `Invalid ${selectedType === AgentType.CUSTOMGPT ? 'Custom GPT' : 'Gemini Gem'} URL format`
+        );
         return;
       }
     }
@@ -165,10 +168,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
         name="description"
         rules={[{ required: true, message: 'Please enter agent description' }]}
       >
-        <TextArea
-          rows={4}
-          placeholder="Describe what your agent does and how it works"
-        />
+        <TextArea rows={4} placeholder="Describe what your agent does and how it works" />
       </Form.Item>
 
       <Row gutter={[16, 16]}>
@@ -256,7 +256,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
 
   const renderConfiguration = () => (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
-      {(selectedType === AgentType.CUSTOMGPT || selectedType === AgentType.GEMINI_GEM) ? (
+      {selectedType === AgentType.CUSTOMGPT || selectedType === AgentType.GEMINI_GEM ? (
         <Card
           title={
             <Space>
@@ -277,13 +277,13 @@ const AgentForm: React.FC<AgentFormProps> = ({
             showIcon
             style={{ marginBottom: '16px' }}
           />
-          
+
           <Form.Item
             label="External URL"
             name="externalUrl"
             rules={[
               { required: true, message: 'Please enter the external URL' },
-              { type: 'url', message: 'Please enter a valid URL' }
+              { type: 'url', message: 'Please enter a valid URL' },
             ]}
           >
             <Input
@@ -296,7 +296,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
           </Form.Item>
 
           <Paragraph type="secondary">
-            <InfoCircleOutlined /> Users will be redirected to this URL when they run the agent. 
+            <InfoCircleOutlined /> Users will be redirected to this URL when they run the agent.
             Usage will be logged but no credits will be deducted.
           </Paragraph>
         </Card>
@@ -330,10 +330,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
             />
           </Form.Item>
 
-          <Form.Item
-            label="Input Schema (JSON)"
-            name="inputSchema"
-          >
+          <Form.Item label="Input Schema (JSON)" name="inputSchema">
             <TextArea
               rows={6}
               placeholder='{"type": "object", "properties": {...}}'
@@ -341,10 +338,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
             />
           </Form.Item>
 
-          <Form.Item
-            label="Output Schema (JSON)"
-            name="outputSchema"
-          >
+          <Form.Item label="Output Schema (JSON)" name="outputSchema">
             <TextArea
               rows={6}
               placeholder='{"type": "object", "properties": {...}}'
@@ -360,26 +354,14 @@ const AgentForm: React.FC<AgentFormProps> = ({
     <Card>
       <div style={{ marginBottom: '24px' }}>
         <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Title level={3}>
-            {isEdit ? 'Edit Agent' : 'Create New Agent'}
-          </Title>
-          <Button
-            type="link"
-            icon={<BookOutlined />}
-            href="/docs/agent-guidelines"
-            target="_blank"
-          >
+          <Title level={3}>{isEdit ? 'Edit Agent' : 'Create New Agent'}</Title>
+          <Button type="link" icon={<BookOutlined />} href="/docs/agent-guidelines" target="_blank">
             Agent Guidelines
           </Button>
         </Space>
       </div>
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={initialValues}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit} initialValues={initialValues}>
         <Tabs activeKey={activeTab} onChange={setActiveTab}>
           <TabPane tab="Basic Information" key="basic">
             {renderBasicInfo()}
@@ -393,15 +375,8 @@ const AgentForm: React.FC<AgentFormProps> = ({
 
         <Row justify="end">
           <Space>
-            <Button onClick={() => form.resetFields()}>
-              Reset
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              size="large"
-            >
+            <Button onClick={() => form.resetFields()}>Reset</Button>
+            <Button type="primary" htmlType="submit" loading={loading} size="large">
               {isEdit ? 'Update Agent' : 'Create Agent'}
             </Button>
           </Space>

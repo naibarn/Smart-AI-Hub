@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 /**
  * Middleware to check if user has admin privileges
  */
-export const requireAdmin = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const requireAdmin = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -37,7 +41,7 @@ export const requireAdmin = async (req: AuthenticatedRequest, res: Response, nex
         email: true,
         tier: true,
         isBlocked: true,
-      }
+      },
     });
 
     if (!user) {
@@ -68,7 +72,7 @@ export const requireAdmin = async (req: AuthenticatedRequest, res: Response, nex
 
     // Attach user details to request for use in subsequent middleware
     (req as any).adminUser = user;
-    
+
     next();
   } catch (error) {
     console.error('Error checking admin privileges:', error);
@@ -82,7 +86,11 @@ export const requireAdmin = async (req: AuthenticatedRequest, res: Response, nex
 /**
  * Middleware to check if user can approve agents
  */
-export const requireApprovalPermissions = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const requireApprovalPermissions = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -118,14 +126,14 @@ export const requireApprovalPermissions = async (req: AuthenticatedRequest, res:
               include: {
                 permissions: {
                   include: {
-                    permission: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -145,17 +153,17 @@ export const requireApprovalPermissions = async (req: AuthenticatedRequest, res:
     }
 
     // Extract all permissions from user roles
-    const permissions = user.userRoles.flatMap(userRole => 
-      userRole.role.permissions.map(rolePermission => rolePermission.permission)
+    const permissions = user.userRoles.flatMap((userRole) =>
+      userRole.role.permissions.map((rolePermission) => rolePermission.permission)
     );
 
     // Check for agent approval permissions
-    const canApproveAgents = permissions.some(permission => 
-      permission.resource === 'agent' && permission.action === 'approve'
+    const canApproveAgents = permissions.some(
+      (permission) => permission.resource === 'agent' && permission.action === 'approve'
     );
 
-    const canRejectAgents = permissions.some(permission => 
-      permission.resource === 'agent' && permission.action === 'reject'
+    const canRejectAgents = permissions.some(
+      (permission) => permission.resource === 'agent' && permission.action === 'reject'
     );
 
     if (!canApproveAgents || !canRejectAgents) {
@@ -169,7 +177,7 @@ export const requireApprovalPermissions = async (req: AuthenticatedRequest, res:
     // Attach user details and permissions to request
     (req as any).adminUser = user;
     (req as any).adminPermissions = permissions;
-    
+
     next();
   } catch (error) {
     console.error('Error checking approval permissions:', error);
@@ -183,7 +191,11 @@ export const requireApprovalPermissions = async (req: AuthenticatedRequest, res:
 /**
  * Middleware to check if user can view admin dashboard
  */
-export const requireDashboardAccess = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const requireDashboardAccess = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -195,10 +207,11 @@ export const requireDashboardAccess = async (req: AuthenticatedRequest, res: Res
 
     // Check if user has admin or elevated role
     const userRoles = req.user.roles.map((r: any) => r.name);
-    const hasElevatedRole = userRoles.includes('admin') || 
-                          userRoles.includes('administrator') ||
-                          userRoles.includes('organization') ||
-                          userRoles.includes('agency');
+    const hasElevatedRole =
+      userRoles.includes('admin') ||
+      userRoles.includes('administrator') ||
+      userRoles.includes('organization') ||
+      userRoles.includes('agency');
 
     if (!hasElevatedRole) {
       res.status(403).json({
@@ -218,7 +231,7 @@ export const requireDashboardAccess = async (req: AuthenticatedRequest, res: Res
         isBlocked: true,
         parentOrganizationId: true,
         parentAgencyId: true,
-      }
+      },
     });
 
     if (!user) {
@@ -249,7 +262,7 @@ export const requireDashboardAccess = async (req: AuthenticatedRequest, res: Res
 
     // Attach user details to request
     (req as any).adminUser = user;
-    
+
     next();
   } catch (error) {
     console.error('Error checking dashboard access:', error);
@@ -263,12 +276,19 @@ export const requireDashboardAccess = async (req: AuthenticatedRequest, res: Res
 /**
  * Middleware to validate admin action parameters
  */
-export const validateAdminAction = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateAdminAction = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
     const { reason, notes, agentIds } = req.body;
 
     // For rejection actions, reason is required
-    if (req.path.includes('/reject') && (!reason || typeof reason !== 'string' || reason.trim().length === 0)) {
+    if (
+      req.path.includes('/reject') &&
+      (!reason || typeof reason !== 'string' || reason.trim().length === 0)
+    ) {
       res.status(400).json({
         error: 'Validation Error',
         message: 'Rejection reason is required and must be a non-empty string',
@@ -277,7 +297,10 @@ export const validateAdminAction = (req: AuthenticatedRequest, res: Response, ne
     }
 
     // For bulk actions, agentIds array is required
-    if (req.path.includes('/bulk') && (!agentIds || !Array.isArray(agentIds) || agentIds.length === 0)) {
+    if (
+      req.path.includes('/bulk') &&
+      (!agentIds || !Array.isArray(agentIds) || agentIds.length === 0)
+    ) {
       res.status(400).json({
         error: 'Validation Error',
         message: 'Agent IDs array is required for bulk actions',
@@ -345,7 +368,9 @@ export const logAdminAction = (action: string) => {
       const userAgent = req.get('User-Agent');
 
       // Log the admin action
-      console.log(`[ADMIN ACTION] ${action} - Admin: ${adminEmail} (${adminId}) - Agent: ${agentId} - IP: ${ipAddress}`);
+      console.log(
+        `[ADMIN ACTION] ${action} - Admin: ${adminEmail} (${adminId}) - Agent: ${agentId} - IP: ${ipAddress}`
+      );
 
       // Store action metadata for audit trail
       (req as any).adminAction = {

@@ -108,11 +108,14 @@ export class AgentUsageService {
   /**
    * Get user's agent usage history
    */
-  async getUserAgentUsageHistory(userId: string, options: {
-    page?: number;
-    limit?: number;
-    agentId?: string;
-  } = {}) {
+  async getUserAgentUsageHistory(
+    userId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      agentId?: string;
+    } = {}
+  ) {
     try {
       const { page = 1, limit = 20, agentId } = options;
       const skip = (page - 1) * limit;

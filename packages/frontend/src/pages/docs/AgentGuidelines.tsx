@@ -13,12 +13,7 @@ import {
   Alert,
   Divider,
 } from 'antd';
-import {
-  HomeOutlined,
-  BookOutlined,
-  MenuOutlined,
-  ArrowUpOutlined,
-} from '@ant-design/icons';
+import { HomeOutlined, BookOutlined, MenuOutlined, ArrowUpOutlined } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
@@ -33,32 +28,37 @@ interface TocItem {
 
 // Simple markdown renderer for basic markdown syntax
 const renderMarkdown = (markdown: string): string => {
-  return markdown
-    // Headers
-    .replace(/^# (.*$)/gim, '<h1 id="$1">$1</h1>')
-    .replace(/^## (.*$)/gim, '<h2 id="$1">$1</h2>')
-    .replace(/^### (.*$)/gim, '<h3 id="$1">$1</h3>')
-    .replace(/^#### (.*$)/gim, '<h4 id="$1">$1</h4>')
-    // Bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // Italic
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Code blocks
-    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
-    // Inline code
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    // Line breaks
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br />')
-    // Wrap in paragraphs
-    .replace(/^/, '<p>')
-    .replace(/$/, '</p>')
-    // Lists (basic)
-    .replace(/^\* (.+)$/gim, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-    .replace(/^\d+\. (.+)$/gim, '<li>$1</li>');
+  return (
+    markdown
+      // Headers
+      .replace(/^# (.*$)/gim, '<h1 id="$1">$1</h1>')
+      .replace(/^## (.*$)/gim, '<h2 id="$1">$1</h2>')
+      .replace(/^### (.*$)/gim, '<h3 id="$1">$1</h3>')
+      .replace(/^#### (.*$)/gim, '<h4 id="$1">$1</h4>')
+      // Bold
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // Code blocks
+      .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+      // Inline code
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      // Links
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+      )
+      // Line breaks
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br />')
+      // Wrap in paragraphs
+      .replace(/^/, '<p>')
+      .replace(/$/, '</p>')
+      // Lists (basic)
+      .replace(/^\* (.+)$/gim, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+      .replace(/^\d+\. (.+)$/gim, '<li>$1</li>')
+  );
 };
 
 const AgentGuidelines: React.FC = () => {
@@ -78,11 +78,11 @@ const AgentGuidelines: React.FC = () => {
       // In a real implementation, this would fetch from the actual file
       // For now, we'll use a placeholder or fetch from the public directory
       const response = await fetch('/content/docs/agent-guidelines.md');
-      
+
       if (!response.ok) {
         throw new Error('Failed to load guidelines');
       }
-      
+
       const markdown = await response.text();
       setContent(markdown);
       generateTableOfContents(markdown);
@@ -90,7 +90,7 @@ const AgentGuidelines: React.FC = () => {
     } catch (err) {
       console.error('Error loading guidelines:', err);
       setError('Failed to load agent guidelines. Please try again later.');
-      
+
       // Fallback content for development
       const fallbackContent = `
 # Agent Creation and Submission Guidelines
@@ -512,7 +512,7 @@ For questions about agent creation or submission:
 
 *Last updated: October 2024*
       `;
-      
+
       setContent(fallbackContent);
       generateTableOfContents(fallbackContent);
     } finally {
@@ -530,7 +530,10 @@ For questions about agent creation or submission:
       if (match) {
         const level = match[1].length;
         const title = match[2].replace(/\{#[^}]+\}/, '').trim(); // Remove {#anchor} if present
-        const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        const id = title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-');
 
         const item: TocItem = { id, title, level };
 
@@ -619,28 +622,28 @@ For questions about agent creation or submission:
         </Breadcrumb>
 
         {/* Header */}
-        <div style={{ background: 'white', borderRadius: '8px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+        <div
+          style={{
+            background: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            marginBottom: '24px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          }}
+        >
           <Row justify="space-between" align="middle">
             <Col>
               <Title level={2} style={{ margin: 0 }}>
                 <BookOutlined /> Agent Guidelines
               </Title>
-              <Text type="secondary">
-                Comprehensive guide for creating and submitting agents
-              </Text>
+              <Text type="secondary">Comprehensive guide for creating and submitting agents</Text>
             </Col>
             <Col>
               <Space>
-                <Button
-                  icon={<MenuOutlined />}
-                  onClick={() => setSidebarVisible(!sidebarVisible)}
-                >
+                <Button icon={<MenuOutlined />} onClick={() => setSidebarVisible(!sidebarVisible)}>
                   {sidebarVisible ? 'Hide' : 'Show'} TOC
                 </Button>
-                <Button
-                  type="primary"
-                  href="/agents/create"
-                >
+                <Button type="primary" href="/agents/create">
                   Create Agent
                 </Button>
               </Space>

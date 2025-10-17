@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 /**
  * Check if user can view agent based on visibility and status
  */
-export const checkAgentVisibility = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const checkAgentVisibility = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -18,7 +22,7 @@ export const checkAgentVisibility = async (req: AuthenticatedRequest, res: Respo
     }
 
     const agentId = req.params.id || req.params.agentId;
-    
+
     if (!agentId) {
       res.status(400).json({
         error: 'Bad Request',
@@ -37,7 +41,7 @@ export const checkAgentVisibility = async (req: AuthenticatedRequest, res: Respo
         status: true,
         organizationId: true,
         agencyId: true,
-      }
+      },
     });
 
     if (!agent) {
@@ -56,7 +60,7 @@ export const checkAgentVisibility = async (req: AuthenticatedRequest, res: Respo
         tier: true,
         parentOrganizationId: true,
         parentAgencyId: true,
-      }
+      },
     });
 
     if (!user) {
@@ -80,7 +84,7 @@ export const checkAgentVisibility = async (req: AuthenticatedRequest, res: Respo
 
     // Attach agent to request for use in subsequent middleware
     (req as any).agent = agent;
-    
+
     next();
   } catch (error) {
     console.error('Error checking agent visibility:', error);
@@ -94,7 +98,11 @@ export const checkAgentVisibility = async (req: AuthenticatedRequest, res: Respo
 /**
  * Check if user can execute/run agent
  */
-export const canExecuteAgent = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const canExecuteAgent = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -105,7 +113,7 @@ export const canExecuteAgent = async (req: AuthenticatedRequest, res: Response, 
     }
 
     const agentId = req.params.id || req.params.agentId;
-    
+
     if (!agentId) {
       res.status(400).json({
         error: 'Bad Request',
@@ -124,7 +132,7 @@ export const canExecuteAgent = async (req: AuthenticatedRequest, res: Response, 
         status: true,
         organizationId: true,
         agencyId: true,
-      }
+      },
     });
 
     if (!agent) {
@@ -144,7 +152,7 @@ export const canExecuteAgent = async (req: AuthenticatedRequest, res: Response, 
         parentOrganizationId: true,
         parentAgencyId: true,
         credits: true,
-      }
+      },
     });
 
     if (!user) {
@@ -186,7 +194,7 @@ export const canExecuteAgent = async (req: AuthenticatedRequest, res: Response, 
 
     // Attach agent to request for use in subsequent middleware
     (req as any).agent = agent;
-    
+
     next();
   } catch (error) {
     console.error('Error checking agent execution permission:', error);
@@ -200,7 +208,11 @@ export const canExecuteAgent = async (req: AuthenticatedRequest, res: Response, 
 /**
  * Check if user can edit agent
  */
-export const canEditAgent = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const canEditAgent = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -211,7 +223,7 @@ export const canEditAgent = async (req: AuthenticatedRequest, res: Response, nex
     }
 
     const agentId = req.params.id || req.params.agentId;
-    
+
     if (!agentId) {
       res.status(400).json({
         error: 'Bad Request',
@@ -230,7 +242,7 @@ export const canEditAgent = async (req: AuthenticatedRequest, res: Response, nex
         status: true,
         organizationId: true,
         agencyId: true,
-      }
+      },
     });
 
     if (!agent) {
@@ -261,7 +273,7 @@ export const canEditAgent = async (req: AuthenticatedRequest, res: Response, nex
 
     // Attach agent to request for use in subsequent middleware
     (req as any).agent = agent;
-    
+
     next();
   } catch (error) {
     console.error('Error checking agent edit permission:', error);
@@ -289,16 +301,16 @@ async function canUserViewAgent(agent: any, user: any): Promise<boolean> {
   switch (agent.visibility) {
     case AgentVisibility.PRIVATE:
       return false; // Only creator can view (handled above)
-    
+
     case AgentVisibility.ORGANIZATION:
       return agent.organizationId === user.parentOrganizationId;
-    
+
     case AgentVisibility.AGENCY:
       return agent.agencyId === user.parentAgencyId;
-    
+
     case AgentVisibility.PUBLIC:
       return true; // Any logged-in user can view approved public agents
-    
+
     default:
       return false;
   }
@@ -307,7 +319,11 @@ async function canUserViewAgent(agent: any, user: any): Promise<boolean> {
 /**
  * Middleware to check if user is admin or has elevated permissions
  */
-export const requireAdminOrElevated = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const requireAdminOrElevated = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -320,7 +336,9 @@ export const requireAdminOrElevated = async (req: AuthenticatedRequest, res: Res
     // Check if user has admin role or elevated tier
     const userRoles = req.user.roles.map((r: any) => r.name);
     const isAdmin = userRoles.includes('admin') || userRoles.includes('administrator');
-    const isElevatedTier = ['administrator', 'agency', 'organization', 'admin'].includes(req.user.role);
+    const isElevatedTier = ['administrator', 'agency', 'organization', 'admin'].includes(
+      req.user.role
+    );
 
     if (!isAdmin && !isElevatedTier) {
       res.status(403).json({
@@ -343,7 +361,11 @@ export const requireAdminOrElevated = async (req: AuthenticatedRequest, res: Res
 /**
  * Middleware to check if user can manage organization/agency agents
  */
-export const canManageOrganizationAgents = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const canManageOrganizationAgents = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -360,7 +382,7 @@ export const canManageOrganizationAgents = async (req: AuthenticatedRequest, res
         tier: true,
         parentOrganizationId: true,
         parentAgencyId: true,
-      }
+      },
     });
 
     if (!user) {
@@ -384,7 +406,7 @@ export const canManageOrganizationAgents = async (req: AuthenticatedRequest, res
 
     // Attach user details to request
     (req as any).userDetails = user;
-    
+
     next();
   } catch (error) {
     console.error('Error checking organization management permissions:', error);

@@ -6,7 +6,7 @@ import {
   requireApprovalPermissions,
   requireDashboardAccess,
   validateAdminAction,
-  logAdminAction
+  logAdminAction,
 } from '../middleware/admin.middleware';
 
 const router = Router();
@@ -15,7 +15,8 @@ const router = Router();
  * GET /api/admin/agents/pending
  * Get all agents with PENDING status for admin review
  */
-router.get('/agents/pending',
+router.get(
+  '/agents/pending',
   authenticateJWT,
   requireApprovalPermissions,
   async (req: AuthenticatedRequest, res: Response) => {
@@ -27,18 +28,13 @@ router.get('/agents/pending',
         });
       }
 
-      const {
-        page = 1,
-        limit = 10,
-        type,
-        search
-      } = req.query;
+      const { page = 1, limit = 10, type, search } = req.query;
 
       const options = {
         page: parseInt(page as string) || 1,
         limit: parseInt(limit as string) || 10,
         type: type as string,
-        search: search as string
+        search: search as string,
       };
 
       const result = await agentApprovalService.getPendingAgents(options);
@@ -46,7 +42,7 @@ router.get('/agents/pending',
       res.json({
         success: true,
         data: result.agents,
-        pagination: result.pagination
+        pagination: result.pagination,
       });
     } catch (error: any) {
       console.error('Error getting pending agents:', error);
@@ -62,7 +58,8 @@ router.get('/agents/pending',
  * POST /api/admin/agents/:id/approve
  * Approve an agent (PENDING → APPROVED)
  */
-router.post('/agents/:id/approve',
+router.post(
+  '/agents/:id/approve',
   authenticateJWT,
   requireApprovalPermissions,
   validateAdminAction,
@@ -84,11 +81,11 @@ router.post('/agents/:id/approve',
       res.json({
         success: true,
         message: 'Agent approved successfully',
-        data: agent
+        data: agent,
       });
     } catch (error: any) {
       console.error('Error approving agent:', error);
-      
+
       if (error.message === 'Agent not found') {
         return res.status(404).json({
           error: 'Agent not found',
@@ -115,7 +112,8 @@ router.post('/agents/:id/approve',
  * POST /api/admin/agents/:id/reject
  * Reject an agent (PENDING → REJECTED)
  */
-router.post('/agents/:id/reject',
+router.post(
+  '/agents/:id/reject',
   authenticateJWT,
   requireApprovalPermissions,
   validateAdminAction,
@@ -137,11 +135,11 @@ router.post('/agents/:id/reject',
       res.json({
         success: true,
         message: 'Agent rejected successfully',
-        data: agent
+        data: agent,
       });
     } catch (error: any) {
       console.error('Error rejecting agent:', error);
-      
+
       if (error.message === 'Agent not found') {
         return res.status(404).json({
           error: 'Agent not found',
@@ -175,7 +173,8 @@ router.post('/agents/:id/reject',
  * GET /api/admin/agents/:id/history
  * Get approval history for an agent
  */
-router.get('/agents/:id/history',
+router.get(
+  '/agents/:id/history',
   authenticateJWT,
   requireApprovalPermissions,
   async (req: AuthenticatedRequest, res: Response) => {
@@ -192,7 +191,7 @@ router.get('/agents/:id/history',
 
       res.json({
         success: true,
-        data: history
+        data: history,
       });
     } catch (error: any) {
       console.error('Error getting agent approval history:', error);
@@ -208,7 +207,8 @@ router.get('/agents/:id/history',
  * GET /api/admin/dashboard/stats
  * Get approval statistics for admin dashboard
  */
-router.get('/dashboard/stats',
+router.get(
+  '/dashboard/stats',
   authenticateJWT,
   requireDashboardAccess,
   async (req: AuthenticatedRequest, res: Response) => {
@@ -224,7 +224,7 @@ router.get('/dashboard/stats',
 
       res.json({
         success: true,
-        data: stats
+        data: stats,
       });
     } catch (error: any) {
       console.error('Error getting dashboard statistics:', error);
@@ -240,7 +240,8 @@ router.get('/dashboard/stats',
  * GET /api/admin/agents/oldest-pending
  * Get agents waiting for approval the longest
  */
-router.get('/agents/oldest-pending',
+router.get(
+  '/agents/oldest-pending',
   authenticateJWT,
   requireApprovalPermissions,
   async (req: AuthenticatedRequest, res: Response) => {
@@ -253,11 +254,13 @@ router.get('/agents/oldest-pending',
       }
 
       const { limit = 5 } = req.query;
-      const agents = await agentApprovalService.getOldestPendingAgents(parseInt(limit as string) || 5);
+      const agents = await agentApprovalService.getOldestPendingAgents(
+        parseInt(limit as string) || 5
+      );
 
       res.json({
         success: true,
-        data: agents
+        data: agents,
       });
     } catch (error: any) {
       console.error('Error getting oldest pending agents:', error);
@@ -273,7 +276,8 @@ router.get('/agents/oldest-pending',
  * POST /api/admin/agents/bulk-approve
  * Bulk approve multiple agents
  */
-router.post('/agents/bulk-approve',
+router.post(
+  '/agents/bulk-approve',
   authenticateJWT,
   requireApprovalPermissions,
   validateAdminAction,
@@ -294,7 +298,7 @@ router.post('/agents/bulk-approve',
       res.json({
         success: true,
         message: `Successfully approved ${result.successCount} out of ${result.totalProcessed} agents`,
-        data: result
+        data: result,
       });
     } catch (error: any) {
       console.error('Error in bulk agent approval:', error);
@@ -310,7 +314,8 @@ router.post('/agents/bulk-approve',
  * POST /api/admin/agents/bulk-reject
  * Bulk reject multiple agents
  */
-router.post('/agents/bulk-reject',
+router.post(
+  '/agents/bulk-reject',
   authenticateJWT,
   requireApprovalPermissions,
   validateAdminAction,
@@ -331,7 +336,7 @@ router.post('/agents/bulk-reject',
       res.json({
         success: true,
         message: `Successfully rejected ${result.successCount} out of ${result.totalProcessed} agents`,
-        data: result
+        data: result,
       });
     } catch (error: any) {
       console.error('Error in bulk agent rejection:', error);
@@ -347,7 +352,8 @@ router.post('/agents/bulk-reject',
  * GET /api/admin/audit-log
  * Get admin action audit log (placeholder for future implementation)
  */
-router.get('/audit-log',
+router.get(
+  '/audit-log',
   authenticateJWT,
   requireAdmin,
   async (req: AuthenticatedRequest, res: Response) => {
@@ -359,13 +365,7 @@ router.get('/audit-log',
         });
       }
 
-      const {
-        page = 1,
-        limit = 50,
-        action,
-        startDate,
-        endDate
-      } = req.query;
+      const { page = 1, limit = 50, action, startDate, endDate } = req.query;
 
       // This is a placeholder - in a real implementation, you would
       // store admin actions in a dedicated audit log table
@@ -379,8 +379,8 @@ router.get('/audit-log',
             limit: parseInt(limit as string) || 50,
             total: 0,
             pages: 0,
-          }
-        }
+          },
+        },
       });
     } catch (error: any) {
       console.error('Error getting audit log:', error);

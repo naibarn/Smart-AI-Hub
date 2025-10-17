@@ -62,7 +62,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, loading = false }) => {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -99,9 +99,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, loading = false }) => {
                 right: '8px',
               }}
             >
-              <Tag color={getTypeColor(agent.type)}>
-                {getTypeLabel(agent.type)}
-              </Tag>
+              <Tag color={getTypeColor(agent.type)}>{getTypeLabel(agent.type)}</Tag>
             </div>
           </div>
         ) : (
@@ -130,20 +128,14 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, loading = false }) => {
                 right: '8px',
               }}
             >
-              <Tag color={getTypeColor(agent.type)}>
-                {getTypeLabel(agent.type)}
-              </Tag>
+              <Tag color={getTypeColor(agent.type)}>{getTypeLabel(agent.type)}</Tag>
             </div>
           </div>
         )
       }
       actions={[
         <Tooltip title="View details">
-          <Button
-            type="text"
-            icon={<EyeOutlined />}
-            onClick={handleCardClick}
-          >
+          <Button type="text" icon={<EyeOutlined />} onClick={handleCardClick}>
             View
           </Button>
         </Tooltip>,

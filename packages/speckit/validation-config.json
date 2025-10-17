@@ -1,0 +1,79 @@
+{
+  "$schema": "./src/config/validation-config.schema.json",
+  "enabled": {
+    "contentLength": true,
+    "titleFormat": true,
+    "idFormat": true,
+    "versionFormat": false,
+    "userStoryFormat": true,
+    "acceptanceCriteria": false,
+    "requirementClarity": false,
+    "fieldDefinitions": true,
+    "dataTypes": true,
+    "apiEndpoints": true,
+    "httpMethods": true,
+    "metadata": false,
+    "dependencies": true,
+    "traceability": true
+  },
+  "thresholds": {
+    "minContentLength": 10,
+    "shortContentThreshold": 50,
+    "veryShortContentThreshold": 20,
+    "minTitleLength": 3,
+    "maxTitleLength": 100,
+    "excellentScoreThreshold": 90,
+    "goodScoreThreshold": 70,
+    "acceptableScoreThreshold": 50,
+    "maxWarningsForGoodScore": 3,
+    "maxErrorsForGoodScore": 0,
+    "maxWarningsForAcceptableScore": 5,
+    "maxErrorsForAcceptableScore": 1
+  },
+  "strictness": {
+    "contentLength": 70,
+    "formatValidation": 80,
+    "completeness": 60,
+    "clarity": 50,
+    "consistency": 90,
+    "traceability": 70
+  },
+  "customPatterns": {
+    "require_business_value": {
+      "pattern": "business\\s+value|value\\s+proposition|benefit|roi",
+      "description": "Specification should mention business value or benefits",
+      "required": false,
+      "type": "warning"
+    },
+    "require_success_criteria": {
+      "pattern": "success\\s+criteria|definition\\s+of\\s+done|measurable|kpi",
+      "description": "Specification should define success criteria or measurable outcomes",
+      "required": false,
+      "type": "warning"
+    }
+  },
+  "traceability": {
+    "requireParent": false,
+    "requireDependencies": false,
+    "requireRelated": false,
+    "validateLinksExist": true,
+    "allowedLinkTypes": ["parent", "dependency", "related", "child", "implements"]
+  },
+  "userStory": {
+    "requireExactFormat": false,
+    "allowVariations": true,
+    "variations": [
+      "as a\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+",
+      "as an?\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+",
+      "as a\\s+.+\\s+i would like to\\s+.+\\s+so that\\s+.+",
+      "as a\\s+.+\\s+i need to\\s+.+\\s+so that\\s+.+"
+    ],
+    "requireAcceptanceCriteria": false,
+    "acceptanceCriteriaPatterns": [
+      "acceptance criteria",
+      "given\\s+.+\\s+when\\s+.+\\s+then\\s+.+",
+      "scenario:",
+      "examples:"
+    ]
+  }
+}

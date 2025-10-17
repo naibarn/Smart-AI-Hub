@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { Form, Input, Select, Checkbox, Radio, Slider, Switch, Button, Space, Card, Typography } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  Checkbox,
+  Radio,
+  Slider,
+  Switch,
+  Button,
+  Space,
+  Card,
+  Typography,
+} from 'antd';
 import { PlayCircleOutlined, DollarOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -51,7 +63,15 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
   };
 
   const renderField = (name: string, field: JSONSchemaField, required: boolean = false) => {
-    const { type, title, description, default: defaultValue, enum: enumValues, minimum, maximum } = field;
+    const {
+      type,
+      title,
+      description,
+      default: defaultValue,
+      enum: enumValues,
+      minimum,
+      maximum,
+    } = field;
 
     const fieldLabel = title || name;
     const fieldDescription = description;
@@ -83,15 +103,12 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
               label={fieldLabel}
               rules={[
                 { required, message: `Please enter ${fieldLabel}` },
-                { type: 'email', message: 'Please enter a valid email address' }
+                { type: 'email', message: 'Please enter a valid email address' },
               ]}
               tooltip={fieldDescription}
               initialValue={defaultValue}
             >
-              <Input
-                placeholder={`Enter ${fieldLabel.toLowerCase()}`}
-                disabled={disabled}
-              />
+              <Input placeholder={`Enter ${fieldLabel.toLowerCase()}`} disabled={disabled} />
             </Form.Item>
           );
         } else if (field.format === 'url') {
@@ -102,15 +119,12 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
               label={fieldLabel}
               rules={[
                 { required, message: `Please enter ${fieldLabel}` },
-                { type: 'url', message: 'Please enter a valid URL' }
+                { type: 'url', message: 'Please enter a valid URL' },
               ]}
               tooltip={fieldDescription}
               initialValue={defaultValue}
             >
-              <Input
-                placeholder={`Enter ${fieldLabel.toLowerCase()}`}
-                disabled={disabled}
-              />
+              <Input placeholder={`Enter ${fieldLabel.toLowerCase()}`} disabled={disabled} />
             </Form.Item>
           );
         } else if (enumValues && enumValues.length > 0) {
@@ -142,10 +156,7 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
               tooltip={fieldDescription}
               initialValue={defaultValue}
             >
-              <Input
-                placeholder={`Enter ${fieldLabel.toLowerCase()}`}
-                disabled={disabled}
-              />
+              <Input placeholder={`Enter ${fieldLabel.toLowerCase()}`} disabled={disabled} />
             </Form.Item>
           );
         }
@@ -181,7 +192,7 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
               label={fieldLabel}
               rules={[
                 { required, message: `Please enter ${fieldLabel}` },
-                { type: 'number', message: 'Please enter a valid number' }
+                { type: 'number', message: 'Please enter a valid number' },
               ]}
               tooltip={fieldDescription}
               initialValue={defaultValue}
@@ -238,13 +249,9 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
 
       case 'object':
         if (field.properties) {
-          const objectFields = Object.entries(field.properties).map(([key, subField]) => (
-            renderField(
-              `${name}.${key}`,
-              subField,
-              field.required?.includes(key) || false
-            )
-          ));
+          const objectFields = Object.entries(field.properties).map(([key, subField]) =>
+            renderField(`${name}.${key}`, subField, field.required?.includes(key) || false)
+          );
 
           return (
             <Card key={name} title={fieldLabel} size="small" style={{ marginBottom: '16px' }}>
@@ -269,10 +276,7 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
             tooltip={fieldDescription}
             initialValue={defaultValue}
           >
-            <Input
-              placeholder={`Enter ${fieldLabel.toLowerCase()}`}
-              disabled={disabled}
-            />
+            <Input placeholder={`Enter ${fieldLabel.toLowerCase()}`} disabled={disabled} />
           </Form.Item>
         );
     }
@@ -307,12 +311,7 @@ const AgentInputForm: React.FC<AgentInputFormProps> = ({
       }
       style={{ marginBottom: '24px' }}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        disabled={disabled}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit} disabled={disabled}>
         {renderForm()}
 
         <Form.Item style={{ marginTop: '24px', marginBottom: 0 }}>

@@ -377,7 +377,10 @@ function isAsyncIterable<T>(obj: any): obj is AsyncIterable<T> {
   return obj != null && typeof obj[Symbol.asyncIterator] === 'function';
 }
 
-async function handleMessage(connection: any, request: MCPRequest | MCPAgentFlowRequest): Promise<void> {
+async function handleMessage(
+  connection: any,
+  request: MCPRequest | MCPAgentFlowRequest
+): Promise<void> {
   const startTime = Date.now();
   const { id: requestId } = request;
   const { userId } = connection.metadata;
@@ -590,7 +593,7 @@ async function handleAgentFlowRequest(
     const hasCredits = await creditService.checkSufficientCredits(userId, {
       model: 'agent-flow',
       maxTokens: agentFlow.timeout ? Math.floor(agentFlow.timeout / 100) : 1000, // Rough estimation
-      type: 'agent_flow'
+      type: 'agent_flow',
     } as MCPRequest);
 
     if (!hasCredits) {
@@ -612,7 +615,7 @@ async function handleAgentFlowRequest(
     );
 
     const duration = Date.now() - startTime;
-    
+
     // Check if result is async iterable (streaming)
     if (result && isAsyncIterable(result)) {
       // Streaming response
@@ -623,7 +626,7 @@ async function handleAgentFlowRequest(
         if (chunk.data) {
           fullContent += chunk.data;
         }
-        
+
         connectionService.sendMessage(connection.id, {
           id: requestId,
           type: chunk.type,
@@ -638,7 +641,7 @@ async function handleAgentFlowRequest(
       }
 
       const creditsUsed = creditService.calculateCredits('agent-flow', totalTokens);
-      
+
       await creditService.deductCredits(userId, requestId, totalTokens, 'agent-flow');
 
       // Log usage
@@ -654,12 +657,12 @@ async function handleAgentFlowRequest(
     } else {
       // Non-streaming response
       const response = result as MCPResponse;
-      
+
       // Deduct credits based on actual usage
       const creditsUsed = creditService.calculateCredits('agent-flow', 1000); // Base cost
-      
+
       await creditService.deductCredits(userId, requestId, 1000, 'agent-flow');
-      
+
       connectionService.sendMessage(connection.id, response);
 
       // Log usage
