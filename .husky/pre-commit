@@ -51,7 +51,7 @@ echo "✅ Type checking passed"
 
 # Run unit tests for changed files
 echo "🧪 Running unit tests..."
-npm run test:unit -- --passWithNoTests --bail --silent
+npm run test -- --passWithNoTests --bail --silent
 TEST_EXIT_CODE=$?
 
 if [ $TEST_EXIT_CODE -ne 0 ]; then

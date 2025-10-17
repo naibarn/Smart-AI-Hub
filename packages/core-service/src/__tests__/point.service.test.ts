@@ -75,6 +75,7 @@ jest.mock('@smart-ai-hub/shared', () => ({
 }));
 
 // Get the mocked Prisma instance
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaClient: MockedPrismaClient } = require('@prisma/client');
 const mockPrisma = new MockedPrismaClient();
 const mockCreditService = creditService as jest.Mocked<typeof creditService>;
@@ -176,7 +177,12 @@ describe('PointService', () => {
       const description = 'Test usage';
       const mockPointAccount = { balance: 1000 };
       const mockUpdatedAccount = { balance: 900 };
-      const mockTransaction = { id: 'tx-123', userId, amount: -100, type: 'usage' as PointTransactionType };
+      const mockTransaction = {
+        id: 'tx-123',
+        userId,
+        amount: -100,
+        type: 'usage' as PointTransactionType,
+      };
 
       mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
       mockPrisma.pointAccount.update.mockResolvedValue(mockUpdatedAccount as any);
@@ -221,7 +227,12 @@ describe('PointService', () => {
       const mockUpdatedCreditAccount = { balance: 400 };
       const mockPointAccount = { balance: 1000 };
       const mockUpdatedPointAccount = { balance: 1000 + pointsToReceive };
-      const mockTransaction = { id: 'tx-123', userId, amount: pointsToReceive, type: 'exchange' as PointTransactionType };
+      const mockTransaction = {
+        id: 'tx-123',
+        userId,
+        amount: pointsToReceive,
+        type: 'exchange' as PointTransactionType,
+      };
 
       mockPrisma.creditAccount.findUnique.mockResolvedValue(mockCreditAccount as any);
       mockCreditService.deductCredits.mockResolvedValue({
@@ -347,7 +358,12 @@ describe('PointService', () => {
       const reason = 'Admin adjustment';
       const mockPointAccount = { balance: 1000 };
       const mockUpdatedAccount = { balance: 1500 };
-      const mockTransaction = { id: 'tx-123', userId, amount, type: 'admin_adjustment' as PointTransactionType };
+      const mockTransaction = {
+        id: 'tx-123',
+        userId,
+        amount,
+        type: 'admin_adjustment' as PointTransactionType,
+      };
 
       mockPrisma.pointAccount.findUnique.mockResolvedValue(mockPointAccount as any);
       mockPrisma.pointAccount.update.mockResolvedValue(mockUpdatedAccount as any);

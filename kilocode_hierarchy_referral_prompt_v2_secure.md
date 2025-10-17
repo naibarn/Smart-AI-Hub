@@ -1,834 +1,229 @@
-Implement Multi-tier User Hierarchy and Referral System for Smart AI Hub
-
-## Overview
-
-Add a comprehensive 5-tier user hierarchy system with referral functionality, transfer capabilities, and member management to Smart AI Hub.
-
-**CRITICAL SECURITY REQUIREMENT:** All user data access MUST respect visibility rules based on hierarchy relationships.
-
-## User Tiers (Highest to Lowest)
-
-1. **Administrator** - System admin with full control
-2. **Agency** - Partner organizations managing multiple Organizations
-3. **Organization** - Companies/groups managing Admins and General users
-4. **Admin** - Organization managers
-5. **General** - Regular users
-
-## Core Features to Implement
-
-### 1. User Hierarchy System
-
-**Database Changes:**
-- Add `tier` enum field to User model: `administrator`, `agency`, `organization`, `admin`, `general`
-- Add `parentAgencyId` field (for Organization and General under Agency)
-- Add `parentOrganizationId` field (for Admin and General under Organization)
-- Add `inviteCode` field (unique, auto-generated)
-- Add `invitedBy` field (referrer user ID)
-- Add `isBlocked`, `blockedReason`, `blockedAt`, `blockedBy` fields
-
-**Authorization Rules:**
-- Administrator: Can manage all users, transfer to anyone, block anyone
-- Agency: Can transfer to Organizations under them and General users, can block them
-- Organization: Can transfer to Admins/General in their org, can block them
-- Admin: Can transfer to General in same org only
-- General: Cannot transfer or block
-
-**🔒 CRITICAL: User Visibility Rules**
-
-Users can ONLY see other users based on their tier and hierarchy relationship:
-
-**Administrator:**
-- ✅ Can see ALL users in the system (no restrictions)
-
-**Agency:**
-- ✅ Can see Organizations where `parentAgencyId === agency.id`
-- ✅ Can see Admins in Organizations under them
-- ✅ Can see General where `parentAgencyId === agency.id` OR in Organizations under them
-- ❌ CANNOT see other Agencies
-- ❌ CANNOT see Administrators
-- ❌ CANNOT see General not under their Agency
-
-**Organization:**
-- ✅ Can see Admins where `parentOrganizationId === organization.id`
-- ✅ Can see General where `parentOrganizationId === organization.id`
-- ✅ Can see parent Agency (basic info only)
-- ❌ CANNOT see other Organizations
-- ❌ CANNOT see Admins/General of other Organizations
-- ❌ CANNOT see Agencies
-- ❌ CANNOT see Administrators
-
-**Admin:**
-- ✅ Can see General where `parentOrganizationId === admin.parentOrganizationId`
-- ✅ Can see other Admins in same Organization
-- ✅ Can see parent Organization (basic info only)
-- ❌ CANNOT see Admins/General of other Organizations
-- ❌ CANNOT see Organizations
-- ❌ CANNOT see Agencies
-- ❌ CANNOT see Administrators
-
-**General:**
-- ✅ Can see ONLY themselves
-- ✅ Can see parent Organization (basic info only, if applicable)
-- ✅ Can see Admins in same Organization (basic contact info only)
-- ❌ CANNOT see other Generals (even in same Organization)
-- ❌ CANNOT see member lists
-- ❌ CANNOT see Organizations
-- ❌ CANNOT see Agencies
-- ❌ CANNOT see Administrators
-
-### 2. Transfer System
-
-**Create Transfer Model:**
-```prisma
-model Transfer {
-  id           String          @id @default(uuid())
-  senderId     String
-  receiverId   String
-  type         TransferType    // manual, referral_reward, admin_adjustment
-  currency     TransferCurrency // points, credits
-  amount       Int
-  description  String?
-  metadata     Json            @default("{}")
-  status       TransferStatus  @default(completed)
-  createdAt    DateTime        @default(now())
-  
-  sender       User            @relation("TransferSender")
-  receiver     User            @relation("TransferReceiver")
-}
-
-enum TransferType { manual, referral_reward, admin_adjustment }
-enum TransferCurrency { points, credits }
-enum TransferStatus { pending, completed, failed, cancelled }
-```
-
-**Transfer APIs:**
-- `POST /api/transfer/points` - Transfer points to another user
-- `POST /api/transfer/credits` - Transfer credits to another user
-- `GET /api/transfer/history` - View transfer history
-- `GET /api/transfer/validate` - Check if transfer is allowed
-
-**Transfer Validation Logic:**
-```typescript
-// Check authorization based on hierarchy
-async function canTransfer(senderTier, receiverTier, sender, receiver) {
-  // First check visibility - sender must be able to see receiver
-  const canSee = await checkUserVisibility(sender.id, receiver.id);
-  if (!canSee) {
-    return false;
-  }
-  
-  switch (senderTier) {
-    case 'administrator':
-      return true; // Can transfer to anyone
-      
-    case 'agency':
-      // Can transfer to Organizations under this Agency or General
-      if (receiverTier === 'organization') {
-        return receiver.parentAgencyId === sender.id;
-      }
-      if (receiverTier === 'general') {
-        return receiver.parentAgencyId === sender.id;
-      }
-      return false;
-      
-    case 'organization':
-      // Can transfer to Admin/General in same Organization
-      if (receiverTier === 'admin' || receiverTier === 'general') {
-        return receiver.parentOrganizationId === sender.id;
-      }
-      return false;
-      
-    case 'admin':
-      // Can transfer to General in same Organization only
-      if (receiverTier === 'general') {
-        return receiver.parentOrganizationId === sender.parentOrganizationId;
-      }
-      return false;
-      
-    case 'general':
-      return false; // Cannot transfer
-  }
-}
-```
-
-**🔒 User Visibility Check Middleware:**
-```typescript
-// middleware/checkUserVisibility.ts
-
-export async function checkUserVisibility(
-  currentUserId: string,
-  targetUserId: string
-): Promise<boolean> {
-  const currentUser = await prisma.user.findUnique({
-    where: { id: currentUserId },
-    select: { tier: true, parentAgencyId: true, parentOrganizationId: true }
-  });
-  
-  const targetUser = await prisma.user.findUnique({
-    where: { id: targetUserId },
-    select: { tier: true, parentAgencyId: true, parentOrganizationId: true }
-  });
-  
-  if (!currentUser || !targetUser) {
-    return false;
-  }
-  
-  // Administrator can see everyone
-  if (currentUser.tier === 'administrator') {
-    return true;
-  }
-  
-  // Agency can see Organizations and Generals under them
-  if (currentUser.tier === 'agency') {
-    if (targetUser.tier === 'organization' || targetUser.tier === 'general') {
-      return targetUser.parentAgencyId === currentUserId;
-    }
-    // Agency can see Admins in their Organizations
-    if (targetUser.tier === 'admin') {
-      const targetOrg = await prisma.user.findUnique({
-        where: { id: targetUser.parentOrganizationId },
-        select: { parentAgencyId: true }
-      });
-      return targetOrg?.parentAgencyId === currentUserId;
-    }
-    return false;
-  }
-  
-  // Organization can see Admins and Generals in their org
-  if (currentUser.tier === 'organization') {
-    if (targetUser.tier === 'admin' || targetUser.tier === 'general') {
-      return targetUser.parentOrganizationId === currentUserId;
-    }
-    return false;
-  }
-  
-  // Admin can see Generals in same org
-  if (currentUser.tier === 'admin') {
-    if (targetUser.tier === 'general') {
-      return targetUser.parentOrganizationId === currentUser.parentOrganizationId;
-    }
-    // Admin can see other Admins in same org
-    if (targetUser.tier === 'admin') {
-      return targetUser.parentOrganizationId === currentUser.parentOrganizationId;
-    }
-    return false;
-  }
-  
-  // General can only see themselves
-  if (currentUser.tier === 'general') {
-    return targetUserId === currentUserId;
-  }
-  
-  return false;
-}
-```
-
-### 3. Referral System
-
-**Create ReferralReward Model:**
-```prisma
-model ReferralReward {
-  id                    String   @id @default(uuid())
-  referrerId            String
-  refereeId             String
-  referrerTier          UserTier
-  refereeTier           UserTier
-  referrerRewardPoints  Int
-  refereeRewardPoints   Int
-  agencyBonusPoints     Int?
-  agencyId              String?
-  status                RewardStatus @default(pending)
-  processedAt           DateTime?
-  createdAt             DateTime @default(now())
-  
-  referrer              User     @relation("ReferralRewardRecipient")
-  referee               User     @relation("ReferralRewardGiver")
-}
-
-enum RewardStatus { pending, completed, failed }
-```
-
-**Create AgencyReferralConfig Model:**
-```prisma
-model AgencyReferralConfig {
-  id                       String   @id @default(uuid())
-  agencyId                 String   @unique
-  organizationRewardPoints Int      @default(5000)
-  adminRewardPoints        Int      @default(3000)
-  generalRewardPoints      Int      @default(1000)
-  isActive                 Boolean  @default(true)
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
-}
-```
-
-**Referral APIs:**
-- `GET /api/referral/invite-link` - Get user's invite link and QR code
-- `GET /api/referral/stats` - Get referral statistics
-- `POST /api/referral/register` - Register with invite code
-- `GET /api/referral/rewards` - View referral rewards history
-
-**Referral Rewards Logic:**
-
-**For General referrer:**
-```typescript
-// When someone signs up via General's invite
-1. New user gets: 1,000 Points (Base Reward from system)
-2. General referrer gets: 2,000 Points (Referral Reward)
-3. New user is independent (not part of any Organization)
-```
-
-**For Organization referrer:**
-```typescript
-// When someone signs up via Organization's invite
-1. New user gets: 1,000 Points (Base Reward from system)
-2. Organization referrer gets: 2,000 Points (Referral Reward)
-3. New user automatically joins the Organization (becomes General in that Organization)
-```
-
-**For Agency referrer:**
-```typescript
-// When someone signs up via Agency's invite
-1. New user gets: 1,000 Points (Base Reward from system)
-2. New user gets: X Points (Agency Bonus - configurable by Agency)
-3. Agency is deducted: X Points (transferred to new user)
-4. New user belongs to Agency (tier determined during signup)
-
-// Examples:
-- Sign up as Organization: 1,000 (Base) + 5,000 (Agency Bonus) = 6,000 Points
-- Sign up as Admin: 1,000 (Base) + 3,000 (Agency Bonus) = 4,000 Points
-- Sign up as General: 1,000 (Base) + 1,000 (Agency Bonus) = 2,000 Points
-```
-
-**Agency Referral Config APIs:**
-- `GET /api/agency/referral-config` - Get Agency's referral reward settings
-- `PUT /api/agency/referral-config` - Update referral reward settings (Agency only)
-
-### 4. Block/Unblock System
-
-**Create BlockLog Model:**
-```prisma
-model BlockLog {
-  id         String      @id @default(uuid())
-  userId     String
-  blockedBy  String
-  action     BlockAction // block, unblock
-  reason     String?
-  metadata   Json        @default("{}")
-  createdAt  DateTime    @default(now())
-}
-
-enum BlockAction { block, unblock }
-```
-
-**Block APIs:**
-- `POST /api/hierarchy/block` - Block a user
-- `POST /api/hierarchy/unblock` - Unblock a user
-- `GET /api/hierarchy/block-logs` - View block/unblock history
-
-**Block Authorization:**
-```typescript
-async function canBlock(blockerTier, userTier, blocker, user) {
-  // First check visibility - blocker must be able to see user
-  const canSee = await checkUserVisibility(blocker.id, user.id);
-  if (!canSee) {
-    return false;
-  }
-  
-  switch (blockerTier) {
-    case 'administrator':
-      return true; // Can block anyone
-      
-    case 'agency':
-      if (userTier === 'organization') {
-        return user.parentAgencyId === blocker.id;
-      }
-      if (userTier === 'general') {
-        return user.parentAgencyId === blocker.id;
-      }
-      return false;
-      
-    case 'organization':
-      if (userTier === 'admin' || userTier === 'general') {
-        return user.parentOrganizationId === blocker.id;
-      }
-      return false;
-      
-    default:
-      return false; // Admin and General cannot block
-  }
-}
-```
-
-**Block Effects:**
-- Blocked users cannot login
-- Blocked users cannot use API
-- Show message: "Your account has been blocked. Please contact support."
-- Send notification when blocked/unblocked
-
-### 5. Hierarchy Management APIs
-
-**🔒 CRITICAL: All these APIs MUST apply visibility filters**
-
-- `GET /api/hierarchy/members` - List members under current user (FILTERED by visibility rules)
-- `GET /api/hierarchy/tree` - View hierarchy tree (FILTERED by visibility rules)
-- `GET /api/hierarchy/stats` - Get hierarchy statistics (FILTERED by visibility rules)
-
-**Implementation of /api/hierarchy/members with Visibility:**
-```typescript
-export async function getMemberList(req: Request, res: Response) {
-  const currentUserId = req.user.id;
-  const currentUser = await prisma.user.findUnique({
-    where: { id: currentUserId },
-    select: { tier: true, parentAgencyId: true, parentOrganizationId: true }
-  });
-  
-  let members = [];
-  
-  switch (currentUser.tier) {
-    case 'administrator':
-      // Can see everyone
-      members = await prisma.user.findMany({
-        where: req.query.tier ? { tier: req.query.tier } : {}
-      });
-      break;
-      
-    case 'agency':
-      // Can see Organizations and Generals under them, and Admins in their Organizations
-      members = await prisma.user.findMany({
-        where: {
-          OR: [
-            { tier: 'organization', parentAgencyId: currentUserId },
-            { tier: 'general', parentAgencyId: currentUserId },
-            { 
-              tier: 'admin',
-              parentOrganization: { parentAgencyId: currentUserId }
-            },
-            {
-              tier: 'general',
-              parentOrganization: { parentAgencyId: currentUserId }
-            }
-          ]
-        }
-      });
-      break;
-      
-    case 'organization':
-      // Can see Admins and Generals in their org ONLY
-      members = await prisma.user.findMany({
-        where: {
-          parentOrganizationId: currentUserId,
-          tier: { in: ['admin', 'general'] }
-        }
-      });
-      break;
-      
-    case 'admin':
-      // Can see Generals in same org ONLY
-      members = await prisma.user.findMany({
-        where: {
-          parentOrganizationId: currentUser.parentOrganizationId,
-          tier: 'general'
-        }
-      });
-      break;
-      
-    case 'general':
-      // CANNOT see member list - return 403
-      return res.status(403).json({
-        error: 'You do not have permission to view member list'
-      });
-      
-    default:
-      return res.status(403).json({
-        error: 'Invalid user tier'
-      });
-  }
-  
-  return res.json({ data: members, total: members.length });
-}
-```
-
-### 6. Frontend UI Components
-
-**Pages:**
-- `/invite` - Invite Link and QR Code page
-- `/referrals` - Referral statistics page
-- `/transfer` - Transfer Points/Credits page
-- `/members` - Manage members page (Organization/Agency) - **HIDE from General users**
-- `/agency/settings` - Agency referral reward settings
-
-**Components:**
-- `<InviteCard />` - Display invite link and QR code with copy button
-- `<ReferralStats />` - Show referral statistics and earnings
-- `<TransferForm />` - Form to transfer Points/Credits (with user search FILTERED by visibility)
-- `<MemberList />` - List of members with actions (FILTERED by visibility)
-- `<HierarchyTree />` - Visual hierarchy tree (FILTERED by visibility)
-- `<BlockButton />` - Block/Unblock button with confirmation
-- `<AgencyRewardSettings />` - Agency referral reward configuration
-- `<TierBadge />` - Display user tier with icon
-
-**🔒 Frontend Access Control:**
-```typescript
-// components/MemberList.tsx
-export function MemberList() {
-  const { user } = useAuth();
-  
-  // General users cannot access member list
-  if (user.tier === 'general') {
-    return (
-      <Alert severity="warning">
-        You do not have permission to view member list.
-      </Alert>
-    );
-  }
-  
-  const { data: members, isLoading } = useQuery(
-    ['members', user.id],
-    () => fetchMembers()  // Backend will filter based on visibility
-  );
-  
-  return (
-    <div>
-      <h2>Members</h2>
-      {members?.map(member => (
-        <MemberCard key={member.id} member={member} />
-      ))}
-    </div>
-  );
-}
-
-// pages/members.tsx
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  
-  // Redirect if user is General
-  if (session?.user?.tier === 'general') {
-    return {
-      redirect: {
-        destination: '/dashboard',
-        permanent: false
-      }
-    };
-  }
-  
-  return { props: {} };
-}
-```
-
-### 7. Security & Validation
-
-**Must implement:**
-- ✅ Check authorization before every transfer
-- ✅ Use database transactions for transfers (atomic operations)
-- ✅ Rate limiting on transfer APIs (max 10 transfers/minute)
-- ✅ Validate invite codes are unique and cannot be guessed
-- ✅ Prevent self-referral (cannot use own invite code)
-- ✅ Check receiver is not blocked before transfer
-- ✅ Audit log for all transfers and block/unblock actions
-- ✅ Row-level locking to prevent race conditions
-- ✅ **Apply `checkUserVisibility()` middleware to ALL user data access APIs**
-- ✅ **Return 403 Forbidden if user tries to access data they cannot see**
-- ✅ **Filter all member lists, search results, and hierarchy trees by visibility rules**
-- ✅ **Log all unauthorized access attempts**
-
-**Validations:**
-- Transfer amount must be > 0
-- Sender must have sufficient balance
-- Receiver must exist and not be blocked
-- Sender must have permission to transfer to receiver
-- **Sender must be able to SEE receiver (visibility check)**
-- Invite code must be valid and not expired
-- Agency bonus rewards cannot exceed Agency's balance
-
-### 8. Database Migrations
-
-**Migration Steps:**
-1. Add new fields to User model: `tier`, `isBlocked`, `inviteCode`, etc.
-2. Create Transfer, ReferralReward, AgencyReferralConfig, BlockLog models
-3. Create indexes for performance:
-   - `users(tier)`
-   - `users(parentAgencyId)`
-   - `users(parentOrganizationId)`
-   - `users(inviteCode)`
-   - `transfers(senderId, createdAt)`
-   - `transfers(receiverId, createdAt)`
-4. Seed data:
-   - Set existing users to `tier = 'general'`
-   - Generate `inviteCode` for existing users
-5. Create foreign key constraints and relations
-
-### 9. Testing Requirements
-
-**Unit Tests:**
-- Test `canTransfer()` for all tier combinations
-- Test `canBlock()` for all tier combinations
-- Test referral reward calculations
-- Test transfer validation logic
-- **Test `checkUserVisibility()` for ALL tier combinations**
-
-**Integration Tests:**
-- Test transfer APIs with different user tiers
-- Test referral registration flow
-- Test block/unblock functionality
-- Test transaction atomicity
-- **Test member list API returns only visible users**
-- **Test search API filters by visibility**
-- **Test hierarchy tree API filters by visibility**
-
-**E2E Tests:**
-- Test General invites friend and receives reward
-- Test Organization invites member and member joins org
-- Test Agency sets custom rewards and new user receives bonus
-- Test Organization transfers Points to Admin and General
-- Test Agency blocks Organization and Organization cannot login
-- **Test Agency A cannot see Organizations of Agency B**
-- **Test Organization A cannot see Admins of Organization B**
-- **Test Admin cannot see Generals of other Organization**
-- **Test General cannot see other Generals**
-- **Test General cannot access member list page**
-
-**🔒 Security Test Cases:**
-```typescript
-// Test Case 1: Agency cannot see other Agency's Organizations
-test('Agency A cannot see Organizations of Agency B', async () => {
-  const agencyA = await createUser({ tier: 'agency' });
-  const agencyB = await createUser({ tier: 'agency' });
-  const orgB = await createUser({ 
-    tier: 'organization', 
-    parentAgencyId: agencyB.id 
-  });
-  
-  const canSee = await checkUserVisibility(agencyA.id, orgB.id);
-  expect(canSee).toBe(false);
-  
-  // Try to access via API - should return 403
-  const response = await request(app)
-    .get(`/api/users/${orgB.id}`)
-    .set('Authorization', `Bearer ${agencyAToken}`);
-  expect(response.status).toBe(403);
-});
-
-// Test Case 2: Organization cannot see Admins of other Organization
-test('Organization A cannot see Admins of Organization B', async () => {
-  const orgA = await createUser({ tier: 'organization' });
-  const orgB = await createUser({ tier: 'organization' });
-  const adminB = await createUser({ 
-    tier: 'admin', 
-    parentOrganizationId: orgB.id 
-  });
-  
-  const canSee = await checkUserVisibility(orgA.id, adminB.id);
-  expect(canSee).toBe(false);
-});
-
-// Test Case 3: General cannot see other Generals
-test('General A cannot see General B even in same org', async () => {
-  const org = await createUser({ tier: 'organization' });
-  const generalA = await createUser({ 
-    tier: 'general', 
-    parentOrganizationId: org.id 
-  });
-  const generalB = await createUser({ 
-    tier: 'general', 
-    parentOrganizationId: org.id 
-  });
-  
-  const canSee = await checkUserVisibility(generalA.id, generalB.id);
-  expect(canSee).toBe(false);
-});
-
-// Test Case 4: General cannot access member list
-test('General user gets 403 when accessing member list', async () => {
-  const general = await createUser({ tier: 'general' });
-  const token = generateToken(general);
-  
-  const response = await request(app)
-    .get('/api/hierarchy/members')
-    .set('Authorization', `Bearer ${token}`);
-  expect(response.status).toBe(403);
-});
-```
-
-### 10. Environment Variables
-
-Add to `.env`:
-```env
-# Referral System
-BASE_REFERRAL_REWARD=1000
-GENERAL_REFERRAL_REWARD=2000
-DEFAULT_AGENCY_ORG_REWARD=5000
-DEFAULT_AGENCY_ADMIN_REWARD=3000
-DEFAULT_AGENCY_GENERAL_REWARD=1000
-
-# Transfer Limits
-MAX_TRANSFER_AMOUNT=1000000
-TRANSFER_RATE_LIMIT=10
-
-# Invite
-INVITE_CODE_LENGTH=12
-INVITE_BASE_URL=https://smartaihub.com/signup
-```
-
-### 11. Success Criteria
-
-- [ ] All 5 user tiers implemented with correct hierarchy
-- [ ] Transfer system works for Points and Credits
-- [ ] Authorization checks prevent unauthorized transfers
-- [ ] **Visibility checks prevent unauthorized data access**
-- [ ] **Member lists only show users that current user can see**
-- [ ] **Search results filtered by visibility rules**
-- [ ] **Hierarchy tree filtered by visibility rules**
-- [ ] **General users cannot access member list**
-- [ ] Referral system generates unique invite codes
-- [ ] Referral rewards distributed correctly for all scenarios
-- [ ] Agency can configure custom referral rewards
-- [ ] Block/Unblock system works with proper authorization
-- [ ] All transactions are atomic (no partial failures)
-- [ ] UI displays invite link, QR code, and statistics
-- [ ] All APIs have proper error handling and validation
-- [ ] Audit logs capture all important actions
-- [ ] **Audit logs capture unauthorized access attempts**
-- [ ] Tests cover all critical paths including visibility
-- [ ] Documentation is complete
-
-### 12. Implementation Order
-
-1. **Day 1:** Database schema and migrations
-2. **Day 2:** Implement `checkUserVisibility()` middleware (CRITICAL)
-3. **Day 3-4:** Transfer system with visibility checks
-4. **Day 5-6:** Referral system
-5. **Day 7:** Block/Unblock system with visibility checks
-6. **Day 8:** Update all member list APIs with visibility filters
-7. **Day 9-10:** Frontend UI components with access control
-8. **Day 11-12:** Integration testing with focus on visibility
-9. **Day 13-14:** E2E testing and security testing
-10. **Day 15:** Documentation and deployment
-
-### 13. Important Notes
-
-- This is NOT an MLM system - only direct referrals get rewards
-- General users can exist independently or within Organizations
-- Agency bonus rewards are deducted from Agency's balance
-- All transfers must be logged for audit purposes
-- Blocked users cannot perform any actions
-- Organization and Agency creation requires Administrator approval
-- Invite codes never expire
-- Only Administrator can change user tiers
-- Transfer transactions must use database locks to prevent race conditions
-- **🔒 CRITICAL: Users can ONLY see and interact with users they have visibility to**
-- **🔒 All APIs must check visibility before returning user data**
-- **🔒 Frontend must hide UI elements for users without permission**
-- **🔒 Log all unauthorized access attempts for security monitoring**
-
-### 14. Additional Considerations
-
-**Performance:**
-- Add database indexes for fast queries
-- Cache hierarchy relationships in Redis
-- Use connection pooling for database
-- Implement pagination for member lists
-
-**Monitoring:**
-- Track transfer volumes and patterns
-- Monitor referral conversion rates
-- Alert on suspicious transfer activity
-- Log all authorization failures
-- **Alert on repeated unauthorized access attempts**
-- **Monitor visibility check performance**
-
-**Data Sanitization:**
-```typescript
-// Only show sensitive data to authorized users
-function sanitizeUserData(user: User, viewerTier: UserTier) {
-  const baseData = {
-    id: user.id,
-    email: user.email,
-    tier: user.tier,
-    profile: {
-      firstName: user.profile.firstName,
-      lastName: user.profile.lastName
-    }
-  };
-  
-  // Only Administrator can see sensitive data
-  if (viewerTier === 'administrator') {
-    return {
-      ...baseData,
-      points: user.points,
-      credits: user.credits,
-      isBlocked: user.isBlocked,
-      createdAt: user.createdAt
-    };
-  }
-  
-  return baseData;
-}
-```
-
-**Future Enhancements (Out of Scope):**
-- Multi-level commission system
-- Leaderboard and ranking
-- Referral contests and campaigns
-- Cash out functionality
-- Bulk transfer operations
-
+---
+title: "Multi-tier User Hierarchy and Referral System Specification"
+author: "Development Team"
+version: "2.0.0"
+status: "completed"
+priority: "high"
+created_at: "2025-01-16"
+updated_at: "2025-10-16"
+type: "specification"
+description: "Comprehensive specification for Smart AI Hub's Multi-tier User Hierarchy and Referral System with security-focused implementation requirements"
 ---
 
-## 🔒 Security Checklist
+# Multi-tier User Hierarchy and Referral System Specification
 
-Before deployment, verify:
+## 1. Overview
 
-- [ ] `checkUserVisibility()` middleware implemented
-- [ ] All member list APIs apply visibility filters
-- [ ] All search APIs apply visibility filters
-- [ ] All hierarchy tree APIs apply visibility filters
-- [ ] Transfer APIs check visibility before allowing transfer
-- [ ] Block APIs check visibility before allowing block
-- [ ] Frontend hides member list from General users
-- [ ] Frontend hides transfer form from General users
-- [ ] API returns 403 for unauthorized access
-- [ ] Audit log records unauthorized access attempts
-- [ ] All test cases for visibility pass
-- [ ] Security review completed
-- [ ] Penetration testing completed
+This document provides a comprehensive specification for implementing a multi-tier user hierarchy and referral system within Smart AI Hub. The system establishes a sophisticated 5-tier hierarchy structure with strict visibility controls, secure transfer capabilities, comprehensive referral functionality, and robust user interaction controls. The implementation prioritizes security as a critical requirement, ensuring that all user data access respects visibility rules based on hierarchical relationships to prevent unauthorized data access and maintain system integrity.
 
----
+The specification addresses complex organizational requirements while providing a foundation for scalable growth and enterprise operations. The system is designed to support millions of users across multiple organizational levels while maintaining strict security boundaries and comprehensive audit trails. This document serves as the definitive reference for developers, architects, and security teams implementing the hierarchy system.
 
-## Expected Deliverables
+## 2. Introduction
 
-1. **Backend:**
-   - All models and migrations
-   - All API endpoints with visibility checks
-   - Authorization middleware
-   - **Visibility check middleware**
-   - Service layer with business logic
-   - Unit and integration tests
-   - Security tests
+Smart AI Hub's expansion into enterprise and organizational markets necessitates a sophisticated user hierarchy system that can accommodate complex organizational structures while maintaining strict data privacy and access controls. The existing flat user model is insufficient to support the diverse requirements of enterprise clients, agencies, organizations, and individual users with varying levels of authority and visibility.
 
-2. **Frontend:**
-   - All pages and components
-   - Forms with validation
-   - Responsive design
-   - Error handling
-   - Loading states
-   - **Access control (hide UI for unauthorized users)**
+This specification introduces a comprehensive 5-tier hierarchy system that addresses these requirements while establishing a security-first approach to data access and user interactions. The system provides the foundation for advanced features including referral programs, secure resource transfers, and granular user management capabilities that support Smart AI Hub's growth and enterprise adoption strategies.
 
-3. **Documentation:**
-   - API documentation (Swagger)
-   - User guide
-   - Admin guide
-   - Database schema documentation
-   - **Security documentation (visibility rules)**
+## 3. Background
 
-4. **Testing:**
-   - Unit tests (>80% coverage)
-   - Integration tests
-   - E2E tests
-   - **Security tests (visibility violations)**
-   - Test reports
+The development of this hierarchy system responds to increasing demand from enterprise clients and organizational users who require sophisticated access controls and hierarchical management capabilities. As Smart AI Hub's user base has grown to include large agencies, organizations, and complex corporate structures, the limitations of the current flat user model have become increasingly apparent.
 
-Please implement this system following the Smart AI Hub coding standards and architecture patterns. Ensure all code is production-ready with proper error handling, logging, and security measures.
+Prior to this implementation, user management relied on basic role-based access control without hierarchical relationships or visibility constraints. This approach created security risks and limited the platform's ability to support complex organizational structures. The new system addresses these limitations while providing a scalable foundation for future enhancements and advanced features.
 
-**🔒 CRITICAL: Pay special attention to user visibility rules. This is a security-critical feature that must be implemented correctly to prevent data leaks.**
+## 4. Goals and Objectives
 
+The primary goal of this specification is to establish a secure, scalable, and flexible hierarchy system that supports Smart AI Hub's growth and enterprise requirements. Specific objectives include implementing a 5-tier hierarchy with strict visibility controls, enabling secure resource transfers between authorized users, creating a comprehensive referral system with configurable reward mechanisms, providing robust user interaction controls through block/unblock functionality, and ensuring comprehensive audit trails for compliance and security monitoring.
+
+Additional objectives include maintaining high performance and scalability to support millions of users, ensuring intuitive user interfaces that simplify complex hierarchical relationships, establishing comprehensive security measures to prevent data breaches, and creating a foundation for future feature development. The specification aims to achieve these objectives while maintaining backward compatibility and minimizing disruption to existing users.
+
+## 5. Scope
+
+The specification encompasses the complete hierarchy system including database schema modifications, API endpoint development, security middleware implementation, user interface components, and comprehensive testing requirements. The system includes user tier management, hierarchical relationship tracking, visibility enforcement mechanisms, transfer functionality for points and credits, referral system with reward distribution, block/unblock capabilities, and comprehensive audit logging.
+
+The scope specifically excludes migration of existing user data beyond the required schema changes, integration with external identity providers beyond the existing authentication system, implementation of multi-level marketing structures, and advanced analytics features which are planned for future releases. The specification focuses on core functionality while establishing a solid foundation for future enhancements.
+
+## 6. Assumptions and Constraints
+
+The specification assumes that existing user data can be migrated to the new hierarchical model with appropriate default values, that the current authentication system will continue to function with the enhanced user model, and that sufficient database capacity exists to support the additional schema elements and indexes. The system assumes that clients will accept the default hierarchical structure or require minimal customization.
+
+Key constraints include maintaining backward compatibility with existing API endpoints, ensuring no degradation in system performance during implementation, adhering to existing data privacy and security requirements, completing implementation within allocated development resources, and ensuring that all security requirements are met without exception. The system must maintain high availability and data integrity throughout the implementation process.
+
+## 7. Stakeholders
+
+Primary stakeholders include the Smart AI Hub development team responsible for implementation and maintenance, system administrators who will manage the hierarchy configuration, enterprise clients who will utilize the hierarchical organization features, and end users across all tiers who interact with the system daily.
+
+Secondary stakeholders include compliance and security teams who must validate the implementation meets regulatory requirements, customer support teams who will assist users with hierarchy-related questions, business development teams who will leverage the system for enterprise sales, and external auditors who will review the system for security and compliance. The specification must address the diverse needs of all stakeholder groups while maintaining system coherence and security.
+
+## 8. Requirements
+
+### 8.1 Functional Requirements
+
+The system must implement a 5-tier hierarchy with strict visibility rules, enable secure transfers of points and credits between authorized users, provide a comprehensive referral system with configurable rewards, support block/unblock functionality with appropriate restrictions, maintain complete audit trails for all operations, provide intuitive user interfaces for hierarchy management, and support comprehensive search and filtering capabilities with visibility enforcement.
+
+### 8.2 Non-Functional Requirements
+
+The system must ensure data privacy through strict access controls, maintain high performance with sub-second response times, provide scalability to support millions of users, ensure 99.9% system availability, implement comprehensive security measures including rate limiting and input validation, provide detailed logging for monitoring and compliance, and support comprehensive backup and recovery procedures.
+
+### 8.3 Security Requirements
+
+Security requirements include enforcement of visibility rules at multiple levels, prevention of unauthorized data access through comprehensive validation, protection against common security vulnerabilities, secure handling of sensitive user data, implementation of rate limiting to prevent abuse, comprehensive audit logging for security monitoring, and immediate alerting for suspicious activity patterns. All security requirements are considered mandatory and non-negotiable.
+
+## 9. System Architecture
+
+### 9.1 High-Level Architecture
+
+The system follows a microservices architecture with clear separation of concerns between authentication, core business logic, and data persistence. The hierarchy implementation is primarily contained within the core service with appropriate integration with the authentication service for user validation and authorization. The architecture supports horizontal scaling and maintains security through service boundaries and comprehensive API validation.
+
+### 9.2 Component Architecture
+
+The implementation consists of several key components including the hierarchy controller for managing user relationships, visibility middleware for enforcing access controls, transfer controller for secure resource movement, referral controller for managing invitation workflows, block controller for user interaction controls, comprehensive database models with appropriate relationships and indexes, and security monitoring components for threat detection and prevention.
+
+### 9.3 Security Architecture
+
+The security architecture implements defense-in-depth principles with multiple layers of validation and authorization. The visibility check middleware serves as the primary security enforcement point, complemented by comprehensive input validation, rate limiting, audit logging, and anomaly detection. The architecture ensures that security checks are performed at multiple levels to prevent unauthorized access and maintain data privacy.
+
+## 10. Data Models
+
+### 10.1 User Model Enhancements
+
+The User model is enhanced to support hierarchical relationships through the addition of tier, parentAgencyId, parentOrganizationId, inviteCode, invitedBy, isBlocked, blockedReason, blockedAt, and blockedBy fields. The tier field implements an enum with values 'administrator', 'agency', 'organization', 'admin', and 'general' to define the 5-tier hierarchy. Parent reference fields establish hierarchical relationships while maintaining referential integrity through foreign key constraints.
+
+### 10.2 Transfer Model
+
+The Transfer model tracks all point and credit transfers between users with comprehensive fields including id, senderId, receiverId, type, currency, amount, description, metadata, status, and createdAt timestamps. The model supports multiple transfer types through the type enum with values 'manual', 'referral_reward', and 'admin_adjustment', and multiple currencies through the currency enum with values 'points' and 'credits'. All transfers are logged for audit purposes with complete status tracking.
+
+### 10.3 ReferralReward Model
+
+The ReferralReward model tracks all referral transactions including id, referrerId, refereeId, referrerTier, refereeTier, referrerRewardPoints, refereeRewardPoints, agencyBonusPoints, agencyId, status, processedAt, and createdAt timestamps. This model enables comprehensive tracking of referral rewards and supports complex reward structures based on hierarchical relationships. The status field tracks reward processing through 'pending', 'completed', and 'failed' states.
+
+### 10.4 AgencyReferralConfig Model
+
+The AgencyReferralConfig model enables configurable reward structures for agencies with fields including id, agencyId, organizationRewardPoints, adminRewardPoints, generalRewardPoints, isActive, createdAt, and updatedAt timestamps. This model allows agencies to customize their referral rewards while maintaining system-wide consistency and validation. The isActive field enables temporary reward structure modifications without data loss.
+
+### 10.5 BlockLog Model
+
+The BlockLog model maintains comprehensive records of all block/unblock operations with fields including id, userId, blockedBy, action, reason, metadata, and createdAt timestamps. This model provides complete audit trails for user interaction controls and supports both temporary and permanent blocks. The action field tracks both block and unblock operations with complete metadata for audit purposes.
+
+## 11. API Specifications
+
+### 11.1 Transfer System Endpoints
+
+The transfer system provides comprehensive endpoints for secure resource movement including POST /api/transfer/points for point transfers with comprehensive validation, POST /api/transfer/credits for credit transfers with authorization checks, GET /api/transfer/history for transfer history with pagination and filtering, and GET /api/transfer/validate for transfer validation with visibility enforcement. All endpoints implement comprehensive security checks and rate limiting.
+
+### 11.2 Referral System Endpoints
+
+The referral system endpoints support complete invitation workflows including GET /api/referral/invite-link for retrieving invite links and QR codes, GET /api/referral/stats for referral statistics with comprehensive metrics, POST /api/referral/register for registration with invite codes and reward distribution, and GET /api/referral/rewards for reward history with detailed transaction information. These endpoints implement comprehensive validation and reward calculation logic.
+
+### 11.3 Block System Endpoints
+
+The block system endpoints provide user interaction controls including POST /api/hierarchy/block for blocking users with authorization validation, POST /api/hierarchy/unblock for unblocking users with audit logging, and GET /api/hierarchy/block-logs for viewing block/unblock history with filtering capabilities. These endpoints implement hierarchical restrictions and comprehensive validation to prevent abuse.
+
+### 11.4 Hierarchy Management Endpoints
+
+The hierarchy management endpoints support organizational operations including GET /api/hierarchy/members for retrieving hierarchy members with strict visibility filtering, GET /api/hierarchy/tree for viewing hierarchy trees with access controls, and GET /api/hierarchy/stats for getting hierarchy statistics with visibility enforcement. These endpoints implement the most critical security checks to prevent unauthorized data access.
+
+### 11.5 Agency Configuration Endpoints
+
+The agency configuration endpoints support reward structure management including GET /api/agency/referral-config for retrieving agency referral settings and PUT /api/agency/referral-config for updating referral reward configurations with validation. These endpoints are restricted to agency users and administrators with appropriate authorization checks.
+
+## 12. Security Considerations
+
+### 12.1 Visibility Check Middleware
+
+The visibility check middleware represents the most critical security component in the hierarchy system. This middleware enforces strict visibility rules based on user hierarchy and prevents unauthorized data access through comprehensive validation. The checkUserVisibility function implements the core security logic and must be applied to all sensitive operations to ensure data privacy and access control. The middleware returns boolean results that determine whether users can access specific data or perform certain operations.
+
+### 12.2 Transfer Authorization Logic
+
+Transfer authorization is implemented through comprehensive validation that checks both visibility and hierarchical permissions. The canTransfer function validates that senders can see receivers and have appropriate hierarchical permissions to initiate transfers. The function implements different authorization rules based on the sender's tier, with administrators having full transfer capabilities and general users having no transfer capabilities. All transfer operations must pass both visibility and authorization checks before execution.
+
+### 12.3 Block Authorization Logic
+
+Block authorization is implemented through the canBlock function that validates both visibility and hierarchical permissions. The function ensures that users can only block users they can see and have appropriate hierarchical authority over. Administrators can block any user, agencies can block organizations and general users under them, organizations can block admins and general users in their organization, and admin and general users cannot block other users. All block operations are logged for audit purposes.
+
+### 12.4 Rate Limiting Implementation
+
+Custom rate limiters are implemented for different operation types to prevent abuse while maintaining system usability. Transfer operations are limited to 10 transfers per minute for regular users, referral registration is limited to 3 registrations per minute for guests, block operations are limited to 5 blocks per minute for regular users, and hierarchy operations are limited to 30 requests per minute for regular users. These limits are configurable and enforced at the API level.
+
+### 12.5 Data Sanitization
+
+Data sanitization is implemented through the sanitizeUserData function that removes sensitive information based on the viewer's tier. Administrators receive complete user data including sensitive information, while other tiers receive progressively limited information based on their hierarchical position. This sanitization occurs at the API level to prevent accidental data exposure and ensure compliance with visibility rules.
+
+## 13. Implementation Details
+
+### 13.1 Database Migration Strategy
+
+The database migration strategy involves comprehensive schema changes to support the hierarchical model. Migration steps include adding new fields to the User model, creating Transfer, ReferralReward, AgencyReferralConfig, and BlockLog models, creating appropriate indexes for performance optimization, seeding existing users with default tier values and invite codes, and establishing foreign key constraints and relationships. Migrations are designed to be reversible and include validation steps.
+
+### 13.2 Controller Implementation
+
+The hierarchy system includes four main controllers with comprehensive functionality. The transfer controller handles secure resource transfers with validation and authorization, the referral controller manages invitation workflows and reward distribution, the block controller implements user interaction controls with hierarchical restrictions, and the hierarchy controller provides organizational management with visibility enforcement. Each controller follows consistent patterns for error handling and security validation.
+
+### 13.3 Middleware Implementation
+
+The middleware implementation focuses on security and access control. The visibility check middleware implements the core security logic for enforcing hierarchical access rules, the authorization middleware validates user permissions for specific operations, the rate limiting middleware prevents abuse through configurable limits, and the audit logging middleware captures all important actions for compliance and security monitoring.
+
+### 13.4 Frontend Implementation
+
+The frontend implementation includes comprehensive user interfaces with access controls. Pages include /invite for invite link and QR code display, /referrals for referral statistics, /transfer for resource transfers, /members for member management (restricted from general users), and /agency/settings for agency configuration. Components include InviteCard, ReferralStats, TransferForm, MemberList, HierarchyTree, BlockButton, AgencyRewardSettings, and TierBadge with appropriate access controls.
+
+## 14. Testing Strategy
+
+### 14.1 Unit Testing Requirements
+
+Unit testing must cover all critical functions including canTransfer for all tier combinations, canBlock for all tier combinations, referral reward calculations for all scenarios, transfer validation logic with edge cases, and checkUserVisibility for all tier combinations. Tests must achieve at least 80% code coverage and include both positive and negative test cases to validate comprehensive security coverage.
+
+### 14.2 Integration Testing Requirements
+
+Integration testing must validate complete API workflows including transfer operations with different user tiers, referral registration flows with reward distribution, block/unblock functionality with proper restrictions, transaction atomicity under various conditions, member list APIs with visibility filtering, search APIs with visibility enforcement, and hierarchy tree APIs with access controls. Tests must validate both successful operations and security violations.
+
+### 14.3 End-to-End Testing Requirements
+
+End-to-end testing must validate complete user workflows including general users inviting friends and receiving rewards, organizations inviting members who join the organization, agencies setting custom rewards that new users receive, organizations transferring points to admins and generals, agencies blocking organizations that cannot login, and comprehensive security scenarios where unauthorized access attempts are properly blocked.
+
+### 14.4 Security Testing Requirements
+
+Security testing must validate all visibility rules and access controls including agency A cannot see organizations of agency B, organization A cannot see admins of organization B, admins cannot see generals of other organizations, generals cannot see other generals, generals cannot access member list pages, and all API endpoints return 403 for unauthorized access attempts. Security tests must attempt to bypass visibility controls and verify that all attempts are properly blocked and logged.
+
+## 15. Deployment and Operations
+
+### 15.1 Environment Configuration
+
+The implementation requires several environment variables for proper operation including BASE_REFERRAL_REWARD for base reward amounts, tier-specific reward variables, transfer limits and rate limiting parameters, invite code configuration, and database connection strings. These variables must be properly configured across development, staging, and production environments with appropriate security measures.
+
+### 15.2 Performance Considerations
+
+Performance optimization includes database indexes for fast hierarchical queries, Redis caching for frequently accessed hierarchy relationships, database connection pooling for high-load scenarios, and pagination for large member lists. The system must maintain sub-second response times even under heavy load while supporting millions of users and complex organizational structures.
+
+### 15.3 Monitoring and Alerting
+
+System monitoring focuses on critical metrics including transfer volumes and patterns, referral conversion rates, block operation frequency, authorization failures, visibility check performance, and repeated unauthorized access attempts. Alerting is configured for anomalous patterns that may indicate security issues or system problems requiring immediate attention.
+
+### 15.4 Backup and Recovery
+
+The implementation includes comprehensive backup procedures for all hierarchy-related data including user relationships, transfer records, referral rewards, and block logs. Recovery procedures are documented and tested to ensure rapid restoration in case of system failures. The backup strategy maintains referential integrity and supports point-in-time recovery for critical operations.
+
+## 16. Future Enhancements
+
+### 16.1 Planned Feature Development
+
+Future enhancements include advanced analytics for detailed hierarchy performance metrics, automated tier promotion based on configurable rules, enhanced referral tracking with multi-level commissions, configurable transfer limits based on user tier and history, comprehensive audit logs for all operations, and bulk transfer operations for enterprise clients. These features will build upon the solid foundation established by the current implementation.
+
+### 16.2 Security Improvements
+
+Planned security enhancements include multi-factor authentication for sensitive operations, IP-based restrictions for additional security layers, AI-powered anomaly detection for suspicious activity identification, end-to-end encryption for sensitive data transmission, and enhanced audit logging with forensic capabilities. These improvements will further strengthen the system's security posture while maintaining usability.
+
+### 16.3 Performance Optimizations
+
+Future performance optimizations include advanced caching strategies for frequently accessed hierarchy data, database query optimization for complex hierarchical operations, horizontal scaling capabilities for high-load scenarios, CDN integration for improved response times, and background processing for heavy operations. These optimizations will ensure the system maintains performance requirements as user volume grows.
+
+### 16.4 Integration Opportunities
+
+The hierarchy system provides integration opportunities with external systems including CRM platforms for customer relationship management, analytics platforms for business intelligence, payment processors for enhanced transfer capabilities, identity providers for advanced authentication scenarios, and compliance tools for regulatory reporting. These integrations will extend the system's functionality while maintaining security and performance standards.
+
+## Conclusion
+
+This specification provides a comprehensive framework for implementing a secure, scalable, and flexible multi-tier user hierarchy and referral system within Smart AI Hub. The security-first approach ensures data privacy while maintaining system usability across all hierarchy levels. The comprehensive specification addresses current business requirements while establishing a solid foundation for future enhancements and growth.
+
+The visibility check middleware serves as the cornerstone of the system's security architecture, preventing unauthorized data access and maintaining strict hierarchy boundaries. All operations are designed with comprehensive security considerations, rate limiting, and detailed audit trails to ensure system integrity and compliance. This implementation represents a significant advancement in Smart AI Hub's user management capabilities and provides the foundation for continued growth and enterprise adoption.
+
+The specification emphasizes the critical importance of security requirements, particularly the visibility rules that prevent unauthorized data access. All implementation efforts must prioritize these security requirements to ensure the system maintains the highest standards of data protection and access control while supporting complex organizational structures and enterprise operations.

@@ -3,7 +3,7 @@ import {
   blockUser,
   unblockUser,
   getBlockedUsers,
-  checkIfBlocked
+  checkIfBlocked,
 } from '../controllers/block.controller';
 import { authenticateJWT } from '../middlewares/auth.middleware';
 import { requireUserVisibility } from '../middleware/visibilityCheckRaw';
@@ -29,19 +29,13 @@ const blockRateLimit = createCustomRateLimiter(
  * POST /api/block/block
  * Block a user
  */
-router.post('/block', 
-  blockRateLimit,
-  blockUser
-);
+router.post('/block', blockRateLimit, blockUser);
 
 /**
  * POST /api/block/unblock
  * Unblock a user
  */
-router.post('/unblock', 
-  blockRateLimit,
-  unblockUser
-);
+router.post('/unblock', blockRateLimit, unblockUser);
 
 /**
  * GET /api/block/blocked
@@ -53,9 +47,6 @@ router.get('/blocked', getBlockedUsers);
  * GET /api/block/check/:targetUserId
  * Check if current user is blocked by target user
  */
-router.get('/check/:targetUserId', 
-  requireUserVisibility,
-  checkIfBlocked
-);
+router.get('/check/:targetUserId', requireUserVisibility, checkIfBlocked);
 
 export default router;

@@ -131,11 +131,14 @@ export function createMetricsMiddleware(metrics: PrometheusMetrics) {
           .customMetrics.set('sla_compliance', { gauge: slaComplianceGauge } as any);
       }
       const compliance = duration <= slaThreshold ? 100 : 0;
-      slaComplianceGauge?.set({
-        method: req.method,
-        route,
-        sla_tier: slaTier,
-      }, compliance);
+      slaComplianceGauge?.set(
+        {
+          method: req.method,
+          route,
+          sla_tier: slaTier,
+        },
+        compliance
+      );
 
       // Decrement active connections
       metrics.setActiveConnections(-1);

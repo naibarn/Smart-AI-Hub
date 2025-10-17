@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - heading "Dashboard" [level=1] [ref=e2]
+  - paragraph [ref=e4]:
+    - text: Welcome,
+    - strong [ref=e5]: agency-a@example.com
+    - text: (Agency)
+  - generic [ref=e6]:
+    - generic [ref=e7] [cursor=pointer]: Dashboard
+    - generic [ref=e8] [cursor=pointer]: Profile
+    - generic [ref=e9] [cursor=pointer]: Points
+    - generic [ref=e10] [cursor=pointer]: Referrals
+    - generic [ref=e11] [cursor=pointer]: Members
+    - generic [ref=e12] [cursor=pointer]: Agency Settings
+    - generic [ref=e13] [cursor=pointer]: Transfer
+    - generic [ref=e14] [cursor=pointer]: Block Users
+  - generic [ref=e15]:
+    - heading "Members" [level=3] [ref=e16]
+    - generic [ref=e17]:
+      - generic [ref=e18]: agency-a@example.com (Agency)
+      - generic [ref=e19]: org-a1@example.com (Organization)
+      - generic [ref=e20]: org-a2@example.com (Organization)
+      - generic [ref=e21]: admin-a1@example.com (Admin)
+      - generic [ref=e22]: admin-a2@example.com (Admin)
+      - generic [ref=e23]: general-a1-1@example.com (General)
+      - generic [ref=e24]: general-a1-2@example.com (General)
+      - generic [ref=e25]: general-a2-1@example.com (General)
+      - generic [ref=e26]: blocked-general@example.com (General)
+      - generic [ref=e27]: blocked-admin@example.com (Admin)
+  - generic [ref=e28]:
+    - heading "Points & Credits" [level=3] [ref=e29]
+    - paragraph [ref=e30]: "Points: 100"
+    - paragraph [ref=e31]: "Credits: 50"
+    - button "Claim Daily Reward" [ref=e32]
+  - generic [ref=e33]:
+    - heading "Referral" [level=3] [ref=e34]
+    - paragraph [ref=e35]: "Your referral code: MOCK123"
+    - paragraph [ref=e36]: "Referral link: http://localhost:3000/register?code=MOCK123"
+```

@@ -24,34 +24,24 @@ const transferRateLimit = createCustomRateLimiter(
  * POST /api/transfer/points
  * Transfer points to another user
  */
-router.post('/points', 
-  transferRateLimit,
-  transferController.transferPoints
-);
+router.post('/points', transferRateLimit, transferController.transferPoints);
 
 /**
  * POST /api/transfer/credits
  * Transfer credits to another user
  */
-router.post('/credits', 
-  transferRateLimit,
-  transferController.transferCredits
-);
+router.post('/credits', transferRateLimit, transferController.transferCredits);
 
 /**
  * GET /api/transfer/history
  * View transfer history for the current user
  */
-router.get('/history', 
-  transferController.getTransferHistory
-);
+router.get('/history', transferController.getTransferHistory);
 
 /**
  * GET /api/transfer/validate
  * Check if transfer is allowed to a specific user
  */
-router.get('/validate', 
-  transferController.validateTransfer
-);
+router.get('/validate', transferController.validateTransfer);
 
 export default router;

@@ -20,6 +20,9 @@ import ChatInterface from './pages/ChatInterface';
 import Billing from './pages/Billing';
 import Points from './pages/Points';
 import Webhooks from './pages/Webhooks';
+import { Referrals } from './pages/Referrals';
+import { Invite } from './pages/Invite';
+import { AgencySettings } from './pages/agency/AgencySettings';
 import {
   MonitoringDashboard,
   PerformanceMonitoring,
@@ -171,6 +174,9 @@ const AppContent: React.FC = () => {
             <Route path="/webhooks" element={<Webhooks />} />
             <Route path="/test-connection" element={<TestConnection />} />
             <Route path="/chat" element={<ChatInterface />} />
+            <Route path="/referrals" element={<Referrals />} />
+            <Route path="/invite" element={<Invite />} />
+            <Route path="/agency/settings" element={<AgencySettings />} />
 
             {/* Admin monitoring routes with RBAC protection */}
             <Route element={<AdminProtectedRoute />}>

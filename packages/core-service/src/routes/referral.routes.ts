@@ -3,7 +3,7 @@ import {
   getInviteLink,
   getReferralStats,
   registerWithInviteCode,
-  getReferralRewards
+  getReferralRewards,
 } from '../controllers/referral.controller';
 import { authenticateJWT } from '../middlewares/auth.middleware';
 import { createCustomRateLimiter } from '../middlewares/rateLimiter';
@@ -36,10 +36,7 @@ router.get('/invite-link', getInviteLink);
 router.get('/stats', getReferralStats);
 
 // Register with invite code - all tiers (public endpoint for new users)
-router.post('/register',
-  referralRegistrationLimit,
-  registerWithInviteCode
-);
+router.post('/register', referralRegistrationLimit, registerWithInviteCode);
 
 // Get referral rewards - all tiers
 router.get('/rewards', getReferralRewards);

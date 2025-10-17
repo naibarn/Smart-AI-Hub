@@ -122,7 +122,7 @@ export const authenticateJWT = async (
       id: decoded.sub,
       email: decoded.email,
       role: decoded.role,
-      roles: [{ name: decoded.role }] // Add roles array for compatibility
+      roles: [{ name: decoded.role }], // Add roles array for compatibility
     };
 
     // 5. Call next() if successful

@@ -1,16 +1,13 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import {
-  UserTier,
-  HierarchyRequest
-} from '../middleware/visibilityCheckRaw';
+import { UserTier, HierarchyRequest } from '../middleware/visibilityCheckRaw';
 import {
   generateInviteCode,
   calculateReferralRewards,
   validateReferralRelationship,
   getAgencyReferralConfig,
   processReferralRewards,
-  validateInviteCode
+  validateInviteCode,
 } from '../utils/referralUtils';
 
 const prisma = new PrismaClient();
@@ -25,9 +22,9 @@ export async function getInviteLink(req: HierarchyRequest, res: Response) {
     }
 
     // Get user's invite code
-    const userResult = await prisma.$queryRaw`
+    const userResult = (await prisma.$queryRaw`
       SELECT invite_code, tier FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const user = userResult[0];
     if (!user) {
@@ -35,7 +32,7 @@ export async function getInviteLink(req: HierarchyRequest, res: Response) {
     }
 
     let inviteCode = user.invite_code;
-    
+
     // Generate invite code if user doesn't have one
     if (!inviteCode) {
       let isUnique = false;
@@ -43,13 +40,13 @@ export async function getInviteLink(req: HierarchyRequest, res: Response) {
 
       do {
         inviteCode = generateInviteCode();
-        const existingResult = await prisma.$queryRaw`
+        const existingResult = (await prisma.$queryRaw`
           SELECT id FROM users WHERE invite_code = ${inviteCode}
-        ` as unknown as any[];
-        
+        `) as unknown as any[];
+
         isUnique = existingResult.length === 0;
         attempts++;
-        
+
         if (attempts > 100) {
           return res.status(500).json({ error: 'Failed to generate unique invite code' });
         }
@@ -71,9 +68,8 @@ export async function getInviteLink(req: HierarchyRequest, res: Response) {
       inviteCode,
       inviteLink,
       qrCode,
-      tier: user.tier
+      tier: user.tier,
     });
-
   } catch (error) {
     console.error('Get invite link error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -90,9 +86,9 @@ export async function getReferralStats(req: HierarchyRequest, res: Response) {
     }
 
     // Get user's tier and invite code
-    const userResult = await prisma.$queryRaw`
+    const userResult = (await prisma.$queryRaw`
       SELECT tier, invite_code FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const user = userResult[0];
     if (!user) {
@@ -100,7 +96,7 @@ export async function getReferralStats(req: HierarchyRequest, res: Response) {
     }
 
     // Count direct referrals
-    const referralsResult = await prisma.$queryRaw`
+    const referralsResult = (await prisma.$queryRaw`
       SELECT 
         COUNT(*) as total_referrals,
         COUNT(CASE WHEN tier = 'organization' THEN 1 END) as organization_referrals,
@@ -108,19 +104,19 @@ export async function getReferralStats(req: HierarchyRequest, res: Response) {
         COUNT(CASE WHEN tier = 'general' THEN 1 END) as general_referrals
       FROM users 
       WHERE invited_by = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     // Get referral rewards
-    const rewardsResult = await prisma.$queryRaw`
+    const rewardsResult = (await prisma.$queryRaw`
       SELECT 
         COUNT(*) as total_rewards,
         COALESCE(SUM(referrer_reward_points), 0) as total_points_earned
       FROM referral_rewards 
       WHERE referrer_id = ${req.user.id} AND status = 'completed'
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     // Get recent referrals
-    const recentReferralsResult = await prisma.$queryRaw`
+    const recentReferralsResult = (await prisma.$queryRaw`
       SELECT 
         u.id,
         u.email,
@@ -133,7 +129,7 @@ export async function getReferralStats(req: HierarchyRequest, res: Response) {
       WHERE u.invited_by = ${req.user.id}
       ORDER BY u.created_at DESC
       LIMIT 10
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const stats = {
       inviteCode: user.invite_code,
@@ -149,12 +145,11 @@ export async function getReferralStats(req: HierarchyRequest, res: Response) {
         tier: referral.tier,
         firstName: referral.first_name,
         lastName: referral.last_name,
-        joinedAt: referral.created_at
-      }))
+        joinedAt: referral.created_at,
+      })),
     };
 
     res.json(stats);
-
   } catch (error) {
     console.error('Get referral stats error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -169,24 +164,24 @@ export async function registerWithInviteCode(req: Request, res: Response) {
     const { inviteCode, email, password, tier, firstName, lastName } = req.body;
 
     if (!inviteCode || !email || !password || !tier) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Missing required fields',
-        message: 'Invite code, email, password, and tier are required'
+        message: 'Invite code, email, password, and tier are required',
       });
     }
 
     // Validate tier
     if (!Object.values(UserTier).includes(tier)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid tier',
-        message: 'Tier must be one of: administrator, agency, organization, admin, general'
+        message: 'Tier must be one of: administrator, agency, organization, admin, general',
       });
     }
 
     // Find the referrer
-    const referrerResult = await prisma.$queryRaw`
+    const referrerResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE invite_code = ${inviteCode}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const referrer = referrerResult[0];
     if (!referrer) {
@@ -194,9 +189,9 @@ export async function registerWithInviteCode(req: Request, res: Response) {
     }
 
     // Check if email already exists
-    const existingUserResult = await prisma.$queryRaw`
+    const existingUserResult = (await prisma.$queryRaw`
       SELECT id FROM users WHERE email = ${email}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (existingUserResult.length > 0) {
       return res.status(400).json({ error: 'Email already registered' });
@@ -205,7 +200,7 @@ export async function registerWithInviteCode(req: Request, res: Response) {
     // Use database transaction for user creation and reward distribution
     const result = await prisma.$transaction(async (tx) => {
       // Create new user
-      const newUserResult = await tx.$queryRaw`
+      const newUserResult = (await tx.$queryRaw`
         INSERT INTO users (
           email, 
           password_hash, 
@@ -229,7 +224,7 @@ export async function registerWithInviteCode(req: Request, res: Response) {
           NOW()
         )
         RETURNING id, email, tier, points, credits, created_at
-      ` as unknown as any[];
+      `) as unknown as any[];
 
       const newUser = newUserResult[0];
 
@@ -256,14 +251,14 @@ export async function registerWithInviteCode(req: Request, res: Response) {
         `;
       } else if (referrer.tier === UserTier.agency) {
         // Agency referrer: Get agency's reward configuration
-        const agencyConfigResult = await tx.$queryRaw`
+        const agencyConfigResult = (await tx.$queryRaw`
           SELECT organization_reward_points, admin_reward_points, general_reward_points 
           FROM agency_referral_configs 
           WHERE agency_id = ${referrer.id} AND is_active = true
-        ` as unknown as any[];
+        `) as unknown as any[];
 
         const agencyConfig = agencyConfigResult[0];
-        
+
         if (agencyConfig) {
           // Set agency bonus based on new user's tier
           if (tier === UserTier.organization) {
@@ -338,25 +333,24 @@ export async function registerWithInviteCode(req: Request, res: Response) {
           tier: newUser.tier,
           points: newUser.points + refereeRewardPoints,
           credits: newUser.credits,
-          createdAt: newUser.created_at
+          createdAt: newUser.created_at,
         },
         rewards: {
           referrerRewardPoints,
           refereeRewardPoints,
-          agencyBonusPoints
-        }
+          agencyBonusPoints,
+        },
       };
     });
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully with referral rewards',
-      ...result
+      ...result,
     });
-
   } catch (error: any) {
     console.error('Register with invite code error:', error);
-    
+
     if (error.message?.includes('duplicate key')) {
       return res.status(400).json({ error: 'Email already exists' });
     }
@@ -410,7 +404,7 @@ export async function getReferralRewards(req: HierarchyRequest, res: Response) {
 
     const [rewards, countResult] = await Promise.all([
       prisma.$queryRawUnsafe(query, ...params) as unknown as any[],
-      prisma.$queryRawUnsafe(countQuery, ...params.slice(0, -2)) as unknown as any[]
+      prisma.$queryRawUnsafe(countQuery, ...params.slice(0, -2)) as unknown as any[],
     ]);
 
     res.json({
@@ -428,13 +422,12 @@ export async function getReferralRewards(req: HierarchyRequest, res: Response) {
         agencyId: reward.agency_id,
         status: reward.status,
         processedAt: reward.processed_at,
-        createdAt: reward.created_at
+        createdAt: reward.created_at,
       })),
       total: parseInt(countResult[0]?.total || '0'),
       limit: parseInt(limit as string),
-      offset: parseInt(offset as string)
+      offset: parseInt(offset as string),
     });
-
   } catch (error) {
     console.error('Get referral rewards error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -445,5 +438,5 @@ export default {
   getInviteLink,
   getReferralStats,
   registerWithInviteCode,
-  getReferralRewards
+  getReferralRewards,
 };

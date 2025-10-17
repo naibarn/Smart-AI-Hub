@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { UserTier, HierarchyRequest } from '../middleware/visibilityCheckRaw';
 import {
-  UserTier,
-  HierarchyRequest
+  applyVisibilityFilters,
+  sanitizeUserData,
+  checkUserVisibility,
 } from '../middleware/visibilityCheckRaw';
-import { applyVisibilityFilters, sanitizeUserData, checkUserVisibility } from '../middleware/visibilityCheckRaw';
 
 const prisma = new PrismaClient();
 
@@ -24,9 +25,9 @@ export async function getHierarchyMembers(req: HierarchyRequest, res: Response) 
     const search = req.query.search as string;
 
     // Get current user data
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!currentUserResult.length) {
       return res.status(404).json({ error: 'Current user not found' });
@@ -37,7 +38,7 @@ export async function getHierarchyMembers(req: HierarchyRequest, res: Response) 
     // Build user filters
     const userFilters: any = {
       limit,
-      offset
+      offset,
     };
 
     if (tier && Object.values(UserTier).includes(tier as UserTier)) {
@@ -50,7 +51,7 @@ export async function getHierarchyMembers(req: HierarchyRequest, res: Response) 
 
     // Apply visibility filters
     const result = await applyVisibilityFilters(req.user.id, userFilters);
-    
+
     // Get total count with same filters
     const countResult = await applyVisibilityFilters(req.user.id, { ...userFilters, limit: 10000 });
     const total = countResult.total;
@@ -64,14 +65,13 @@ export async function getHierarchyMembers(req: HierarchyRequest, res: Response) 
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       },
       filters: {
         tier,
-        search
-      }
+        search,
+      },
     });
-
   } catch (error) {
     console.error('Error getting hierarchy members:', error);
     res.status(500).json({ error: 'Failed to get hierarchy members' });
@@ -88,9 +88,9 @@ export async function getHierarchyStats(req: HierarchyRequest, res: Response) {
     }
 
     // Get current user data
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!currentUserResult.length) {
       return res.status(404).json({ error: 'Current user not found' });
@@ -108,14 +108,20 @@ export async function getHierarchyStats(req: HierarchyRequest, res: Response) {
     });
 
     // Calculate total points and credits
-    const totalPoints = allUsersResult.users.reduce((sum: number, user: any) => sum + (user.points || 0), 0);
-    const totalCredits = allUsersResult.users.reduce((sum: number, user: any) => sum + (user.credits || 0), 0);
+    const totalPoints = allUsersResult.users.reduce(
+      (sum: number, user: any) => sum + (user.points || 0),
+      0
+    );
+    const totalCredits = allUsersResult.users.reduce(
+      (sum: number, user: any) => sum + (user.credits || 0),
+      0
+    );
 
     // Get recent registrations (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const recentUsers = allUsersResult.users.filter((user: any) =>
-      new Date(user.createdAt) >= thirtyDaysAgo
+    const recentUsers = allUsersResult.users.filter(
+      (user: any) => new Date(user.createdAt) >= thirtyDaysAgo
     );
 
     const stats = {
@@ -124,11 +130,10 @@ export async function getHierarchyStats(req: HierarchyRequest, res: Response) {
       totalCredits,
       totalUsers: allUsersResult.total,
       recentRegistrations: recentUsers.length,
-      currentUserTier: currentUser.tier
+      currentUserTier: currentUser.tier,
     };
 
     res.json(stats);
-
   } catch (error) {
     console.error('Error getting hierarchy stats:', error);
     res.status(500).json({ error: 'Failed to get hierarchy statistics' });
@@ -145,15 +150,15 @@ export async function getUserDetails(req: HierarchyRequest, res: Response) {
     }
 
     const { userId } = req.params;
-    
+
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
     // Get current user data
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!currentUserResult.length) {
       return res.status(404).json({ error: 'Current user not found' });
@@ -169,7 +174,7 @@ export async function getUserDetails(req: HierarchyRequest, res: Response) {
     }
 
     // Get user details
-    const userResult = await prisma.$queryRaw`
+    const userResult = (await prisma.$queryRaw`
       SELECT 
         u.id,
         u.email,
@@ -194,7 +199,7 @@ export async function getUserDetails(req: HierarchyRequest, res: Response) {
       FROM users u
       LEFT JOIN user_profiles up ON u.id = up.user_id
       WHERE u.id = ${userId}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!userResult.length) {
       return res.status(404).json({ error: 'User not found' });
@@ -207,11 +212,12 @@ export async function getUserDetails(req: HierarchyRequest, res: Response) {
 
     // Get referral statistics if user can see them
     let referralStats = null;
-    if (currentUser.tier === UserTier.administrator || 
-        currentUser.tier === UserTier.agency ||
-        (currentUser.tier === UserTier.organization && user.parent_organization_id === req.user.id)) {
-      
-      const referralResult = await prisma.$queryRaw`
+    if (
+      currentUser.tier === UserTier.administrator ||
+      currentUser.tier === UserTier.agency ||
+      (currentUser.tier === UserTier.organization && user.parent_organization_id === req.user.id)
+    ) {
+      const referralResult = (await prisma.$queryRaw`
         SELECT 
           COUNT(*) as total_referrals,
           COUNT(CASE WHEN tier = 'organization' THEN 1 END) as organization_referrals,
@@ -219,16 +225,15 @@ export async function getUserDetails(req: HierarchyRequest, res: Response) {
           COUNT(CASE WHEN tier = 'general' THEN 1 END) as general_referrals
         FROM users
         WHERE invited_by = ${userId}
-      ` as unknown as any[];
+      `) as unknown as any[];
 
       referralStats = referralResult[0];
     }
 
     res.json({
       user: sanitizedUser,
-      referralStats
+      referralStats,
     });
-
   } catch (error) {
     console.error('Error getting user details:', error);
     res.status(500).json({ error: 'Failed to get user details' });
@@ -245,9 +250,9 @@ export async function getHierarchyTree(req: HierarchyRequest, res: Response) {
     }
 
     // Get current user data
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT id, tier, parent_agency_id, parent_organization_id FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!currentUserResult.length) {
       return res.status(404).json({ error: 'Current user not found' });
@@ -275,12 +280,11 @@ export async function getHierarchyTree(req: HierarchyRequest, res: Response) {
       tree = {
         id: req.user.id,
         tier: currentUser.tier,
-        children: []
+        children: [],
       };
     }
 
     res.json({ tree });
-
   } catch (error) {
     console.error('Error getting hierarchy tree:', error);
     res.status(500).json({ error: 'Failed to get hierarchy tree' });
@@ -291,13 +295,13 @@ export async function getHierarchyTree(req: HierarchyRequest, res: Response) {
  * Build full hierarchy tree for administrators
  */
 async function buildFullHierarchyTree(): Promise<any> {
-  const result = await prisma.$queryRaw`
+  const result = (await prisma.$queryRaw`
     SELECT 
       id, tier, parent_agency_id, parent_organization_id,
       email, first_name, last_name, points, credits
     FROM users
     ORDER BY tier, created_at
-  ` as unknown as any[];
+  `) as unknown as any[];
 
   return buildTreeFromArray(result);
 }
@@ -306,14 +310,14 @@ async function buildFullHierarchyTree(): Promise<any> {
  * Build agency hierarchy tree
  */
 async function buildAgencyHierarchyTree(agencyId: string): Promise<any> {
-  const result = await prisma.$queryRaw`
+  const result = (await prisma.$queryRaw`
     SELECT 
       id, tier, parent_agency_id, parent_organization_id,
       email, first_name, last_name, points, credits
     FROM users
     WHERE parent_agency_id = ${agencyId} OR id = ${agencyId}
     ORDER BY tier, created_at
-  ` as unknown as any[];
+  `) as unknown as any[];
 
   return buildTreeFromArray(result);
 }
@@ -322,14 +326,14 @@ async function buildAgencyHierarchyTree(agencyId: string): Promise<any> {
  * Build organization hierarchy tree
  */
 async function buildOrganizationHierarchyTree(orgId: string): Promise<any> {
-  const result = await prisma.$queryRaw`
+  const result = (await prisma.$queryRaw`
     SELECT 
       id, tier, parent_agency_id, parent_organization_id,
       email, first_name, last_name, points, credits
     FROM users
     WHERE parent_organization_id = ${orgId} OR id = ${orgId}
     ORDER BY tier, created_at
-  ` as unknown as any[];
+  `) as unknown as any[];
 
   return buildTreeFromArray(result);
 }
@@ -339,9 +343,9 @@ async function buildOrganizationHierarchyTree(orgId: string): Promise<any> {
  */
 async function buildAdminHierarchyTree(adminId: string): Promise<any> {
   // Get admin's organization first
-  const adminResult = await prisma.$queryRaw`
+  const adminResult = (await prisma.$queryRaw`
     SELECT parent_organization_id FROM users WHERE id = ${adminId}
-  ` as unknown as any[];
+  `) as unknown as any[];
 
   if (!adminResult.length || !adminResult[0].parent_organization_id) {
     return { id: adminId, tier: 'admin', children: [] };
@@ -349,14 +353,14 @@ async function buildAdminHierarchyTree(adminId: string): Promise<any> {
 
   const orgId = adminResult[0].parent_organization_id;
 
-  const result = await prisma.$queryRaw`
+  const result = (await prisma.$queryRaw`
     SELECT 
       id, tier, parent_agency_id, parent_organization_id,
       email, first_name, last_name, points, credits
     FROM users
     WHERE (parent_organization_id = ${orgId} AND tier = 'general') OR id = ${adminId}
     ORDER BY tier, created_at
-  ` as unknown as any[];
+  `) as unknown as any[];
 
   return buildTreeFromArray(result);
 }
@@ -369,17 +373,17 @@ function buildTreeFromArray(users: any[]): any {
   const roots: any[] = [];
 
   // Create user map
-  users.forEach(user => {
+  users.forEach((user) => {
     userMap.set(user.id, {
       ...user,
-      children: []
+      children: [],
     });
   });
 
   // Build tree
-  users.forEach(user => {
+  users.forEach((user) => {
     const userNode = userMap.get(user.id);
-    
+
     if (user.tier === 'administrator' || user.tier === 'agency') {
       roots.push(userNode);
     } else if (user.parent_agency_id && userMap.has(user.parent_agency_id)) {

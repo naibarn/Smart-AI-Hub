@@ -10,7 +10,7 @@ export enum UserTier {
   agency = 'agency',
   organization = 'organization',
   admin = 'admin',
-  general = 'general'
+  general = 'general',
 }
 
 // Extended interface for hierarchy-aware requests
@@ -29,7 +29,7 @@ export interface HierarchyRequest extends AuthenticatedRequest {
 
 /**
  * 🔒 CRITICAL SECURITY MIDDLEWARE
- * 
+ *
  * This middleware enforces user visibility rules based on hierarchy relationships.
  * Users can ONLY see other users based on their tier and hierarchy relationship.
  */
@@ -39,30 +39,30 @@ export async function checkUserVisibility(
 ): Promise<boolean> {
   try {
     // Use raw SQL queries to bypass TypeScript type issues
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT tier, parent_agency_id, parent_organization_id
       FROM users
       WHERE id = ${currentUserId}::uuid
-    ` as any[];
-    
-    const targetUserResult = await prisma.$queryRaw`
+    `) as any[];
+
+    const targetUserResult = (await prisma.$queryRaw`
       SELECT tier, parent_agency_id, parent_organization_id
       FROM users
       WHERE id = ${targetUserId}::uuid
-    ` as any[];
-    
+    `) as any[];
+
     const currentUser = currentUserResult[0];
     const targetUser = targetUserResult[0];
-    
+
     if (!currentUser || !targetUser) {
       return false;
     }
-    
+
     // Administrator can see everyone
     if (currentUser.tier === UserTier.administrator) {
       return true;
     }
-    
+
     // Agency can see Organizations and Generals under them
     if (currentUser.tier === UserTier.agency) {
       if (targetUser.tier === UserTier.organization || targetUser.tier === UserTier.general) {
@@ -70,18 +70,18 @@ export async function checkUserVisibility(
       }
       // Agency can see Admins in their Organizations
       if (targetUser.tier === UserTier.admin) {
-        const targetOrgResult = await prisma.$queryRaw`
+        const targetOrgResult = (await prisma.$queryRaw`
           SELECT parent_agency_id
           FROM users
           WHERE id = ${targetUser.parent_organization_id}::uuid
-        ` as any[];
-        
+        `) as any[];
+
         const targetOrg = targetOrgResult[0];
         return targetOrg?.parent_agency_id === currentUserId;
       }
       return false;
     }
-    
+
     // Organization can see Admins and Generals in their org
     if (currentUser.tier === UserTier.organization) {
       if (targetUser.tier === UserTier.admin || targetUser.tier === UserTier.general) {
@@ -89,7 +89,7 @@ export async function checkUserVisibility(
       }
       return false;
     }
-    
+
     // Admin can see Generals in same org
     if (currentUser.tier === UserTier.admin) {
       if (targetUser.tier === UserTier.general) {
@@ -101,12 +101,12 @@ export async function checkUserVisibility(
       }
       return false;
     }
-    
+
     // General can only see themselves
     if (currentUser.tier === UserTier.general) {
       return targetUserId === currentUserId;
     }
-    
+
     return false;
   } catch (error) {
     console.error('Error in checkUserVisibility:', error);
@@ -126,19 +126,21 @@ export function requireUserVisibility(targetUserIdParam: string = 'targetUserId'
       }
 
       const targetUserId = req.params[targetUserIdParam] || req.body[targetUserIdParam];
-      
+
       if (!targetUserId) {
         return res.status(400).json({ error: 'Target user ID required' });
       }
 
       const canSee = await checkUserVisibility(req.user.id, targetUserId);
-      
+
       if (!canSee) {
         // Log unauthorized access attempt
-        console.warn(`🚨 UNAUTHORIZED ACCESS ATTEMPT: User ${req.user.id} (${req.user.role}) tried to access User ${targetUserId}`);
-        
-        return res.status(403).json({ 
-          error: 'You do not have permission to access this user information' 
+        console.warn(
+          `🚨 UNAUTHORIZED ACCESS ATTEMPT: User ${req.user.id} (${req.user.role}) tried to access User ${targetUserId}`
+        );
+
+        return res.status(403).json({
+          error: 'You do not have permission to access this user information',
         });
       }
 
@@ -154,23 +156,21 @@ export function requireUserVisibility(targetUserIdParam: string = 'targetUserId'
  * Filter user data based on viewer's tier and relationship
  * Removes sensitive information that shouldn't be visible to certain tiers
  */
-export function sanitizeUserData(
-  user: any, 
-  viewerTier: UserTier,
-  viewerId?: string
-): any {
+export function sanitizeUserData(user: any, viewerTier: UserTier, viewerId?: string): any {
   const baseData = {
     id: user.id,
     email: user.email,
     tier: user.tier,
-    profile: user.profile ? {
-      firstName: user.profile.firstName,
-      lastName: user.profile.lastName,
-      avatarUrl: user.profile.avatarUrl
-    } : null,
-    createdAt: user.createdAt
+    profile: user.profile
+      ? {
+          firstName: user.profile.firstName,
+          lastName: user.profile.lastName,
+          avatarUrl: user.profile.avatarUrl,
+        }
+      : null,
+    createdAt: user.createdAt,
   };
-  
+
   // Only Administrator can see sensitive data
   if (viewerTier === UserTier.administrator) {
     return {
@@ -183,46 +183,46 @@ export function sanitizeUserData(
       parentAgencyId: user.parent_agency_id,
       parentOrganizationId: user.parent_organization_id,
       inviteCode: user.invite_code,
-      invitedBy: user.invited_by
+      invitedBy: user.invited_by,
     };
   }
-  
+
   // Agency can see some additional info about users under them
   if (viewerTier === UserTier.agency) {
     return {
       ...baseData,
       isBlocked: user.is_blocked,
       parentAgencyId: user.parent_agency_id,
-      parentOrganizationId: user.parent_organization_id
+      parentOrganizationId: user.parent_organization_id,
     };
   }
-  
+
   // Organization can see basic info about their members
   if (viewerTier === UserTier.organization) {
     return {
       ...baseData,
       isBlocked: user.is_blocked,
-      parentOrganizationId: user.parent_organization_id
+      parentOrganizationId: user.parent_organization_id,
     };
   }
-  
+
   // Admin can see very limited info
   if (viewerTier === UserTier.admin) {
     return {
       ...baseData,
-      isBlocked: user.is_blocked
+      isBlocked: user.is_blocked,
     };
   }
-  
+
   // General users can only see basic profile info
   if (viewerTier === UserTier.general && viewerId === user.id) {
     return {
       ...baseData,
       points: user.points,
-      credits: user.credits
+      credits: user.credits,
     };
   }
-  
+
   // General users seeing others get minimal info
   return baseData;
 }
@@ -239,13 +239,13 @@ export async function applyVisibilityFilters(
     limit?: number;
     offset?: number;
   }
-): Promise<{ users: any[], total: number }> {
+): Promise<{ users: any[]; total: number }> {
   try {
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT tier, parent_agency_id, parent_organization_id
       FROM users
       WHERE id = ${currentUserId}::uuid
-    ` as any[];
+    `) as any[];
 
     const currentUser = currentUserResult[0];
 
@@ -272,7 +272,7 @@ export async function applyVisibilityFilters(
           paramIndex++;
         }
         break;
-        
+
       case UserTier.agency:
         // Can see Organizations and Generals under them, and Admins in their Organizations
         whereClause += ` AND (
@@ -286,17 +286,17 @@ export async function applyVisibilityFilters(
           ))
         )`;
         break;
-        
+
       case UserTier.organization:
         // Can see Admins and Generals in their org ONLY
         whereClause += ` AND parent_organization_id = $1 AND tier IN ('admin', 'general')`;
         break;
-        
+
       case UserTier.admin:
         // Can see Generals in same org ONLY
         whereClause += ` AND parent_organization_id = (SELECT parent_organization_id FROM users WHERE id = $1) AND tier = 'general'`;
         break;
-        
+
       case UserTier.general:
         // Can only see themselves
         whereClause += ` AND id = $1`;
@@ -337,7 +337,7 @@ export async function applyVisibilityFilters(
 
     const [usersResult, countResult] = await Promise.all([
       prisma.$queryRawUnsafe(baseQuery, ...params) as unknown as any[],
-      prisma.$queryRawUnsafe(countQuery, ...params.slice(0, -2)) as unknown as any[]
+      prisma.$queryRawUnsafe(countQuery, ...params.slice(0, -2)) as unknown as any[],
     ]);
 
     // Sanitize user data based on viewer's tier
@@ -358,13 +358,16 @@ export async function applyVisibilityFilters(
         invitedBy: user.invited_by,
         createdAt: user.created_at,
         updatedAt: user.updated_at,
-        profile: user.first_name || user.last_name || user.avatar_url ? {
-          firstName: user.first_name,
-          lastName: user.last_name,
-          avatarUrl: user.avatar_url
-        } : null
+        profile:
+          user.first_name || user.last_name || user.avatar_url
+            ? {
+                firstName: user.first_name,
+                lastName: user.last_name,
+                avatarUrl: user.avatar_url,
+              }
+            : null,
       };
-      
+
       return sanitizeUserData(formattedUser, currentUser.tier, currentUserId);
     });
 
@@ -379,5 +382,5 @@ export default {
   checkUserVisibility,
   requireUserVisibility,
   sanitizeUserData,
-  applyVisibilityFilters
+  applyVisibilityFilters,
 };

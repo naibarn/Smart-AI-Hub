@@ -180,12 +180,12 @@ export const checkAndTriggerAutoTopup = async (userId: string): Promise<boolean>
         // Get current balances
         const currentPointBalance = await getBalance(userId);
         const currentCreditBalance = await creditService.getBalance(userId);
-        
+
         const balanceBefore = {
           points: currentPointBalance,
-          credits: currentCreditBalance
+          credits: currentCreditBalance,
         };
-        
+
         // Deduct Credits
         await creditService.deductCredits(userId, 'auto_topup', AUTO_TOPUP_AMOUNT_CREDITS, {
           autoTopup: true,
@@ -200,12 +200,12 @@ export const checkAndTriggerAutoTopup = async (userId: string): Promise<boolean>
           `Auto top-up: ${AUTO_TOPUP_AMOUNT_CREDITS} Credit → ${pointsToAdd} Points`,
           tx
         );
-        
+
         const balanceAfter = {
           points: currentPointBalance + pointsToAdd,
-          credits: currentCreditBalance - AUTO_TOPUP_AMOUNT_CREDITS
+          credits: currentCreditBalance - AUTO_TOPUP_AMOUNT_CREDITS,
         };
-        
+
         // Log auto top-up
         await tx.autoTopupLog.create({
           data: {
@@ -214,8 +214,8 @@ export const checkAndTriggerAutoTopup = async (userId: string): Promise<boolean>
             pointsAdded: pointsToAdd,
             triggerReason: 'low_balance',
             balanceBefore,
-            balanceAfter
-          }
+            balanceAfter,
+          },
         });
       });
 

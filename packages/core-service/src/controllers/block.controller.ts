@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { 
-  UserTier, 
-  HierarchyRequest 
-} from '../middleware/visibilityCheckRaw';
+import { UserTier, HierarchyRequest } from '../middleware/visibilityCheckRaw';
 import { checkUserVisibility } from '../middleware/visibilityCheckRaw';
 
 const prisma = new PrismaClient();
@@ -18,7 +15,7 @@ export async function blockUser(req: HierarchyRequest, res: Response) {
     }
 
     const { targetUserId } = req.body;
-    
+
     if (!targetUserId) {
       return res.status(400).json({ error: 'Target user ID is required' });
     }
@@ -29,9 +26,9 @@ export async function blockUser(req: HierarchyRequest, res: Response) {
     }
 
     // Get current user data
-    const currentUserResult = await prisma.$queryRaw`
+    const currentUserResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${req.user.id}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!currentUserResult.length) {
       return res.status(404).json({ error: 'Current user not found' });
@@ -40,9 +37,9 @@ export async function blockUser(req: HierarchyRequest, res: Response) {
     const currentUser = currentUserResult[0];
 
     // Get target user data
-    const targetUserResult = await prisma.$queryRaw`
+    const targetUserResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${targetUserId}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!targetUserResult.length) {
       return res.status(404).json({ error: 'Target user not found' });
@@ -59,17 +56,17 @@ export async function blockUser(req: HierarchyRequest, res: Response) {
     // Check hierarchy rules for blocking
     const canBlock = await canBlockUser(currentUser.tier, targetUser.tier);
     if (!canBlock) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Insufficient privileges to block this user',
-        message: 'You can only block users of lower tier in your hierarchy'
+        message: 'You can only block users of lower tier in your hierarchy',
       });
     }
 
     // Check if user is already blocked
-    const existingBlockResult = await prisma.$queryRaw`
+    const existingBlockResult = (await prisma.$queryRaw`
       SELECT id FROM block_logs 
       WHERE blocker_id = ${req.user.id} AND blocked_id = ${targetUserId} AND is_active = true
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (existingBlockResult.length > 0) {
       return res.status(400).json({ error: 'User is already blocked' });
@@ -90,9 +87,8 @@ export async function blockUser(req: HierarchyRequest, res: Response) {
       message: 'User blocked successfully',
       blockedUserId: targetUserId,
       blockedBy: req.user.id,
-      blockedAt: new Date().toISOString()
+      blockedAt: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Error blocking user:', error);
     res.status(500).json({ error: 'Failed to block user' });
@@ -109,16 +105,16 @@ export async function unblockUser(req: HierarchyRequest, res: Response) {
     }
 
     const { targetUserId } = req.body;
-    
+
     if (!targetUserId) {
       return res.status(400).json({ error: 'Target user ID is required' });
     }
 
     // Check if block exists
-    const existingBlockResult = await prisma.$queryRaw`
+    const existingBlockResult = (await prisma.$queryRaw`
       SELECT id FROM block_logs 
       WHERE blocker_id = ${req.user.id} AND blocked_id = ${targetUserId} AND is_active = true
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (existingBlockResult.length === 0) {
       return res.status(400).json({ error: 'User is not blocked' });
@@ -135,9 +131,8 @@ export async function unblockUser(req: HierarchyRequest, res: Response) {
       message: 'User unblocked successfully',
       unblockedUserId: targetUserId,
       unblockedBy: req.user.id,
-      unblockedAt: new Date().toISOString()
+      unblockedAt: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Error unblocking user:', error);
     res.status(500).json({ error: 'Failed to unblock user' });
@@ -158,7 +153,7 @@ export async function getBlockedUsers(req: HierarchyRequest, res: Response) {
     const offset = (page - 1) * limit;
 
     // Get blocked users with pagination
-    const blockedUsersResult = await prisma.$queryRaw`
+    const blockedUsersResult = (await prisma.$queryRaw`
       SELECT 
         bl.id,
         bl.blocked_id,
@@ -175,14 +170,14 @@ export async function getBlockedUsers(req: HierarchyRequest, res: Response) {
       WHERE bl.blocker_id = ${req.user.id} AND bl.is_active = true
       ORDER BY bl.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     // Get total count
-    const countResult = await prisma.$queryRaw`
+    const countResult = (await prisma.$queryRaw`
       SELECT COUNT(*) as total
       FROM block_logs
       WHERE blocker_id = ${req.user.id} AND is_active = true
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const total = parseInt(countResult[0]?.total || '0');
 
@@ -196,16 +191,15 @@ export async function getBlockedUsers(req: HierarchyRequest, res: Response) {
         lastName: block.last_name,
         reason: block.block_reason,
         blockedAt: block.blocked_at,
-        unblockedAt: block.unblocked_at
+        unblockedAt: block.unblocked_at,
       })),
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
-
   } catch (error) {
     console.error('Error getting blocked users:', error);
     res.status(500).json({ error: 'Failed to get blocked users' });
@@ -223,11 +217,7 @@ async function canBlockUser(blockerTier: UserTier, blockedTier: UserTier): Promi
 
   // Agency can block organizations, admins, and generals
   if (blockerTier === UserTier.agency) {
-    return [
-      UserTier.organization,
-      UserTier.admin,
-      UserTier.general
-    ].includes(blockedTier);
+    return [UserTier.organization, UserTier.admin, UserTier.general].includes(blockedTier);
   }
 
   // Organization can block admins and generals
@@ -258,29 +248,30 @@ export async function checkIfBlocked(req: HierarchyRequest, res: Response) {
     }
 
     const { targetUserId } = req.params;
-    
+
     if (!targetUserId) {
       return res.status(400).json({ error: 'Target user ID is required' });
     }
 
     // Check if current user is blocked by target user
-    const blockResult = await prisma.$queryRaw`
+    const blockResult = (await prisma.$queryRaw`
       SELECT id, block_reason, created_at
       FROM block_logs
       WHERE blocker_id = ${targetUserId} AND blocked_id = ${req.user.id} AND is_active = true
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const isBlocked = blockResult.length > 0;
 
     res.json({
       isBlocked,
-      blockedBy: isBlocked ? {
-        userId: targetUserId,
-        reason: blockResult[0].block_reason,
-        blockedAt: blockResult[0].created_at
-      } : null
+      blockedBy: isBlocked
+        ? {
+            userId: targetUserId,
+            reason: blockResult[0].block_reason,
+            blockedAt: blockResult[0].created_at,
+          }
+        : null,
     });
-
   } catch (error) {
     console.error('Error checking block status:', error);
     res.status(500).json({ error: 'Failed to check block status' });

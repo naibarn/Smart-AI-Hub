@@ -20,7 +20,13 @@ interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (data: { name: string; email: string; password: string; tier?: string; inviteCode?: string }) => Promise<void>;
+  register: (data: {
+    name: string;
+    email: string;
+    password: string;
+    tier?: string;
+    inviteCode?: string;
+  }) => Promise<void>;
   refreshToken: () => Promise<void>;
 }
 
@@ -86,7 +92,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (data: { name: string; email: string; password: string; tier?: string; inviteCode?: string }) => {
+  const register = async (data: {
+    name: string;
+    email: string;
+    password: string;
+    tier?: string;
+    inviteCode?: string;
+  }) => {
     try {
       setLoading(true);
       setError(null);

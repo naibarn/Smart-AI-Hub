@@ -9,14 +9,14 @@ export enum UserTier {
   agency = 'agency',
   organization = 'organization',
   admin = 'admin',
-  general = 'general'
+  general = 'general',
 }
 
 // Define ReferralStatus enum to match database schema
 export enum ReferralStatus {
   pending = 'pending',
   processed = 'processed',
-  failed = 'failed'
+  failed = 'failed',
 }
 
 /**
@@ -81,7 +81,7 @@ export function calculateReferralRewards(
   return {
     referrerRewardPoints,
     refereeRewardPoints,
-    agencyBonusPoints
+    agencyBonusPoints,
   };
 }
 
@@ -94,18 +94,18 @@ export async function validateReferralRelationship(
 ): Promise<boolean> {
   try {
     // Check if referrer exists
-    const referrerResult = await prisma.$queryRaw`
+    const referrerResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${referrerId}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!referrerResult.length) {
       return false;
     }
 
     // Check if referee exists
-    const refereeResult = await prisma.$queryRaw`
+    const refereeResult = (await prisma.$queryRaw`
       SELECT id, tier FROM users WHERE id = ${refereeId}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     if (!refereeResult.length) {
       return false;
@@ -122,11 +122,7 @@ export async function validateReferralRelationship(
 
     // Agency can refer organizations, admins, and generals
     if (referrer.tier === UserTier.agency) {
-      return [
-        UserTier.organization,
-        UserTier.admin,
-        UserTier.general
-      ].includes(referee.tier);
+      return [UserTier.organization, UserTier.admin, UserTier.general].includes(referee.tier);
     }
 
     // Organization can refer admins and generals
@@ -156,9 +152,9 @@ export async function validateReferralRelationship(
  */
 export async function getAgencyReferralConfig(agencyId: string): Promise<any> {
   try {
-    const configResult = await prisma.$queryRaw`
+    const configResult = (await prisma.$queryRaw`
       SELECT * FROM agency_referral_configs WHERE agency_id = ${agencyId} AND is_active = true
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     return configResult.length ? configResult[0] : null;
   } catch (error) {
@@ -178,9 +174,9 @@ export async function processReferralRewards(
 ): Promise<string> {
   try {
     const rewards = calculateReferralRewards(referrerTier, refereeTier);
-    
+
     // Create referral reward record
-    const rewardResult = await prisma.$queryRaw`
+    const rewardResult = (await prisma.$queryRaw`
       INSERT INTO referral_rewards (
         referrer_id, referee_id, referrer_tier, referee_tier,
         referrer_reward_points, referee_reward_points, agency_bonus_points,
@@ -190,7 +186,7 @@ export async function processReferralRewards(
         ${rewards.referrerRewardPoints}, ${rewards.refereeRewardPoints}, ${rewards.agencyBonusPoints},
         ${ReferralStatus.pending}, NOW()
       ) RETURNING id
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     const rewardId = rewardResult[0].id;
 
@@ -235,9 +231,9 @@ export async function processReferralRewards(
  */
 export async function validateInviteCode(inviteCode: string): Promise<any> {
   try {
-    const result = await prisma.$queryRaw`
+    const result = (await prisma.$queryRaw`
       SELECT id, email, tier FROM users WHERE invite_code = ${inviteCode}
-    ` as unknown as any[];
+    `) as unknown as any[];
 
     return result.length ? result[0] : null;
   } catch (error) {

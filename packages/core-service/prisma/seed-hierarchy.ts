@@ -9,7 +9,7 @@ function generateInviteCode(): string {
 }
 
 async function seedHierarchy() {
-  console.log('🌱 Seeding user hierarchy system...');
+  // console.log('🌱 Seeding user hierarchy system...');
 
   try {
     // Get all existing users
@@ -22,7 +22,7 @@ async function seedHierarchy() {
       },
     });
 
-    console.log(`Found ${existingUsers.length} existing users`);
+    // console.log(`Found ${existingUsers.length} existing users`);
 
     // Generate invite codes for users who don't have one
     for (const user of existingUsers) {
@@ -40,7 +40,7 @@ async function seedHierarchy() {
           });
           isUnique = !existing;
           attempts++;
-          
+
           if (attempts > 100) {
             throw new Error(`Failed to generate unique invite code for user ${user.id}`);
           }
@@ -51,7 +51,7 @@ async function seedHierarchy() {
           data: { inviteCode },
         });
 
-        console.log(`Generated invite code ${inviteCode} for user ${user.email}`);
+        // console.log(`Generated invite code ${inviteCode} for user ${user.email}`);
       }
     }
 
@@ -90,7 +90,7 @@ async function seedHierarchy() {
         },
       });
 
-      console.log(`Created administrator user: ${admin.email} with invite code ${adminInviteCode}`);
+      // console.log(`Created administrator user: ${admin.email} with invite code ${adminInviteCode}`);
     }
 
     // Create sample agencies for testing
@@ -141,7 +141,7 @@ async function seedHierarchy() {
         },
       });
 
-      console.log(`Created sample agency: ${agency.email} with invite code ${agencyInviteCode}`);
+      // console.log(`Created sample agency: ${agency.email} with invite code ${agencyInviteCode}`);
     }
 
     // Create sample organizations under first agency
@@ -186,11 +186,11 @@ async function seedHierarchy() {
           },
         });
 
-        console.log(`Created sample organization: ${org.email} under agency ${firstAgency.email}`);
+        // console.log(`Created sample organization: ${org.email} under agency ${firstAgency.email}`);
       }
     }
 
-    console.log('✅ User hierarchy system seeded successfully');
+    // console.log('✅ User hierarchy system seeded successfully');
   } catch (error) {
     console.error('❌ Error seeding hierarchy system:', error);
     throw error;

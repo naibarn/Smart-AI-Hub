@@ -52,8 +52,8 @@ describe('Points API', () => {
     });
 
     // Generate mock tokens (in a real app, these would be JWT tokens)
-    authToken = 'mock-user-token';
-    adminToken = 'mock-admin-token';
+    authToken = process.env.TEST_USER_TOKEN || 'mock-user-token';
+    adminToken = process.env.TEST_ADMIN_TOKEN || 'mock-admin-token';
   });
 
   afterAll(async () => {
@@ -83,8 +83,7 @@ describe('Points API', () => {
     });
 
     it('should return 401 if not authenticated', async () => {
-      const response = await request(app)
-        .get('/api/v1/points/balance');
+      const response = await request(app).get('/api/v1/points/balance');
 
       expect(response.status).toBe(401);
     });
@@ -241,12 +240,10 @@ describe('Points API', () => {
     });
 
     it('should require authentication headers', async () => {
-      const response = await request(app)
-        .post('/api/v1/mcp/points/deduct')
-        .send({
-          amount: 100,
-          description: 'Test deduction',
-        });
+      const response = await request(app).post('/api/v1/mcp/points/deduct').send({
+        amount: 100,
+        description: 'Test deduction',
+      });
 
       expect(response.status).toBe(401);
     });

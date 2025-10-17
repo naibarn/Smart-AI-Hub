@@ -5,9 +5,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npm-run-all --parallel dev:*",
+    "dev": "npm-run-all --parallel dev:frontend dev:core-service",
     "build": "npm-run-all --serial build:*",
     "start": "npm-run-all --parallel start:*",
+    "dev:frontend": "cd packages/frontend && npm run dev",
+    "dev:core-service": "cd packages/core-service && npm run dev",
     "install:all": "npm install && npm-run-all install:*",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
@@ -48,6 +50,7 @@
   "dependencies": {
     "@prisma/client": "^6.17.1",
     "@types/jsonwebtoken": "^9.0.10",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2"

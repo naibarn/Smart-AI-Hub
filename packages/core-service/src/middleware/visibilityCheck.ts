@@ -10,7 +10,7 @@ export enum UserTier {
   agency = 'agency',
   organization = 'organization',
   admin = 'admin',
-  general = 'general'
+  general = 'general',
 }
 
 // Extended interface for hierarchy-aware requests
@@ -29,15 +29,15 @@ export interface HierarchyRequest extends AuthenticatedRequest {
 
 /**
  * 🔒 CRITICAL SECURITY MIDDLEWARE
- * 
+ *
  * This middleware enforces user visibility rules based on hierarchy relationships.
  * Users can ONLY see other users based on their tier and hierarchy relationship.
- * 
+ *
  * VISIBILITY RULES:
- * 
+ *
  * Administrator:
  * - ✅ Can see ALL users in the system (no restrictions)
- * 
+ *
  * Agency:
  * - ✅ Can see Organizations where parentAgencyId === agency.id
  * - ✅ Can see Admins in Organizations under them
@@ -45,7 +45,7 @@ export interface HierarchyRequest extends AuthenticatedRequest {
  * - ❌ CANNOT see other Agencies
  * - ❌ CANNOT see Administrators
  * - ❌ CANNOT see General not under their Agency
- * 
+ *
  * Organization:
  * - ✅ Can see Admins where parentOrganizationId === organization.id
  * - ✅ Can see General where parentOrganizationId === organization.id
@@ -54,7 +54,7 @@ export interface HierarchyRequest extends AuthenticatedRequest {
  * - ❌ CANNOT see Admins/General of other Organizations
  * - ❌ CANNOT see Agencies
  * - ❌ CANNOT see Administrators
- * 
+ *
  * Admin:
  * - ✅ Can see General where parentOrganizationId === admin.parentOrganizationId
  * - ✅ Can see other Admins in same Organization
@@ -63,7 +63,7 @@ export interface HierarchyRequest extends AuthenticatedRequest {
  * - ❌ CANNOT see Organizations
  * - ❌ CANNOT see Agencies
  * - ❌ CANNOT see Administrators
- * 
+ *
  * General:
  * - ✅ Can see ONLY themselves
  * - ✅ Can see parent Organization (basic info only, if applicable)
@@ -78,23 +78,23 @@ export async function checkUserVisibility(
   currentUserId: string,
   targetUserId: string
 ): Promise<boolean> {
-  const currentUser = await prisma.user.findUnique({
+  const currentUser = (await prisma.user.findUnique({
     where: { id: currentUserId },
-  }) as any;
-  
-  const targetUser = await prisma.user.findUnique({
+  })) as any;
+
+  const targetUser = (await prisma.user.findUnique({
     where: { id: targetUserId },
-  }) as any;
-  
+  })) as any;
+
   if (!currentUser || !targetUser) {
     return false;
   }
-  
+
   // Administrator can see everyone
   if (currentUser.tier === UserTier.administrator) {
     return true;
   }
-  
+
   // Agency can see Organizations and Generals under them
   if (currentUser.tier === UserTier.agency) {
     if (targetUser.tier === UserTier.organization || targetUser.tier === UserTier.general) {
@@ -102,14 +102,14 @@ export async function checkUserVisibility(
     }
     // Agency can see Admins in their Organizations
     if (targetUser.tier === UserTier.admin) {
-      const targetOrg = await prisma.user.findUnique({
+      const targetOrg = (await prisma.user.findUnique({
         where: { id: targetUser.parentOrganizationId! },
-      }) as any;
+      })) as any;
       return targetOrg?.parentAgencyId === currentUserId;
     }
     return false;
   }
-  
+
   // Organization can see Admins and Generals in their org
   if (currentUser.tier === UserTier.organization) {
     if (targetUser.tier === UserTier.admin || targetUser.tier === UserTier.general) {
@@ -117,7 +117,7 @@ export async function checkUserVisibility(
     }
     return false;
   }
-  
+
   // Admin can see Generals in same org
   if (currentUser.tier === UserTier.admin) {
     if (targetUser.tier === UserTier.general) {
@@ -129,12 +129,12 @@ export async function checkUserVisibility(
     }
     return false;
   }
-  
+
   // General can only see themselves
   if (currentUser.tier === UserTier.general) {
     return targetUserId === currentUserId;
   }
-  
+
   return false;
 }
 
@@ -150,19 +150,21 @@ export function requireUserVisibility(targetUserIdParam: string = 'targetUserId'
       }
 
       const targetUserId = req.params[targetUserIdParam] || req.body[targetUserIdParam];
-      
+
       if (!targetUserId) {
         return res.status(400).json({ error: 'Target user ID required' });
       }
 
       const canSee = await checkUserVisibility(req.user.id, targetUserId);
-      
+
       if (!canSee) {
         // Log unauthorized access attempt
-        console.warn(`🚨 UNAUTHORIZED ACCESS ATTEMPT: User ${req.user.id} (${(req.user as any).tier}) tried to access User ${targetUserId}`);
-        
-        return res.status(403).json({ 
-          error: 'You do not have permission to access this user information' 
+        console.warn(
+          `🚨 UNAUTHORIZED ACCESS ATTEMPT: User ${req.user.id} (${(req.user as any).tier}) tried to access User ${targetUserId}`
+        );
+
+        return res.status(403).json({
+          error: 'You do not have permission to access this user information',
         });
       }
 
@@ -178,23 +180,21 @@ export function requireUserVisibility(targetUserIdParam: string = 'targetUserId'
  * Filter user data based on viewer's tier and relationship
  * Removes sensitive information that shouldn't be visible to certain tiers
  */
-export function sanitizeUserData(
-  user: any, 
-  viewerTier: UserTier,
-  viewerId?: string
-): any {
+export function sanitizeUserData(user: any, viewerTier: UserTier, viewerId?: string): any {
   const baseData = {
     id: user.id,
     email: user.email,
     tier: user.tier,
-    profile: user.profile ? {
-      firstName: user.profile.firstName,
-      lastName: user.profile.lastName,
-      avatarUrl: user.profile.avatarUrl
-    } : null,
-    createdAt: user.createdAt
+    profile: user.profile
+      ? {
+          firstName: user.profile.firstName,
+          lastName: user.profile.lastName,
+          avatarUrl: user.profile.avatarUrl,
+        }
+      : null,
+    createdAt: user.createdAt,
   };
-  
+
   // Only Administrator can see sensitive data
   if (viewerTier === UserTier.administrator) {
     return {
@@ -207,46 +207,46 @@ export function sanitizeUserData(
       parentAgencyId: user.parentAgencyId,
       parentOrganizationId: user.parentOrganizationId,
       inviteCode: user.inviteCode,
-      invitedBy: user.invitedBy
+      invitedBy: user.invitedBy,
     };
   }
-  
+
   // Agency can see some additional info about users under them
   if (viewerTier === UserTier.agency) {
     return {
       ...baseData,
       isBlocked: user.isBlocked,
       parentAgencyId: user.parentAgencyId,
-      parentOrganizationId: user.parentOrganizationId
+      parentOrganizationId: user.parentOrganizationId,
     };
   }
-  
+
   // Organization can see basic info about their members
   if (viewerTier === UserTier.organization) {
     return {
       ...baseData,
       isBlocked: user.isBlocked,
-      parentOrganizationId: user.parentOrganizationId
+      parentOrganizationId: user.parentOrganizationId,
     };
   }
-  
+
   // Admin can see very limited info
   if (viewerTier === UserTier.admin) {
     return {
       ...baseData,
-      isBlocked: user.isBlocked
+      isBlocked: user.isBlocked,
     };
   }
-  
+
   // General users can only see basic profile info
   if (viewerTier === UserTier.general && viewerId === user.id) {
     return {
       ...baseData,
       points: user.points,
-      credits: user.credits
+      credits: user.credits,
     };
   }
-  
+
   // General users seeing others get minimal info
   return baseData;
 }
@@ -263,17 +263,17 @@ export async function applyVisibilityFilters(
     limit?: number;
     offset?: number;
   }
-): Promise<{ users: any[], total: number }> {
-  const currentUser = await prisma.user.findUnique({
+): Promise<{ users: any[]; total: number }> {
+  const currentUser = (await prisma.user.findUnique({
     where: { id: currentUserId },
-  }) as any;
+  })) as any;
 
   if (!currentUser) {
     return { users: [], total: 0 };
   }
 
   let whereClause: any = {};
-  
+
   // Build visibility filter based on user tier
   switch (currentUser.tier) {
     case UserTier.administrator:
@@ -285,39 +285,39 @@ export async function applyVisibilityFilters(
         whereClause.OR = [
           { email: { contains: userFilters.search, mode: 'insensitive' } },
           { profile: { firstName: { contains: userFilters.search, mode: 'insensitive' } } },
-          { profile: { lastName: { contains: userFilters.search, mode: 'insensitive' } } }
+          { profile: { lastName: { contains: userFilters.search, mode: 'insensitive' } } },
         ];
       }
       break;
-      
+
     case UserTier.agency:
       // Can see Organizations and Generals under them, and Admins in their Organizations
       whereClause.OR = [
         { tier: 'organization', parentAgencyId: currentUserId },
         { tier: 'general', parentAgencyId: currentUserId },
-        { 
+        {
           tier: 'admin',
-          parentOrganization: { parentAgencyId: currentUserId }
+          parentOrganization: { parentAgencyId: currentUserId },
         },
         {
           tier: 'general',
-          parentOrganization: { parentAgencyId: currentUserId }
-        }
+          parentOrganization: { parentAgencyId: currentUserId },
+        },
       ];
       break;
-      
+
     case UserTier.organization:
       // Can see Admins and Generals in their org ONLY
       whereClause.parentOrganizationId = currentUserId;
       whereClause.tier = { in: ['admin', 'general'] };
       break;
-      
+
     case UserTier.admin:
       // Can see Generals in same org ONLY
       whereClause.parentOrganizationId = currentUser.parentOrganizationId;
       whereClause.tier = 'general';
       break;
-      
+
     case UserTier.general:
       // Can only see themselves
       whereClause.id = currentUserId;
@@ -334,10 +334,10 @@ export async function applyVisibilityFilters(
       OR: [
         { email: { contains: userFilters.search, mode: 'insensitive' } },
         { profile: { firstName: { contains: userFilters.search, mode: 'insensitive' } } },
-        { profile: { lastName: { contains: userFilters.search, mode: 'insensitive' } } }
-      ]
+        { profile: { lastName: { contains: userFilters.search, mode: 'insensitive' } } },
+      ],
     };
-    
+
     if (whereClause.OR) {
       whereClause.AND = [{ OR: whereClause.OR }, searchCondition];
       delete whereClause.OR;
@@ -350,17 +350,17 @@ export async function applyVisibilityFilters(
     prisma.user.findMany({
       where: whereClause,
       include: {
-        profile: true
+        profile: true,
       },
       orderBy: { createdAt: 'desc' },
       take: userFilters?.limit || 50,
-      skip: userFilters?.offset || 0
+      skip: userFilters?.offset || 0,
     }),
-    prisma.user.count({ where: whereClause })
+    prisma.user.count({ where: whereClause }),
   ]);
 
   // Sanitize user data based on viewer's tier
-  const sanitizedUsers = users.map(user => 
+  const sanitizedUsers = users.map((user) =>
     sanitizeUserData(user, currentUser.tier, currentUserId)
   );
 
@@ -371,5 +371,5 @@ export default {
   checkUserVisibility,
   requireUserVisibility,
   sanitizeUserData,
-  applyVisibilityFilters
+  applyVisibilityFilters,
 };

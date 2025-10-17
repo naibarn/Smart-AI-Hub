@@ -3,7 +3,7 @@ import {
   getHierarchyMembers,
   getHierarchyStats,
   getUserDetails,
-  getHierarchyTree
+  getHierarchyTree,
 } from '../controllers/hierarchy.controller';
 import { authenticateJWT } from '../middlewares/auth.middleware';
 import { createCustomRateLimiter } from '../middlewares/rateLimiter';
@@ -28,36 +28,24 @@ const hierarchyRateLimit = createCustomRateLimiter(
  * GET /api/hierarchy/members
  * Get hierarchy members list with visibility filters
  */
-router.get('/members', 
-  hierarchyRateLimit,
-  getHierarchyMembers
-);
+router.get('/members', hierarchyRateLimit, getHierarchyMembers);
 
 /**
  * GET /api/hierarchy/stats
  * Get hierarchy statistics
  */
-router.get('/stats', 
-  hierarchyRateLimit,
-  getHierarchyStats
-);
+router.get('/stats', hierarchyRateLimit, getHierarchyStats);
 
 /**
  * GET /api/hierarchy/users/:userId
  * Get user details with visibility checks
  */
-router.get('/users/:userId', 
-  hierarchyRateLimit,
-  getUserDetails
-);
+router.get('/users/:userId', hierarchyRateLimit, getUserDetails);
 
 /**
  * GET /api/hierarchy/tree
  * Get hierarchy tree structure
  */
-router.get('/tree', 
-  hierarchyRateLimit,
-  getHierarchyTree
-);
+router.get('/tree', hierarchyRateLimit, getHierarchyTree);
 
 export default router;

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable no-undef */
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -5,7 +7,9 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: 'packages/core-service/tsconfig.json'
+    }]
   },
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
@@ -16,11 +20,6 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/packages/core-service/src/$1',
     '^@frontend/(.*)$': '<rootDir>/packages/frontend/src/$1',
-  },
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      tsconfig: 'packages/core-service/tsconfig.json'
-    }]
   },
   testTimeout: 30000,
   globalSetup: '<rootDir>/tests/globalSetup.ts',

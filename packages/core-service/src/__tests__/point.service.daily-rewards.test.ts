@@ -76,10 +76,12 @@ jest.mock('@smart-ai-hub/shared', () => ({
 }));
 
 // Get the mocked Prisma instance
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaClient: MockedPrismaClient } = require('@prisma/client');
 const mockPrisma = new MockedPrismaClient();
 
 // Import the service AFTER setting environment variable
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const pointService = require('../services/point.service');
 
 describe('PointService with Daily Rewards Disabled', () => {
@@ -99,7 +101,7 @@ describe('PointService with Daily Rewards Disabled', () => {
       // Mock no existing reward and user
       mockPrisma.user.findUnique.mockResolvedValue({
         id: userId,
-        profile: { preferences: { timezone: 'UTC' } }
+        profile: { preferences: { timezone: 'UTC' } },
       } as any);
       mockPrisma.dailyLoginReward.findUnique.mockResolvedValue(null as any);
 
