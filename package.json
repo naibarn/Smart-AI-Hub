@@ -21,6 +21,7 @@
     "test:security": "jest tests/security",
     "test:e2e": "playwright test",
     "validate:specs": "echo 'No spec validation configured yet' && exit 0",
+    "validate:report": "node analyze_quality_report.js",
     "check:lockfile": "echo 'Lockfile check not implemented yet' && exit 0",
     "prepare": "husky"
   },

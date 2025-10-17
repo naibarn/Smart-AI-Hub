@@ -250,6 +250,15 @@ async function main() {
     });
     console.log(`- ${role.name}: ${permissionCount} permissions`);
   }
+
+  // Seed Agent Settings
+  console.log('\nSeeding Agent Settings...');
+  try {
+    const { seedAgentSettings } = require('./seed-agent-settings');
+    await seedAgentSettings();
+  } catch (error) {
+    console.error('Error seeding Agent Settings:', error);
+  }
 }
 
 main()

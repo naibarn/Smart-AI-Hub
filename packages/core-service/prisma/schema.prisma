@@ -68,6 +68,10 @@ model User {
   agencyReferralConfig AgencyReferralConfig?
   blockLogs          BlockLog[]
   autoTopupLogs      AutoTopupLog[]
+  createdAgents      Agent[]              @relation("AgentCreator")
+  organizationAgents Agent[]              @relation("AgentOrganization")
+  agencyAgents       Agent[]              @relation("AgentAgency")
+  updatedAgentSettings AgentSetting[]     @relation("AgentSettingUpdater")
 
   @@map("users")
   @@index([email])
@@ -418,4 +422,120 @@ model AutoTopupLog {
 
   @@map("auto_topup_logs")
   @@index([userId, createdAt])
+}
+
+// Agent Models for OpenAI Agents Marketplace
+
+enum AgentType {
+  AGENTFLOW
+  CUSTOMGPT
+  GEMINI_GEM
+}
+
+enum AgentVisibility {
+  PRIVATE
+  ORGANIZATION
+  AGENCY
+  PUBLIC
+}
+
+enum AgentStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApprovalAction {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model Agent {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String         @db.VarChar(255)
+  description      String?        @db.Text
+  category         String?        @db.VarChar(100)
+  icon             String?        @db.VarChar(500)
+  type             AgentType
+  visibility       AgentVisibility @default(PRIVATE)
+  status           AgentStatus    @default(DRAFT)
+  flowDefinition   Json?          @map("flow_definition")
+  inputSchema      Json?          @map("input_schema")
+  outputSchema     Json?          @map("output_schema")
+  executionConfig  Json?          @map("execution_config")
+  metadata         Json           @default("{}")
+  externalUrl      String?        @map("external_url") @db.VarChar(500)
+  createdBy        String         @map("created_by") @db.Uuid
+  organizationId   String?        @map("organization_id") @db.Uuid
+  agencyId         String?        @map("agency_id") @db.Uuid
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at")
+  
+  creator          User           @relation("AgentCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  organization     User?          @relation("AgentOrganization", fields: [organizationId], references: [id], onDelete: SetNull)
+  agency           User?          @relation("AgentAgency", fields: [agencyId], references: [id], onDelete: SetNull)
+  approvalLogs     AgentApprovalLog[]
+  usageLogs        AgentUsageLog[]
+
+  @@map("agents")
+  @@index([createdBy])
+  @@index([type])
+  @@index([visibility])
+  @@index([status])
+  @@index([organizationId])
+  @@index([agencyId])
+}
+
+model AgentSetting {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key         String   @db.VarChar(100)
+  value       String   @db.Text
+  description String?  @db.Text
+  dataType    String   @map("data_type") @db.VarChar(50)
+  updatedBy   String   @map("updated_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  updater     User     @relation("AgentSettingUpdater", fields: [updatedBy], references: [id], onDelete: Cascade)
+
+  @@unique([key])
+  @@map("agent_settings")
+}
+
+model AgentApprovalLog {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId     String         @map("agent_id") @db.Uuid
+  action      ApprovalAction
+  performedBy String         @map("performed_by") @db.Uuid
+  reason      String?        @db.Text
+  createdAt   DateTime       @default(now()) @map("created_at")
+  
+  agent       Agent          @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@map("agent_approval_logs")
+  @@index([agentId, createdAt])
+  @@index([performedBy, createdAt])
+}
+
+model AgentUsageLog {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  agentId        String   @map("agent_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  inputData      Json     @map("input_data")
+  outputData     Json?    @map("output_data")
+  tokensUsed     Int      @map("tokens_used")
+  costInCredits  Int      @map("cost_in_credits")
+  executionTime  Int      @map("execution_time") // in milliseconds
+  status         String   @db.VarChar(50)
+  errorMessage   String?  @map("error_message") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  
+  agent          Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@map("agent_usage_logs")
+  @@index([agentId, createdAt])
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
 }

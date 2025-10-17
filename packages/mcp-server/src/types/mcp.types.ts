@@ -4,7 +4,7 @@
  */
 
 // Message types
-export type MCPMessageType = 'completion' | 'chat';
+export type MCPMessageType = 'completion' | 'chat' | 'agent_flow';
 
 // Provider types
 export type MCPProvider = 'openai' | 'claude' | 'auto';
@@ -111,4 +111,56 @@ export interface LLMResponse {
   usage?: TokenUsage;
   model: string;
   finishReason: string;
+}
+
+// Agent Flow specific types
+export interface AgentFlowRequest {
+  agentId: string;
+  input: Record<string, any>;
+  stream?: boolean;
+  timeout?: number;
+}
+
+export interface AgentFlowDefinition {
+  steps: AgentFlowStep[];
+  variables?: Record<string, any>;
+}
+
+export interface AgentFlowStep {
+  id: string;
+  type: 'llm_call' | 'condition' | 'loop' | 'parallel' | 'function_call';
+  config: Record<string, any>;
+  next?: string | string[];
+  condition?: string;
+}
+
+export interface AgentFlowExecution {
+  id: string;
+  agentId: string;
+  userId: string;
+  input: Record<string, any>;
+  output?: Record<string, any>;
+  status: 'running' | 'completed' | 'failed' | 'timeout';
+  startTime: Date;
+  endTime?: Date;
+  error?: string;
+  tokensUsed?: number;
+  costInCredits?: number;
+}
+
+// Enhanced MCP Request for Agent Flow
+export interface MCPAgentFlowRequest extends MCPRequest {
+  type: 'agent_flow';
+  agentFlow: AgentFlowRequest;
+}
+
+// Agent Flow Response
+export interface AgentFlowResponse {
+  id: string;
+  type: MCPResponseType;
+  data?: any;
+  executionId?: string;
+  status?: AgentFlowExecution['status'];
+  error?: ErrorDetails;
+  timestamp: string;
 }

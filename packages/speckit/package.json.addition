@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "validate": "ts-node validate.ts"
+  },
+  "dependencies": {
+    "glob": "^10.3.0"
+  }
+}
+

@@ -24,10 +24,11 @@ import { connectionService } from './services/connection.service';
 import { creditService } from './services/credit.service';
 import { loggingService } from './services/logging.service';
 import webhookService from './services/webhook.service';
-import { MCPRequest, MCPResponse, LLMRequest } from './types/mcp.types';
+import { MCPRequest, MCPResponse, LLMRequest, MCPAgentFlowRequest } from './types/mcp.types';
 import { OpenAIProvider } from './providers/openai.provider';
 import { ClaudeProvider } from './providers/claude.provider';
 import { ProviderManager } from './services/provider.manager';
+import { AgentFlowExecutor } from './services/agentFlowExecutor.service';
 
 // Validate configuration on startup
 validateConfig();
@@ -41,6 +42,9 @@ const providerManager = new ProviderManager([
   { name: 'openai', instance: openAIProvider },
   { name: 'claude', instance: claudeProvider },
 ]);
+
+// Initialize Agent Flow Executor
+const agentFlowExecutor = new AgentFlowExecutor(openAIProvider);
 
 const app: Application = express();
 const PORT = config.PORT;
@@ -373,7 +377,7 @@ function isAsyncIterable<T>(obj: any): obj is AsyncIterable<T> {
   return obj != null && typeof obj[Symbol.asyncIterator] === 'function';
 }
 
-async function handleMessage(connection: any, request: MCPRequest): Promise<void> {
+async function handleMessage(connection: any, request: MCPRequest | MCPAgentFlowRequest): Promise<void> {
   const startTime = Date.now();
   const { id: requestId } = request;
   const { userId } = connection.metadata;
@@ -408,6 +412,12 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
         'Insufficient credits for this request.',
         requestId
       );
+    }
+
+    // Handle different request types
+    if (request.type === 'agent_flow') {
+      await handleAgentFlowRequest(connection, request as MCPAgentFlowRequest, startTime);
+      return;
     }
 
     const llmRequest: LLMRequest = { ...request };
@@ -556,6 +566,120 @@ async function handleMessage(connection: any, request: MCPRequest): Promise<void
       connection.ws,
       'EXECUTION_ERROR',
       error.message || 'Failed to execute request.',
+      requestId
+    );
+  } finally {
+    connectionService.removePendingRequest(connection.id, requestId);
+  }
+}
+
+/**
+ * Handle Agent Flow requests
+ */
+async function handleAgentFlowRequest(
+  connection: any,
+  request: MCPAgentFlowRequest,
+  startTime: number
+): Promise<void> {
+  const { id: requestId } = request;
+  const { userId } = connection.metadata;
+  const agentFlow = request.agentFlow;
+
+  try {
+    // Check if user has sufficient credits for agent flow execution
+    const hasCredits = await creditService.checkSufficientCredits(userId, {
+      model: 'agent-flow',
+      maxTokens: agentFlow.timeout ? Math.floor(agentFlow.timeout / 100) : 1000, // Rough estimation
+      type: 'agent_flow'
+    } as MCPRequest);
+
+    if (!hasCredits) {
+      return sendError(
+        connection.ws,
+        'INSUFFICIENT_CREDITS',
+        'Insufficient credits for agent flow execution.',
+        requestId
+      );
+    }
+
+    // Execute agent flow
+    const result = await agentFlowExecutor.executeFlow(
+      agentFlow.agentId,
+      userId,
+      agentFlow.input,
+      agentFlow.stream || false,
+      agentFlow.timeout || 300000 // 5 minutes default
+    );
+
+    const duration = Date.now() - startTime;
+    
+    // Check if result is async iterable (streaming)
+    if (result && isAsyncIterable(result)) {
+      // Streaming response
+      let fullContent = '';
+      let totalTokens = 0;
+
+      for await (const chunk of result as AsyncIterable<MCPResponse>) {
+        if (chunk.data) {
+          fullContent += chunk.data;
+        }
+        
+        connectionService.sendMessage(connection.id, {
+          id: requestId,
+          type: chunk.type,
+          data: chunk.data,
+          timestamp: chunk.timestamp,
+        });
+
+        if (chunk.type === 'done') {
+          totalTokens = 1000; // Estimated tokens for agent flow
+          break;
+        }
+      }
+
+      const creditsUsed = creditService.calculateCredits('agent-flow', totalTokens);
+      
+      await creditService.deductCredits(userId, requestId, totalTokens, 'agent-flow');
+
+      // Log usage
+      const usageLog = loggingService.createUsageLog(
+        userId,
+        requestId,
+        request,
+        { id: requestId, type: 'done', data: fullContent, timestamp: new Date().toISOString() },
+        duration,
+        creditsUsed
+      );
+      await loggingService.logUsage(usageLog);
+    } else {
+      // Non-streaming response
+      const response = result as MCPResponse;
+      
+      // Deduct credits based on actual usage
+      const creditsUsed = creditService.calculateCredits('agent-flow', 1000); // Base cost
+      
+      await creditService.deductCredits(userId, requestId, 1000, 'agent-flow');
+      
+      connectionService.sendMessage(connection.id, response);
+
+      // Log usage
+      const usageLog = loggingService.createUsageLog(
+        userId,
+        requestId,
+        request,
+        response,
+        duration,
+        creditsUsed
+      );
+      await loggingService.logUsage(usageLog);
+    }
+  } catch (error: any) {
+    logger.error('Error handling agent flow request:', { error: error.message, requestId });
+
+    sendError(
+      connection.ws,
+      'AGENT_FLOW_ERROR',
+      error.message || 'Failed to execute agent flow.',
       requestId
     );
   } finally {

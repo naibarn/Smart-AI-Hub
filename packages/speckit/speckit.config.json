@@ -3,11 +3,101 @@
   "verbose": true,
   "strict": false,
   "includeWarnings": true,
+  "specs": [
+    {
+      "name": "agents-marketplace",
+      "path": "../../specs/backend/agents_marketplace.md",
+      "backlog": "../../specs/03_backlog/agents_marketplace_tasks.md",
+      "enabled": true,
+      "priority": "P1",
+      "status": "not_started"
+    }
+  ],
+  "validation": {
+    "database": {
+      "enabled": true,
+      "source": "../../prisma/schema.prisma",
+      "models": [
+        "Agent",
+        "AgentSetting",
+        "AgentApprovalLog",
+        "AgentUsageLog"
+      ],
+      "enums": [
+        "AgentType",
+        "AgentVisibility",
+        "AgentStatus",
+        "ApprovalAction"
+      ]
+    },
+    "api": {
+      "enabled": true,
+      "source": "../../packages/*/src/routes/**/*.ts",
+      "endpoints": [
+        "GET /api/public/agents",
+        "GET /api/public/agents/:id",
+        "GET /api/agents",
+        "GET /api/agents/:id",
+        "POST /api/agents",
+        "PUT /api/agents/:id",
+        "POST /api/agents/:id/run",
+        "POST /api/agents/:id/test",
+        "GET /api/agents/my",
+        "POST /api/agents/:id/submit",
+        "DELETE /api/agents/:id",
+        "GET /api/admin/agents/pending",
+        "POST /api/admin/agents/:id/approve",
+        "POST /api/admin/agents/:id/reject",
+        "GET /api/admin/agent-settings",
+        "PUT /api/admin/agent-settings"
+      ]
+    },
+    "services": {
+      "enabled": true,
+      "source": "../../packages/*/src/services/**/*.ts",
+      "services": [
+        "agentService",
+        "agentExecutionService",
+        "agentApprovalService",
+        "agentFlowExecutor",
+        "agentValidationService"
+      ]
+    },
+    "frontend": {
+      "enabled": true,
+      "pages": {
+        "source": "../../packages/frontend/src/pages/**/*.tsx",
+        "pages": [
+          "Marketplace",
+          "AgentDetail",
+          "CreateAgent",
+          "MyAgents",
+          "AgentApprovalQueue"
+        ]
+      },
+      "components": {
+        "source": "../../packages/frontend/src/components/**/*.tsx",
+        "components": [
+          "AgentCard",
+          "AgentGrid",
+          "AgentDescription",
+          "ImageGallery",
+          "VideoEmbed",
+          "AgentForm",
+          "MarkdownEditor",
+          "MonacoEditor"
+        ]
+      }
+    }
+  },
   "reporters": [
     {
       "type": "console",
       "enabled": true,
-      "options": {}
+      "options": {
+        "colors": true,
+        "verbose": true
+      }
     },
     {
       "type": "file",
@@ -15,6 +105,18 @@
       "options": {
         "path": "speckit-report.json"
       }
+    },
+    {
+      "type": "markdown",
+      "enabled": true,
+      "options": {
+        "path": "../../spec-progress-report.md"
+      }
     }
-  ]
+  ],
+  "thresholds": {
+    "minCoverage": 80,
+    "failOnWarnings": false
+  }
 }
+
