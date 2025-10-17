@@ -46,19 +46,9 @@ const QRCodeSection: React.FC<{ inviteLink: string }> = ({ inviteLink }) => {
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <QRCode
-        id="referral-qr-code"
-        value={inviteLink}
-        size={200}
-        level="H"
-        includeMargin
-      />
+      <QRCode id="referral-qr-code" value={inviteLink} size={200} level="H" includeMargin />
       <br />
-      <Button
-        icon={<DownloadOutlined />}
-        onClick={downloadQRCode}
-        style={{ marginTop: 16 }}
-      >
+      <Button icon={<DownloadOutlined />} onClick={downloadQRCode} style={{ marginTop: 16 }}>
         Download QR Code
       </Button>
     </div>
@@ -120,10 +110,7 @@ const SocialShareSection: React.FC<{ inviteLink: string }> = ({ inviteLink }) =>
       >
         Twitter
       </Button>
-      <Button
-        onClick={shareOnLine}
-        style={{ backgroundColor: '#00B900', color: 'white' }}
-      >
+      <Button onClick={shareOnLine} style={{ backgroundColor: '#00B900', color: 'white' }}>
         Line
       </Button>
       <Button icon={<MailOutlined />} onClick={shareViaEmail}>
@@ -225,7 +212,7 @@ export const ReferralCard: React.FC = () => {
         },
       });
       const inviteData = await inviteRes.json();
-      
+
       // Fetch stats
       const statsRes = await fetch(`${API_BASE_URL}/api/v1/referral/stats`, {
         headers: {
@@ -233,7 +220,7 @@ export const ReferralCard: React.FC = () => {
         },
       });
       const statsData = await statsRes.json();
-      
+
       setData({
         inviteCode: inviteData.data?.inviteCode || '',
         totalReferrals: statsData.data?.totalReferrals || 0,
@@ -248,19 +235,11 @@ export const ReferralCard: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        Loading referral data...
-      </div>
-    );
+    return <div style={{ textAlign: 'center', padding: '50px' }}>Loading referral data...</div>;
   }
 
   if (!data) {
-    return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        Failed to load referral data
-      </div>
-    );
+    return <div style={{ textAlign: 'center', padding: '50px' }}>Failed to load referral data</div>;
   }
 
   const inviteLink = `${window.location.origin}/register?invite=${data.inviteCode}`;

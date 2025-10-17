@@ -1,7 +1,15 @@
 import React from 'react';
 import { Card, Statistic, Row, Col } from 'antd';
 import { UserAddOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface ReferralStatisticsProps {
   totalReferrals: number;
@@ -14,7 +22,7 @@ export const ReferralStatistics: React.FC<ReferralStatisticsProps> = ({
   totalReferrals,
   activeReferrals,
   totalRewards,
-  chartData
+  chartData,
 }) => {
   return (
     <div>
@@ -51,13 +59,13 @@ export const ReferralStatistics: React.FC<ReferralStatisticsProps> = ({
           </Card>
         </Col>
       </Row>
-      
+
       <Card title="Referrals Over Time (Last 30 Days)">
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
+            <XAxis
+              dataKey="date"
               tick={{ fontSize: 12 }}
               tickFormatter={(value) => {
                 const date = new Date(value);
@@ -65,21 +73,21 @@ export const ReferralStatistics: React.FC<ReferralStatisticsProps> = ({
               }}
             />
             <YAxis />
-            <Tooltip 
+            <Tooltip
               labelFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                return date.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
                 });
               }}
             />
-            <Line 
-              type="monotone" 
-              dataKey="count" 
-              stroke="#1890ff" 
+            <Line
+              type="monotone"
+              dataKey="count"
+              stroke="#1890ff"
               strokeWidth={2}
               dot={{ fill: '#1890ff', strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6 }}

@@ -20,7 +20,7 @@ interface ReferralRewardsHistoryProps {
 
 export const ReferralRewardsHistory: React.FC<ReferralRewardsHistoryProps> = ({
   rewards,
-  totalRewards
+  totalRewards,
 }) => {
   const getTierColor = (tier: string) => {
     const tierColors: Record<string, string> = {
@@ -28,7 +28,7 @@ export const ReferralRewardsHistory: React.FC<ReferralRewardsHistoryProps> = ({
       organization: '#1890ff',
       admin: '#52c41a',
       general: '#8c8c8c',
-      administrator: '#f5222d'
+      administrator: '#f5222d',
     };
     return tierColors[tier] || '#8c8c8c';
   };
@@ -40,23 +40,26 @@ export const ReferralRewardsHistory: React.FC<ReferralRewardsHistoryProps> = ({
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
   if (rewards.length === 0) {
     return (
-      <Card title={<><TrophyOutlined /> Rewards History</>}>
-        <Empty
-          description="No rewards earned yet"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
+      <Card
+        title={
+          <>
+            <TrophyOutlined /> Rewards History
+          </>
+        }
+      >
+        <Empty description="No rewards earned yet" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </Card>
     );
   }
 
   return (
-    <Card 
+    <Card
       title={
         <Space>
           <TrophyOutlined />
@@ -84,16 +87,16 @@ export const ReferralRewardsHistory: React.FC<ReferralRewardsHistoryProps> = ({
                 <div>
                   <Text>From: {reward.referredUserName}</Text>
                   <div style={{ marginTop: 4 }}>
-                    <TierBadge 
-                      tier={reward.referredUserTier as any} 
-                      size="small" 
+                    <TierBadge
+                      tier={reward.referredUserTier as any}
+                      size="small"
                       showTooltip={false}
                     />
                   </div>
                 </div>
               </Space>
             </div>
-          )
+          ),
         }))}
       />
     </Card>

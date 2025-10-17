@@ -1,7 +1,22 @@
 import React from 'react';
 import { Card, Row, Col, Statistic, Typography } from 'antd';
-import { TrophyOutlined, TeamOutlined, UserOutlined, BankOutlined, ShopOutlined } from '@ant-design/icons';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  TrophyOutlined,
+  TeamOutlined,
+  UserOutlined,
+  BankOutlined,
+  ShopOutlined,
+} from '@ant-design/icons';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 const { Title } = Typography;
 
@@ -27,26 +42,24 @@ interface RewardStatisticsProps {
 
 export const RewardStatistics: React.FC<RewardStatisticsProps> = ({
   statistics,
-  loading = false
+  loading = false,
 }) => {
-  const totalSignups = 
-    statistics.organizationSignups + 
-    statistics.adminSignups + 
-    statistics.generalSignups;
+  const totalSignups =
+    statistics.organizationSignups + statistics.adminSignups + statistics.generalSignups;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div style={{ 
-          backgroundColor: '#fff', 
-          padding: '10px', 
-          border: '1px solid #d9d9d9',
-          borderRadius: '4px'
-        }}>
+        <div
+          style={{
+            backgroundColor: '#fff',
+            padding: '10px',
+            border: '1px solid #d9d9d9',
+            borderRadius: '4px',
+          }}
+        >
           <p style={{ margin: 0, fontWeight: 'bold' }}>{label}</p>
-          <p style={{ margin: 0, color: '#8884d8' }}>
-            Signups: {payload[0].value}
-          </p>
+          <p style={{ margin: 0, color: '#8884d8' }}>Signups: {payload[0].value}</p>
           <p style={{ margin: 0, color: '#82ca9d' }}>
             Rewards: {payload[1].value.toLocaleString()} Points
           </p>
@@ -148,18 +161,18 @@ export const RewardStatistics: React.FC<RewardStatisticsProps> = ({
             <YAxis yAxisId="right" orientation="right" />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            <Bar 
-              yAxisId="left" 
-              dataKey="signups" 
-              fill="#8884d8" 
-              name="Signups" 
+            <Bar
+              yAxisId="left"
+              dataKey="signups"
+              fill="#8884d8"
+              name="Signups"
               radius={[8, 8, 0, 0]}
             />
-            <Bar 
-              yAxisId="right" 
-              dataKey="rewards" 
-              fill="#82ca9d" 
-              name="Rewards (Points)" 
+            <Bar
+              yAxisId="right"
+              dataKey="rewards"
+              fill="#82ca9d"
+              name="Rewards (Points)"
               radius={[8, 8, 0, 0]}
             />
           </BarChart>

@@ -5,7 +5,7 @@ import {
   TwitterOutlined,
   MailOutlined,
   WhatsAppOutlined,
-  LinkOutlined
+  LinkOutlined,
 } from '@ant-design/icons';
 
 interface SocialShareButtonsProps {
@@ -15,7 +15,7 @@ interface SocialShareButtonsProps {
 
 export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
   link,
-  message = 'Join Smart AI Hub using my invite link!'
+  message = 'Join Smart AI Hub using my invite link!',
 }) => {
   const shareOnFacebook = () => {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
@@ -75,7 +75,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
         >
           Facebook
         </Button>
-        
+
         <Button
           icon={<TwitterOutlined />}
           onClick={shareOnTwitter}
@@ -84,7 +84,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
         >
           Twitter
         </Button>
-        
+
         <Button
           onClick={shareOnLine}
           style={{ backgroundColor: '#00B900', color: 'white' }}
@@ -92,15 +92,11 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
         >
           LINE
         </Button>
-        
-        <Button
-          icon={<MailOutlined />}
-          onClick={shareViaEmail}
-          size="large"
-        >
+
+        <Button icon={<MailOutlined />} onClick={shareViaEmail} size="large">
           Email
         </Button>
-        
+
         <Button
           icon={<WhatsAppOutlined />}
           onClick={shareOnWhatsApp}
@@ -109,25 +105,23 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
         >
           WhatsApp
         </Button>
-        
-        <Button
-          icon={<LinkOutlined />}
-          onClick={copyShareLink}
-          size="large"
-        >
+
+        <Button icon={<LinkOutlined />} onClick={copyShareLink} size="large">
           Copy Link
         </Button>
       </Space>
-      
-      <div style={{ 
-        marginTop: 16, 
-        padding: '12px', 
-        backgroundColor: '#f6f8fa', 
-        borderRadius: '6px',
-        border: '1px solid #e1e4e8'
-      }}>
+
+      <div
+        style={{
+          marginTop: 16,
+          padding: '12px',
+          backgroundColor: '#f6f8fa',
+          borderRadius: '6px',
+          border: '1px solid #e1e4e8',
+        }}
+      >
         <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>
-          Share your invite link on social media platforms to invite friends to join Smart AI Hub. 
+          Share your invite link on social media platforms to invite friends to join Smart AI Hub.
           You'll earn rewards when they sign up using your link!
         </p>
       </div>

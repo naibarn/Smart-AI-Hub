@@ -58,10 +58,7 @@ interface UserSearchAutocompleteProps {
   selected: User | null;
 }
 
-const UserSearchAutocomplete: React.FC<UserSearchAutocompleteProps> = ({
-  onSelect,
-  selected
-}) => {
+const UserSearchAutocomplete: React.FC<UserSearchAutocompleteProps> = ({ onSelect, selected }) => {
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [searching, setSearching] = useState(false);
 
@@ -74,7 +71,7 @@ const UserSearchAutocomplete: React.FC<UserSearchAutocompleteProps> = ({
     setSearching(true);
     try {
       const response = await fetch(`/api/v1/users/search?q=${encodeURIComponent(value)}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       const data = await response.json();
       // Results are already filtered by visibility rules on backend
@@ -87,7 +84,7 @@ const UserSearchAutocomplete: React.FC<UserSearchAutocompleteProps> = ({
   };
 
   const handleSelect = (value: string) => {
-    const user = searchResults.find(u => u.id === value);
+    const user = searchResults.find((u) => u.id === value);
     if (user) {
       onSelect(user);
     }
@@ -102,7 +99,7 @@ const UserSearchAutocomplete: React.FC<UserSearchAutocompleteProps> = ({
       notFoundContent={searching ? 'Searching...' : 'No results'}
       value={selected ? `${selected.name || selected.email} (${selected.tier})` : undefined}
     >
-      {searchResults.map(user => (
+      {searchResults.map((user) => (
         <AutoComplete.Option key={user.id} value={user.id}>
           <Space>
             <Avatar src={user.avatar} icon={<UserOutlined />}>
@@ -115,9 +112,7 @@ const UserSearchAutocomplete: React.FC<UserSearchAutocompleteProps> = ({
                 {user.email}
               </Text>
             </div>
-            <span style={{ fontSize: 12, opacity: 0.7 }}>
-              {user.tier.toUpperCase()}
-            </span>
+            <span style={{ fontSize: 12, opacity: 0.7 }}>{user.tier.toUpperCase()}</span>
           </Space>
         </AutoComplete.Option>
       ))}
@@ -140,7 +135,7 @@ const RecentTransfers: React.FC<{ transfers: Transfer[] }> = ({ transfers }) => 
     >
       <List
         dataSource={transfers}
-        renderItem={transfer => (
+        renderItem={(transfer) => (
           <List.Item
             actions={[
               <Button
@@ -149,19 +144,19 @@ const RecentTransfers: React.FC<{ transfers: Transfer[] }> = ({ transfers }) => 
                 onClick={() => handleRepeatTransfer(transfer)}
               >
                 Repeat
-              </Button>
+              </Button>,
             ]}
           >
             <List.Item.Meta
               avatar={
                 <Avatar src={transfer.recipient.avatar} icon={<UserOutlined />}>
-                  {transfer.recipient.name ? transfer.recipient.name[0] : transfer.recipient.email[0]?.toUpperCase()}
+                  {transfer.recipient.name
+                    ? transfer.recipient.name[0]
+                    : transfer.recipient.email[0]?.toUpperCase()}
                 </Avatar>
               }
               title={transfer.recipient.name || transfer.recipient.email}
-              description={
-                `${transfer.amount.toLocaleString()} ${transfer.type} • ${new Date(transfer.date).toLocaleDateString()}`
-              }
+              description={`${transfer.amount.toLocaleString()} ${transfer.type} • ${new Date(transfer.date).toLocaleDateString()}`}
             />
           </List.Item>
         )}
@@ -217,7 +212,11 @@ export const TransferForm: React.FC = () => {
     }
   };
 
-  const validateTransfer = async (recipientUser: User, transferAmount: number, type: 'points' | 'credits') => {
+  const validateTransfer = async (
+    recipientUser: User,
+    transferAmount: number,
+    type: 'points' | 'credits'
+  ) => {
     const errors = [];
 
     // Check if recipient is selected
@@ -243,9 +242,9 @@ export const TransferForm: React.FC = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-          body: JSON.stringify({ recipientId: recipientUser.id })
+          body: JSON.stringify({ recipientId: recipientUser.id }),
         });
         const { authorized, reason } = await response.json();
         if (!authorized) {
@@ -342,20 +341,23 @@ export const TransferForm: React.FC = () => {
           message: 'Transfer Successful',
           description: (
             <div>
-              <p>Transferred {amount.toLocaleString()} {transferType} to {recipient?.name || recipient?.email}</p>
+              <p>
+                Transferred {amount.toLocaleString()} {transferType} to{' '}
+                {recipient?.name || recipient?.email}
+              </p>
               <p>Transaction ID: {data.transactionId}</p>
               <Link to="/transfer/history">View History →</Link>
             </div>
           ),
           duration: 5,
         });
-        
+
         // Reset form
         form.resetFields();
         setRecipient(null);
         setAmount(0);
         setValidationErrors([]);
-        
+
         // Refresh data
         fetchBalances();
         fetchRecentTransfers();
@@ -396,17 +398,11 @@ export const TransferForm: React.FC = () => {
                 validateStatus={recipient ? 'success' : 'error'}
                 help={!recipient ? 'Please select a recipient' : ''}
               >
-                <UserSearchAutocomplete
-                  onSelect={setRecipient}
-                  selected={recipient}
-                />
+                <UserSearchAutocomplete onSelect={setRecipient} selected={recipient} />
               </Form.Item>
 
               <Form.Item label="Transfer Type" required>
-                <Radio.Group
-                  value={transferType}
-                  onChange={(e) => setTransferType(e.target.value)}
-                >
+                <Radio.Group value={transferType} onChange={(e) => setTransferType(e.target.value)}>
                   <Radio.Button value="points">Points</Radio.Button>
                   <Radio.Button value="credits">Credits</Radio.Button>
                 </Radio.Group>
@@ -422,11 +418,13 @@ export const TransferForm: React.FC = () => {
                   {
                     validator: (_, value) => {
                       if (value > currentBalance) {
-                        return Promise.reject(`Insufficient balance. You have ${currentBalance} ${transferType}`);
+                        return Promise.reject(
+                          `Insufficient balance. You have ${currentBalance} ${transferType}`
+                        );
                       }
                       return Promise.resolve();
-                    }
-                  }
+                    },
+                  },
                 ]}
               >
                 <InputNumber

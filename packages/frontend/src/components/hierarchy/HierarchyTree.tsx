@@ -26,7 +26,7 @@ interface HierarchyTreeProps {
 export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
   data,
   loading = false,
-  onNodeClick
+  onNodeClick,
 }) => {
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
@@ -34,12 +34,12 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
   useEffect(() => {
     // Auto-expand first level on load
     if (data.length > 0) {
-      setExpandedKeys(data.map(node => node.id));
+      setExpandedKeys(data.map((node) => node.id));
     }
   }, [data]);
 
   const buildTreeData = (nodes: HierarchyNode[]): DataNode[] => {
-    return nodes.map(node => ({
+    return nodes.map((node) => ({
       title: (
         <Space size="small">
           <TierBadge tier={node.tier as any} size="small" showTooltip={false} />
@@ -54,10 +54,9 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
       ),
       key: node.id,
       icon: <UserOutlined style={{ color: getTierColor(node.tier) }} />,
-      children: node.children && node.children.length > 0 
-        ? buildTreeData(node.children) 
-        : undefined,
-      data: node
+      children:
+        node.children && node.children.length > 0 ? buildTreeData(node.children) : undefined,
+      data: node,
     }));
   };
 
@@ -67,7 +66,7 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
       agency: '#722ed1',
       organization: '#1890ff',
       admin: '#52c41a',
-      general: '#8c8c8c'
+      general: '#8c8c8c',
     };
     return tierColors[tier] || '#8c8c8c';
   };
@@ -98,7 +97,7 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
   const expandAll = () => {
     const getAllKeys = (nodes: HierarchyNode[]): React.Key[] => {
       let keys: React.Key[] = [];
-      nodes.forEach(node => {
+      nodes.forEach((node) => {
         keys.push(node.id);
         if (node.children) {
           keys = keys.concat(getAllKeys(node.children));
@@ -127,10 +126,7 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
   if (data.length === 0) {
     return (
       <Card title="Hierarchy Tree">
-        <Empty
-          description="No hierarchy data available"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
+        <Empty description="No hierarchy data available" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </Card>
     );
   }
@@ -138,7 +134,7 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
   const treeData = buildTreeData(data);
 
   return (
-    <Card 
+    <Card
       title={
         <Space>
           <EyeOutlined />
@@ -156,13 +152,15 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
         </Space>
       }
     >
-      <div style={{ 
-        maxHeight: '600px', 
-        overflowY: 'auto',
-        padding: '8px',
-        backgroundColor: '#fafafa',
-        borderRadius: '4px'
-      }}>
+      <div
+        style={{
+          maxHeight: '600px',
+          overflowY: 'auto',
+          padding: '8px',
+          backgroundColor: '#fafafa',
+          borderRadius: '4px',
+        }}
+      >
         <Tree
           showLine
           showIcon
@@ -175,17 +173,19 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
           style={{ backgroundColor: 'transparent' }}
         />
       </div>
-      
-      <div style={{ 
-        marginTop: 16, 
-        padding: '12px', 
-        backgroundColor: '#f6f8fa', 
-        borderRadius: '6px',
-        border: '1px solid #e1e4e8'
-      }}>
+
+      <div
+        style={{
+          marginTop: 16,
+          padding: '12px',
+          backgroundColor: '#f6f8fa',
+          borderRadius: '6px',
+          border: '1px solid #e1e4e8',
+        }}
+      >
         <Text style={{ fontSize: '12px', color: '#666' }}>
-          Click on any member to view details. The hierarchy shows your organization structure 
-          based on your tier and visibility permissions.
+          Click on any member to view details. The hierarchy shows your organization structure based
+          on your tier and visibility permissions.
         </Text>
       </div>
     </Card>

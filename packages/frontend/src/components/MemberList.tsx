@@ -62,7 +62,7 @@ const tierOrder: Record<string, number> = {
   agency: 1,
   organization: 2,
   admin: 3,
-  general: 4
+  general: 4,
 };
 
 // Tier colors
@@ -91,7 +91,13 @@ const FilterSection: React.FC<{
   onChange: (filters: MemberFilters) => void;
 }> = ({ filters, onChange }) => {
   return (
-    <Card title={<><FilterOutlined /> Filters</>}>
+    <Card
+      title={
+        <>
+          <FilterOutlined /> Filters
+        </>
+      }
+    >
       <Space direction="vertical" style={{ width: '100%' }}>
         <div>
           <Text strong>Tier</Text>
@@ -99,7 +105,7 @@ const FilterSection: React.FC<{
             mode="multiple"
             placeholder="Select tiers"
             value={filters.tiers}
-            onChange={tiers => onChange({ ...filters, tiers })}
+            onChange={(tiers) => onChange({ ...filters, tiers })}
             style={{ width: '100%', marginTop: 8 }}
           >
             <Select.Option value="administrator">Administrator</Select.Option>
@@ -114,7 +120,7 @@ const FilterSection: React.FC<{
           <Text strong>Status</Text>
           <Radio.Group
             value={filters.status}
-            onChange={e => onChange({ ...filters, status: e.target.value })}
+            onChange={(e) => onChange({ ...filters, status: e.target.value })}
             style={{ marginTop: 8 }}
           >
             <Radio.Button value="all">All</Radio.Button>
@@ -128,7 +134,7 @@ const FilterSection: React.FC<{
           <Search
             placeholder="Search by name or email"
             value={filters.search}
-            onChange={e => onChange({ ...filters, search: e.target.value })}
+            onChange={(e) => onChange({ ...filters, search: e.target.value })}
             style={{ marginTop: 8 }}
             allowClear
           />
@@ -152,22 +158,23 @@ const ExportButtons: React.FC<{
   selectedRowKeys: React.Key[];
 }> = ({ members, selectedRowKeys }) => {
   const handleExportCSV = () => {
-    const dataToExport = selectedRowKeys.length > 0
-      ? members.filter(m => selectedRowKeys.includes(m.id))
-      : members;
+    const dataToExport =
+      selectedRowKeys.length > 0 ? members.filter((m) => selectedRowKeys.includes(m.id)) : members;
 
     const csv = [
       ['Name', 'Email', 'Tier', 'Points', 'Credits', 'Status', 'Join Date'],
-      ...dataToExport.map(m => [
+      ...dataToExport.map((m) => [
         m.name || m.email,
         m.email,
         m.tier,
         m.points,
         m.credits,
         m.isBlocked ? 'Blocked' : 'Active',
-        new Date(m.joinDate).toLocaleDateString()
-      ])
-    ].map(row => row.join(',')).join('\n');
+        new Date(m.joinDate).toLocaleDateString(),
+      ]),
+    ]
+      .map((row) => row.join(','))
+      .join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -206,7 +213,7 @@ export const MemberList: React.FC = () => {
   const [filters, setFilters] = useState<MemberFilters>({
     tiers: [],
     status: 'all',
-    search: ''
+    search: '',
   });
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
@@ -286,21 +293,37 @@ export const MemberList: React.FC = () => {
               </Avatar>
             </Col>
             <Col span={16}>
-              <p><strong>Name:</strong> {record.name || 'Not set'}</p>
-              <p><strong>Email:</strong> {record.email}</p>
-              <p><strong>Tier:</strong> <Tag color={getTierColor(record.tier)}>{record.tier.toUpperCase()}</Tag></p>
+              <p>
+                <strong>Name:</strong> {record.name || 'Not set'}
+              </p>
+              <p>
+                <strong>Email:</strong> {record.email}
+              </p>
+              <p>
+                <strong>Tier:</strong>{' '}
+                <Tag color={getTierColor(record.tier)}>{record.tier.toUpperCase()}</Tag>
+              </p>
             </Col>
           </Row>
           <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
             <Col span={12}>
-              <p><strong>Points:</strong> {record.points.toLocaleString()}</p>
-              <p><strong>Credits:</strong> {record.credits.toLocaleString()}</p>
+              <p>
+                <strong>Points:</strong> {record.points.toLocaleString()}
+              </p>
+              <p>
+                <strong>Credits:</strong> {record.credits.toLocaleString()}
+              </p>
             </Col>
             <Col span={12}>
-              <p><strong>Status:</strong> <Tag color={record.isBlocked ? 'red' : 'green'}>
-                {record.isBlocked ? 'Blocked' : 'Active'}
-              </Tag></p>
-              <p><strong>Join Date:</strong> {new Date(record.joinDate).toLocaleDateString()}</p>
+              <p>
+                <strong>Status:</strong>{' '}
+                <Tag color={record.isBlocked ? 'red' : 'green'}>
+                  {record.isBlocked ? 'Blocked' : 'Active'}
+                </Tag>
+              </p>
+              <p>
+                <strong>Join Date:</strong> {new Date(record.joinDate).toLocaleDateString()}
+              </p>
             </Col>
           </Row>
         </div>
@@ -324,9 +347,9 @@ export const MemberList: React.FC = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
-            body: JSON.stringify({ userIds: selectedRowKeys })
+            body: JSON.stringify({ userIds: selectedRowKeys }),
           });
           message.success('Members blocked successfully');
           setSelectedRowKeys([]);
@@ -334,7 +357,7 @@ export const MemberList: React.FC = () => {
         } catch (error) {
           message.error('Failed to block members');
         }
-      }
+      },
     });
   };
 
@@ -348,9 +371,9 @@ export const MemberList: React.FC = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
-            body: JSON.stringify({ userIds: selectedRowKeys })
+            body: JSON.stringify({ userIds: selectedRowKeys }),
           });
           message.success('Members unblocked successfully');
           setSelectedRowKeys([]);
@@ -358,7 +381,7 @@ export const MemberList: React.FC = () => {
         } catch (error) {
           message.error('Failed to unblock members');
         }
-      }
+      },
     });
   };
 
@@ -368,13 +391,14 @@ export const MemberList: React.FC = () => {
 
   // Filter members based on filters
   const filteredMembers = useMemo(() => {
-    return members.filter(member => {
+    return members.filter((member) => {
       // Apply tier filter
       if (filters.tiers.length > 0 && !filters.tiers.includes(member.tier)) return false;
-      
+
       // Apply status filter
-      if (filters.status !== 'all' && member.isBlocked !== (filters.status === 'blocked')) return false;
-      
+      if (filters.status !== 'all' && member.isBlocked !== (filters.status === 'blocked'))
+        return false;
+
       // Apply search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
@@ -382,7 +406,7 @@ export const MemberList: React.FC = () => {
         const emailMatch = member.email.toLowerCase().includes(searchLower);
         if (!nameMatch && !emailMatch) return false;
       }
-      
+
       return true;
     });
   }, [members, filters]);
@@ -396,9 +420,7 @@ export const MemberList: React.FC = () => {
       sorter: (a: Member, b: Member) => (a.name || a.email).localeCompare(b.name || b.email),
       render: (name: string, record: Member) => (
         <Space>
-          <Avatar src={record.avatar}>
-            {(name || record.email)[0]?.toUpperCase()}
-          </Avatar>
+          <Avatar src={record.avatar}>{(name || record.email)[0]?.toUpperCase()}</Avatar>
           <div>
             <Text strong>{name || 'No name'}</Text>
             <br />
@@ -407,86 +429,82 @@ export const MemberList: React.FC = () => {
             </Text>
           </div>
         </Space>
-      )
+      ),
     },
     {
       title: 'Tier',
       dataIndex: 'tier',
       key: 'tier',
       sorter: (a: Member, b: Member) => tierOrder[a.tier] - tierOrder[b.tier],
-      render: (tier: string) => <Tag color={getTierColor(tier)}>{tier.toUpperCase()}</Tag>
+      render: (tier: string) => <Tag color={getTierColor(tier)}>{tier.toUpperCase()}</Tag>,
     },
     {
       title: 'Points',
       dataIndex: 'points',
       key: 'points',
       sorter: (a: Member, b: Member) => a.points - b.points,
-      render: (points: number) => points.toLocaleString()
+      render: (points: number) => points.toLocaleString(),
     },
     {
       title: 'Credits',
       dataIndex: 'credits',
       key: 'credits',
       sorter: (a: Member, b: Member) => a.credits - b.credits,
-      render: (credits: number) => credits.toLocaleString()
+      render: (credits: number) => credits.toLocaleString(),
     },
     {
       title: 'Join Date',
       dataIndex: 'joinDate',
       key: 'joinDate',
-      sorter: (a: Member, b: Member) => new Date(a.joinDate).getTime() - new Date(b.joinDate).getTime(),
-      render: (date: string) => new Date(date).toLocaleDateString()
+      sorter: (a: Member, b: Member) =>
+        new Date(a.joinDate).getTime() - new Date(b.joinDate).getTime(),
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
       title: 'Status',
       dataIndex: 'isBlocked',
       key: 'status',
       render: (isBlocked: boolean) => (
-        <Tag color={isBlocked ? 'red' : 'green'}>
-          {isBlocked ? 'Blocked' : 'Active'}
-        </Tag>
-      )
+        <Tag color={isBlocked ? 'red' : 'green'}>{isBlocked ? 'Blocked' : 'Active'}</Tag>
+      ),
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: Member) => {
         const canPerformActions = canBlock(user?.tier || '', record.tier);
-        
+
         const menuItems = [
           {
             key: 'view',
             icon: <EyeOutlined />,
             label: 'View Details',
-            onClick: () => handleViewDetails(record)
+            onClick: () => handleViewDetails(record),
           },
           {
             key: 'transfer',
             icon: <SendOutlined />,
             label: 'Transfer',
-            onClick: () => handleTransfer(record)
-          }
+            onClick: () => handleTransfer(record),
+          },
         ];
-        
+
         if (canPerformActions) {
           menuItems.push({
             key: record.isBlocked ? 'unblock' : 'block',
             icon: record.isBlocked ? <UnlockOutlined /> : <BlockOutlined />,
             label: record.isBlocked ? 'Unblock' : 'Block',
-            onClick: () => record.isBlocked ? handleUnblock(record.id) : handleBlock(record.id)
+            onClick: () => (record.isBlocked ? handleUnblock(record.id) : handleBlock(record.id)),
           });
         }
-        
+
         return (
-          <Dropdown
-            menu={{ items: menuItems }}
-            trigger={['click']}
-          >
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
             <Button icon={<MoreOutlined />} />
           </Dropdown>
         );
-      }
-    }
+      },
+    },
   ];
 
   // Row selection config
@@ -494,8 +512,8 @@ export const MemberList: React.FC = () => {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
     getCheckboxProps: (record: Member) => ({
-      disabled: !canBlock(user?.tier || '', record.tier)
-    })
+      disabled: !canBlock(user?.tier || '', record.tier),
+    }),
   };
 
   // Pagination config
@@ -507,7 +525,7 @@ export const MemberList: React.FC = () => {
     pageSizeOptions: ['10', '20', '50', '100'],
     onChange: (page: number, pageSize: number) => {
       setPagination({ ...pagination, current: page, pageSize });
-    }
+    },
   };
 
   // Bulk actions bar

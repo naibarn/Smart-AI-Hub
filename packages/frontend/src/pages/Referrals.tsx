@@ -12,7 +12,7 @@ export const Referrals: React.FC = () => {
   const [pageSize, setPageSize] = useState(20);
   const [rewardsPage, setRewardsPage] = useState(1);
   const [rewardsPageSize, setRewardsPageSize] = useState(10);
-  
+
   const {
     data,
     referralList,
@@ -22,7 +22,7 @@ export const Referrals: React.FC = () => {
     error,
     refetch,
     refetchList,
-    refetchRewards
+    refetchRewards,
   } = useReferral();
 
   const handlePaginationChange = (page: number, size: number) => {
@@ -80,7 +80,7 @@ export const Referrals: React.FC = () => {
   return (
     <div style={{ padding: '24px' }}>
       <Title level={2}>Referrals</Title>
-      
+
       {/* Statistics Section */}
       <ReferralStatistics
         totalReferrals={stats.totalReferrals}
@@ -109,35 +109,30 @@ export const Referrals: React.FC = () => {
 
         {/* Rewards History */}
         <Col xs={24} lg={8}>
-          <ReferralRewardsHistory
-            rewards={rewardsHistory}
-            totalRewards={stats.totalRewards}
-          />
+          <ReferralRewardsHistory rewards={rewardsHistory} totalRewards={stats.totalRewards} />
         </Col>
       </Row>
 
       {/* Instructions */}
-      <Card 
-        title="How to Earn Rewards" 
-        style={{ marginTop: 24 }}
-        type="inner"
-      >
+      <Card title="How to Earn Rewards" style={{ marginTop: 24 }} type="inner">
         <Row gutter={[16, 16]}>
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                width: '60px', 
-                height: '60px', 
-                borderRadius: '50%', 
-                backgroundColor: '#1890ff', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                margin: '0 auto 16px',
-                color: 'white',
-                fontSize: '24px',
-                fontWeight: 'bold'
-              }}>
+              <div
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1890ff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                  color: 'white',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                }}
+              >
                 1
               </div>
               <Title level={5}>Share Your Invite Link</Title>
@@ -148,19 +143,21 @@ export const Referrals: React.FC = () => {
           </Col>
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                width: '60px', 
-                height: '60px', 
-                borderRadius: '50%', 
-                backgroundColor: '#52c41a', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                margin: '0 auto 16px',
-                color: 'white',
-                fontSize: '24px',
-                fontWeight: 'bold'
-              }}>
+              <div
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  backgroundColor: '#52c41a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                  color: 'white',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                }}
+              >
                 2
               </div>
               <Title level={5}>They Sign Up</Title>
@@ -171,19 +168,21 @@ export const Referrals: React.FC = () => {
           </Col>
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                width: '60px', 
-                height: '60px', 
-                borderRadius: '50%', 
-                backgroundColor: '#faad14', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                margin: '0 auto 16px',
-                color: 'white',
-                fontSize: '24px',
-                fontWeight: 'bold'
-              }}>
+              <div
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  backgroundColor: '#faad14',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                  color: 'white',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                }}
+              >
                 3
               </div>
               <Title level={5}>Earn Rewards</Title>

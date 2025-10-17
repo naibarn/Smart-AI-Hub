@@ -67,7 +67,7 @@ const pointsPackages = [
   { points: 50000, price: 4.5, popular: true, discount: '10%' },
   { points: 100000, price: 8, popular: false, discount: '20%' },
   { points: 500000, price: 35, popular: false, discount: '30%' },
-  { points: 1000000, price: 60, popular: false, discount: '40%' }
+  { points: 1000000, price: 60, popular: false, discount: '40%' },
 ];
 
 // Daily Reward Section Component
@@ -84,7 +84,7 @@ const DailyRewardSection: React.FC<DailyRewardSectionProps> = ({
   rewardAmount,
   streak,
   nextRewardTime,
-  onClaim
+  onClaim,
 }) => {
   const [claiming, setClaiming] = useState(false);
 
@@ -109,12 +109,7 @@ const DailyRewardSection: React.FC<DailyRewardSectionProps> = ({
           suffix="Points"
           prefix={<TrophyOutlined />}
         />
-        <Statistic
-          title="Current Streak"
-          value={streak}
-          suffix="days"
-          prefix={<FireOutlined />}
-        />
+        <Statistic title="Current Streak" value={streak} suffix="days" prefix={<FireOutlined />} />
         {canClaim ? (
           <Button
             type="primary"
@@ -152,7 +147,7 @@ interface PurchasePointsSectionProps {
 
 const PurchasePointsSection: React.FC<PurchasePointsSectionProps> = ({
   onPurchaseComplete,
-  balance
+  balance,
 }) => {
   const [selectedPackage, setSelectedPackage] = useState(pointsPackages[0]);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe');
@@ -166,13 +161,13 @@ const PurchasePointsSection: React.FC<PurchasePointsSectionProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           points: selectedPackage.points,
           amount: selectedPackage.price,
-          paymentMethod
-        })
+          paymentMethod,
+        }),
       });
 
       const { clientSecret } = await response.json();
@@ -201,14 +196,14 @@ const PurchasePointsSection: React.FC<PurchasePointsSectionProps> = ({
         <div>
           <Text strong>Select Package</Text>
           <Row gutter={[16, 16]} style={{ marginTop: 8 }}>
-            {pointsPackages.map(pkg => (
+            {pointsPackages.map((pkg) => (
               <Col key={pkg.points} xs={12} sm={8} md={6}>
                 <Card
                   hoverable
                   className={selectedPackage === pkg ? 'selected-package' : ''}
                   onClick={() => setSelectedPackage(pkg)}
                   style={{
-                    border: selectedPackage === pkg ? '2px solid #1890ff' : undefined
+                    border: selectedPackage === pkg ? '2px solid #1890ff' : undefined,
                   }}
                 >
                   {pkg.popular && (
@@ -236,7 +231,7 @@ const PurchasePointsSection: React.FC<PurchasePointsSectionProps> = ({
           <Text strong>Payment Method</Text>
           <Radio.Group
             value={paymentMethod}
-            onChange={e => setPaymentMethod(e.target.value)}
+            onChange={(e) => setPaymentMethod(e.target.value)}
             style={{ marginTop: 8 }}
           >
             <Radio.Button value="stripe">
@@ -279,7 +274,7 @@ interface ExchangeRateSectionProps {
 const ExchangeRateSection: React.FC<ExchangeRateSectionProps> = ({
   currentRate,
   creditsBalance,
-  onExchange
+  onExchange,
 }) => {
   const [creditsToExchange, setCreditsToExchange] = useState(1);
   const [exchanging, setExchanging] = useState(false);
@@ -297,7 +292,10 @@ const ExchangeRateSection: React.FC<ExchangeRateSectionProps> = ({
       content: (
         <div>
           <p>You are about to exchange:</p>
-          <p><strong>{creditsToExchange} Credits</strong> → <strong>{pointsToReceive.toLocaleString()} Points</strong></p>
+          <p>
+            <strong>{creditsToExchange} Credits</strong> →{' '}
+            <strong>{pointsToReceive.toLocaleString()} Points</strong>
+          </p>
           <p>This action cannot be undone.</p>
         </div>
       ),
@@ -305,14 +303,16 @@ const ExchangeRateSection: React.FC<ExchangeRateSectionProps> = ({
         setExchanging(true);
         try {
           await onExchange(creditsToExchange);
-          message.success(`Exchanged ${creditsToExchange} Credits for ${pointsToReceive.toLocaleString()} Points`);
+          message.success(
+            `Exchanged ${creditsToExchange} Credits for ${pointsToReceive.toLocaleString()} Points`
+          );
           setCreditsToExchange(1);
         } catch (error) {
           message.error('Exchange failed');
         } finally {
           setExchanging(false);
         }
-      }
+      },
     });
   };
 
@@ -331,13 +331,11 @@ const ExchangeRateSection: React.FC<ExchangeRateSectionProps> = ({
             min={1}
             max={creditsBalance}
             value={creditsToExchange}
-            onChange={value => setCreditsToExchange(value || 1)}
+            onChange={(value) => setCreditsToExchange(value || 1)}
             style={{ width: '100%', marginTop: 8 }}
             size="large"
           />
-          <Text type="secondary">
-            Available: {creditsBalance} Credits
-          </Text>
+          <Text type="secondary">Available: {creditsBalance} Credits</Text>
         </div>
 
         <div>
@@ -369,10 +367,7 @@ interface ChartsSectionProps {
   transactionTypes: Array<{ type: string; count: number; amount: number }>;
 }
 
-const ChartsSection: React.FC<ChartsSectionProps> = ({
-  balanceHistory,
-  transactionTypes
-}) => {
+const ChartsSection: React.FC<ChartsSectionProps> = ({ balanceHistory, transactionTypes }) => {
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={16}>
@@ -446,53 +441,41 @@ interface RecentTransactionsSectionProps {
   transactions: Transaction[];
 }
 
-const RecentTransactionsSection: React.FC<RecentTransactionsSectionProps> = ({
-  transactions
-}) => {
+const RecentTransactionsSection: React.FC<RecentTransactionsSectionProps> = ({ transactions }) => {
   const columns = [
     {
       title: 'Type',
       dataIndex: 'category',
       key: 'category',
-      render: (text: string) => <Tag>{text}</Tag>
+      render: (text: string) => <Tag>{text}</Tag>,
     },
     {
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
       render: (amount: number, record: Transaction) => (
-        <Text
-          type={record.type === 'credit' ? 'success' : 'danger'}
-          strong
-        >
-          {record.type === 'credit' ? '+' : '-'}{amount.toLocaleString()} {record.currency}
+        <Text type={record.type === 'credit' ? 'success' : 'danger'} strong>
+          {record.type === 'credit' ? '+' : '-'}
+          {amount.toLocaleString()} {record.currency}
         </Text>
-      )
+      ),
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
-      render: (date: string) => new Date(date).toLocaleString()
+      render: (date: string) => new Date(date).toLocaleString(),
     },
     {
       title: 'Description',
       dataIndex: 'description',
-      key: 'description'
-    }
+      key: 'description',
+    },
   ];
 
   return (
-    <Card
-      title="Recent Transactions"
-      extra={<Button type="link">View All →</Button>}
-    >
-      <Table
-        dataSource={transactions}
-        columns={columns}
-        pagination={false}
-        size="small"
-      />
+    <Card title="Recent Transactions" extra={<Button type="link">View All →</Button>}>
+      <Table dataSource={transactions} columns={columns} pagination={false} size="small" />
     </Card>
   );
 };
@@ -529,24 +512,24 @@ export const PointsCreditsDashboard: React.FC = () => {
           canClaim: true,
           rewardAmount: 500,
           streak: 3,
-          nextRewardTime: "23:45:12"
+          nextRewardTime: '23:45:12',
         },
         exchangeRate: {
           currentRate: 1000,
-          creditsBalance: balance.credits
+          creditsBalance: balance.credits,
         },
         charts: {
           balanceHistory: Array.from({ length: 30 }, (_, i) => ({
             date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
             points: Math.floor(Math.random() * 50000) + 10000,
-            credits: Math.floor(Math.random() * 100) + 50
+            credits: Math.floor(Math.random() * 100) + 50,
           })),
           transactionTypes: [
             { type: 'Purchase', count: 15, amount: 45000 },
             { type: 'Transfer', count: 8, amount: 12000 },
             { type: 'Reward', count: 25, amount: 12500 },
-            { type: 'Exchange', count: 5, amount: 8000 }
-          ]
+            { type: 'Exchange', count: 5, amount: 8000 },
+          ],
         },
         recentTransactions: [
           {
@@ -556,7 +539,7 @@ export const PointsCreditsDashboard: React.FC = () => {
             amount: 500,
             currency: 'points',
             date: new Date().toISOString(),
-            description: 'Daily login reward'
+            description: 'Daily login reward',
           },
           {
             id: '2',
@@ -565,7 +548,7 @@ export const PointsCreditsDashboard: React.FC = () => {
             amount: 1000,
             currency: 'points',
             date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            description: 'Transfer to user@example.com'
+            description: 'Transfer to user@example.com',
           },
           {
             id: '3',
@@ -574,9 +557,9 @@ export const PointsCreditsDashboard: React.FC = () => {
             amount: 10000,
             currency: 'points',
             date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            description: 'Points purchase'
-          }
-        ]
+            description: 'Points purchase',
+          },
+        ],
       };
       setData(mockData);
     } catch (error) {
@@ -642,10 +625,7 @@ export const PointsCreditsDashboard: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <DailyRewardSection
-            {...data.dailyReward}
-            onClaim={handleClaimReward}
-          />
+          <DailyRewardSection {...data.dailyReward} onClaim={handleClaimReward} />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <ExchangeRateSection
@@ -658,10 +638,7 @@ export const PointsCreditsDashboard: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={12}>
-          <PurchasePointsSection
-            onPurchaseComplete={fetchDashboardData}
-            balance={balance}
-          />
+          <PurchasePointsSection onPurchaseComplete={fetchDashboardData} balance={balance} />
         </Col>
         <Col xs={24} lg={12}>
           <ChartsSection {...data.charts} />

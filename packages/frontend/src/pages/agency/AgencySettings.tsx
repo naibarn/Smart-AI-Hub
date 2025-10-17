@@ -53,7 +53,7 @@ export const AgencySettings: React.FC = () => {
 
       const response = await fetch(`${API_BASE_URL}/api/v1/agency/referral-config`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -81,7 +81,7 @@ export const AgencySettings: React.FC = () => {
 
       const response = await fetch(`${API_BASE_URL}/api/v1/agency/reward-stats`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -110,7 +110,7 @@ export const AgencySettings: React.FC = () => {
 
       const response = await fetch(`${API_BASE_URL}/api/v1/agency/balance`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -139,7 +139,7 @@ export const AgencySettings: React.FC = () => {
       const response = await fetch(`${API_BASE_URL}/api/v1/agency/referral-config`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(newSettings),
@@ -198,7 +198,9 @@ export const AgencySettings: React.FC = () => {
       <div style={{ padding: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
           <SettingOutlined style={{ fontSize: '24px', marginRight: '12px' }} />
-          <Title level={2} style={{ margin: 0 }}>Agency Settings</Title>
+          <Title level={2} style={{ margin: 0 }}>
+            Agency Settings
+          </Title>
         </div>
 
         {currentBalance < 1000 && (
@@ -211,9 +213,7 @@ export const AgencySettings: React.FC = () => {
           />
         )}
 
-        {statistics && (
-          <RewardStatistics statistics={statistics} />
-        )}
+        {statistics && <RewardStatistics statistics={statistics} />}
 
         {settings && (
           <AgencyRewardSettings
@@ -228,10 +228,18 @@ export const AgencySettings: React.FC = () => {
           message="Important Information"
           description={
             <div>
-              <p>• Reward amounts will be deducted from your agency balance when users sign up using your invite codes.</p>
+              <p>
+                • Reward amounts will be deducted from your agency balance when users sign up using
+                your invite codes.
+              </p>
               <p>• You must maintain sufficient balance to cover all reward payouts.</p>
-              <p>• Changes to reward settings will only apply to new signups after the changes are saved.</p>
-              <p>• You can view all referral activity and reward payments in the Referrals section.</p>
+              <p>
+                • Changes to reward settings will only apply to new signups after the changes are
+                saved.
+              </p>
+              <p>
+                • You can view all referral activity and reward payments in the Referrals section.
+              </p>
             </div>
           }
           type="info"

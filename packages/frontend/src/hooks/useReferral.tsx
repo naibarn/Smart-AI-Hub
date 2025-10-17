@@ -53,7 +53,7 @@ export const useReferral = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
@@ -61,7 +61,7 @@ export const useReferral = () => {
 
       const response = await fetch(`${API_BASE_URL}/api/v1/referral/invite-code`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -74,7 +74,7 @@ export const useReferral = () => {
       if (result.success && result.data) {
         const inviteCode = result.data.inviteCode;
         const inviteLink = `${window.location.origin}/register?invite=${inviteCode}`;
-        
+
         setData({
           inviteCode,
           inviteLink,
@@ -100,7 +100,7 @@ export const useReferral = () => {
 
       const response = await fetch(`${API_BASE_URL}/api/v1/referral/stats`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -112,14 +112,18 @@ export const useReferral = () => {
       const result = await response.json();
       if (result.success && result.data) {
         setStats(result.data);
-        
+
         // Update the main data with stats
-        setData(prev => prev ? {
-          ...prev,
-          totalReferrals: result.data.totalReferrals,
-          activeReferrals: result.data.activeReferrals,
-          totalRewards: result.data.totalRewards,
-        } : null);
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                totalReferrals: result.data.totalReferrals,
+                activeReferrals: result.data.activeReferrals,
+                totalRewards: result.data.totalRewards,
+              }
+            : null
+        );
       }
     } catch (err) {
       console.error('Failed to fetch referral stats:', err);
@@ -134,10 +138,10 @@ export const useReferral = () => {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/referral/list?page=${page}&pageSize=${pageSize}`, 
+        `${API_BASE_URL}/api/v1/referral/list?page=${page}&pageSize=${pageSize}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -164,10 +168,10 @@ export const useReferral = () => {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/referral/rewards?page=${page}&pageSize=${pageSize}`, 
+        `${API_BASE_URL}/api/v1/referral/rewards?page=${page}&pageSize=${pageSize}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -196,7 +200,7 @@ export const useReferral = () => {
       const response = await fetch(`${API_BASE_URL}/api/v1/referral/regenerate-code`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -209,13 +213,17 @@ export const useReferral = () => {
       if (result.success && result.data) {
         const newInviteCode = result.data.inviteCode;
         const newInviteLink = `${window.location.origin}/register?invite=${newInviteCode}`;
-        
-        setData(prev => prev ? {
-          ...prev,
-          inviteCode: newInviteCode,
-          inviteLink: newInviteLink,
-        } : null);
-        
+
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                inviteCode: newInviteCode,
+                inviteLink: newInviteLink,
+              }
+            : null
+        );
+
         message.success('Invite code regenerated successfully!');
       }
     } catch (err) {
@@ -231,17 +239,17 @@ export const useReferral = () => {
     fetchRewardsHistory();
   }, []);
 
-  return { 
-    data, 
-    referralList, 
-    rewardsHistory, 
-    stats, 
-    loading, 
-    error, 
+  return {
+    data,
+    referralList,
+    rewardsHistory,
+    stats,
+    loading,
+    error,
     refetch: fetchReferralData,
     refetchStats: fetchReferralStats,
     refetchList: fetchReferralList,
     refetchRewards: fetchRewardsHistory,
-    regenerateCode: regenerateInviteCode
+    regenerateCode: regenerateInviteCode,
   };
 };

@@ -15,7 +15,7 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
   code,
   link,
   onRegenerate,
-  loading = false
+  loading = false,
 }) => {
   const copyToClipboard = async (text: string, type: string) => {
     try {
@@ -54,12 +54,12 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
               value={code}
               readOnly
               size="large"
-              style={{ 
-                textAlign: 'center', 
-                fontSize: '24px', 
+              style={{
+                textAlign: 'center',
+                fontSize: '24px',
                 fontWeight: 'bold',
                 letterSpacing: '2px',
-                fontFamily: 'monospace'
+                fontFamily: 'monospace',
               }}
               addonAfter={
                 <Button
@@ -73,7 +73,7 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
             />
           </div>
         </div>
-        
+
         <div>
           <Text type="secondary">Invite Link</Text>
           <div style={{ marginTop: 8 }}>
@@ -94,7 +94,7 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
             />
           </div>
         </div>
-        
+
         {onRegenerate && (
           <Button
             icon={<ReloadOutlined />}
@@ -106,16 +106,18 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
             Regenerate Code
           </Button>
         )}
-        
-        <div style={{ 
-          padding: '12px', 
-          backgroundColor: '#f6f8fa', 
-          borderRadius: '6px',
-          border: '1px solid #e1e4e8'
-        }}>
+
+        <div
+          style={{
+            padding: '12px',
+            backgroundColor: '#f6f8fa',
+            borderRadius: '6px',
+            border: '1px solid #e1e4e8',
+          }}
+        >
           <Text style={{ fontSize: '12px', color: '#666' }}>
-            Share this code or link with friends to invite them to Smart AI Hub. 
-            They can enter the code during registration or use the direct link.
+            Share this code or link with friends to invite them to Smart AI Hub. They can enter the
+            code during registration or use the direct link.
           </Text>
         </div>
       </Space>

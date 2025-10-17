@@ -8,17 +8,14 @@ interface QRCodeGeneratorProps {
   size?: number;
 }
 
-export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
-  value,
-  size = 256
-}) => {
+export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ value, size = 256 }) => {
   const downloadQRCode = () => {
     const canvas = document.getElementById('qr-code') as HTMLCanvasElement;
     if (!canvas) {
       message.error('QR Code not found');
       return;
     }
-    
+
     try {
       const url = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -36,7 +33,13 @@ export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
 
   if (!value) {
     return (
-      <Card title={<><QrcodeOutlined /> QR Code</>}>
+      <Card
+        title={
+          <>
+            <QrcodeOutlined /> QR Code
+          </>
+        }
+      >
         <div style={{ textAlign: 'center', padding: '20px' }}>
           No data available to generate QR Code
         </div>
@@ -46,13 +49,13 @@ export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
 
   return (
     <Card
-      title={<><QrcodeOutlined /> QR Code</>}
+      title={
+        <>
+          <QrcodeOutlined /> QR Code
+        </>
+      }
       extra={
-        <Button 
-          icon={<DownloadOutlined />} 
-          onClick={downloadQRCode}
-          type="primary"
-        >
+        <Button icon={<DownloadOutlined />} onClick={downloadQRCode} type="primary">
           Download
         </Button>
       }
@@ -68,9 +71,7 @@ export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
           fgColor="#000000"
         />
         <div style={{ marginTop: 16 }}>
-          <p style={{ fontSize: '12px', color: '#666' }}>
-            Scan this QR code to join Smart AI Hub
-          </p>
+          <p style={{ fontSize: '12px', color: '#666' }}>Scan this QR code to join Smart AI Hub</p>
         </div>
       </div>
     </Card>

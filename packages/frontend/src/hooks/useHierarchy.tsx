@@ -43,7 +43,7 @@ export const useHierarchy = () => {
     const rootNodes: HierarchyNode[] = [];
 
     // First pass: create all nodes
-    members.forEach(member => {
+    members.forEach((member) => {
       const node: HierarchyNode = {
         id: member.id,
         name: member.name,
@@ -52,13 +52,13 @@ export const useHierarchy = () => {
         points: member.points,
         credits: member.credits,
         isBlocked: member.isBlocked,
-        children: []
+        children: [],
       };
       memberMap.set(member.id, node);
     });
 
     // Second pass: build the tree structure
-    members.forEach(member => {
+    members.forEach((member) => {
       const node = memberMap.get(member.id);
       if (node) {
         if (member.parentId) {
@@ -81,7 +81,7 @@ export const useHierarchy = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
@@ -89,17 +89,17 @@ export const useHierarchy = () => {
 
       const [membersRes, treeRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/v1/hierarchy/members`, {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
+          headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }),
         fetch(`${API_BASE_URL}/api/v1/hierarchy/tree`, {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
+          headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        })
+        }),
       ]);
 
       if (!membersRes.ok || !treeRes.ok) {
@@ -112,11 +112,17 @@ export const useHierarchy = () => {
       if (membersResult.success && treeResult.success) {
         const members = membersResult.data?.members || [];
         const treeData = treeResult.data?.tree || [];
-        
+
         // Calculate totals
         const totalMembers = members.length;
-        const totalPoints = members.reduce((sum: number, member: HierarchyMember) => sum + member.points, 0);
-        const totalCredits = members.reduce((sum: number, member: HierarchyMember) => sum + member.credits, 0);
+        const totalPoints = members.reduce(
+          (sum: number, member: HierarchyMember) => sum + member.points,
+          0
+        );
+        const totalCredits = members.reduce(
+          (sum: number, member: HierarchyMember) => sum + member.credits,
+          0
+        );
 
         // Build tree from members if tree data is not provided
         const builtTree = treeData.length > 0 ? treeData : buildHierarchyTree(members);
@@ -126,7 +132,7 @@ export const useHierarchy = () => {
           tree: builtTree,
           totalMembers,
           totalPoints,
-          totalCredits
+          totalCredits,
         });
       }
     } catch (err) {
@@ -145,10 +151,10 @@ export const useHierarchy = () => {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/hierarchy/search?q=${encodeURIComponent(query)}`, 
+        `${API_BASE_URL}/api/v1/hierarchy/search?q=${encodeURIComponent(query)}`,
         {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
+          headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -174,8 +180,8 @@ export const useHierarchy = () => {
       }
 
       const response = await fetch(`${API_BASE_URL}/api/v1/hierarchy/members/${memberId}`, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -196,12 +202,12 @@ export const useHierarchy = () => {
     fetchHierarchyData();
   }, []);
 
-  return { 
-    data, 
-    loading, 
-    error, 
+  return {
+    data,
+    loading,
+    error,
     refetch: fetchHierarchyData,
     searchMembers,
-    getMemberDetails
+    getMemberDetails,
   };
 };

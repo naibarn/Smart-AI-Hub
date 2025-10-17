@@ -19,7 +19,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
   settings,
   onSave,
   currentBalance,
-  loading = false
+  loading = false,
 }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
@@ -45,19 +45,19 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
     if (value < 0) {
       return Promise.reject(new Error('Reward must be a positive number'));
     }
-    
+
     if (currentBalance !== undefined) {
       const formValues = form.getFieldsValue();
-      const totalPotentialRewards = 
-        (formValues.organizationSignupReward || 0) + 
-        (formValues.adminSignupReward || 0) + 
+      const totalPotentialRewards =
+        (formValues.organizationSignupReward || 0) +
+        (formValues.adminSignupReward || 0) +
         (formValues.generalSignupReward || 0);
-      
+
       if (totalPotentialRewards > currentBalance) {
         return Promise.reject(new Error('Total rewards exceed your current balance'));
       }
     }
-    
+
     return Promise.resolve();
   };
 
@@ -69,7 +69,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
         showIcon
         style={{ marginBottom: 16 }}
       />
-      
+
       {currentBalance !== undefined && (
         <Alert
           message={`Current Balance: ${currentBalance.toLocaleString()} Points`}
@@ -78,7 +78,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
           style={{ marginBottom: 16 }}
         />
       )}
-      
+
       <Form
         form={form}
         layout="vertical"
@@ -91,7 +91,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
           name="organizationSignupReward"
           rules={[
             { required: true, message: 'Please enter reward amount' },
-            { validator: validateRewards }
+            { validator: validateRewards },
           ]}
           tooltip="Reward given when someone signs up as an Organization using your invite code"
         >
@@ -110,7 +110,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
           name="adminSignupReward"
           rules={[
             { required: true, message: 'Please enter reward amount' },
-            { validator: validateRewards }
+            { validator: validateRewards },
           ]}
           tooltip="Reward given when someone signs up as an Admin using your invite code"
         >
@@ -129,7 +129,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
           name="generalSignupReward"
           rules={[
             { required: true, message: 'Please enter reward amount' },
-            { validator: validateRewards }
+            { validator: validateRewards },
           ]}
           tooltip="Reward given when someone signs up as a General user using your invite code"
         >
@@ -154,11 +154,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
             >
               Save Settings
             </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleReset}
-              size="large"
-            >
+            <Button icon={<ReloadOutlined />} onClick={handleReset} size="large">
               Reset
             </Button>
           </Space>

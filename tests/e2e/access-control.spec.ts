@@ -17,10 +17,10 @@ test.describe('Access Control - General User', () => {
 
   test('should be redirected when accessing /members directly', async ({ page }) => {
     await page.goto('http://localhost:3000/members');
-    
+
     // Should be redirected to dashboard or show 403
     await expect(page).toHaveURL(/\/(dashboard|403)/);
-    
+
     // Or should see access denied message
     const accessDenied = page.locator('text=Access Denied');
     await expect(accessDenied).toBeVisible();
@@ -50,15 +50,15 @@ test.describe('Access Control - General User', () => {
     // Should see Dashboard
     const dashboardLink = page.locator('[data-testid="menu-dashboard"]');
     await expect(dashboardLink).toBeVisible();
-    
+
     // Should see Profile
     const profileLink = page.locator('[data-testid="menu-profile"]');
     await expect(profileLink).toBeVisible();
-    
+
     // Should see Points
     const pointsLink = page.locator('[data-testid="menu-points"]');
     await expect(pointsLink).toBeVisible();
-    
+
     // Should see Referrals
     const referralsLink = page.locator('[data-testid="menu-referrals"]');
     await expect(referralsLink).toBeVisible();
@@ -83,7 +83,7 @@ test.describe('Access Control - Agency User', () => {
   test('should access /members page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/members');
     await expect(page).toHaveURL('http://localhost:3000/members');
-    
+
     const pageTitle = page.locator('h1:has-text("Members")');
     await expect(pageTitle).toBeVisible();
   });
@@ -96,7 +96,7 @@ test.describe('Access Control - Agency User', () => {
   test('should access /agency/settings page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/agency/settings');
     await expect(page).toHaveURL('http://localhost:3000/agency/settings');
-    
+
     const pageTitle = page.locator('h1:has-text("Agency Settings")');
     await expect(pageTitle).toBeVisible();
   });
@@ -109,7 +109,7 @@ test.describe('Access Control - Agency User', () => {
   test('should access /transfer page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/transfer');
     await expect(page).toHaveURL('http://localhost:3000/transfer');
-    
+
     const pageTitle = page.locator('h1:has-text("Transfer")');
     await expect(pageTitle).toBeVisible();
   });
@@ -122,7 +122,7 @@ test.describe('Access Control - Agency User', () => {
   test('should access /block page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/block');
     await expect(page).toHaveURL('http://localhost:3000/block');
-    
+
     const pageTitle = page.locator('h1:has-text("Block Users")');
     await expect(pageTitle).toBeVisible();
   });
@@ -151,7 +151,7 @@ test.describe('Access Control - Organization User', () => {
   test('should access /members page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/members');
     await expect(page).toHaveURL('http://localhost:3000/members');
-    
+
     const pageTitle = page.locator('h1:has-text("Members")');
     await expect(pageTitle).toBeVisible();
   });
@@ -163,7 +163,7 @@ test.describe('Access Control - Organization User', () => {
 
   test('should be denied when accessing /agency/settings directly', async ({ page }) => {
     await page.goto('http://localhost:3000/agency/settings');
-    
+
     // Should be redirected or show 403
     await expect(page).toHaveURL(/\/(dashboard|403)/);
   });
@@ -176,7 +176,7 @@ test.describe('Access Control - Organization User', () => {
   test('should access /transfer page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/transfer');
     await expect(page).toHaveURL('http://localhost:3000/transfer');
-    
+
     const pageTitle = page.locator('h1:has-text("Transfer")');
     await expect(pageTitle).toBeVisible();
   });
@@ -189,7 +189,7 @@ test.describe('Access Control - Organization User', () => {
   test('should access /block page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/block');
     await expect(page).toHaveURL('http://localhost:3000/block');
-    
+
     const pageTitle = page.locator('h1:has-text("Block Users")');
     await expect(pageTitle).toBeVisible();
   });
@@ -202,7 +202,7 @@ test.describe('Access Control - Organization User', () => {
   test('should access /organization/settings page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/organization/settings');
     await expect(page).toHaveURL('http://localhost:3000/organization/settings');
-    
+
     const pageTitle = page.locator('h1:has-text("Organization Settings")');
     await expect(pageTitle).toBeVisible();
   });
@@ -226,7 +226,7 @@ test.describe('Access Control - Admin User', () => {
   test('should access /members page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/members');
     await expect(page).toHaveURL('http://localhost:3000/members');
-    
+
     const pageTitle = page.locator('h1:has-text("Members")');
     await expect(pageTitle).toBeVisible();
   });
@@ -238,7 +238,7 @@ test.describe('Access Control - Admin User', () => {
 
   test('should be denied when accessing /agency/settings directly', async ({ page }) => {
     await page.goto('http://localhost:3000/agency/settings');
-    
+
     // Should be redirected or show 403
     await expect(page).toHaveURL(/\/(dashboard|403)/);
   });
@@ -251,7 +251,7 @@ test.describe('Access Control - Admin User', () => {
   test('should access /transfer page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/transfer');
     await expect(page).toHaveURL('http://localhost:3000/transfer');
-    
+
     const pageTitle = page.locator('h1:has-text("Transfer")');
     await expect(pageTitle).toBeVisible();
   });
@@ -264,7 +264,7 @@ test.describe('Access Control - Admin User', () => {
   test('should access /block page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/block');
     await expect(page).toHaveURL('http://localhost:3000/block');
-    
+
     const pageTitle = page.locator('h1:has-text("Block Users")');
     await expect(pageTitle).toBeVisible();
   });
@@ -276,7 +276,7 @@ test.describe('Access Control - Admin User', () => {
 
   test('should be denied when accessing /organization/settings directly', async ({ page }) => {
     await page.goto('http://localhost:3000/organization/settings');
-    
+
     // Should be redirected or show 403
     await expect(page).toHaveURL(/\/(dashboard|403)/);
   });
@@ -300,7 +300,7 @@ test.describe('Access Control - Administrator User', () => {
   test('should access /members page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/members');
     await expect(page).toHaveURL('http://localhost:3000/members');
-    
+
     const pageTitle = page.locator('h1:has-text("Members")');
     await expect(pageTitle).toBeVisible();
   });
@@ -313,7 +313,7 @@ test.describe('Access Control - Administrator User', () => {
   test('should access /agency/settings page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/agency/settings');
     await expect(page).toHaveURL('http://localhost:3000/agency/settings');
-    
+
     const pageTitle = page.locator('h1:has-text("Agency Settings")');
     await expect(pageTitle).toBeVisible();
   });
@@ -326,7 +326,7 @@ test.describe('Access Control - Administrator User', () => {
   test('should access /transfer page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/transfer');
     await expect(page).toHaveURL('http://localhost:3000/transfer');
-    
+
     const pageTitle = page.locator('h1:has-text("Transfer")');
     await expect(pageTitle).toBeVisible();
   });
@@ -339,7 +339,7 @@ test.describe('Access Control - Administrator User', () => {
   test('should access /block page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/block');
     await expect(page).toHaveURL('http://localhost:3000/block');
-    
+
     const pageTitle = page.locator('h1:has-text("Block Users")');
     await expect(pageTitle).toBeVisible();
   });
@@ -352,7 +352,7 @@ test.describe('Access Control - Administrator User', () => {
   test('should access /organization/settings page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/organization/settings');
     await expect(page).toHaveURL('http://localhost:3000/organization/settings');
-    
+
     const pageTitle = page.locator('h1:has-text("Organization Settings")');
     await expect(pageTitle).toBeVisible();
   });
@@ -365,7 +365,7 @@ test.describe('Access Control - Administrator User', () => {
   test('should access /admin/settings page successfully', async ({ page }) => {
     await page.goto('http://localhost:3000/admin/settings');
     await expect(page).toHaveURL('http://localhost:3000/admin/settings');
-    
+
     const pageTitle = page.locator('h1:has-text("Admin Settings")');
     await expect(pageTitle).toBeVisible();
   });

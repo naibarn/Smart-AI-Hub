@@ -28,11 +28,7 @@ interface ReferralListProps {
   };
 }
 
-export const ReferralList: React.FC<ReferralListProps> = ({
-  referrals,
-  loading,
-  pagination
-}) => {
+export const ReferralList: React.FC<ReferralListProps> = ({ referrals, loading, pagination }) => {
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState<ReferredUser[]>(referrals);
 
@@ -93,7 +89,7 @@ export const ReferralList: React.FC<ReferralListProps> = ({
         });
         return <Text>{formattedDate}</Text>;
       },
-      sorter: (a: ReferredUser, b: ReferredUser) => 
+      sorter: (a: ReferredUser, b: ReferredUser) =>
         new Date(a.signupDate).getTime() - new Date(b.signupDate).getTime(),
     },
     {
@@ -136,7 +132,7 @@ export const ReferralList: React.FC<ReferralListProps> = ({
           style={{ width: 300 }}
         />
       </div>
-      
+
       <Table
         columns={columns}
         dataSource={filteredData}
@@ -145,8 +141,7 @@ export const ReferralList: React.FC<ReferralListProps> = ({
           ...pagination,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (total, range) =>
-            `${range[0]}-${range[1]} of ${total} referrals`,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} referrals`,
         }}
         rowKey="id"
         scroll={{ x: 800 }}

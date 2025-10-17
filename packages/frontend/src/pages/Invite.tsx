@@ -10,14 +10,8 @@ const { Title, Paragraph } = Typography;
 
 export const Invite: React.FC = () => {
   const [regenerating, setRegenerating] = useState(false);
-  
-  const {
-    data,
-    loading,
-    error,
-    refetch,
-    regenerateCode
-  } = useReferral();
+
+  const { data, loading, error, refetch, regenerateCode } = useReferral();
 
   const handleRegenerateCode = async () => {
     setRegenerating(true);
@@ -72,13 +66,16 @@ export const Invite: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
         <Title level={2}>Invite Friends</Title>
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={refetch}
-          loading={loading}
-        >
+        <Button icon={<ReloadOutlined />} onClick={refetch} loading={loading}>
           Refresh
         </Button>
       </div>
@@ -114,9 +111,12 @@ export const Invite: React.FC = () => {
                 <div>
                   <Title level={4}>For Your Friends:</Title>
                   <Paragraph>
-                    1. Click on your invite link or go to the registration page<br />
-                    2. Enter your invite code: <strong>{data.inviteCode}</strong><br />
-                    3. Complete the registration process<br />
+                    1. Click on your invite link or go to the registration page
+                    <br />
+                    2. Enter your invite code: <strong>{data.inviteCode}</strong>
+                    <br />
+                    3. Complete the registration process
+                    <br />
                     4. Start using Smart AI Hub!
                   </Paragraph>
                 </div>
@@ -125,10 +125,12 @@ export const Invite: React.FC = () => {
                 <div>
                   <Title level={4}>Benefits:</Title>
                   <Paragraph>
-                    • Your friends get access to Smart AI Hub<br />
-                    • You earn points for each successful referral<br />
-                    • Points vary based on the tier of the referred user<br />
-                    • Track all your referrals and rewards in real-time
+                    • Your friends get access to Smart AI Hub
+                    <br />
+                    • You earn points for each successful referral
+                    <br />
+                    • Points vary based on the tier of the referred user
+                    <br />• Track all your referrals and rewards in real-time
                   </Paragraph>
                 </div>
               </Col>
@@ -144,9 +146,15 @@ export const Invite: React.FC = () => {
             message="Referral Statistics"
             description={
               <div>
-                <p>Total Referrals: <strong>{data.totalReferrals}</strong></p>
-                <p>Active Referrals: <strong>{data.activeReferrals}</strong></p>
-                <p>Total Rewards Earned: <strong>{data.totalRewards.toLocaleString()} Points</strong></p>
+                <p>
+                  Total Referrals: <strong>{data.totalReferrals}</strong>
+                </p>
+                <p>
+                  Active Referrals: <strong>{data.activeReferrals}</strong>
+                </p>
+                <p>
+                  Total Rewards Earned: <strong>{data.totalRewards.toLocaleString()} Points</strong>
+                </p>
               </div>
             }
             type="info"
@@ -162,7 +170,8 @@ export const Invite: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <Title level={5}>Personalize Your Message</Title>
               <Paragraph>
-                Add a personal note when sharing your invite link. Let people know why you find Smart AI Hub valuable.
+                Add a personal note when sharing your invite link. Let people know why you find
+                Smart AI Hub valuable.
               </Paragraph>
             </div>
           </Col>
@@ -170,7 +179,8 @@ export const Invite: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <Title level={5}>Share on Multiple Platforms</Title>
               <Paragraph>
-                Use different social media platforms to reach more people. Each platform has its own audience.
+                Use different social media platforms to reach more people. Each platform has its own
+                audience.
               </Paragraph>
             </div>
           </Col>
@@ -178,7 +188,8 @@ export const Invite: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <Title level={5}>Follow Up</Title>
               <Paragraph>
-                Don't hesitate to follow up with people you've invited. Answer their questions about the platform.
+                Don't hesitate to follow up with people you've invited. Answer their questions about
+                the platform.
               </Paragraph>
             </div>
           </Col>
