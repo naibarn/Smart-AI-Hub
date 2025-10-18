@@ -26,10 +26,9 @@ export const TableRow: React.FC<TRProps> = ({ className, ...props }) => (
 type THProps = React.ThHTMLAttributes<HTMLTableCellElement>;
 export const TableHead: React.FC<THProps> = ({ className, ...props }) => (
   <th
-    className={[
-      'px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase',
-      className,
-    ].filter(Boolean).join(' ')}
+    className={['px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase', className]
+      .filter(Boolean)
+      .join(' ')}
     {...props}
   />
 );

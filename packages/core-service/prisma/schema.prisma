@@ -72,6 +72,7 @@ model User {
   organizationAgents Agent[]              @relation("AgentOrganization")
   agencyAgents       Agent[]              @relation("AgentAgency")
   updatedAgentSettings AgentSetting[]     @relation("AgentSettingUpdater")
+  creditReservations CreditReservation[]
 
   @@map("users")
   @@index([email])
@@ -278,6 +279,24 @@ model UsageLog {
   @@index([service, createdAt])
   @@index([model, createdAt])
   @@map("usage_logs")
+}
+
+model CreditReservation {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  amount      Int
+  sessionId   String?  @map("session_id") @db.Uuid
+  status      String   @db.VarChar(20)  // active, charged, refunded, expired
+  chargedAt   DateTime? @map("charged_at")
+  refundedAt  DateTime? @map("refunded_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  expiresAt   DateTime @map("expires_at")
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("credit_reservations")
 }
 
 model PerformanceBaseline {

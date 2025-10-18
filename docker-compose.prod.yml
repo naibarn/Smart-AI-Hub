@@ -2,34 +2,48 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:15
     environment:
-      POSTGRES_DB: smart_ai_hub
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups
+      - /var/log/postgres:/var/log/postgres
     networks:
       - smart-ai-hub
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=postgres"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
+      - /var/log/redis:/var/log/redis
     networks:
       - smart-ai-hub
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=redis"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 3s
       retries: 5
 
   nginx:
@@ -40,17 +54,18 @@ services:
     volumes:
       - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
-      - ./logs/nginx:/var/log/nginx
+      - /var/log/nginx:/var/log/nginx
     networks:
       - smart-ai-hub
-      - monitoring
     depends_on:
       - api-gateway
-      - auth-service
-      - core-service
-      - mcp-server
-      - frontend
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=nginx"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -58,18 +73,24 @@ services:
       retries: 3
 
   api-gateway:
-    build:
+    build: 
       context: ./packages/api-gateway
       dockerfile: Dockerfile.prod
     environment:
       - NODE_ENV=production
-      - REDIS_URL=redis://redis:6379
-      - AUTH_SERVICE_URL=http://auth-service:3001
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/api-gateway
       - CORE_SERVICE_URL=http://core-service:3002
-      - MCP_SERVER_URL=http://mcp-server:3003
+      - RAG_SERVICE_URL=http://rag-service:3003
+      - PRICING_SERVICE_URL=http://pricing-service:3004
+      - AGENT_SKILLS_SERVICE_URL=http://agent-skills-service:3005
+      - JWT_SECRET=${JWT_SECRET}
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/api-gateway:/var/log/api-gateway
     networks:
       - smart-ai-hub
-      - monitoring
     depends_on:
       postgres:
         condition: service_healthy
@@ -79,19 +100,40 @@ services:
         condition: service_healthy
       core-service:
         condition: service_healthy
+      rag-service:
+        condition: service_healthy
+      pricing-service:
+        condition: service_healthy
+      agent-skills-service:
+        condition: service_healthy
       mcp-server:
         condition: service_healthy
+      webhook-service:
+        condition: service_healthy
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=api-gateway"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    volumes:
-      - ./logs/api-gateway:/app/logs
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
   auth-service:
-    build:
+    build: 
       context: ./packages/auth-service
       dockerfile: Dockerfile.prod
     environment:
@@ -100,163 +142,405 @@ services:
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
       - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3006
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/auth-service
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/auth-service:/var/log/auth-service
     networks:
       - smart-ai-hub
-      - monitoring
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=auth-service"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    volumes:
-      - ./logs/auth-service:/app/logs
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
   core-service:
-    build:
+    build: 
       context: ./packages/core-service
       dockerfile: Dockerfile.prod
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3006
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/core-service
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/core-service:/var/log/core-service
+      - ./uploads:/app/uploads
     networks:
       - smart-ai-hub
-      - monitoring
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=core-service"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    volumes:
-      - ./logs/core-service:/app/logs
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
-  mcp-server:
-    build:
-      context: ./packages/mcp-server
+  rag-service:
+    build: 
+      context: ./packages/rag-service
       dockerfile: Dockerfile.prod
     environment:
       - NODE_ENV=production
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-    networks:
-      - smart-ai-hub
-      - monitoring
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - RAG_EMBEDDING_MODEL=${RAG_EMBEDDING_MODEL}
+      - RAG_CHUNK_SIZE=${RAG_CHUNK_SIZE}
+      - RAG_CHUNK_OVERLAP=${RAG_CHUNK_OVERLAP}
+      - RAG_MAX_CHUNKS_PER_DOCUMENT=${RAG_MAX_CHUNKS_PER_DOCUMENT}
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/rag-service
+      - SENTRY_DSN=${SENTRY_DSN}
     volumes:
-      - ./logs/mcp-server:/app/logs
-
-  frontend:
-    build:
-      context: ./packages/frontend
-      dockerfile: Dockerfile.prod
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=https://yourdomain.com
-    networks:
-      - smart-ai-hub
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Monitoring Services
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter
-    environment:
-      DATA_SOURCE_NAME: postgresql://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/smart_ai_hub?sslmode=disable
-    networks:
-      - smart-ai-hub
-      - monitoring
-    depends_on:
-      - postgres
-    restart: unless-stopped
-
-  redis-exporter:
-    image: oliver006/redis_exporter
-    environment:
-      REDIS_ADDR: redis://redis:6379
-    networks:
-      - smart-ai-hub
-      - monitoring
-    depends_on:
-      - redis
-    restart: unless-stopped
-
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter
-    command:
-      - -nginx.scrape-uri=http://nginx:80/nginx_status
-    networks:
-      - smart-ai-hub
-      - monitoring
-    depends_on:
-      - nginx
-    restart: unless-stopped
-
-  # Backup Service
-  backup-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.backup
-    environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=smart_ai_hub
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - SMTP_FROM=${SMTP_FROM}
-      - ADMIN_EMAILS=${ADMIN_EMAILS}
-      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
-      - TZ=Asia/Bangkok
-    volumes:
-      - ./backups:/backups
-      - ./scripts:/scripts:ro
-      - ./.env.production:/config/.env.production:ro
-      - ./docker-compose.prod.yml:/config/docker-compose.prod.yml:ro
-      - ./nginx.prod.conf:/config/nginx.prod.conf:ro
-      - ./ssl:/config/ssl:ro
-      - ./logs/backup:/var/log
+      - /var/log/rag-service:/var/log/rag-service
+      - ./uploads:/app/uploads
     networks:
       - smart-ai-hub
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=rag-service"
     healthcheck:
-      test: ["/scripts/backup-monitor.sh"]
-      interval: 1h
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  pricing-service:
+    build: 
+      context: ./packages/pricing-service
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - PRICING_DEFAULT_CURRENCY=${PRICING_DEFAULT_CURRENCY}
+      - PRICING_CREDIT_CONVERSION_RATE=${PRICING_CREDIT_CONVERSION_RATE}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/pricing-service
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/pricing-service:/var/log/pricing-service
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=pricing-service"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  agent-skills-service:
+    build: 
+      context: ./packages/agent-skills-service
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SKILLS_MAX_FILE_SIZE=${SKILLS_MAX_FILE_SIZE}
+      - SKILLS_APPROVAL_REQUIRED=${SKILLS_APPROVAL_REQUIRED}
+      - SKILLS_AUTO_APPROVE_TRUSTED_CREATORS=${SKILLS_AUTO_APPROVE_TRUSTED_CREATORS}
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/agent-skills-service
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/agent-skills-service:/var/log/agent-skills-service
+      - ./uploads:/app/uploads
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=agent-skills-service"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  mcp-server:
+    build: 
+      context: ./packages/mcp-server
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3006
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/mcp-server
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/mcp-server:/var/log/mcp-server
+    networks:
+      - smart-ai-hub
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=mcp-server"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  webhook-service:
+    build: 
+      context: ./packages/webhook-service
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/webhook-service
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/webhook-service:/var/log/webhook-service
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=webhook-service"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  notification-service:
+    build: 
+      context: ./packages/notification-service
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_DIR=/var/log/notification-service
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - /var/log/notification-service:/var/log/notification-service
+    networks:
+      - smart-ai-hub
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=notification-service"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  frontend:
+    build: 
+      context: ./packages/frontend
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.smartaihub.com
+      - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_APP_VERSION=${VITE_APP_VERSION}
+      - VITE_GA_TRACKING_ID=${VITE_GA_TRACKING_ID}
+      - VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+    networks:
+      - smart-ai-hub
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=frontend"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 volumes:
   postgres_data:
@@ -264,6 +548,4 @@ volumes:
 
 networks:
   smart-ai-hub:
-    driver: bridge
-  monitoring:
     driver: bridge

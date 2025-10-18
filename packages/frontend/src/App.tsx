@@ -33,6 +33,9 @@ import {
 } from './pages/admin/monitoring/index-pages';
 import CommandPalette from './components/common/CommandPalette';
 import { api } from './services/api';
+import RAGSystem from './pages/RAGSystem';
+import PricingSystem from './pages/PricingSystem';
+import AgentSkillsMarketplace from './pages/AgentSkillsMarketplace';
 
 // Redux store setup
 interface AppState {
@@ -177,6 +180,9 @@ const AppContent: React.FC = () => {
             <Route path="/referrals" element={<Referrals />} />
             <Route path="/invite" element={<Invite />} />
             <Route path="/agency/settings" element={<AgencySettings />} />
+            <Route path="/rag-system" element={<RAGSystem />} />
+            <Route path="/pricing-system" element={<PricingSystem />} />
+            <Route path="/skills-marketplace" element={<AgentSkillsMarketplace />} />
 
             {/* Admin monitoring routes with RBAC protection */}
             <Route element={<AdminProtectedRoute />}>

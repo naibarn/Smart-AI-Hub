@@ -14,7 +14,13 @@ interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
   onValueChange: (v: TabsValue) => void;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ value, onValueChange, className, children, ...props }) => {
+export const Tabs: React.FC<TabsProps> = ({
+  value,
+  onValueChange,
+  className,
+  children,
+  ...props
+}) => {
   const ctx: TabsContextValue = { value, setValue: onValueChange };
   return (
     <div className={className} {...props}>
@@ -23,7 +29,10 @@ export const Tabs: React.FC<TabsProps> = ({ value, onValueChange, className, chi
   );
 };
 
-export const TabsList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
+export const TabsList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  ...props
+}) => (
   <div
     className={['inline-flex items-center gap-1 rounded-md bg-gray-100 p-1', className]
       .filter(Boolean)
@@ -35,7 +44,12 @@ export const TabsList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ class
 interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: TabsValue;
 }
-export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, className, children, ...props }) => {
+export const TabsTrigger: React.FC<TabsTriggerProps> = ({
+  value,
+  className,
+  children,
+  ...props
+}) => {
   const ctx = useContext(TabsCtx);
   if (!ctx) return null;
   const selected = ctx.value === value;
@@ -62,7 +76,12 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({ value, className, chil
 interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
   value: TabsValue;
 }
-export const TabsContent: React.FC<TabsContentProps> = ({ value, className, children, ...props }) => {
+export const TabsContent: React.FC<TabsContentProps> = ({
+  value,
+  className,
+  children,
+  ...props
+}) => {
   const ctx = useContext(TabsCtx);
   if (!ctx) return null;
   if (ctx.value !== value) return null;

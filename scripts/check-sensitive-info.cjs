@@ -18,10 +18,11 @@ const SENSITIVE_PATTERNS = [
   /private[_-]?key\s*=\s*['"][^'"]{16,}['"]/i,
   /aws[_-]?access[_-]?key[_-]?id\s*=\s*['"][^'"]{16,}['"]/i,
   /aws[_-]?secret[_-]?access[_-]?key\s*=\s*['"][^'"]{16,}['"]/i,
-  /mongodb:\/\/[^:]+:[^@]+@/,
-  /mysql:\/\/[^:]+:[^@]+@/,
-  /postgresql:\/\/[^:]+:[^@]+@/,
-  /redis:\/\/[^:]+:[^@]+@/,
+  // Only match database URLs with hardcoded credentials (not environment variables)
+  /mongodb:\/\/[^:$\s\{]+:[^@$\s\{]+@/,
+  /mysql:\/\/[^:$\s\{]+:[^@$\s\{]+@/,
+  /postgresql:\/\/[^:$\s\{]+:[^@$\s\{]+@/,
+  /redis:\/\/[^:$\s\{]+:[^@$\s\{]+@/,
 ];
 
 // Files to exclude from checking

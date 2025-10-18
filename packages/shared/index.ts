@@ -7,3 +7,6 @@ export * from './src/middlewares/rbac.middleware';
 export * from './src/utils/validators';
 export * from './src/utils/errors';
 export * from './src/types/payment';
+export * from './src/types/rag';
+export * from './src/types/pricing';
+export * from './src/types/agent-skills';

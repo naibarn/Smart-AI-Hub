@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
 const CORE_SERVICE_URL = process.env.CORE_SERVICE_URL || 'http://localhost:3002';
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3003';
+const RAG_SERVICE_URL = process.env.RAG_SERVICE_URL || 'http://localhost:3004';
+const AGENT_SERVICE_URL = process.env.AGENT_SERVICE_URL || 'http://localhost:3005';
 
 // Security middleware (API-specific - no CSP needed)
 app.use(
@@ -106,6 +108,51 @@ const analyticsProxy = createProxyMiddleware({
   },
 });
 
+// RAG Service Proxy
+const ragProxy = createProxyMiddleware({
+  target: RAG_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/rag': '/api/rag', // Keep the same path
+  },
+});
+
+// Agent Skills Marketplace Proxy
+const marketplaceProxy = createProxyMiddleware({
+  target: AGENT_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/marketplace': '/api/marketplace', // Keep the same path
+  },
+});
+
+// Skills Management Proxy
+const skillsProxy = createProxyMiddleware({
+  target: AGENT_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/skills': '/api/skills', // Keep the same path
+  },
+});
+
+// Pricing Service Proxy
+const pricingProxy = createProxyMiddleware({
+  target: CORE_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/pricing': '/api/v1/pricing', // Route to versioned pricing endpoints
+  },
+});
+
+// Agent Execution Proxy
+const agentExecutionProxy = createProxyMiddleware({
+  target: CORE_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/agents': '/api/v1/agents', // Route to versioned agent endpoints
+  },
+});
+
 // Apply proxy middleware with error handling
 app.use('/api/auth', (req, res, next) => {
   authProxy(req, res, (err) => {
@@ -187,6 +234,56 @@ app.use('/api/analytics', (req, res, next) => {
   });
 });
 
+app.use('/api/rag', (req, res, next) => {
+  ragProxy(req, res, (err) => {
+    if (err) {
+      console.error('RAG Service Proxy Error:', err);
+      return res.status(502).json({ error: 'RAG service unavailable' });
+    }
+    next();
+  });
+});
+
+app.use('/api/marketplace', (req, res, next) => {
+  marketplaceProxy(req, res, (err) => {
+    if (err) {
+      console.error('Agent Service Proxy Error:', err);
+      return res.status(502).json({ error: 'Agent service unavailable' });
+    }
+    next();
+  });
+});
+
+app.use('/api/skills', (req, res, next) => {
+  skillsProxy(req, res, (err) => {
+    if (err) {
+      console.error('Agent Service Proxy Error:', err);
+      return res.status(502).json({ error: 'Agent service unavailable' });
+    }
+    next();
+  });
+});
+
+app.use('/api/pricing', (req, res, next) => {
+  pricingProxy(req, res, (err) => {
+    if (err) {
+      console.error('Core Service Proxy Error:', err);
+      return res.status(502).json({ error: 'Pricing service unavailable' });
+    }
+    next();
+  });
+});
+
+app.use('/api/agents', (req, res, next) => {
+  agentExecutionProxy(req, res, (err) => {
+    if (err) {
+      console.error('Core Service Proxy Error:', err);
+      return res.status(502).json({ error: 'Agent execution service unavailable' });
+    }
+    next();
+  });
+});
+
 // 404 handler
 app.use('*', (req: Request, res: Response) => {
   res.status(404).json({ error: 'Route not found' });
@@ -197,6 +294,8 @@ app.listen(PORT, () => {
   console.log(`Auth Service: ${AUTH_SERVICE_URL}`);
   console.log(`Core Service: ${CORE_SERVICE_URL}`);
   console.log(`MCP Server: ${MCP_SERVER_URL}`);
+  console.log(`RAG Service: ${RAG_SERVICE_URL}`);
+  console.log(`Agent Service: ${AGENT_SERVICE_URL}`);
 });
 
 export default app;

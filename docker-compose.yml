@@ -5,9 +5,9 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: smart_ai_hub
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB:-smart_ai_hub}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
       - "5432:5432"
     volumes:
@@ -74,12 +74,17 @@ services:
   api-gateway:
     build: ./packages/api-gateway
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=development
       - REDIS_URL=redis://redis:6379
       - LOG_LEVEL=info
       - LOG_DIR=/var/log/api-gateway
+      - CORE_SERVICE_URL=http://core-service:3002
+      - RAG_SERVICE_URL=http://rag-service:3003
+      - PRICING_SERVICE_URL=http://pricing-service:3004
+      - AGENT_SKILLS_SERVICE_URL=http://agent-skills-service:3005
+      - JWT_SECRET=your-secret-key-min-32-chars
     volumes:
       - /var/log/api-gateway:/var/log/api-gateway
     networks:
@@ -92,6 +97,12 @@ services:
       auth-service:
         condition: service_healthy
       core-service:
+        condition: service_healthy
+      rag-service:
+        condition: service_healthy
+      pricing-service:
+        condition: service_healthy
+      agent-skills-service:
         condition: service_healthy
       mcp-server:
         condition: service_healthy
@@ -148,14 +159,22 @@ services:
       - "3002:3002"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/smart_ai_hub
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-smart_ai_hub}
       - REDIS_URL=redis://redis:6379
-      - WEBHOOK_SERVICE_URL=http://webhook-service:3005
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3006
       - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
       - LOG_LEVEL=info
       - LOG_DIR=/var/log/core-service
+      - JWT_SECRET=your-secret-key-min-32-chars
+      - JWT_REFRESH_SECRET=your-refresh-secret-key
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
+      - STORAGE_PROVIDER=local
+      - LOCAL_STORAGE_PATH=./uploads
     volumes:
       - /var/log/core-service:/var/log/core-service
+      - ./uploads:/app/uploads
     networks:
       - smart-ai-hub
     depends_on:
@@ -175,14 +194,90 @@ services:
       timeout: 10s
       retries: 3
 
-  mcp-server:
-    build: ./packages/mcp-server
+  rag-service:
+    build: ./packages/rag-service
     ports:
       - "3003:3003"
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-smart_ai_hub}
       - REDIS_URL=redis://redis:6379
-      - WEBHOOK_SERVICE_URL=http://webhook-service:3005
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RAG_EMBEDDING_MODEL=text-embedding-ada-002
+      - RAG_CHUNK_SIZE=1000
+      - RAG_CHUNK_OVERLAP=200
+      - RAG_MAX_CHUNKS_PER_DOCUMENT=1000
+      - STORAGE_PROVIDER=local
+      - LOCAL_STORAGE_PATH=./uploads
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/rag-service
+    volumes:
+      - /var/log/rag-service:/var/log/rag-service
+      - ./uploads:/app/uploads
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  pricing-service:
+    build: ./packages/pricing-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-smart_ai_hub}
+      - REDIS_URL=redis://redis:6379
+      - PRICING_DEFAULT_CURRENCY=USD
+      - PRICING_CREDIT_CONVERSION_RATE=0.01
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/pricing-service
+    volumes:
+      - /var/log/pricing-service:/var/log/pricing-service
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  agent-skills-service:
+    build: ./packages/agent-skills-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-smart_ai_hub}
+      - REDIS_URL=redis://redis:6379
+      - SKILLS_MAX_FILE_SIZE=52428800
+      - SKILLS_APPROVAL_REQUIRED=true
+      - SKILLS_AUTO_APPROVE_TRUSTED_CREATORS=false
+      - STORAGE_PROVIDER=local
+      - LOCAL_STORAGE_PATH=./uploads
+      - LOG_LEVEL=info
+      - LOG_DIR=/var/log/agent-skills-service
+    volumes:
+      - /var/log/agent-skills-service:/var/log/agent-skills-service
+      - ./uploads:/app/uploads
+    networks:
+      - smart-ai-hub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mcp-server:
+    build: ./packages/mcp-server
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3006
       - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
       - LOG_LEVEL=info
       - LOG_DIR=/var/log/mcp-server
@@ -208,10 +303,10 @@ services:
   webhook-service:
     build: ./packages/webhook-service
     ports:
-      - "3005:3005"
+      - "3006:3006"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/smart_ai_hub
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-smart_ai_hub}
       - REDIS_URL=redis://redis:6379
       - INTERNAL_SERVICE_SECRET=internal_webhook_secret_12345
       - WEBHOOK_SECRET=webhook_signing_secret_12345
@@ -262,14 +357,16 @@ services:
   frontend:
     build: ./packages/frontend
     ports:
-      - "3004:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:80
+      - VITE_API_URL=http://localhost:3001
+      - VITE_APP_NAME=Smart AI Hub
+      - VITE_APP_VERSION=1.0.0
     networks:
       - smart-ai-hub
     depends_on:
-      nginx:
+      api-gateway:
         condition: service_healthy
     logging:
       driver: "json-file"

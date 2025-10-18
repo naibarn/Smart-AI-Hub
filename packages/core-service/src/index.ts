@@ -3,6 +3,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import { initializeMetrics, apiSecurityHeaders } from '@smart-ai-hub/shared';
 import creditRoutes from './routes/credit.routes';
+import creditReservationRoutes from './routes/credit-reservation.routes';
 import pointRoutes from './routes/point.routes';
 import paymentRoutes from './routes/payment.routes';
 import analyticsRoutes from './routes/analytics.routes';
@@ -69,6 +70,7 @@ app.use(rateLimiter);
 
 // Routes - Versioned (v1)
 app.use('/api/v1', creditRoutes);
+app.use('/api/v1/credits', creditReservationRoutes);
 app.use('/api/v1', pointRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);

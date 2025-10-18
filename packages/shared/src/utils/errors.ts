@@ -60,6 +60,13 @@ export const createNotFoundError = (message: string): AppError => {
 };
 
 /**
+ * Create a new AppError with 409 status code (Conflict)
+ */
+export const createConflictError = (message: string): AppError => {
+  return new AppError(message, 409);
+};
+
+/**
  * Create a new AppError with 500 status code (Internal Server Error)
  */
 export const createInternalServerError = (message: string): AppError => {

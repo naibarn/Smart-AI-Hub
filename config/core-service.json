@@ -1,0 +1,109 @@
+{
+  "server": {
+    "port": 3002,
+    "host": "0.0.0.0",
+    "cors": {
+      "origin": ["http://localhost:3000", "https://app.smartaihub.com"],
+      "credentials": true
+    }
+  },
+  "database": {
+    "url": "${DATABASE_URL}",
+    "pool": {
+      "min": 2,
+      "max": 10
+    }
+  },
+  "redis": {
+    "url": "${REDIS_URL}",
+    "keyPrefix": "smartaihub:"
+  },
+  "auth": {
+    "jwtSecret": "${JWT_SECRET}",
+    "jwtExpiresIn": "${JWT_ACCESS_EXPIRY}",
+    "refreshTokenSecret": "${JWT_REFRESH_SECRET}",
+    "refreshTokenExpiresIn": "${JWT_REFRESH_EXPIRY}"
+  },
+  "services": {
+    "rag": {
+      "embeddingModel": "${RAG_EMBEDDING_MODEL:text-embedding-ada-002}",
+      "chunkSize": "${RAG_CHUNK_SIZE:1000}",
+      "chunkOverlap": "${RAG_CHUNK_OVERLAP:200}",
+      "maxChunksPerDocument": "${RAG_MAX_CHUNKS_PER_DOCUMENT:1000}",
+      "serviceUrl": "${RAG_SERVICE_URL:http://localhost:3003}"
+    },
+    "pricing": {
+      "defaultCurrency": "${PRICING_DEFAULT_CURRENCY:USD}",
+      "creditConversionRate": "${PRICING_CREDIT_CONVERSION_RATE:0.01}",
+      "serviceUrl": "${PRICING_SERVICE_URL:http://localhost:3004}"
+    },
+    "agentSkills": {
+      "maxFileSize": "${SKILLS_MAX_FILE_SIZE:52428800}",
+      "approvalRequired": "${SKILLS_APPROVAL_REQUIRED:true}",
+      "autoApproveTrustedCreators": "${SKILLS_AUTO_APPROVE_TRUSTED_CREATORS:false}",
+      "serviceUrl": "${AGENT_SKILLS_SERVICE_URL:http://localhost:3005}"
+    }
+  },
+  "storage": {
+    "provider": "${STORAGE_PROVIDER:local}",
+    "aws": {
+      "accessKeyId": "${AWS_ACCESS_KEY_ID}",
+      "secretAccessKey": "${AWS_SECRET_ACCESS_KEY}",
+      "region": "${AWS_REGION}",
+      "bucket": "${AWS_S3_BUCKET}"
+    },
+    "gcp": {
+      "projectId": "${GCP_PROJECT_ID}",
+      "keyFile": "${GCP_KEY_FILE}",
+      "bucket": "${GCS_BUCKET}"
+    },
+    "azure": {
+      "account": "${AZURE_STORAGE_ACCOUNT}",
+      "key": "${AZURE_STORAGE_KEY}",
+      "container": "${AZURE_CONTAINER}"
+    },
+    "local": {
+      "path": "${LOCAL_STORAGE_PATH:./uploads}"
+    }
+  },
+  "email": {
+    "sendgrid": {
+      "apiKey": "${SENDGRID_API_KEY}"
+    },
+    "smtp": {
+      "host": "${SMTP_HOST}",
+      "port": "${SMTP_PORT}",
+      "user": "${SMTP_USER}",
+      "pass": "${SMTP_PASS}"
+    }
+  },
+  "oauth": {
+    "google": {
+      "clientId": "${GOOGLE_CLIENT_ID}",
+      "clientSecret": "${GOOGLE_CLIENT_SECRET}",
+      "callbackUrl": "${OAUTH_CALLBACK_URL}"
+    }
+  },
+  "payment": {
+    "stripe": {
+      "secretKey": "${STRIPE_SECRET_KEY}"
+    }
+  },
+  "ai": {
+    "openai": {
+      "apiKey": "${OPENAI_API_KEY}"
+    },
+    "anthropic": {
+      "apiKey": "${ANTHROPIC_API_KEY}"
+    },
+    "google": {
+      "apiKey": "${GOOGLE_AI_API_KEY}"
+    }
+  },
+  "monitoring": {
+    "sentry": {
+      "dsn": "${SENTRY_DSN}"
+    },
+    "logLevel": "${LOG_LEVEL:info}"
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "api": {
+    "baseUrl": "${VITE_API_URL:http://localhost:3001}",
+    "timeout": 30000,
+    "retries": 3
+  },
+  "app": {
+    "name": "${VITE_APP_NAME:Smart AI Hub}",
+    "version": "${VITE_APP_VERSION:1.0.0}",
+    "description": "Smart AI Hub - Your AI-powered platform",
+    "author": "Smart AI Hub Team",
+    "homepage": "https://smartaihub.com"
+  },
+  "features": {
+    "rag": {
+      "enabled": true,
+      "maxFileSize": 52428800,
+      "supportedFormats": ["pdf", "docx", "txt", "md"],
+      "maxQueryLength": 1000
+    },
+    "pricing": {
+      "enabled": true,
+      "defaultCurrency": "USD",
+      "supportedCurrencies": ["USD", "EUR", "GBP", "JPY"]
+    },
+    "agentSkills": {
+      "enabled": true,
+      "maxSkillsPerPage": 12,
+      "maxReviewsPerPage": 10,
+      "ratingRange": {
+        "min": 1,
+        "max": 5
+      }
+    },
+    "analytics": {
+      "enabled": true,
+      "trackingId": "${VITE_GA_TRACKING_ID}"
+    },
+    "notifications": {
+      "enabled": true,
+      "types": ["info", "success", "warning", "error"]
+    }
+  },
+  "ui": {
+    "theme": {
+      "default": "light",
+      "available": ["light", "dark", "auto"],
+      "primaryColor": "#1976d2",
+      "secondaryColor": "#dc004e"
+    },
+    "language": {
+      "default": "en",
+      "available": ["en", "es", "fr", "de", "ja", "zh", "th"],
+      "fallback": "en"
+    },
+    "timezone": {
+      "default": "UTC",
+      "autoDetect": true
+    },
+    "layout": {
+      "sidebar": {
+        "collapsed": false,
+        "width": 240,
+        "collapsedWidth": 64
+      },
+      "header": {
+        "height": 64,
+        "fixed": true
+      },
+      "footer": {
+        "height": 48,
+        "fixed": false
+      }
+    },
+    "pagination": {
+      "defaultPageSize": 10,
+      "pageSizeOptions": [5, 10, 20, 50, 100]
+    }
+  },
+  "auth": {
+    "tokenStorage": "localStorage",
+    "autoRefresh": true,
+    "refreshThreshold": 300,
+    "redirectAfterLogin": "/dashboard",
+    "redirectAfterLogout": "/login"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 300,
+    "maxSize": 100,
+    "strategy": "lru"
+  },
+  "errorHandling": {
+    "global": true,
+    "showToast": true,
+    "logToConsole": true,
+    "reportToService": "${VITE_SENTRY_DSN}"
+  },
+  "performance": {
+    "lazyLoading": true,
+    "codeSplitting": true,
+    "minify": true,
+    "sourcemaps": false
+  },
+  "development": {
+    "mockApi": false,
+    "debugMode": false,
+    "showPerformanceMetrics": false
+  },
+  "routes": {
+    "public": ["/", "/login", "/register", "/forgot-password"],
+    "protected": ["/dashboard", "/profile", "/settings"],
+    "admin": ["/admin", "/admin/users", "/admin/analytics"]
+  },
+  "websocket": {
+    "enabled": true,
+    "url": "${VITE_WS_URL:ws://localhost:3001}",
+    "reconnectInterval": 5000,
+    "maxReconnectAttempts": 10
+  },
+  "fileUpload": {
+    "maxFileSize": 52428800,
+    "maxFiles": 10,
+    "allowedTypes": [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain",
+      "text/markdown"
+    ],
+    "chunkSize": 1048576,
+    "parallelUploads": 3
+  },
+  "markdown": {
+    "breaks": true,
+    "linkify": true,
+    "typographer": true,
+    "highlight": true,
+    "tables": true,
+    "strikethrough": true
+  },
+  "charts": {
+    "defaultTheme": "light",
+    "animation": true,
+    "responsive": true,
+    "maintainAspectRatio": false
+  }
+}

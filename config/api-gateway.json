@@ -1,0 +1,135 @@
+{
+  "server": {
+    "port": "${API_GATEWAY_PORT:3001}",
+    "host": "0.0.0.0"
+  },
+  "services": {
+    "core": {
+      "url": "${CORE_SERVICE_URL:http://localhost:3002}",
+      "timeout": 30000,
+      "retries": 3,
+      "circuitBreaker": {
+        "enabled": true,
+        "threshold": 5,
+        "timeout": 60000
+      }
+    },
+    "rag": {
+      "url": "${RAG_SERVICE_URL:http://localhost:3003}",
+      "timeout": 60000,
+      "retries": 2,
+      "circuitBreaker": {
+        "enabled": true,
+        "threshold": 5,
+        "timeout": 60000
+      }
+    },
+    "pricing": {
+      "url": "${PRICING_SERVICE_URL:http://localhost:3004}",
+      "timeout": 30000,
+      "retries": 3,
+      "circuitBreaker": {
+        "enabled": true,
+        "threshold": 5,
+        "timeout": 60000
+      }
+    },
+    "agentSkills": {
+      "url": "${AGENT_SKILLS_SERVICE_URL:http://localhost:3005}",
+      "timeout": 30000,
+      "retries": 3,
+      "circuitBreaker": {
+        "enabled": true,
+        "threshold": 5,
+        "timeout": 60000
+      }
+    }
+  },
+  "rateLimiting": {
+    "windowMs": "${RATE_LIMIT_WINDOW:60000}",
+    "max": "${RATE_LIMIT_MAX:100}",
+    "message": "Too many requests from this IP, please try again later.",
+    "standardHeaders": true,
+    "legacyHeaders": false
+  },
+  "cors": {
+    "origin": ["http://localhost:3000", "https://app.smartaihub.com"],
+    "credentials": true,
+    "optionsSuccessStatus": 204
+  },
+  "security": {
+    "helmet": {
+      "contentSecurityPolicy": {
+        "directives": {
+          "defaultSrc": ["'self'"],
+          "styleSrc": ["'self'", "'unsafe-inline'"],
+          "scriptSrc": ["'self'"],
+          "imgSrc": ["'self'", "data:", "https:"]
+        }
+      }
+    },
+    "compression": {
+      "level": 6,
+      "threshold": 1024
+    }
+  },
+  "logging": {
+    "level": "${LOG_LEVEL:info}",
+    "format": "combined",
+    "skipPaths": ["/health", "/metrics"]
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "path": "/metrics"
+    },
+    "healthCheck": {
+      "enabled": true,
+      "path": "/health",
+      "interval": 30000
+    }
+  },
+  "cache": {
+    "redis": {
+      "url": "${REDIS_URL}",
+      "ttl": 300,
+      "keyPrefix": "api-gateway:"
+    },
+    "routes": [
+      {
+        "path": "/api/pricing/rules",
+        "ttl": 600
+      },
+      {
+        "path": "/api/agent-skills/categories",
+        "ttl": 1800
+      }
+    ]
+  },
+  "authentication": {
+    "jwt": {
+      "secret": "${JWT_SECRET}",
+      "algorithms": ["HS256"],
+      "requestProperty": "user",
+      "getTokenFromHeader": true,
+      "getTokenFromQuery": true
+    },
+    "publicPaths": [
+      "/health",
+      "/metrics",
+      "/api/auth/login",
+      "/api/auth/register",
+      "/api/auth/oauth2/google",
+      "/api/auth/oauth2/callback",
+      "/api/pricing/calculate"
+    ]
+  },
+  "proxy": {
+    "timeout": 30000,
+    "changeOrigin": true,
+    "secure": false,
+    "xfwd": true,
+    "preserveHeaderKeyCase": true,
+    "logLevel": "debug"
+  }
+}

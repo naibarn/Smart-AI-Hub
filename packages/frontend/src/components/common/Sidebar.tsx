@@ -27,6 +27,9 @@ import {
   ChevronUp,
   X,
   Webhook,
+  Database,
+  Calculator,
+  Store,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -55,11 +58,31 @@ const sidebarItems: SidebarItem[] = [
     path: '/',
   },
   {
+    id: 'rag-system',
+    label: 'RAG System',
+    icon: <Database size={20} />,
+    path: '/rag-system',
+    badge: 'New',
+  },
+  {
+    id: 'pricing-system',
+    label: 'Pricing System',
+    icon: <Calculator size={20} />,
+    path: '/pricing-system',
+    badge: 'New',
+  },
+  {
+    id: 'skills-marketplace',
+    label: 'Skills Marketplace',
+    icon: <Store size={20} />,
+    path: '/skills-marketplace',
+    badge: 'New',
+  },
+  {
     id: 'credits',
     label: 'Credits',
     icon: <CreditCard size={20} />,
     path: '/credits',
-    badge: 'New',
   },
   {
     id: 'analytics',
