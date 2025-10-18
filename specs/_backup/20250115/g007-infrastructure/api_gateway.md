@@ -1,14 +1,15 @@
 ---
-title: "Api Gateway"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-10-15"
-updated_at: "2025-10-15"
-type: "specification"
-description: "Comprehensive specification for api_gateway"
+title: 'Api Gateway'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-10-15'
+updated_at: '2025-10-15'
+type: 'specification'
+description: 'Comprehensive specification for api_gateway'
 ---
+
 # API Gateway Service
 
 ## Overview
@@ -122,27 +123,33 @@ const proxyConfig = {
 - Performance metrics collection
 - Error tracking and reporting
 - Health check endpoints for monitoring systems
+
 ## Endpoints
+
 - Service shall provide RESTful API endpoints
 - All endpoints must follow consistent naming conventions
 - Response formats shall be standardized
 
 ## Authentication
+
 - Service shall implement proper authentication mechanisms
 - JWT tokens must be validated for protected endpoints
 - Role-based access control shall be enforced
 
 ## Error Handling
+
 - Proper error responses must be returned
 - Error codes shall follow standard conventions
 - Logging must be implemented for debugging
 
 ## Performance Requirements
+
 - Service shall respond within acceptable time limits
 - Resource usage must be optimized
 - Scalability considerations shall be addressed
 
 ## Deployment Requirements
+
 - Service shall be containerized for consistent deployment
 - Configuration must be externalized and environment-specific
 - Rolling updates shall be supported for zero-downtime deployment

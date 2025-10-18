@@ -62,6 +62,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -108,47 +109,47 @@ Authorization: Bearer <your-jwt-token>
 
 ## Base URLs
 
-| Environment | Base URL |
-|-------------|-----------|
-| Development | `http://localhost:3001` |
-| Staging | `https://api-staging.smartaihub.com` |
-| Production | `https://api.smartaihub.com` |
+| Environment | Base URL                             |
+| ----------- | ------------------------------------ |
+| Development | `http://localhost:3001`              |
+| Staging     | `https://api-staging.smartaihub.com` |
+| Production  | `https://api.smartaihub.com`         |
 
 ## Environment-Specific URLs
 
 ### Redirect URIs
 
-| Environment | OAuth Redirect URI |
-|-------------|-------------------|
-| Production | `https://smartaihub.com/auth/callback` |
-| Staging | `https://staging.smartaihub.com/auth/callback` |
-| Development | `http://localhost:3000/auth/callback` |
+| Environment | OAuth Redirect URI                             |
+| ----------- | ---------------------------------------------- |
+| Production  | `https://smartaihub.com/auth/callback`         |
+| Staging     | `https://staging.smartaihub.com/auth/callback` |
+| Development | `http://localhost:3000/auth/callback`          |
 
 ### Webhook URLs
 
-| Environment | Webhook URL |
-|-------------|-------------|
-| Production | `https://smartaihub.com/webhooks/smartaihub` |
-| Staging | `https://staging.smartaihub.com/webhooks/smartaihub` |
-| Development | `http://localhost:3000/webhooks/smartaihub` |
+| Environment | Webhook URL                                          |
+| ----------- | ---------------------------------------------------- |
+| Production  | `https://smartaihub.com/webhooks/smartaihub`         |
+| Staging     | `https://staging.smartaihub.com/webhooks/smartaihub` |
+| Development | `http://localhost:3000/webhooks/smartaihub`          |
 
 ### Application URLs
 
-| Environment | Application URL |
-|-------------|-----------------|
-| Production | `https://smartaihub.com` |
-| Staging | `https://staging.smartaihub.com` |
-| Development | `http://localhost:3000` |
+| Environment | Application URL                  |
+| ----------- | -------------------------------- |
+| Production  | `https://smartaihub.com`         |
+| Staging     | `https://staging.smartaihub.com` |
+| Development | `http://localhost:3000`          |
 
 ## Common Headers
 
-| Header | Description | Required |
-|--------|-------------|----------|
-| `Authorization` | Bearer token for authentication | Yes (except auth endpoints) |
-| `Content-Type` | Media type of the request body | Yes for POST/PUT/PATCH |
-| `Accept` | Media type acceptable for the response | Optional |
-| `X-Request-ID` | Unique request identifier for debugging | Optional |
-| `X-Client-Version` | Client application version | Optional |
+| Header             | Description                             | Required                    |
+| ------------------ | --------------------------------------- | --------------------------- |
+| `Authorization`    | Bearer token for authentication         | Yes (except auth endpoints) |
+| `Content-Type`     | Media type of the request body          | Yes for POST/PUT/PATCH      |
+| `Accept`           | Media type acceptable for the response  | Optional                    |
+| `X-Request-ID`     | Unique request identifier for debugging | Optional                    |
+| `X-Client-Version` | Client application version              | Optional                    |
 
 ## Response Format
 
@@ -221,42 +222,42 @@ All API responses follow a consistent format:
 
 ### HTTP Status Codes
 
-| Code | Description |
-|------|-------------|
-| `200` | OK - Request successful |
-| `201` | Created - Resource created successfully |
+| Code  | Description                                          |
+| ----- | ---------------------------------------------------- |
+| `200` | OK - Request successful                              |
+| `201` | Created - Resource created successfully              |
 | `204` | No Content - Request successful, no content returned |
-| `400` | Bad Request - Invalid request data |
-| `401` | Unauthorized - Authentication required |
-| `403` | Forbidden - Insufficient permissions |
-| `404` | Not Found - Resource not found |
-| `409` | Conflict - Resource conflict |
-| `422` | Unprocessable Entity - Validation failed |
-| `429` | Too Many Requests - Rate limit exceeded |
-| `500` | Internal Server Error - Server error |
+| `400` | Bad Request - Invalid request data                   |
+| `401` | Unauthorized - Authentication required               |
+| `403` | Forbidden - Insufficient permissions                 |
+| `404` | Not Found - Resource not found                       |
+| `409` | Conflict - Resource conflict                         |
+| `422` | Unprocessable Entity - Validation failed             |
+| `429` | Too Many Requests - Rate limit exceeded              |
+| `500` | Internal Server Error - Server error                 |
 
 ### Error Codes
 
-| Code | Description |
-|------|-------------|
-| `VALIDATION_ERROR` | Request validation failed |
-| `AUTHENTICATION_FAILED` | Invalid credentials |
-| `AUTHORIZATION_FAILED` | Insufficient permissions |
-| `RESOURCE_NOT_FOUND` | Resource not found |
-| `RESOURCE_CONFLICT` | Resource conflict |
-| `RATE_LIMIT_EXCEEDED` | Rate limit exceeded |
-| `INTERNAL_ERROR` | Internal server error |
-| `SERVICE_UNAVAILABLE` | Service temporarily unavailable |
+| Code                    | Description                     |
+| ----------------------- | ------------------------------- |
+| `VALIDATION_ERROR`      | Request validation failed       |
+| `AUTHENTICATION_FAILED` | Invalid credentials             |
+| `AUTHORIZATION_FAILED`  | Insufficient permissions        |
+| `RESOURCE_NOT_FOUND`    | Resource not found              |
+| `RESOURCE_CONFLICT`     | Resource conflict               |
+| `RATE_LIMIT_EXCEEDED`   | Rate limit exceeded             |
+| `INTERNAL_ERROR`        | Internal server error           |
+| `SERVICE_UNAVAILABLE`   | Service temporarily unavailable |
 
 ## Rate Limiting
 
 The API implements rate limiting to ensure fair usage:
 
-| Endpoint | Rate Limit |
-|----------|------------|
-| Authentication | 10 requests per minute |
-| General API | 100 requests per minute |
-| MCP endpoints | 60 requests per minute |
+| Endpoint        | Rate Limit              |
+| --------------- | ----------------------- |
+| Authentication  | 10 requests per minute  |
+| General API     | 100 requests per minute |
+| MCP endpoints   | 60 requests per minute  |
 | Admin endpoints | 200 requests per minute |
 
 Rate limit headers are included in responses:
@@ -278,6 +279,7 @@ POST /api/auth/login
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -286,6 +288,7 @@ POST /api/auth/login
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -315,6 +318,7 @@ POST /api/auth/register
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -331,6 +335,7 @@ POST /api/auth/refresh
 ```
 
 **Request Body:**
+
 ```json
 {
   "refreshToken": "your-refresh-token"
@@ -351,6 +356,7 @@ POST /api/auth/forgot-password
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -364,6 +370,7 @@ POST /api/auth/reset-password
 ```
 
 **Request Body:**
+
 ```json
 {
   "token": "reset-token",
@@ -381,6 +388,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -405,6 +413,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "firstName": "John",
@@ -423,6 +432,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "currentPassword": "currentPassword123",
@@ -440,6 +450,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -460,6 +471,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -492,6 +504,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "packageId": "pkg_starter",
@@ -510,6 +523,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -532,6 +546,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -570,6 +585,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "creditAmount": 5
@@ -577,6 +593,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -603,6 +620,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "pointsAmount": 10000,
@@ -615,6 +633,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -639,6 +658,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -662,6 +682,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -685,6 +706,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -710,6 +732,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "amount": 100,
@@ -722,6 +745,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -742,6 +766,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -769,6 +794,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "model": "gpt-4",
@@ -789,6 +815,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -846,6 +873,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -892,6 +920,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "emailNotifications": true,
@@ -922,6 +951,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -965,6 +995,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "role": "admin",
@@ -981,6 +1012,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "amount": 500,
@@ -997,6 +1029,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1028,6 +1061,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1059,6 +1093,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "rate": 1200,
@@ -1067,6 +1102,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1096,6 +1132,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "fromType": "credits",
@@ -1106,6 +1143,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1134,6 +1172,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1154,6 +1193,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1192,6 +1232,7 @@ Authorization: Bearer <your-admin-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "url": "https://smartaihub.com/webhooks/smartaihub",
@@ -1203,14 +1244,14 @@ Authorization: Bearer <your-admin-jwt-token>
 
 ### Webhook Events
 
-| Event | Description |
-|-------|-------------|
-| `user.created` | User account created |
-| `user.updated` | User profile updated |
-| `credit.purchased` | Credits purchased |
-| `credit.used` | Credits consumed |
-| `payment.completed` | Payment processed |
-| `payment.failed` | Payment failed |
+| Event               | Description          |
+| ------------------- | -------------------- |
+| `user.created`      | User account created |
+| `user.updated`      | User profile updated |
+| `credit.purchased`  | Credits purchased    |
+| `credit.used`       | Credits consumed     |
+| `payment.completed` | Payment processed    |
+| `payment.failed`    | Payment failed       |
 
 ### Webhook Payload
 
@@ -1237,11 +1278,8 @@ Verify webhook signatures using the secret provided during configuration:
 const crypto = require('crypto');
 
 function verifyWebhook(payload, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
-  
+  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
   return `sha256=${expectedSignature}` === signature;
 }
 ```
@@ -1259,13 +1297,13 @@ import { SmartAIHubClient } from '@smartaihub/client';
 
 const client = new SmartAIHubClient({
   baseURL: 'https://api.smartaihub.com',
-  apiKey: 'your-api-key'
+  apiKey: 'your-api-key',
 });
 
 // Chat completion
 const response = await client.chat.completions.create({
   model: 'gpt-4',
-  messages: [{ role: 'user', content: 'Hello!' }]
+  messages: [{ role: 'user', content: 'Hello!' }],
 });
 ```
 

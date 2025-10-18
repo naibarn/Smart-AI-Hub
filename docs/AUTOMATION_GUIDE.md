@@ -1,8 +1,9 @@
 ---
-title: "AUTOMATION_GUIDE"
-author: "Development Team"
-version: "1.0.0"
+title: 'AUTOMATION_GUIDE'
+author: 'Development Team'
+version: '1.0.0'
 ---
+
 # Smart AI Hub Automation Guide
 
 [![License](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
@@ -61,17 +62,20 @@ This guide explains the automation systems implemented for the Smart AI Hub proj
 **File**: `.github/workflows/validate-specs.yml`
 
 **Triggers**:
+
 - Push to main/develop branches (specs/ directory changes)
 - Pull requests to main branch
 - Manual workflow dispatch
 
 **Jobs**:
+
 - **validate-specs**: Validates specification files for structure and completeness
 - **spec-quality-check**: Checks spec quality metrics and consistency
 - **spec-coverage**: Generates spec coverage reports
 - **notify-results**: Sends notifications about validation results
 
 **Key Features**:
+
 - Validates specification structure and format
 - Checks for broken links
 - Generates validation reports
@@ -83,18 +87,21 @@ This guide explains the automation systems implemented for the Smart AI Hub proj
 **File**: `.github/workflows/quality-report.yml`
 
 **Triggers**:
+
 - Push to main/develop branches
 - Pull requests to main branch
 - Daily schedule (9:00 AM UTC)
 - Manual workflow dispatch
 
 **Jobs**:
+
 - **generate-quality-report**: Comprehensive quality analysis
 - **security-report**: Security vulnerability scanning
 - **performance-report**: Performance metrics and Lighthouse audits
 - **notify-team**: Team notifications
 
 **Key Features**:
+
 - Code quality analysis (linting, type checking, complexity)
 - Test coverage reporting
 - Security vulnerability scanning
@@ -110,10 +117,12 @@ This guide explains the automation systems implemented for the Smart AI Hub proj
 **File**: `.github/workflows/build-test.yml` (referenced but not shown in tasks)
 
 **Triggers**:
+
 - Push to any branch
 - Pull requests
 
 **Jobs**:
+
 - **test**: Run unit and integration tests
 - **build**: Build application
 - **deploy**: Deploy to staging/production
@@ -127,6 +136,7 @@ This guide explains the automation systems implemented for the Smart AI Hub proj
 **Purpose**: Run checks before allowing commits to be made
 
 **Checks Performed**:
+
 1. **Linting**: Code style and formatting
 2. **Type Checking**: TypeScript type validation
 3. **Unit Tests**: Run relevant unit tests
@@ -141,6 +151,7 @@ This guide explains the automation systems implemented for the Smart AI Hub proj
 12. **Security Audit**: Check for vulnerabilities
 
 **Usage**:
+
 ```bash
 # Automatically runs on git commit
 git commit -m "feat: add new feature"
@@ -155,6 +166,7 @@ git commit -m "feat: add new feature"
 **Purpose**: Provides a standardized template for creating specifications
 
 **Template Sections**:
+
 - Overview
 - Requirements (Functional & Non-Functional)
 - Acceptance Criteria
@@ -168,6 +180,7 @@ git commit -m "feat: add new feature"
 - Approval
 
 **Usage**:
+
 ```bash
 # Create new spec from template
 cp .spec-automation/templates/spec-template.md specs/01_requirements/functional/new_feature.md
@@ -176,6 +189,7 @@ cp .spec-automation/templates/spec-template.md specs/01_requirements/functional/
 ### Specification Validation
 
 **Features**:
+
 - Structure validation against template
 - Content completeness checks
 - Link validation
@@ -189,27 +203,32 @@ cp .spec-automation/templates/spec-template.md specs/01_requirements/functional/
 The automation system tracks the following quality metrics:
 
 #### Code Quality
+
 - **Lint Score**: Number and severity of linting issues
 - **Type Coverage**: Percentage of code with TypeScript types
 - **Complexity**: Cyclomatic complexity metrics
 - **Duplication**: Code duplication percentage
 
 #### Testing
+
 - **Test Coverage**: Line, branch, and function coverage
 - **Test Pass Rate**: Percentage of passing tests
 - **Test Performance**: Test execution time
 
 #### Security
+
 - **Vulnerabilities**: Number of security vulnerabilities
 - **Dependency Security**: Outdated or vulnerable dependencies
 - **Code Security**: Security issues in source code
 
 #### Documentation
+
 - **API Documentation**: Coverage of API endpoints
 - **Code Documentation**: JSDoc coverage
 - **Specification Completeness**: Spec completion status
 
 #### Performance
+
 - **Bundle Size**: Application bundle size
 - **Load Time**: Application load time
 - **Lighthouse Scores**: Performance, accessibility, best practices, SEO
@@ -231,6 +250,7 @@ Overall Quality Score = (
 ### Quality Reports
 
 **Types of Reports**:
+
 1. **Comprehensive Report**: Full quality analysis with all metrics
 2. **Code Quality Report**: Focus on code quality metrics
 3. **Test Coverage Report**: Detailed test coverage analysis
@@ -238,6 +258,7 @@ Overall Quality Score = (
 5. **Performance Report**: Performance metrics and analysis
 
 **Report Formats**:
+
 - JSON (machine-readable)
 - HTML (human-readable)
 - Markdown (documentation)
@@ -264,6 +285,7 @@ The system sends alerts for:
 ### Dashboard
 
 Quality metrics are displayed on:
+
 - GitHub repository README (quality badge)
 - GitHub Pages (detailed reports)
 - Internal dashboards
@@ -281,18 +303,21 @@ Quality metrics are displayed on:
 ### Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/your-username/Smart-AI-Hub.git
    cd Smart-AI-Hub
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    npm run install:all
    ```
 
 3. **Set up Git hooks**:
+
    ```bash
    npm run prepare
    ```
@@ -307,13 +332,13 @@ Quality metrics are displayed on:
 
 Configure the following secrets in GitHub repository settings:
 
-| Secret | Description |
-|--------|-------------|
-| `NPM_TOKEN` | npm authentication token |
-| `SLACK_WEBHOOK` | Slack webhook URL |
-| `TEAMS_WEBHOOK` | Teams webhook URL |
-| `LHCI_GITHUB_APP_TOKEN` | Lighthouse CI token |
-| `SNYK_TOKEN` | Snyk authentication token |
+| Secret                  | Description               |
+| ----------------------- | ------------------------- |
+| `NPM_TOKEN`             | npm authentication token  |
+| `SLACK_WEBHOOK`         | Slack webhook URL         |
+| `TEAMS_WEBHOOK`         | Teams webhook URL         |
+| `LHCI_GITHUB_APP_TOKEN` | Lighthouse CI token       |
+| `SNYK_TOKEN`            | Snyk authentication token |
 
 ### Tool Configuration
 
@@ -367,6 +392,7 @@ Configure the following secrets in GitHub repository settings:
 ### Commit Message Format
 
 Follow conventional commit format:
+
 ```
 type(scope): description
 
@@ -376,6 +402,7 @@ type(scope): description
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -409,6 +436,7 @@ Types:
 **Problem**: Pre-commit hook fails with errors
 
 **Solutions**:
+
 1. Check the specific error message
 2. Run the failing check manually to debug
 3. Fix the identified issues
@@ -430,6 +458,7 @@ npm run lint:fix
 **Problem**: GitHub Actions workflow fails
 
 **Solutions**:
+
 1. Check the workflow logs for specific errors
 2. Review the workflow configuration
 3. Check for missing secrets or configuration
@@ -440,6 +469,7 @@ npm run lint:fix
 **Problem**: Quality report generation fails
 
 **Solutions**:
+
 1. Check the report generation script
 2. Verify all dependencies are installed
 3. Check for missing required files

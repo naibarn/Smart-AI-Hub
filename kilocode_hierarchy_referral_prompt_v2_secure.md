@@ -1,12 +1,12 @@
 ---
-title: "Multi-tier User Hierarchy and Referral System Specification"
-author: "Development Team"
-version: "2.0.0"
-status: "completed"
-priority: "high"
-created_at: "2025-01-16"
-updated_at: "2025-10-16"
-type: "specification"
+title: 'Multi-tier User Hierarchy and Referral System Specification'
+author: 'Development Team'
+version: '2.0.0'
+status: 'completed'
+priority: 'high'
+created_at: '2025-01-16'
+updated_at: '2025-10-16'
+type: 'specification'
 description: "Comprehensive specification for Smart AI Hub's Multi-tier User Hierarchy and Referral System with security-focused implementation requirements"
 ---
 

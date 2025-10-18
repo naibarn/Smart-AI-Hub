@@ -1,14 +1,14 @@
 ---
-title: "Infrastructure Services"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "high"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-type: "specification"
-description: "Comprehensive specification for infrastructure services including API Gateway and Core Service"
-spec_id: "EPIC-003"
+title: 'Infrastructure Services'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'high'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+type: 'specification'
+description: 'Comprehensive specification for infrastructure services including API Gateway and Core Service'
+spec_id: 'EPIC-003'
 ---
 
 # Infrastructure Services
@@ -20,12 +20,14 @@ This specification defines the infrastructure services that form the backbone of
 ## Technology Stack
 
 ### API Gateway
+
 - **Runtime**: Node.js 20 LTS
 - **Framework**: Express.js 4.x
 - **Port**: 3000
 - **Language**: TypeScript 5.x
 
 ### Core Service
+
 - **Runtime**: Node.js 20 LTS
 - **Framework**: Express.js 4.x
 - **Port**: 3002
@@ -36,6 +38,7 @@ This specification defines the infrastructure services that form the backbone of
 ## Components
 
 ### API Gateway Components
+
 - **Express.js HTTP Server**: Core web server handling incoming requests
 - **http-proxy-middleware**: Service routing and proxying to backend services
 - **Rate Limiter**: Redis-backed rate limiting implementation
@@ -45,6 +48,7 @@ This specification defines the infrastructure services that form the backbone of
 - **Health Check Endpoint**: Service health monitoring
 
 ### Core Service Components
+
 - **User Management Service**: CRUD operations for user accounts
 - **Role & Permission Service**: RBAC implementation
 - **Credit Management Service**: Track and manage user credits
@@ -142,6 +146,7 @@ const proxyConfig = {
 ## Database Schema
 
 ### User Model
+
 ```typescript
 model User {
   id            String   @id @default(uuid())
@@ -162,6 +167,7 @@ model User {
 ```
 
 ### Credit Account Model
+
 ```typescript
 model CreditAccount {
   id        String   @id @default(uuid())
@@ -179,6 +185,7 @@ model CreditAccount {
 ```
 
 ### Credit Transaction Model
+
 ```typescript
 model CreditTransaction {
   id          String   @id @default(uuid())
@@ -199,6 +206,7 @@ model CreditTransaction {
 ## Business Logic
 
 ### Credit Deduction with Atomic Transactions
+
 The service ensures atomic credit deduction operations:
 
 ```typescript
@@ -244,12 +252,14 @@ async function deductCredits(
 ```
 
 ### Usage Calculation & Billing
+
 - Track token usage for each LLM provider
 - Calculate credit costs based on usage
 - Generate billing reports
 - Handle usage limits and quotas
 
 ### Role Hierarchy Enforcement
+
 - Implement role-based access control
 - Enforce role hierarchy (admin > manager > user > guest)
 - Cache permissions for performance

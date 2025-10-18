@@ -14,7 +14,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@prisma/client": "^5.7.1",
-    "@smart-ai-hub/shared": "^1.0.0",
+    "@smart-ai-hub/shared": "file:../shared",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

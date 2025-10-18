@@ -54,6 +54,7 @@ Retrieve the current point balance for the authenticated user.
 **Endpoint:** `GET /balance`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -71,10 +72,12 @@ Get paginated transaction history for the authenticated user.
 **Endpoint:** `GET /history`
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 20, max: 100)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -107,6 +110,7 @@ Exchange credits from the user's credit account for points.
 **Endpoint:** `POST /exchange`
 
 **Request Body:**
+
 ```json
 {
   "creditAmount": 10
@@ -114,6 +118,7 @@ Exchange credits from the user's credit account for points.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -133,6 +138,7 @@ Claim the daily login reward if available.
 **Endpoint:** `POST /daily-reward/claim`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -150,6 +156,7 @@ Check if the daily reward is available for claiming.
 **Endpoint:** `GET /daily-reward/status`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -169,6 +176,7 @@ Purchase points using real money through Stripe.
 **Endpoint:** `POST /purchase`
 
 **Request Body:**
+
 ```json
 {
   "pointsAmount": 10000,
@@ -179,6 +187,7 @@ Purchase points using real money through Stripe.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -191,7 +200,7 @@ Purchase points using real money through Stripe.
 
 ## Admin Endpoints
 
-*Note: Admin endpoints require additional admin permissions.*
+_Note: Admin endpoints require additional admin permissions._
 
 ### Get Exchange Rates
 
@@ -200,6 +209,7 @@ Get all exchange rates configured in the system.
 **Endpoint:** `GET /admin/exchange-rates`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -224,6 +234,7 @@ Update an existing exchange rate or create a new one.
 **Endpoint:** `PUT /admin/exchange-rates`
 
 **Request Body:**
+
 ```json
 {
   "name": "credit_to_points",
@@ -233,6 +244,7 @@ Update an existing exchange rate or create a new one.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -253,6 +265,7 @@ Manually adjust a user's point balance (admin only).
 **Endpoint:** `POST /admin/adjust-points`
 
 **Request Body:**
+
 ```json
 {
   "userId": "user_123",
@@ -262,6 +275,7 @@ Manually adjust a user's point balance (admin only).
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -279,6 +293,7 @@ Get comprehensive statistics about the points system.
 **Endpoint:** `GET /admin/stats`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -299,6 +314,7 @@ Get statistics about automatic top-ups.
 **Endpoint:** `GET /admin/auto-topup-stats`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -322,19 +338,19 @@ Get statistics about automatic top-ups.
 
 ## Error Codes
 
-| Code | Description |
-|------|-------------|
-| `INSUFFICIENT_POINTS` | Not enough points to complete the operation |
-| `INSUFFICIENT_CREDITS` | Not enough credits to exchange for points |
-| `DAILY_REWARD_CLAIMED` | Daily reward already claimed for today |
-| `DAILY_REWARDS_DISABLED` | Daily rewards are currently disabled |
-| `INVALID_AMOUNT` | Amount must be positive |
-| `POINT_ACCOUNT_NOT_FOUND` | User does not have a point account |
-| `EXCHANGE_RATE_NOT_FOUND` | Requested exchange rate does not exist |
-| `REASON_REQUIRED` | Reason is required for point adjustments |
-| `PAYMENT_FAILED` | Payment processing failed |
-| `UNAUTHORIZED` | User not authenticated |
-| `FORBIDDEN` | User lacks required permissions |
+| Code                      | Description                                 |
+| ------------------------- | ------------------------------------------- |
+| `INSUFFICIENT_POINTS`     | Not enough points to complete the operation |
+| `INSUFFICIENT_CREDITS`    | Not enough credits to exchange for points   |
+| `DAILY_REWARD_CLAIMED`    | Daily reward already claimed for today      |
+| `DAILY_REWARDS_DISABLED`  | Daily rewards are currently disabled        |
+| `INVALID_AMOUNT`          | Amount must be positive                     |
+| `POINT_ACCOUNT_NOT_FOUND` | User does not have a point account          |
+| `EXCHANGE_RATE_NOT_FOUND` | Requested exchange rate does not exist      |
+| `REASON_REQUIRED`         | Reason is required for point adjustments    |
+| `PAYMENT_FAILED`          | Payment processing failed                   |
+| `UNAUTHORIZED`            | User not authenticated                      |
+| `FORBIDDEN`               | User lacks required permissions             |
 
 ## Configuration
 
@@ -409,7 +425,7 @@ import { PointsClient } from '@smart-ai-hub/points-sdk';
 
 const client = new PointsClient({
   baseURL: 'https://api.smart-ai-hub.com/api/v1/points',
-  apiKey: 'your-api-key'
+  apiKey: 'your-api-key',
 });
 
 // Get balance
@@ -468,6 +484,7 @@ For support with the Points System API:
 ## Changelog
 
 ### v1.0.0 (2024-01-01)
+
 - Initial release of the Points System API
 - Core functionality for point management
 - Daily rewards system

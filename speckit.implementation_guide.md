@@ -2,7 +2,7 @@
 
 **Document Version**: 1.0  
 **Date**: October 14, 2025  
-**Purpose**: Step-by-step implementation guide for priority tasks  
+**Purpose**: Step-by-step implementation guide for priority tasks
 
 ---
 
@@ -46,11 +46,15 @@ export class ClaudeProvider implements LLMProvider {
         finishReason: response.stop_reason || 'stop',
       };
     } catch (error) {
-      throw new Error(`Claude API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Claude API error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  async *executeStream(request: LLMRequest): AsyncGenerator<{ content: string; finishReason?: string }> {
+  async *executeStream(
+    request: LLMRequest
+  ): AsyncGenerator<{ content: string; finishReason?: string }> {
     try {
       const stream = await this.anthropic.messages.create({
         model: request.model,
@@ -72,7 +76,9 @@ export class ClaudeProvider implements LLMProvider {
         }
       }
     } catch (error) {
-      throw new Error(`Claude streaming error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Claude streaming error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -80,10 +86,10 @@ export class ClaudeProvider implements LLMProvider {
     // Claude pricing: approximately $0.015 per 1K input tokens, $0.075 per 1K output tokens
     const inputTokens = this.estimateTokens(request.messages.join(' '));
     const estimatedOutputTokens = Math.max(100, inputTokens * 0.7);
-    
+
     const inputCost = (inputTokens / 1000) * 0.015;
     const outputCost = (estimatedOutputTokens / 1000) * 0.075;
-    
+
     return Math.ceil((inputCost + outputCost) * 10); // Convert to credits (1 credit = $0.10)
   }
 
@@ -101,7 +107,7 @@ export class ClaudeProvider implements LLMProvider {
   }
 
   private convertMessages(messages: any[]): Anthropic.MessageParam[] {
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
     }));
@@ -131,14 +137,14 @@ export class ProviderManager {
       this.providers.set(name, instance);
       this.healthStatus.set(name, true);
     });
-    
+
     // Start health checking
     this.startHealthCheck();
   }
 
   async handleRequest(request: LLMRequest): Promise<LLMResponse | AsyncIterable<any>> {
     const provider = this.selectProvider(request);
-    
+
     if (!provider) {
       throw new Error('No available providers');
     }
@@ -155,13 +161,13 @@ export class ProviderManager {
       if (providerName) {
         this.healthStatus.set(providerName, false);
       }
-      
+
       // Try fallback provider
       const fallbackProvider = this.selectFallbackProvider(request);
       if (fallbackProvider) {
         return fallbackProvider.execute(request);
       }
-      
+
       throw error;
     }
   }
@@ -228,19 +234,20 @@ Update `packages/mcp-server/src/config/config.ts`:
 export const config = {
   PORT: parseInt(process.env.PORT || '3003'),
   NODE_ENV: process.env.NODE_ENV || 'development',
-  
+
   // Database
-  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/smart_ai_hub',
+  DATABASE_URL:
+    process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/smart_ai_hub',
   REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
-  
+
   // API Keys
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-  
+
   // WebSocket
   WS_HEARTBEAT_INTERVAL: parseInt(process.env.WS_HEARTBEAT_INTERVAL || '30000'),
   WS_CONNECTION_TIMEOUT: parseInt(process.env.WS_CONNECTION_TIMEOUT || '60000'),
-  
+
   // Credits
   CREDIT_COST_PER_TOKEN: {
     'gpt-3.5-turbo': 0.001,
@@ -253,12 +260,12 @@ export const config = {
 
 export function validateConfig(): void {
   const required = ['DATABASE_URL', 'REDIS_URL'];
-  const missing = required.filter(key => !process.env[key]);
-  
+  const missing = required.filter((key) => !process.env[key]);
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
-  
+
   if (!config.openaiApiKey && !config.anthropicApiKey) {
     throw new Error('At least one AI provider API key must be configured');
   }
@@ -316,8 +323,11 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
 ];
 
 export class PaymentService {
-  async createCheckoutSession(userId: string, packageId: string): Promise<{ sessionId: string; url: string }> {
-    const packageInfo = CREDIT_PACKAGES.find(pkg => pkg.id === packageId);
+  async createCheckoutSession(
+    userId: string,
+    packageId: string
+  ): Promise<{ sessionId: string; url: string }> {
+    const packageInfo = CREDIT_PACKAGES.find((pkg) => pkg.id === packageId);
     if (!packageInfo) {
       throw new Error('Invalid package selected');
     }
@@ -468,7 +478,11 @@ export class PaymentService {
     logger.info('Payment failed', { paymentIntentId: paymentIntent.id });
   }
 
-  async getPaymentHistory(userId: string, page = 1, limit = 20): Promise<{
+  async getPaymentHistory(
+    userId: string,
+    page = 1,
+    limit = 20
+  ): Promise<{
     payments: any[];
     total: number;
     page: number;
@@ -530,7 +544,7 @@ const createCheckoutSchema = z.object({
 // Get available packages
 router.get('/packages', (req, res) => {
   res.json({
-    packages: CREDIT_PACKAGES.map(pkg => ({
+    packages: CREDIT_PACKAGES.map((pkg) => ({
       id: pkg.id,
       name: pkg.name,
       credits: pkg.credits,
@@ -546,7 +560,7 @@ router.post('/checkout', authenticateToken, async (req, res) => {
     const userId = req.user.id;
 
     const session = await paymentService.createCheckoutSession(userId, packageId);
-    
+
     res.json({
       sessionId: session.sessionId,
       url: session.url,
@@ -565,7 +579,7 @@ router.get('/history', authenticateToken, async (req, res) => {
     const limit = parseInt(req.query.limit as string) || 20;
 
     const history = await paymentService.getPaymentHistory(userId, page, limit);
-    
+
     res.json(history);
   } catch (error) {
     console.error('Failed to get payment history:', error);
@@ -717,7 +731,12 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'auth/register',
-  async ({ email, password, firstName, lastName }: {
+  async ({
+    email,
+    password,
+    firstName,
+    lastName,
+  }: {
     email: string;
     password: string;
     firstName: string;
@@ -729,22 +748,16 @@ export const register = createAsyncThunk(
   }
 );
 
-export const refreshToken = createAsyncThunk(
-  'auth/refreshToken',
-  async () => {
-    const response = await authApi.refreshToken();
-    localStorage.setItem('token', response.data.token);
-    return response.data;
-  }
-);
+export const refreshToken = createAsyncThunk('auth/refreshToken', async () => {
+  const response = await authApi.refreshToken();
+  localStorage.setItem('token', response.data.token);
+  return response.data;
+});
 
-export const logout = createAsyncThunk(
-  'auth/logout',
-  async () => {
-    await authApi.logout();
-    localStorage.removeItem('token');
-  }
-);
+export const logout = createAsyncThunk('auth/logout', async () => {
+  await authApi.logout();
+  localStorage.removeItem('token');
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -813,12 +826,11 @@ const authSlice = createSlice({
       });
 
     // Logout
-    builder
-      .addCase(logout.fulfilled, (state) => {
-        state.user = null;
-        state.token = null;
-        state.isAuthenticated = false;
-      });
+    builder.addCase(logout.fulfilled, (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+    });
   },
 });
 
@@ -1164,13 +1176,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {menuItems.find(item => item.path === location.pathname)?.text || 'Dashboard'}
           </Typography>
-          
+
           <IconButton color="inherit">
             <Badge badgeContent={0} color="error">
               <Notifications />
             </Badge>
           </IconButton>
-          
+
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -1187,7 +1199,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               {user?.profile?.firstName?.[0] || user?.email?.[0]?.toUpperCase()}
             </Avatar>
           </IconButton>
-          
+
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
@@ -1225,7 +1237,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </Menu>
         </Toolbar>
       </AppBar>
-      
+
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
@@ -1255,7 +1267,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {drawer}
         </Drawer>
       </Box>
-      
+
       <Box
         component="main"
         sx={{
@@ -1309,7 +1321,7 @@ services:
       - smart-ai-hub
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -1323,7 +1335,7 @@ services:
       - smart-ai-hub
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -1331,8 +1343,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
@@ -1343,13 +1355,13 @@ services:
       - api-gateway
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost/health']
       interval: 30s
       timeout: 10s
       retries: 3
 
   api-gateway:
-    build: 
+    build:
       context: ./packages/api-gateway
       dockerfile: Dockerfile.prod
     environment:
@@ -1373,7 +1385,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1399,7 +1411,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3001/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1423,7 +1435,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3002/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1444,7 +1456,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3003/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1483,7 +1495,7 @@ http {
     log_format main '$remote_addr - $remote_user [$time_local] "$request" '
                     '$status $body_bytes_sent "$http_referer" '
                     '"$http_user_agent" "$http_x_forwarded_for"';
-    
+
     access_log /var/log/nginx/access.log main;
     error_log /var/log/nginx/error.log warn;
 
@@ -1558,13 +1570,13 @@ http {
         # API Gateway
         location /api/ {
             limit_req zone=api burst=20 nodelay;
-            
+
             proxy_pass http://api-gateway:3000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            
+
             # WebSocket support
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
@@ -1574,7 +1586,7 @@ http {
         # Auth endpoints with stricter rate limiting
         location /api/auth/login {
             limit_req zone=auth burst=10 nodelay;
-            
+
             proxy_pass http://api-gateway:3000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
@@ -1680,7 +1692,7 @@ all_healthy=true
 for service in "${services[@]}"; do
     service_name=$(echo $service | cut -d: -f1)
     port=$(echo $service | cut -d: -f2)
-    
+
     if curl -f http://localhost:$port/health > /dev/null 2>&1; then
         echo "✅ $service_name is healthy"
     else
@@ -1732,10 +1744,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/packages'],
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-    '**/?(*.)+(spec|test).ts'
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
@@ -1824,10 +1833,7 @@ describe('Authentication API', () => {
         lastName: 'User',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(201);
 
       expect(response.body).toHaveProperty('user');
       expect(response.body.user.email).toBe(userData.email);
@@ -1844,26 +1850,17 @@ describe('Authentication API', () => {
       };
 
       // First registration
-      await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(201);
+      await request(app).post('/api/auth/register').send(userData).expect(201);
 
       // Second registration with same email
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData)
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send(userData).expect(400);
 
       expect(response.body).toHaveProperty('error');
       expect(response.body.error).toContain('already exists');
     });
 
     it('should validate required fields', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({})
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send({}).expect(400);
 
       expect(response.body).toHaveProperty('error');
     });
@@ -1872,14 +1869,12 @@ describe('Authentication API', () => {
   describe('POST /api/auth/login', () => {
     beforeEach(async () => {
       // Create a test user
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-          firstName: 'Test',
-          lastName: 'User',
-        });
+      await request(app).post('/api/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'Test',
+        lastName: 'User',
+      });
     });
 
     it('should login with valid credentials', async () => {
@@ -1925,15 +1920,13 @@ describe('Authentication API', () => {
     let token: string;
 
     beforeEach(async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-          firstName: 'Test',
-          lastName: 'User',
-        });
-      
+      const response = await request(app).post('/api/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'Test',
+        lastName: 'User',
+      });
+
       token = response.body.token;
     });
 
@@ -1949,9 +1942,7 @@ describe('Authentication API', () => {
     });
 
     it('should reject request without token', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .expect(401);
+      const response = await request(app).get('/api/auth/me').expect(401);
 
       expect(response.body).toHaveProperty('error');
     });
@@ -2029,6 +2020,7 @@ This implementation guide provides detailed, step-by-step instructions for compl
 4. **Testing examples** to ensure quality
 
 The implementation is prioritized based on the critical path to MVP launch:
+
 1. **Claude Integration** - Complete AI provider support
 2. **Payment System** - Enable revenue generation
 3. **Frontend UI** - User-facing components

@@ -177,6 +177,7 @@ Define the flow between steps:
 4. Submit with the correct URL format
 
 **Example URL:**
+
 ```
 https://chat.openai.com/g/g-ABC123XYZ-my-code-assistant
 ```
@@ -189,6 +190,7 @@ https://chat.openai.com/g/g-ABC123XYZ-my-code-assistant
 4. Submit with the correct URL format
 
 **Example URL:**
+
 ```
 https://gemini.google.com/gem/code-helper-123
 ```
@@ -255,6 +257,7 @@ Define the expected output format:
 4. **Test Iteratively**: Refine prompts based on testing
 
 **Good Example:**
+
 ```
 You are a code review assistant. Analyze the following code and provide:
 1. Security vulnerabilities
@@ -415,4 +418,4 @@ For questions about agent creation or submission:
 
 ---
 
-*Last updated: October 2024*
+_Last updated: October 2024_

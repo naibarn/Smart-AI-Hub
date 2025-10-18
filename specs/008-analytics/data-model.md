@@ -228,9 +228,9 @@ async function logUsage(data: {
   metadata?: any;
 }): Promise<void> {
   await prisma.usageLog.create({
-    data
+    data,
   });
-  
+
   // Trigger real-time aggregation update
   await updateAggregatedUsage(data);
 }
@@ -252,30 +252,30 @@ async function getUserUsage(
     userId,
     createdAt: {
       gte: startDate,
-      lte: endDate
-    }
+      lte: endDate,
+    },
   };
-  
+
   if (filters?.service) {
     where.service = filters.service;
   }
-  
+
   if (filters?.model) {
     where.model = filters.model;
   }
-  
+
   const usage = await prisma.usageLog.groupBy({
     by: ['service', 'model'],
     where,
     _sum: {
       tokens: true,
-      credits: true
+      credits: true,
     },
     _count: {
-      id: true
-    }
+      id: true,
+    },
   });
-  
+
   return usage;
 }
 ```
@@ -296,30 +296,30 @@ async function getAggregatedUsage(
   const where: any = {
     period,
     periodStart: {
-      gte: startDate
+      gte: startDate,
     },
     periodEnd: {
-      lte: endDate
-    }
+      lte: endDate,
+    },
   };
-  
+
   if (filters?.userId) {
     where.userId = filters.userId;
   }
-  
+
   if (filters?.service) {
     where.service = filters.service;
   }
-  
+
   if (filters?.model) {
     where.model = filters.model;
   }
-  
+
   return await prisma.aggregatedUsage.findMany({
     where,
     orderBy: {
-      periodStart: 'asc'
-    }
+      periodStart: 'asc',
+    },
   });
 }
 ```
@@ -336,10 +336,10 @@ async function updateAggregatedUsage(data: {
 }): Promise<void> {
   const now = new Date();
   const periods = ['hourly', 'daily', 'weekly', 'monthly'];
-  
+
   for (const period of periods) {
     const { start, end } = getPeriodBounds(now, period);
-    
+
     await prisma.aggregatedUsage.upsert({
       where: {
         userId_service_model_period_periodStart: {
@@ -347,14 +347,14 @@ async function updateAggregatedUsage(data: {
           service: data.service,
           model: data.model,
           period,
-          periodStart: start
-        }
+          periodStart: start,
+        },
       },
       update: {
         totalTokens: { increment: data.tokens },
         totalCredits: { increment: data.credits },
         requestCount: { increment: 1 },
-        updatedAt: now
+        updatedAt: now,
       },
       create: {
         userId: data.userId,
@@ -365,8 +365,8 @@ async function updateAggregatedUsage(data: {
         periodEnd: end,
         totalTokens: data.tokens,
         totalCredits: data.credits,
-        requestCount: 1
-      }
+        requestCount: 1,
+      },
     });
   }
 }
@@ -374,7 +374,7 @@ async function updateAggregatedUsage(data: {
 function getPeriodBounds(date: Date, period: string): { start: Date; end: Date } {
   const start = new Date(date);
   const end = new Date(date);
-  
+
   switch (period) {
     case 'hourly':
       start.setMinutes(0, 0, 0);
@@ -395,7 +395,7 @@ function getPeriodBounds(date: Date, period: string): { start: Date; end: Date }
       end.setMonth(start.getMonth() + 1);
       break;
   }
-  
+
   return { start, end };
 }
 ```
@@ -431,7 +431,7 @@ Create materialized views for frequently accessed aggregations:
 ```sql
 -- Daily usage by service
 CREATE MATERIALIZED VIEW daily_service_usage AS
-SELECT 
+SELECT
   service,
   DATE(created_at) as date,
   SUM(tokens) as total_tokens,
@@ -441,7 +441,7 @@ FROM usage_logs
 GROUP BY service, DATE(created_at);
 
 -- Create unique index for refresh
-CREATE UNIQUE INDEX idx_daily_service_usage_unique 
+CREATE UNIQUE INDEX idx_daily_service_usage_unique
   ON daily_service_usage (service, date);
 
 -- Refresh materialized view
@@ -473,11 +473,11 @@ async function getCachedAnalytics(
   if (cached) {
     return JSON.parse(cached);
   }
-  
+
   // Execute query and cache result
   const result = await queryFn();
   await redis.setex(key, ttl, JSON.stringify(result));
-  
+
   return result;
 }
 ```
@@ -489,37 +489,37 @@ async function getCachedAnalytics(
 ```typescript
 async function cleanupOldData(): Promise<void> {
   const now = new Date();
-  
+
   // Delete raw usage logs older than 90 days
   const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
   await prisma.usageLog.deleteMany({
     where: {
       createdAt: {
-        lt: ninetyDaysAgo
-      }
-    }
+        lt: ninetyDaysAgo,
+      },
+    },
   });
-  
+
   // Delete hourly aggregations older than 1 year
   const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
   await prisma.aggregatedUsage.deleteMany({
     where: {
       period: 'hourly',
       periodStart: {
-        lt: oneYearAgo
-      }
-    }
+        lt: oneYearAgo,
+      },
+    },
   });
-  
+
   // Delete daily aggregations older than 3 years
   const threeYearsAgo = new Date(now.getTime() - 3 * 365 * 24 * 60 * 60 * 1000);
   await prisma.aggregatedUsage.deleteMany({
     where: {
       period: 'daily',
       periodStart: {
-        lt: threeYearsAgo
-      }
-    }
+        lt: threeYearsAgo,
+      },
+    },
   });
 }
 ```

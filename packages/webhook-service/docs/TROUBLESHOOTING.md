@@ -16,11 +16,13 @@ This guide helps you troubleshoot common issues with the Smart AI Hub webhook sy
 ### Webhook Not Delivered
 
 #### Symptoms
+
 - No webhook received at your endpoint
 - Delivery logs show failed status
 - No recent webhook activity
 
 #### Possible Causes
+
 1. **Webhook URL is not accessible**
    - Check if the URL is reachable from the internet
    - Verify SSL certificate is valid
@@ -39,6 +41,7 @@ This guide helps you troubleshoot common issues with the Smart AI Hub webhook sy
    - Monitor rate limit headers in responses
 
 #### Solutions
+
 ```bash
 # Test webhook accessibility
 curl -X POST https://your-webhook-url.com/endpoint \
@@ -57,11 +60,13 @@ curl -X GET http://localhost:3005/api/v1/webhooks/WEBHOOK_ID/logs \
 ### Signature Verification Fails
 
 #### Symptoms
+
 - 401 Unauthorized responses
 - Signature mismatch errors
 - Webhook rejected by your endpoint
 
 #### Possible Causes
+
 1. **Incorrect webhook secret**
    - Verify you're using the correct secret from the webhook configuration
    - Check for extra spaces or special characters
@@ -77,20 +82,18 @@ curl -X GET http://localhost:3005/api/v1/webhooks/WEBHOOK_ID/logs \
 #### Solutions
 
 **Node.js Debug Code:**
+
 ```javascript
 const crypto = require('crypto');
 
 function debugSignature(payload, signature, secret) {
   console.log('Received signature:', signature);
-  
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
-  
+
+  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
   console.log('Expected signature:', `sha256=${expectedSignature}`);
   console.log('Payload:', payload.toString());
-  
+
   return `sha256=${expectedSignature}` === signature;
 }
 
@@ -98,33 +101,36 @@ function debugSignature(payload, signature, secret) {
 ```
 
 **Python Debug Code:**
+
 ```python
 import hmac
 import hashlib
 
 def debug_signature(payload, signature, secret):
     print(f"Received signature: {signature}")
-    
+
     expected_signature = hmac.new(
         secret.encode('utf-8'),
         payload,
         hashlib.sha256
     ).hexdigest()
-    
+
     print(f"Expected signature: sha256={expected_signature}")
     print(f"Payload: {payload.decode()}")
-    
+
     return f"sha256={expected_signature}" == signature
 ```
 
 ### Timeout Errors
 
 #### Symptoms
+
 - Webhook deliveries timeout after 10 seconds
 - Partial data received
 - Intermittent delivery failures
 
 #### Possible Causes
+
 1. **Slow endpoint response**
    - Your endpoint takes too long to respond
    - Database queries are slow
@@ -136,7 +142,9 @@ def debug_signature(payload, signature, secret):
    - Firewall or proxy issues
 
 #### Solutions
+
 1. **Optimize endpoint performance**
+
 ```javascript
 // Respond immediately, process asynchronously
 app.post('/webhook', (req, res) => {
@@ -144,10 +152,10 @@ app.post('/webhook', (req, res) => {
   if (!verifySignature(req.body, req.headers['x-webhook-signature'])) {
     return res.status(401).send('Invalid signature');
   }
-  
+
   // Respond immediately
   res.status(200).send('OK');
-  
+
   // Process asynchronously
   setImmediate(() => {
     processWebhookEvent(JSON.parse(req.body));
@@ -156,6 +164,7 @@ app.post('/webhook', (req, res) => {
 ```
 
 2. **Add timeout handling**
+
 ```javascript
 const express = require('express');
 const timeout = require('express-timeout-handler');
@@ -167,11 +176,13 @@ app.use(timeout.handler({ timeout: 8000 })); // 8 second timeout
 ### Duplicate Events
 
 #### Symptoms
+
 - Same event received multiple times
 - Duplicate database entries
 - Inconsistent state
 
 #### Possible Causes
+
 1. **Idempotency not implemented**
    - Your endpoint doesn't handle duplicate events
    - Event ID is not tracked
@@ -181,43 +192,40 @@ app.use(timeout.handler({ timeout: 8000 })); // 8 second timeout
    - Your endpoint responded with an error
 
 #### Solutions
+
 1. **Implement idempotency**
+
 ```javascript
 const processedEvents = new Set();
 
 app.post('/webhook', (req, res) => {
   const event = JSON.parse(req.body);
-  
+
   // Check if already processed
   if (processedEvents.has(event.id)) {
     return res.status(200).send('Duplicate event');
   }
-  
+
   // Mark as processed
   processedEvents.add(event.id);
-  
+
   // Process event
   processWebhookEvent(event);
-  
+
   res.status(200).send('OK');
 });
 ```
 
 2. **Use database for tracking**
+
 ```javascript
 async function isEventProcessed(eventId) {
-  const result = await db.query(
-    'SELECT id FROM processed_events WHERE id = ?',
-    [eventId]
-  );
+  const result = await db.query('SELECT id FROM processed_events WHERE id = ?', [eventId]);
   return result.length > 0;
 }
 
 async function markEventProcessed(eventId) {
-  await db.query(
-    'INSERT INTO processed_events (id, processed_at) VALUES (?, NOW())',
-    [eventId]
-  );
+  await db.query('INSERT INTO processed_events (id, processed_at) VALUES (?, NOW())', [eventId]);
 }
 ```
 
@@ -279,12 +287,15 @@ curl -X GET http://localhost:3005/api/v1/webhooks/WEBHOOK_ID/logs \
 ### High Memory Usage
 
 #### Symptoms
+
 - Memory usage increases over time
 - Out of memory errors
 - Slow response times
 
 #### Solutions
+
 1. **Clean up processed event storage**
+
 ```javascript
 // Clean up old event IDs periodically
 setInterval(() => {
@@ -295,6 +306,7 @@ setInterval(() => {
 ```
 
 2. **Use efficient data structures**
+
 ```javascript
 // Use LRU cache for event IDs
 const LRU = require('lru-cache');
@@ -304,12 +316,15 @@ const processedEvents = new LRU({ max: 5000 });
 ### Slow Database Queries
 
 #### Symptoms
+
 - Webhook processing is slow
 - Database connection timeouts
 - High CPU usage
 
 #### Solutions
+
 1. **Add database indexes**
+
 ```sql
 -- Add index for event lookups
 CREATE INDEX idx_webhook_logs_webhook_id ON webhook_logs(webhook_id);
@@ -317,6 +332,7 @@ CREATE INDEX idx_webhook_logs_created_at ON webhook_logs(created_at);
 ```
 
 2. **Use connection pooling**
+
 ```javascript
 const mysql = require('mysql2/promise');
 
@@ -327,7 +343,7 @@ const pool = mysql.createPool({
   database: 'webhooks',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 });
 ```
 
@@ -336,21 +352,24 @@ const pool = mysql.createPool({
 ### Unauthorized Webhook Calls
 
 #### Symptoms
+
 - Unexpected webhook deliveries
 - Invalid signatures
 - Suspicious activity
 
 #### Solutions
+
 1. **Always verify signatures**
+
 ```javascript
 function verifyWebhook(req, res, next) {
   const signature = req.headers['x-webhook-signature'];
   const webhookSecret = process.env.WEBHOOK_SECRET;
-  
+
   if (!verifySignature(req.body, signature, webhookSecret)) {
     return res.status(401).send('Invalid signature');
   }
-  
+
   next();
 }
 
@@ -360,13 +379,14 @@ app.post('/webhook', verifyWebhook, (req, res) => {
 ```
 
 2. **Rate limiting**
+
 ```javascript
 const rateLimit = require('express-rate-limit');
 
 const webhookRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many webhook requests'
+  message: 'Too many webhook requests',
 });
 
 app.post('/webhook', webhookRateLimit, (req, res) => {
@@ -377,29 +397,32 @@ app.post('/webhook', webhookRateLimit, (req, res) => {
 ### Replay Attacks
 
 #### Symptoms
+
 - Old events being replayed
 - Duplicate transactions
 - Inconsistent state
 
 #### Solutions
+
 1. **Check timestamp**
+
 ```javascript
 function isRecentEvent(timestamp) {
   const eventTime = new Date(timestamp);
   const now = new Date();
   const diffMinutes = (now - eventTime) / (1000 * 60);
-  
+
   // Reject events older than 5 minutes
   return diffMinutes < 5;
 }
 
 app.post('/webhook', (req, res) => {
   const event = JSON.parse(req.body);
-  
+
   if (!isRecentEvent(event.metadata.timestamp)) {
     return res.status(400).send('Event too old');
   }
-  
+
   // Process event
 });
 ```
@@ -418,22 +441,22 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
 // Log webhook events
 logger.info('Webhook received', {
   eventId: event.id,
   eventType: event.eventType,
-  userId: event.userId
+  userId: event.userId,
 });
 
 // Log errors
 logger.error('Webhook processing failed', {
   eventId: event.id,
   error: error.message,
-  stack: error.stack
+  stack: error.stack,
 });
 ```
 
@@ -466,9 +489,9 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    webhookQueue: getQueueStats()
+    webhookQueue: getQueueStats(),
   };
-  
+
   res.json(health);
 });
 
@@ -476,7 +499,7 @@ function getQueueStats() {
   return {
     pending: webhookQueue.length,
     processing: processingCount,
-    failed: failedCount
+    failed: failedCount,
   };
 }
 ```
@@ -484,40 +507,52 @@ function getQueueStats() {
 ## FAQ
 
 ### Q: How do I test webhooks locally?
+
 A: Use ngrok to expose your local endpoint to the internet. This allows you to test webhooks during development.
 
 ### Q: Why am I not receiving webhooks?
+
 A: Check the following:
+
 1. Your webhook is active
 2. You're subscribed to the correct event types
 3. Your endpoint is accessible and responding
 4. Check delivery logs for errors
 
 ### Q: How do I handle duplicate events?
+
 A: Implement idempotency by tracking processed event IDs. Use a database or cache to store processed event IDs.
 
 ### Q: What's the maximum payload size?
+
 A: Webhook payloads are limited to 1MB. Larger payloads will be rejected.
 
 ### Q: How many retry attempts are made?
+
 A: Failed webhooks are retried up to 3 times with exponential backoff (immediate, 1 minute, 5 minutes).
 
 ### Q: How do I verify webhook signatures?
+
 A: Use the HMAC-SHA256 algorithm with your webhook secret. See the API documentation for code examples.
 
 ### Q: Can I change the webhook secret?
+
 A: Yes, you can update the webhook secret through the API. This will invalidate all existing signatures.
 
 ### Q: How do I debug signature verification issues?
+
 A: Use the debug code examples in this guide to compare expected and actual signatures.
 
 ### Q: What happens if my endpoint is down?
+
 A: Webhooks will be retried according to the retry policy. After 3 failed attempts, the webhook is marked as failed.
 
 ### Q: How do I monitor webhook delivery?
+
 A: Check the delivery logs through the API or implement your own logging and monitoring.
 
 ### Q: Can I pause webhook delivery?
+
 A: Yes, you can disable the webhook through the API or dashboard to pause deliveries.
 
 ## Additional Resources

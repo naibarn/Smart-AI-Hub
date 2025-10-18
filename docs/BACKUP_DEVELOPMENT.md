@@ -19,7 +19,7 @@ backup-service (Docker Container)
 ### Data Flow
 
 ```
-Cron Trigger → Backup Script → Database Export → Configuration Backup → 
+Cron Trigger → Backup Script → Database Export → Configuration Backup →
 Compression → Verification → Email Delivery → Monitoring Update → Cleanup
 ```
 
@@ -28,9 +28,11 @@ Compression → Verification → Email Delivery → Monitoring Update → Cleanu
 ### Core Scripts
 
 #### backup-lightweight.sh
+
 **Purpose**: Main backup execution script
 **Entry Point**: Called by cron job at 2:00 AM daily
 **Key Functions**:
+
 - `validate_environment()` - Environment validation
 - `backup_critical_tables()` - Database table exports
 - `backup_recent_transactions()` - Transaction data export
@@ -40,9 +42,11 @@ Compression → Verification → Email Delivery → Monitoring Update → Cleanu
 - `cleanup_old_backups()` - Retention management
 
 #### send-backup-email.sh
+
 **Purpose**: Email delivery for backup files and alerts
 **Entry Point**: Called by backup script and monitoring script
 **Key Functions**:
+
 - `generate_success_email_body()` - Success notification HTML
 - `generate_failure_email_body()` - Failure alert HTML
 - `send_email_with_retry()` - Retry logic for email delivery
@@ -50,9 +54,11 @@ Compression → Verification → Email Delivery → Monitoring Update → Cleanu
 - `send_failure_email()` - Failure email handling
 
 #### backup-monitor.sh
+
 **Purpose**: Health monitoring and alerting
 **Entry Point**: Docker healthcheck and manual execution
 **Key Functions**:
+
 - `check_last_backup_time()` - Backup age verification
 - `check_backup_size()` - Size validation
 - `check_backup_files()` - File integrity checks
@@ -63,6 +69,7 @@ Compression → Verification → Email Delivery → Monitoring Update → Cleanu
 ### Configuration Management
 
 #### Environment Variables
+
 ```bash
 # Database Configuration
 POSTGRES_HOST=postgres
@@ -87,6 +94,7 @@ BACKUP_MAX_AGE_HOURS=25
 ```
 
 #### Docker Configuration
+
 ```dockerfile
 FROM postgres:15-alpine
 # Install required packages
@@ -98,6 +106,7 @@ FROM postgres:15-alpine
 ## Development Setup
 
 ### Prerequisites
+
 - Docker and Docker Compose
 - PostgreSQL 15+
 - Bash shell
@@ -106,23 +115,27 @@ FROM postgres:15-alpine
 ### Local Development Environment
 
 1. **Clone Repository**
+
    ```bash
    git clone https://github.com/naibarn/Smart-AI-Hub.git
    cd Smart-AI-Hub
    ```
 
 2. **Set Up Environment**
+
    ```bash
    cp .env.example .env.local
    # Update with local configuration
    ```
 
 3. **Start Development Environment**
+
    ```bash
    docker-compose -f docker-compose.dev.yml up -d
    ```
 
 4. **Build Backup Service**
+
    ```bash
    docker build -f Dockerfile.backup -t backup-service .
    ```
@@ -143,6 +156,7 @@ FROM postgres:15-alpine
 To add new database tables to the backup:
 
 1. **Update backup-lightweight.sh**
+
    ```bash
    # Add to backup_critical_tables() function
    local tables=(
@@ -164,6 +178,7 @@ To add new database tables to the backup:
 To add new configuration files to backup:
 
 1. **Update backup-lightweight.sh**
+
    ```bash
    # Add to backup_configuration() function
    local config_files=(
@@ -184,14 +199,15 @@ To add new configuration files to backup:
 For complex backup requirements:
 
 1. **Create New Function**
+
    ```bash
    backup_custom_data() {
        log_info "Backing up custom data..."
        local custom_dir="$TEMP_DIR/custom"
        mkdir -p "$custom_dir"
-       
+
        # Add your custom backup logic here
-       
+
        log_info "Custom data backup completed"
    }
    ```
@@ -244,6 +260,7 @@ generate_failure_email_body() {
 ### Adding New Email Types
 
 1. **Create New Template Function**
+
    ```bash
    generate_custom_email_body() {
        local param1="$1"
@@ -257,10 +274,10 @@ generate_failure_email_body() {
    send_custom_email() {
        local param1="$1"
        local param2="$2"
-       
+
        local body_file="/tmp/custom_email_$$.html"
        generate_custom_email_body "$param1" "$param2" > "$body_file"
-       
+
        local subject="Custom Alert - $(date '+%Y-%m-%d')"
        send_email_with_retry "$ADMIN_EMAILS" "$subject" "$body_file" ""
    }
@@ -271,10 +288,11 @@ generate_failure_email_body() {
 ### Adding New Health Checks
 
 1. **Create Check Function**
+
    ```bash
    check_custom_metric() {
        log_info "Checking custom metric..."
-       
+
        # Implement check logic
        if [[ condition ]]; then
            log_info "Custom metric check passed"
@@ -290,7 +308,7 @@ generate_failure_email_body() {
    ```bash
    run_health_checks() {
        # ... existing checks
-       
+
        # Add custom check
        if check_custom_metric; then
            ((checks_passed++))
@@ -298,7 +316,7 @@ generate_failure_email_body() {
            ((checks_failed++))
            failed_checks+=("Custom metric")
        fi
-       
+
        # ... continue with existing logic
    }
    ```
@@ -310,11 +328,11 @@ generate_failure_email_body() {
    send_custom_alert() {
        local alert_type="$1"
        local alert_message="$2"
-       
+
        # Create custom alert email
        local body_file="/tmp/custom_alert_$$.html"
        # Generate custom alert template
-       
+
        # Send alert
        send_monitoring_alert "$alert_type" "$alert_message"
    }
@@ -406,12 +424,15 @@ fi
 ### Common Issues
 
 #### Backup Script Fails
+
 1. Check environment variables:
+
    ```bash
    docker exec backup-service env | grep BACKUP
    ```
 
 2. Check script permissions:
+
    ```bash
    docker exec backup-service ls -la /scripts/
    ```
@@ -422,7 +443,9 @@ fi
    ```
 
 #### Email Delivery Issues
+
 1. Test SMTP configuration:
+
    ```bash
    docker exec backup-service /scripts/send-backup-email.sh SUCCESS "test_file.tar.gz"
    ```
@@ -433,7 +456,9 @@ fi
    ```
 
 #### Database Connection Issues
+
 1. Test connectivity:
+
    ```bash
    docker exec backup-service pg_isready -h postgres -U postgres
    ```
@@ -460,11 +485,13 @@ export LOG_LEVEL=debug
 ### Production Deployment
 
 1. **Build Production Image**
+
    ```bash
    docker build -f Dockerfile.backup -t smartaihub/backup-service:latest .
    ```
 
 2. **Update Docker Compose**
+
    ```yaml
    backup-service:
      image: smartaihub/backup-service:latest
@@ -472,6 +499,7 @@ export LOG_LEVEL=debug
    ```
 
 3. **Deploy**
+
    ```bash
    docker-compose -f docker-compose.prod.yml up -d backup-service
    ```
@@ -485,11 +513,13 @@ export LOG_LEVEL=debug
 ### Rolling Updates
 
 1. **Update Service**
+
    ```bash
    docker-compose -f docker-compose.prod.yml pull backup-service
    ```
 
 2. **Restart with Zero Downtime**
+
    ```bash
    docker-compose -f docker-compose.prod.yml up -d --no-deps backup-service
    ```

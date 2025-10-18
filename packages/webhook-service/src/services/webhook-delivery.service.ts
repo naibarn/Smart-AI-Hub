@@ -11,6 +11,7 @@ import {
 } from '../types/webhook.types';
 import { addSignatureHeaders } from '../utils/signature';
 import { addWebhookJob } from '../config/queue';
+import type { Prisma } from '@prisma/client';
 
 export class WebhookDeliveryService {
   /**
@@ -34,7 +35,7 @@ export class WebhookDeliveryService {
       }
 
       // Get or create log entry
-      let log = await this.getOrCreateLog(webhookId, payload, attempt, maxAttempts);
+      const log = await this.getOrCreateLog(webhookId, payload, attempt, maxAttempts);
 
       // Attempt delivery
       const result = await this.deliverWebhook(webhook, payload);
@@ -138,7 +139,7 @@ export class WebhookDeliveryService {
         data: {
           webhookId,
           eventType: payload.eventType,
-          payload,
+          payload: payload as unknown as Prisma.InputJsonValue,
           status: WebhookStatus.PENDING,
           attempt,
           maxAttempts,
@@ -234,10 +235,15 @@ export class WebhookDeliveryService {
         if (log.webhook && log.webhook.isActive) {
           try {
             // Re-queue the webhook delivery
-            await addWebhookJob(log.webhookId, log.eventType, log.payload, {
-              attempts: log.maxAttempts - log.attempt + 1,
-              delay: 0,
-            });
+            await addWebhookJob(
+              log.webhookId,
+              log.eventType,
+              log.payload as unknown as WebhookDeliveryPayload,
+              {
+                attempts: log.maxAttempts - log.attempt + 1,
+                delay: 0,
+              }
+            );
 
             // Update log status
             await prisma.webhookLog.update({

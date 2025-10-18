@@ -1,14 +1,15 @@
 ---
-title: "Core Service"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-10-15"
-updated_at: "2025-10-15"
-type: "specification"
-description: "Comprehensive specification for core_service"
+title: 'Core Service'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-10-15'
+updated_at: '2025-10-15'
+type: 'specification'
+description: 'Comprehensive specification for core_service'
 ---
+
 # Core Service
 
 ## Overview
@@ -37,21 +38,25 @@ The Core Service handles the primary business logic of the Smart AI Hub platform
 ## Database Tables
 
 ### Roles and Permissions
+
 ```sql
 roles, permissions, user_roles, role_permissions
 ```
 
 ### Credit Management
+
 ```sql
 credit_accounts, credit_transactions
 ```
 
 ### Promotional System
+
 ```sql
 promo_codes, promo_redemptions
 ```
 
 ### Usage Tracking
+
 ```sql
 usage_logs
 ```
@@ -59,6 +64,7 @@ usage_logs
 ## Business Logic
 
 ### Credit Deduction with Atomic Transactions
+
 The service ensures atomic credit deduction operations:
 
 ```typescript
@@ -104,12 +110,14 @@ async function deductCredits(
 ```
 
 ### Usage Calculation & Billing
+
 - Track token usage for each LLM provider
 - Calculate credit costs based on usage
 - Generate billing reports
 - Handle usage limits and quotas
 
 ### Role Hierarchy Enforcement
+
 - Implement role-based access control
 - Enforce role hierarchy (admin > manager > user > guest)
 - Cache permissions for performance
@@ -118,6 +126,7 @@ async function deductCredits(
 ## Credit Management APIs
 
 ### Check Credit Balance
+
 ```
 GET /api/credits/balance
 Response: {
@@ -129,6 +138,7 @@ Response: {
 ```
 
 ### Deduct Credits for Video Generation
+
 ```
 POST /api/credits/deduct
 Request: {
@@ -149,6 +159,7 @@ Response: {
 ```
 
 ### Get Credit Transaction History
+
 ```
 GET /api/credits/transactions?userId=uuid&limit=10&offset=0
 Response: {
@@ -173,6 +184,7 @@ Response: {
 ## Database Schema (Key Models)
 
 ### User Model
+
 ```typescript
 model User {
   id            String   @id @default(uuid())
@@ -193,6 +205,7 @@ model User {
 ```
 
 ### Credit Account Model
+
 ```typescript
 model CreditAccount {
   id        String   @id @default(uuid())
@@ -210,6 +223,7 @@ model CreditAccount {
 ```
 
 ### Credit Transaction Model
+
 ```typescript
 model CreditTransaction {
   id          String   @id @default(uuid())
@@ -250,33 +264,40 @@ model CreditTransaction {
 - **Payment System**: Credit purchases and refunds
 - **Notification Service**: Low balance alerts
 - **Analytics Service**: Usage metrics and reporting
+
 ## Endpoints
+
 - Service shall provide RESTful API endpoints
 - All endpoints must follow consistent naming conventions
 - Response formats shall be standardized
 
 ## Authentication
+
 - Service shall implement proper authentication mechanisms
 - JWT tokens must be validated for protected endpoints
 - Role-based access control shall be enforced
 
 ## Error Handling
+
 - Proper error responses must be returned
 - Error codes shall follow standard conventions
 - Logging must be implemented for debugging
 
 ## Performance Requirements
+
 - Service shall respond within acceptable time limits
 - Resource usage must be optimized
 - Scalability considerations shall be addressed
 
 ## Monitoring and Logging
+
 - Health check endpoints shall be implemented
 - Performance metrics must be collected and monitored
 - Error logging shall be comprehensive and searchable
 - Alert thresholds must be configured for critical issues
 
 ## Deployment Requirements
+
 - Service shall be containerized for consistent deployment
 - Configuration must be externalized and environment-specific
 - Rolling updates shall be supported for zero-downtime deployment

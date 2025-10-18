@@ -9,6 +9,7 @@ This guide provides operational procedures for managing the Smart AI Hub Backup 
 ### Monitoring Backup Status
 
 #### Check Backup Service Status
+
 ```bash
 # Verify backup service is running
 docker ps | grep backup-service
@@ -21,6 +22,7 @@ docker exec backup-service /scripts/backup-monitor.sh status
 ```
 
 #### Review Backup Logs
+
 ```bash
 # Check recent backup logs
 docker exec backup-service tail -50 /var/log/backup.log
@@ -33,6 +35,7 @@ docker exec backup-service grep "ERROR" /var/log/backup.log | tail -10
 ```
 
 #### Verify Email Delivery
+
 ```bash
 # Check email delivery logs
 docker exec backup-service tail -20 /var/log/mail.log
@@ -44,6 +47,7 @@ docker exec backup-service /scripts/send-backup-email.sh SUCCESS "test_backup.ta
 ### Backup File Management
 
 #### List Available Backups
+
 ```bash
 # List all backup files
 docker exec backup-service ls -la /backups/critical_backup_*.tar.gz
@@ -56,6 +60,7 @@ docker exec backup-service find /backups -name "critical_backup_*.tar.gz" -mtime
 ```
 
 #### Manual Backup Operations
+
 ```bash
 # Trigger immediate backup
 docker exec backup-service /scripts/backup-lightweight.sh
@@ -81,6 +86,7 @@ docker exec backup-service bash -c "
 **Symptoms**: No backup emails, service not in docker ps output
 
 **Diagnosis**:
+
 ```bash
 # Check if service exists
 docker ps -a | grep backup-service
@@ -93,6 +99,7 @@ docker-compose -f docker-compose.prod.yml config | grep backup-service
 ```
 
 **Solutions**:
+
 ```bash
 # Restart backup service
 docker-compose -f docker-compose.prod.yml restart backup-service
@@ -109,6 +116,7 @@ docker exec backup-service env | grep -E "(POSTGRES|SMTP|ADMIN)"
 **Symptoms**: Failure alert emails, error messages in logs
 
 **Diagnosis**:
+
 ```bash
 # Check recent backup logs
 docker exec backup-service tail -100 /var/log/backup.log | grep -A 10 -B 10 "ERROR"
@@ -124,6 +132,7 @@ docker exec backup-service psql -h postgres -U postgres -d smart_ai_hub -c "SELE
 ```
 
 **Solutions**:
+
 ```bash
 # Fix database connectivity issues
 docker exec backup-service bash -c "
@@ -143,6 +152,7 @@ docker exec backup-service chown -R backup:backup /backups /var/log
 **Symptoms**: No backup emails, email failure alerts
 
 **Diagnosis**:
+
 ```bash
 # Test SMTP configuration
 docker exec backup-service bash -c "
@@ -157,6 +167,7 @@ docker exec backup-service tail -50 /var/log/mail.log
 ```
 
 **Solutions**:
+
 ```bash
 # Update SMTP configuration
 docker-compose -f docker-compose.prod.yml down backup-service
@@ -175,6 +186,7 @@ export SMTP_PASS=your-app-password
 **Symptoms**: Backup files > 100MB, email delivery failures
 
 **Diagnosis**:
+
 ```bash
 # Check backup file sizes
 docker exec backup-service du -h /backups/critical_backup_*.tar.gz | sort -hr
@@ -187,6 +199,7 @@ docker exec backup-service bash -c "
 ```
 
 **Solutions**:
+
 ```bash
 # Reduce backup retention period
 export BACKUP_RETENTION_DAYS=7
@@ -208,6 +221,7 @@ docker exec backup-service psql -h postgres -U postgres -d smart_ai_hub -c "
 ### Weekly Maintenance
 
 #### System Health Check
+
 ```bash
 #!/bin/bash
 # weekly-maintenance.sh
@@ -239,6 +253,7 @@ echo "=== Weekly health check completed ==="
 ```
 
 #### Log Rotation
+
 ```bash
 #!/bin/bash
 # log-rotation.sh
@@ -268,6 +283,7 @@ docker exec backup-service find /var/log -name "mail.log.*" -mtime +30 -delete
 ### Monthly Maintenance
 
 #### Backup Verification
+
 ```bash
 #!/bin/bash
 # monthly-backup-verification.sh
@@ -281,34 +297,34 @@ backup_file=$(docker exec backup-service bash -c "
 
 if [[ -n "$backup_file" ]]; then
   echo "Testing backup: $backup_file"
-  
+
   # Extract to temporary location
   docker exec backup-service bash -c "
     mkdir -p /tmp/backup_test
     cd /tmp/backup_test
     tar -xzf $backup_file
-    
+
     # Verify database files
     if [[ -f database/users.sql ]]; then
       echo '✓ Database files present'
     else
       echo '✗ Database files missing'
     fi
-    
+
     # Verify configuration files
     if [[ -f config/.env.production ]]; then
       echo '✓ Configuration files present'
     else
       echo '✗ Configuration files missing'
     fi
-    
+
     # Verify backup info
     if [[ -f BACKUP_INFO.txt ]]; then
       echo '✓ Backup info present'
     else
       echo '✗ Backup info missing'
     fi
-    
+
     # Cleanup
     rm -rf /tmp/backup_test
   "
@@ -320,6 +336,7 @@ echo "=== Monthly verification completed ==="
 ```
 
 #### Performance Analysis
+
 ```bash
 #!/bin/bash
 # performance-analysis.sh
@@ -353,6 +370,7 @@ echo "=== Performance analysis completed ==="
 ### Complete System Restore
 
 #### Emergency Restore Procedure
+
 ```bash
 #!/bin/bash
 # emergency-restore.sh
@@ -459,6 +477,7 @@ echo "Please verify all services are functioning correctly"
 ### Service Recovery
 
 #### Backup Service Recovery
+
 ```bash
 #!/bin/bash
 # backup-service-recovery.sh
@@ -469,7 +488,7 @@ echo "=== Backup Service Recovery ==="
 echo "1. Checking backup service status..."
 if ! docker ps | grep -q backup-service; then
   echo "Backup service is not running"
-  
+
   # Check if container exists
   if docker ps -a | grep -q backup-service; then
     echo "Restarting existing container..."
@@ -489,12 +508,12 @@ if docker exec backup-service /scripts/backup-monitor.sh health-check; then
   echo "✓ Service health check passed"
 else
   echo "✗ Service health check failed"
-  
+
   # Recreate service
   echo "Recreating backup service..."
   docker-compose -f docker-compose.prod.yml down backup-service
   docker-compose -f docker-compose.prod.yml up -d backup-service
-  
+
   sleep 20
   docker exec backup-service /scripts/backup-monitor.sh health-check
 fi
@@ -514,6 +533,7 @@ echo "=== Backup service recovery completed ==="
 ### Data Recovery
 
 #### Partial Data Recovery
+
 ```bash
 #!/bin/bash
 # partial-data-recovery.sh
@@ -558,6 +578,7 @@ echo "=== Partial recovery completed ==="
 ### Health Check Automation
 
 #### Automated Health Monitoring
+
 ```bash
 #!/bin/bash
 # health-monitor.sh
@@ -565,10 +586,10 @@ echo "=== Partial recovery completed ==="
 # Check backup service health
 if ! docker exec backup-service /scripts/backup-monitor.sh health-check; then
   echo "ALERT: Backup service health check failed"
-  
+
   # Send alert to administrators
   docker exec backup-service /scripts/send-backup-email.sh "FAILURE" "health_monitor_$(date +%Y%m%d_%H%M%S)" "Backup service health check failed"
-  
+
   # Attempt automatic recovery
   echo "Attempting automatic recovery..."
   ./backup-service-recovery.sh
@@ -587,7 +608,7 @@ last_backup_age=$(docker exec backup-service bash -c "
 
 if [[ $last_backup_age -gt 25 ]]; then
   echo "ALERT: Last backup is $last_backup_age hours old"
-  
+
   # Send alert
   docker exec backup-service /scripts/send-backup-email.sh "FAILURE" "backup_age_$(date +%Y%m%d_%H%M%S)" "Last backup is $last_backup_age hours old"
 fi
@@ -596,10 +617,10 @@ fi
 available_space=$(docker exec backup-service df /backups | awk 'NR==2 {print $4}')
 if [[ $available_space -lt 1048576 ]]; then  # Less than 1GB
   echo "ALERT: Low disk space - ${available_space}KB available"
-  
+
   # Send alert
   docker exec backup-service /scripts/send-backup-email.sh "FAILURE" "disk_space_$(date +%Y%m%d_%H%M%S)" "Low disk space: ${available_space}KB available"
-  
+
   # Clean up old backups
   docker exec backup-service find /backups -name "critical_backup_*.tar.gz" -mtime +7 -delete
 fi
@@ -608,6 +629,7 @@ fi
 ### Performance Monitoring
 
 #### Backup Performance Metrics
+
 ```bash
 #!/bin/bash
 # performance-metrics.sh
@@ -646,6 +668,7 @@ echo "=== Performance metrics collected ==="
 ### Access Control
 
 #### Backup Access Management
+
 ```bash
 #!/bin/bash
 # backup-access-control.sh
@@ -673,6 +696,7 @@ echo "=== Access control updated ==="
 ### Security Auditing
 
 #### Backup Security Audit
+
 ```bash
 #!/bin/bash
 # security-audit.sh

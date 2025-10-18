@@ -17,7 +17,7 @@
       "SPECKIT_MIGRATION_ANALYSIS.md"
     ]
   },
-  
+
   "migration_coverage": {
     "backend_folder": {
       "status": "partially_covered",
@@ -38,12 +38,46 @@
       "recommendation": "analyze_separately",
       "details": {
         "01_requirements": {
-          "functional": ["fr_1.md", "fr_2.md", "fr_3.md", "fr_4.md", "fr_5.md", "fr_6.md", "fr_auth_05.md", "fr_auth_06.md", "fr_credit_03.md", "fr_credit_04.md"],
-          "user_stories": ["us_1.md", "us_2.md", "us_3.md", "us_4.md", "us_5.md", "us_6.md", "us_7.md", "us_8.md", "us_9.md", "us_10.md", "us_11.md"],
+          "functional": [
+            "fr_1.md",
+            "fr_2.md",
+            "fr_3.md",
+            "fr_4.md",
+            "fr_5.md",
+            "fr_6.md",
+            "fr_auth_05.md",
+            "fr_auth_06.md",
+            "fr_credit_03.md",
+            "fr_credit_04.md"
+          ],
+          "user_stories": [
+            "us_1.md",
+            "us_2.md",
+            "us_3.md",
+            "us_4.md",
+            "us_5.md",
+            "us_6.md",
+            "us_7.md",
+            "us_8.md",
+            "us_9.md",
+            "us_10.md",
+            "us_11.md"
+          ],
           "non_functional": []
         },
         "02_architecture": {
-          "data_models": ["user.md", "permission.md", "role.md", "user_role.md", "role_permission.md", "credit_account.md", "credit_transaction.md", "promo_code.md", "promo_redemption.md", "usage_log.md"],
+          "data_models": [
+            "user.md",
+            "permission.md",
+            "role.md",
+            "user_role.md",
+            "role_permission.md",
+            "credit_account.md",
+            "credit_transaction.md",
+            "promo_code.md",
+            "promo_redemption.md",
+            "usage_log.md"
+          ],
           "services": ["api_gateway.md", "auth_service.md", "core_service.md", "mcp_server.md"]
         },
         "03_backlog": {
@@ -51,7 +85,16 @@
           "other": ["agents_marketplace_tasks.md"]
         },
         "03_frontend": {
-          "components": ["admin/", "auth/", "common/", "error/", "forms/", "layout/", "notifications/", "profile/"],
+          "components": [
+            "admin/",
+            "auth/",
+            "common/",
+            "error/",
+            "forms/",
+            "layout/",
+            "notifications/",
+            "profile/"
+          ],
           "pages": ["dashboard.md", "chat_interface.md"],
           "other": ["validation_checkpoint_phase2.md"]
         }
@@ -63,7 +106,7 @@
       "recommendation": "include_in_migration"
     }
   },
-  
+
   "discrepancies": {
     "missing_from_plan": {
       "backend_additional_files": [
@@ -196,7 +239,7 @@
       }
     }
   },
-  
+
   "recommendations": [
     {
       "item": "AUTOMATED_BACKUP_SERVICE_SPEC.md",
@@ -255,7 +298,7 @@
       "recommendation": "Remove backend folder after migration as it contains duplicates"
     }
   ],
-  
+
   "revised_plan": {
     "phase_1": "Backend folder migration (existing plan)",
     "phase_2": "Root level specs migration",
@@ -269,7 +312,7 @@
       "Clean up backend folder after successful migration"
     ]
   },
-  
+
   "validation_required": [
     "Cross-reference updates for duplicate files",
     "Verify all file references in migration plan exist",

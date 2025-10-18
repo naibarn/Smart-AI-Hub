@@ -2,7 +2,12 @@
   "name": "@smart-ai-hub/shared",
   "version": "1.0.0",
   "description": "Shared libraries for Smart AI Hub services",
-  "main": "src/index.ts",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

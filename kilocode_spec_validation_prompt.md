@@ -3,6 +3,7 @@ Run Spec Kit Validation for Smart AI Hub - Points System and Multi-tier Hierarch
 ## Objective
 
 Validate the completeness and correctness of specification documents for:
+
 1. **Points System** (with Auto Top-up feature)
 2. **Multi-tier User Hierarchy and Referral System** (with Visibility Rules)
 
@@ -15,6 +16,7 @@ Then verify that the implementation matches the specifications.
 ### 1.1 Locate Specification Documents
 
 Find and identify all specification documents related to:
+
 - Points System
 - Multi-tier User Hierarchy
 - Referral System
@@ -22,6 +24,7 @@ Find and identify all specification documents related to:
 - Auto Top-up feature
 
 **Expected files:**
+
 - `spec_multi_tier_hierarchy_referral.md`
 - `kilocode_points_system_spec.md`
 - `user_visibility_rules_addendum.md`
@@ -56,44 +59,52 @@ For each specification document, verify it contains the following sections accor
 For each section, check:
 
 **Overview:**
+
 - [ ] Clear and concise description
 - [ ] Explains the purpose and value
 - [ ] Mentions key stakeholders
 
 **Objectives:**
+
 - [ ] SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound)
 - [ ] Success metrics defined
 - [ ] Business value articulated
 
 **User Stories:**
+
 - [ ] Written in "As a [role], I want [feature], so that [benefit]" format
 - [ ] Each story has acceptance criteria
 - [ ] Covers all user roles (Administrator, Agency, Organization, Admin, General)
 - [ ] Edge cases considered
 
 **Scope:**
+
 - [ ] In-scope items clearly listed
 - [ ] Out-of-scope items explicitly stated
 - [ ] No ambiguity about what will be delivered
 
 **Functional Requirements:**
+
 - [ ] All features listed with detailed descriptions
 - [ ] Requirements are testable
 - [ ] Requirements are numbered for traceability
 
 **Non-Functional Requirements:**
+
 - [ ] Performance requirements (response time, throughput)
 - [ ] Security requirements (authentication, authorization, encryption)
 - [ ] Scalability requirements (concurrent users, data volume)
 - [ ] Availability requirements (uptime, disaster recovery)
 
 **User Interface:**
+
 - [ ] All pages and components listed
 - [ ] UI mockups or wireframes provided
 - [ ] User flows documented
 - [ ] Responsive design considerations
 
 **API Specifications:**
+
 - [ ] All endpoints documented
 - [ ] HTTP methods specified
 - [ ] Request parameters documented
@@ -102,24 +113,28 @@ For each section, check:
 - [ ] Authentication requirements specified
 
 **Database Schema:**
+
 - [ ] All models defined with fields and types
 - [ ] Relationships clearly specified
 - [ ] Indexes identified for performance
 - [ ] Migration strategy outlined
 
 **Business Logic:**
+
 - [ ] Algorithms explained with pseudocode or flowcharts
 - [ ] Edge cases handled
 - [ ] Validation rules specified
 - [ ] Error handling defined
 
 **Security & Authorization:**
+
 - [ ] Authentication mechanism specified
 - [ ] Authorization rules for each role
 - [ ] Data access controls (visibility rules)
 - [ ] Security best practices followed
 
 **Testing Strategy:**
+
 - [ ] Unit test requirements
 - [ ] Integration test requirements
 - [ ] E2E test scenarios
@@ -127,24 +142,28 @@ For each section, check:
 - [ ] Security test cases
 
 **Deployment & Configuration:**
+
 - [ ] Environment variables documented
 - [ ] Deployment steps outlined
 - [ ] Configuration examples provided
 - [ ] Rollback strategy defined
 
 **Timeline & Milestones:**
+
 - [ ] Implementation phases defined
 - [ ] Realistic time estimates
 - [ ] Dependencies identified
 - [ ] Critical path highlighted
 
 **Risks & Mitigation:**
+
 - [ ] Technical risks identified
 - [ ] Business risks identified
 - [ ] Mitigation strategies provided
 - [ ] Contingency plans outlined
 
 **Appendix:**
+
 - [ ] FAQ section
 - [ ] Example API requests/responses
 - [ ] Code snippets
@@ -181,6 +200,7 @@ For each section, check:
 - [ ] Testing: Unit tests for auto top-up, integration tests for purchase
 
 **Check for consistency:**
+
 - [ ] All APIs mentioned in spec are implemented
 - [ ] Exchange rates match across spec and implementation
 - [ ] Auto top-up threshold (10 Points) is consistent
@@ -205,6 +225,7 @@ For each section, check:
 - [ ] Testing: Visibility test cases for all tier combinations
 
 **Check for consistency:**
+
 - [ ] Tier hierarchy is consistent (Administrator > Agency > Organization > Admin > General)
 - [ ] Transfer rules match authorization rules
 - [ ] Block rules match authorization rules
@@ -230,6 +251,7 @@ For each section, check:
 - [ ] Testing: Referral flow for each tier, agency bonus calculation
 
 **Check for consistency:**
+
 - [ ] Reward amounts match across spec and implementation
 - [ ] Agency bonus logic is correct (deducted from Agency)
 - [ ] Organization auto-join logic is correct
@@ -239,33 +261,39 @@ For each section, check:
 **Check specification covers:**
 
 **Administrator:**
+
 - [ ] Can see all users (no restrictions)
 
 **Agency:**
+
 - [ ] Can see Organizations where `parentAgencyId === agency.id`
 - [ ] Can see Admins in Organizations under them
 - [ ] Can see General where `parentAgencyId === agency.id` or in their Organizations
 - [ ] CANNOT see other Agencies, Administrators, or unrelated users
 
 **Organization:**
+
 - [ ] Can see Admins where `parentOrganizationId === organization.id`
 - [ ] Can see General where `parentOrganizationId === organization.id`
 - [ ] Can see parent Agency (basic info only)
 - [ ] CANNOT see other Organizations, unrelated Admins/General, Agencies, Administrators
 
 **Admin:**
+
 - [ ] Can see General where `parentOrganizationId === admin.parentOrganizationId`
 - [ ] Can see other Admins in same Organization
 - [ ] Can see parent Organization (basic info only)
 - [ ] CANNOT see other Organizations, unrelated Admins/General, Agencies, Administrators
 
 **General:**
+
 - [ ] Can see ONLY themselves
 - [ ] Can see parent Organization (basic info only)
 - [ ] Can see Admins in same Organization (contact info only)
 - [ ] CANNOT see other Generals, Organizations, Agencies, Administrators, member lists
 
 **Check implementation:**
+
 - [ ] `checkUserVisibility()` middleware exists
 - [ ] Middleware is applied to all user data access APIs
 - [ ] Member list API filters by visibility
@@ -278,6 +306,7 @@ For each section, check:
 - [ ] Audit log records unauthorized access attempts
 
 **Check for consistency:**
+
 - [ ] Visibility rules in spec match implementation
 - [ ] All APIs enforce visibility rules
 - [ ] Frontend respects visibility rules
@@ -300,6 +329,7 @@ For each section, check:
 - [ ] Testing: Auto top-up trigger, insufficient credits, disabled feature
 
 **Check for consistency:**
+
 - [ ] Threshold (10 Points) is consistent
 - [ ] Conversion rate (1:1000) is consistent
 - [ ] Transaction type is logged correctly
@@ -343,6 +373,7 @@ For each section, check:
 ```
 
 **Generate report:**
+
 - [ ] List all models in spec
 - [ ] List all models in implementation
 - [ ] Identify missing models
@@ -393,6 +424,7 @@ PUT /api/admin/exchange-rates
 ```
 
 **Generate report:**
+
 - [ ] List all APIs in spec
 - [ ] List all APIs in implementation
 - [ ] Identify missing APIs
@@ -409,6 +441,7 @@ PUT /api/admin/exchange-rates
 **Verify key business logic:**
 
 **Points System:**
+
 - [ ] Exchange rate calculation: 1 Credit = 1,000 Points
 - [ ] Purchase rate calculation: 10,000 Points = 1 USD
 - [ ] Daily reward logic: Points added on login
@@ -416,18 +449,21 @@ PUT /api/admin/exchange-rates
 - [ ] Auto top-up conversion: 1 Credit → 1,000 Points
 
 **Transfer System:**
+
 - [ ] Transfer validation: Sender has sufficient balance
 - [ ] Transfer authorization: Sender can transfer to receiver based on tier
 - [ ] Transfer visibility: Sender can see receiver
 - [ ] Transfer atomicity: Uses database transaction
 
 **Referral System:**
+
 - [ ] General referral: Referrer gets 2,000, Referee gets 1,000
 - [ ] Organization referral: Referrer gets 2,000, Referee gets 1,000 and joins org
 - [ ] Agency referral: Referee gets 1,000 + Agency Bonus, Agency deducted
 - [ ] Self-referral prevention: Cannot use own invite code
 
 **Visibility System:**
+
 - [ ] Administrator sees all users
 - [ ] Agency sees only users under them
 - [ ] Organization sees only members in their org
@@ -435,6 +471,7 @@ PUT /api/admin/exchange-rates
 - [ ] General sees only themselves
 
 **Generate report:**
+
 - [ ] List all business logic in spec
 - [ ] Verify implementation for each logic
 - [ ] Identify missing logic
@@ -458,6 +495,7 @@ PUT /api/admin/exchange-rates
 - [ ] Logging unauthorized access attempts
 
 **Generate report:**
+
 - [ ] List all security requirements in spec
 - [ ] Verify implementation for each requirement
 - [ ] Identify missing security measures
@@ -468,12 +506,14 @@ PUT /api/admin/exchange-rates
 **Verify UI components:**
 
 **Points System:**
+
 - [ ] `<PointsBalance />` - Display Points and Credits
 - [ ] `<PointsPurchase />` - Purchase Points with Credits or money
 - [ ] `<PointsHistory />` - View Points transaction history
 - [ ] `<ExchangeRateSettings />` - Admin configure exchange rates
 
 **Hierarchy & Transfer:**
+
 - [ ] `<InviteCard />` - Display invite link and QR code
 - [ ] `<ReferralStats />` - Show referral statistics
 - [ ] `<TransferForm />` - Transfer Points/Credits (with visibility filter)
@@ -484,6 +524,7 @@ PUT /api/admin/exchange-rates
 - [ ] `<TierBadge />` - Display user tier
 
 **Verify pages:**
+
 - [ ] `/points` - Points management page
 - [ ] `/invite` - Invite link and QR code page
 - [ ] `/referrals` - Referral statistics page
@@ -493,12 +534,14 @@ PUT /api/admin/exchange-rates
 - [ ] `/admin/exchange-rates` - Admin exchange rate settings
 
 **Verify access control:**
+
 - [ ] General users cannot access `/members`
 - [ ] General users cannot access member list component
 - [ ] Non-Agency users cannot access `/agency/settings`
 - [ ] Non-Admin users cannot access `/admin/exchange-rates`
 
 **Generate report:**
+
 - [ ] List all components in spec
 - [ ] Verify implementation for each component
 - [ ] Identify missing components
@@ -509,6 +552,7 @@ PUT /api/admin/exchange-rates
 **Verify test coverage:**
 
 **Unit Tests:**
+
 - [ ] `canTransfer()` - All tier combinations
 - [ ] `canBlock()` - All tier combinations
 - [ ] `checkUserVisibility()` - All tier combinations
@@ -518,6 +562,7 @@ PUT /api/admin/exchange-rates
 - [ ] Exchange rate conversion
 
 **Integration Tests:**
+
 - [ ] Transfer APIs with different user tiers
 - [ ] Referral registration flow
 - [ ] Block/Unblock functionality
@@ -526,6 +571,7 @@ PUT /api/admin/exchange-rates
 - [ ] Auto top-up execution
 
 **E2E Tests:**
+
 - [ ] General invites friend and receives reward
 - [ ] Organization invites member and member joins org
 - [ ] Agency sets custom rewards and new user receives bonus
@@ -536,6 +582,7 @@ PUT /api/admin/exchange-rates
 - [ ] Auto top-up triggers when Points low
 
 **Generate report:**
+
 - [ ] List all test requirements in spec
 - [ ] Verify tests exist for each requirement
 - [ ] Run tests and report results
@@ -559,6 +606,7 @@ Create a comprehensive validation report with the following structure:
 ### 4.2 Specification Document Compliance
 
 For each spec document:
+
 - Document name
 - Compliance score (percentage)
 - Missing sections
@@ -568,6 +616,7 @@ For each spec document:
 ### 4.3 Feature Implementation Status
 
 For each feature:
+
 - Feature name
 - Implementation status (Not Started / In Progress / Completed)
 - Spec compliance score
@@ -622,6 +671,7 @@ For each feature:
 ### 4.10 Critical Issues
 
 List all critical issues found, prioritized by severity:
+
 1. **Severity: Critical** - Must fix before deployment
 2. **Severity: High** - Should fix soon
 3. **Severity: Medium** - Should fix eventually
@@ -637,6 +687,7 @@ List all critical issues found, prioritized by severity:
 ### 4.12 Action Items
 
 For each issue found, provide:
+
 - Issue description
 - Severity
 - Affected component
@@ -736,4 +787,3 @@ Generate the validation report in the following formats:
 6. Recommendations for improvement
 
 Please execute this validation thoroughly and generate detailed reports. This is critical for ensuring the implementation matches the specifications and is ready for production deployment.
-

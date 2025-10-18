@@ -45,7 +45,7 @@ const EndpointTable: React.FC<EndpointTableProps> = ({
 
   // Filter and sort endpoints
   const filteredAndSortedEndpoints = useMemo(() => {
-    let filtered = endpoints.filter((endpoint) => {
+    const filtered = endpoints.filter((endpoint) => {
       if (filters.service && endpoint.service !== filters.service) return false;
       if (filters.slaTier && endpoint.slaTier !== filters.slaTier) return false;
       if (filters.search) {

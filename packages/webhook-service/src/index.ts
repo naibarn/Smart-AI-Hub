@@ -1,6 +1,5 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { initializeMetrics, apiSecurityHeaders } from '@smart-ai-hub/shared';
@@ -16,7 +15,7 @@ import { webhookDeliveryService } from './services/webhook-delivery.service';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3005;
+const PORT = parseInt(process.env.PORT || '3005', 10);
 
 // Initialize monitoring
 const metrics = initializeMetrics({

@@ -11,11 +11,12 @@ The authentication and authorization system has been significantly refactored to
 ### User Model Changes
 
 #### Before
+
 ```javascript
 // User had single role
 const user = await prisma.user.findUnique({
   where: { id: userId },
-  include: { role: true }
+  include: { role: true },
 });
 
 // Check if user is verified
@@ -25,19 +26,20 @@ if (user.emailVerified) {
 ```
 
 #### After
+
 ```javascript
 // User has multiple roles
 const user = await prisma.user.findUnique({
   where: { id: userId },
-  include: { 
+  include: {
     userRoles: {
-      include: { role: true }
-    }
-  }
+      include: { role: true },
+    },
+  },
 });
 
 // Extract roles array
-const roles = user.userRoles.map(ur => ur.role.name);
+const roles = user.userRoles.map((ur) => ur.role.name);
 
 // Check if user is verified
 if (user.verified) {
@@ -48,6 +50,7 @@ if (user.verified) {
 ### Permission Checking
 
 #### Before
+
 ```javascript
 // Permissions were stored in role as JSON
 const permissions = user.role.permissions;
@@ -57,13 +60,10 @@ if (permissions.includes('users:delete')) {
 ```
 
 #### After
+
 ```javascript
 // Use permission service to check permissions
-const hasPermission = await permissionService.hasPermission(
-  userId, 
-  'users', 
-  'delete'
-);
+const hasPermission = await permissionService.hasPermission(userId, 'users', 'delete');
 
 if (hasPermission) {
   // Allow action
@@ -73,6 +73,7 @@ if (hasPermission) {
 ### Middleware Usage
 
 #### Before
+
 ```javascript
 // Single role check
 const requireAdmin = requireRole('admin');
@@ -80,6 +81,7 @@ app.delete('/users/:id', requireAdmin, deleteUser);
 ```
 
 #### After
+
 ```javascript
 // Multiple roles or permission check
 const requireAdminOrManager = requireRoles(['admin', 'manager']);
@@ -97,6 +99,7 @@ app.get('/users/:id', requireSelfOrAdmin, getUser);
 ### JWT Token Structure
 
 #### Before
+
 ```json
 {
   "id": "user-id",
@@ -107,6 +110,7 @@ app.get('/users/:id', requireSelfOrAdmin, getUser);
 ```
 
 #### After
+
 ```json
 {
   "id": "user-id",
@@ -119,10 +123,11 @@ app.get('/users/:id', requireSelfOrAdmin, getUser);
 ### Credit Account Operations
 
 #### Before
+
 ```javascript
 // Multiple balance fields
 const account = await prisma.creditAccount.findUnique({
-  where: { userId }
+  where: { userId },
 });
 
 console.log(account.currentBalance);
@@ -131,10 +136,11 @@ console.log(account.totalUsed);
 ```
 
 #### After
+
 ```javascript
 // Single balance field
 const account = await prisma.creditAccount.findUnique({
-  where: { userId }
+  where: { userId },
 });
 
 console.log(account.balance);
@@ -144,27 +150,29 @@ console.log(account.balance);
 ## Code Migration Steps
 
 ### 1. Update User Queries
+
 Replace all single role queries with many-to-many relationship queries:
 
 ```javascript
 // Old
 const userWithRole = await prisma.user.findUnique({
   where: { id: userId },
-  include: { role: true }
+  include: { role: true },
 });
 
 // New
 const userWithRoles = await prisma.user.findUnique({
   where: { id: userId },
-  include: { 
+  include: {
     userRoles: {
-      include: { role: true }
-    }
-  }
+      include: { role: true },
+    },
+  },
 });
 ```
 
 ### 2. Update Permission Checks
+
 Replace hardcoded permission checks with service calls:
 
 ```javascript
@@ -174,17 +182,14 @@ if (user.role.permissions.includes('users:delete')) {
 }
 
 // New
-const hasPermission = await permissionService.hasPermission(
-  userId, 
-  'users', 
-  'delete'
-);
+const hasPermission = await permissionService.hasPermission(userId, 'users', 'delete');
 if (hasPermission) {
   // Allow action
 }
 ```
 
 ### 3. Update Middleware
+
 Replace role-based middleware with new RBAC middleware:
 
 ```javascript
@@ -198,6 +203,7 @@ const requireUserDelete = requirePermission('users', 'delete');
 ```
 
 ### 4. Update Credit Operations
+
 Simplify credit account operations:
 
 ```javascript
@@ -206,14 +212,14 @@ await prisma.creditAccount.update({
   where: { userId },
   data: {
     currentBalance: newBalance,
-    totalUsed: totalUsed + amount
-  }
+    totalUsed: totalUsed + amount,
+  },
 });
 
 // New
 await prisma.creditAccount.update({
   where: { userId },
-  data: { balance: newBalance }
+  data: { balance: newBalance },
 });
 ```
 
@@ -222,6 +228,7 @@ await prisma.creditAccount.update({
 The migration files handle the database transformation automatically. However, if you need to run manual queries:
 
 ### Create User Roles
+
 ```sql
 INSERT INTO user_roles (user_id, role_id, assigned_at)
 SELECT id, role_id, NOW()
@@ -230,12 +237,14 @@ WHERE role_id IS NOT NULL;
 ```
 
 ### Create Role Permissions
+
 ```sql
 -- This is handled by the migration script
 -- Permissions are extracted from the old JSON format
 ```
 
 ### Update Credit Accounts
+
 ```sql
 UPDATE credit_accounts
 SET balance = current_balance;
@@ -244,6 +253,7 @@ SET balance = current_balance;
 ## Testing Your Changes
 
 1. **Run the test suite** to ensure compatibility:
+
    ```bash
    npm test
    ```
@@ -261,22 +271,28 @@ SET balance = current_balance;
 ## Common Issues and Solutions
 
 ### Issue: "permissionService.hasPermission is not a function"
+
 **Solution**: Make sure you're importing the permission service correctly:
+
 ```javascript
 import * as permissionService from '../services/permission.service';
 ```
 
 ### Issue: "user.role is undefined"
+
 **Solution**: Update your queries to include the userRoles relationship:
+
 ```javascript
 const user = await prisma.user.findUnique({
   where: { id: userId },
-  include: { userRoles: { include: { role: true } } }
+  include: { userRoles: { include: { role: true } } },
 });
 ```
 
 ### Issue: "balance field does not exist"
+
 **Solution**: Regenerate Prisma client:
+
 ```bash
 npx prisma generate
 ```

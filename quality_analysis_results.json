@@ -65,47 +65,27 @@
     {
       "error": "pattern_mismatch: Content must be at least 10 characters long",
       "count": 66,
-      "examples": [
-        "fr_1",
-        "fr_2",
-        "fr_3"
-      ]
+      "examples": ["fr_1", "fr_2", "fr_3"]
     },
     {
       "error": "WARNING: incomplete_content: Specification missing author information",
       "count": 44,
-      "examples": [
-        "fr_1",
-        "fr_2",
-        "fr_3"
-      ]
+      "examples": ["fr_1", "fr_2", "fr_3"]
     },
     {
       "error": "pattern_mismatch: Version must follow semantic versioning (x.y.z)",
       "count": 15,
-      "examples": [
-        "credit_account",
-        "fr_1",
-        "fr_2"
-      ]
+      "examples": ["credit_account", "fr_1", "fr_2"]
     },
     {
       "error": "WARNING: incomplete_content: Functional requirement should use clear language (shall, must, should, will)",
       "count": 10,
-      "examples": [
-        "fr_1",
-        "fr_2",
-        "fr_3"
-      ]
+      "examples": ["fr_1", "fr_2", "fr_3"]
     },
     {
       "error": "WARNING: unclear_requirement: Functional requirement should use clear language (shall, must, should, will)",
       "count": 10,
-      "examples": [
-        "fr_1",
-        "fr_2",
-        "fr_3"
-      ]
+      "examples": ["fr_1", "fr_2", "fr_3"]
     }
   ]
 }

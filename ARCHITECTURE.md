@@ -36,6 +36,7 @@ The Smart AI Hub is a cloud-native platform built on a microservices architectur
 ### 1. Single Responsibility Principle
 
 Each service has a single, well-defined responsibility:
+
 - **Auth Service**: Handles authentication and authorization
 - **Core Service**: Manages business logic and data
 - **MCP Server**: Interfaces with AI models
@@ -45,6 +46,7 @@ Each service has a single, well-defined responsibility:
 ### 2. Domain-Driven Design (DDD)
 
 The system is organized around business domains:
+
 - User Management
 - Authentication & Authorization
 - Credit Management
@@ -54,6 +56,7 @@ The system is organized around business domains:
 ### 3. API-First Design
 
 All services expose well-defined APIs:
+
 - RESTful APIs for CRUD operations
 - WebSocket connections for real-time features
 - Event-driven architecture for asynchronous operations
@@ -61,6 +64,7 @@ All services expose well-defined APIs:
 ### 4. Loose Coupling
 
 Services communicate through well-defined interfaces:
+
 - No direct database access between services
 - Communication via APIs and message queues
 - Shared libraries contain only common types and utilities
@@ -68,6 +72,7 @@ Services communicate through well-defined interfaces:
 ### 5. High Cohesion
 
 Related functionality is grouped together:
+
 - Business logic within services
 - Related components in the same service
 - Clear boundaries between services
@@ -136,6 +141,7 @@ Related functionality is grouped together:
 ### Service Boundaries
 
 #### API Gateway
+
 - **Responsibilities**:
   - Request routing and load balancing
   - Authentication and authorization
@@ -150,6 +156,7 @@ Related functionality is grouped together:
   - Nginx for load balancing
 
 #### Auth Service
+
 - **Responsibilities**:
   - User authentication (email/password, OAuth)
   - JWT token generation and validation
@@ -163,6 +170,7 @@ Related functionality is grouped together:
   - JWT for tokens
 
 #### Core Service
+
 - **Responsibilities**:
   - User profile management
   - Credit system
@@ -176,6 +184,7 @@ Related functionality is grouped together:
   - PostgreSQL for data
 
 #### MCP (Model Context Protocol) Server
+
 - **Responsibilities**:
   - AI model interactions
   - Token usage tracking
@@ -189,6 +198,7 @@ Related functionality is grouped together:
   - Redis for caching
 
 #### Notification Service
+
 - **Responsibilities**:
   - Email notifications
   - In-app notifications
@@ -204,11 +214,13 @@ Related functionality is grouped together:
 ### Service Communication
 
 #### Synchronous Communication
+
 - **REST APIs**: For request/response patterns
 - **GraphQL**: For complex queries (future enhancement)
 - **WebSocket**: For real-time communication
 
 #### Asynchronous Communication
+
 - **Message Queues**: For background processing
 - **Event Streaming**: For real-time events
 - **Webhooks**: For external integrations
@@ -224,12 +236,14 @@ Related functionality is grouped together:
 ### Database Design
 
 #### Primary Database: PostgreSQL
+
 - **ACID compliance** for transactional integrity
 - **JSON support** for flexible schema
 - **Full-text search** capabilities
 - **Strong consistency** guarantees
 
 #### Cache Layer: Redis
+
 - **In-memory caching** for high performance
 - **Session storage** for user sessions
 - **Rate limiting** data
@@ -291,11 +305,13 @@ CREATE TABLE usage_logs (
 ### Data Consistency
 
 #### Strong Consistency
+
 - **Financial transactions** (credits, payments)
 - **User authentication** data
 - **Critical configuration** data
 
 #### Eventual Consistency
+
 - **Analytics data**
 - **Usage statistics**
 - **Notification preferences**
@@ -330,7 +346,7 @@ CREATE TABLE usage_logs (
 enum Role {
   ADMIN = 'admin',
   USER = 'user',
-  MODERATOR = 'moderator'
+  MODERATOR = 'moderator',
 }
 
 // Permission definitions
@@ -339,7 +355,7 @@ enum Permission {
   WRITE_USERS = 'write:users',
   READ_CREDITS = 'read:credits',
   WRITE_CREDITS = 'write:credits',
-  ACCESS_AI_MODELS = 'access:ai_models'
+  ACCESS_AI_MODELS = 'access:ai_models',
 }
 
 // Role-Permission mapping
@@ -349,13 +365,9 @@ const rolePermissions = {
     Permission.WRITE_USERS,
     Permission.READ_CREDITS,
     Permission.WRITE_CREDITS,
-    Permission.ACCESS_AI_MODELS
+    Permission.ACCESS_AI_MODELS,
   ],
-  [Role.USER]: [
-    Permission.READ_CREDITS,
-    Permission.WRITE_CREDITS,
-    Permission.ACCESS_AI_MODELS
-  ]
+  [Role.USER]: [Permission.READ_CREDITS, Permission.WRITE_CREDITS, Permission.ACCESS_AI_MODELS],
 };
 ```
 
@@ -384,9 +396,9 @@ const rolePermissions = {
 // Synchronous API call
 const response = await fetch('/api/users/profile', {
   headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  }
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  },
 });
 
 const profile = await response.json();
@@ -398,7 +410,7 @@ const profile = await response.json();
 // Publish event
 eventBus.publish('user.registered', {
   userId: 'user_123',
-  email: 'user@example.com'
+  email: 'user@example.com',
 });
 
 // Subscribe to event
@@ -448,36 +460,36 @@ class GetUserQuery implements Query<User> {
 
 ### Backend
 
-| Component | Technology | Version | Rationale |
-|-----------|------------|---------|-----------|
-| Runtime | Node.js | 18.x | High performance, large ecosystem |
-| Framework | Express.js | 4.x | Mature, flexible, good middleware |
-| Database | PostgreSQL | 15+ | ACID compliant, JSON support |
-| Cache | Redis | 7+ | In-memory, versatile data structures |
-| ORM | Prisma | 5.x | Type-safe, excellent DX |
-| Auth | Passport.js | 0.6+ | Modular, many strategies |
-| Validation | Joi | 17.x | Powerful schema validation |
+| Component  | Technology  | Version | Rationale                            |
+| ---------- | ----------- | ------- | ------------------------------------ |
+| Runtime    | Node.js     | 18.x    | High performance, large ecosystem    |
+| Framework  | Express.js  | 4.x     | Mature, flexible, good middleware    |
+| Database   | PostgreSQL  | 15+     | ACID compliant, JSON support         |
+| Cache      | Redis       | 7+      | In-memory, versatile data structures |
+| ORM        | Prisma      | 5.x     | Type-safe, excellent DX              |
+| Auth       | Passport.js | 0.6+    | Modular, many strategies             |
+| Validation | Joi         | 17.x    | Powerful schema validation           |
 
 ### Frontend
 
-| Component | Technology | Version | Rationale |
-|-----------|------------|---------|-----------|
-| Framework | React | 18.x | Component-based, large ecosystem |
-| Language | TypeScript | 5.x | Type safety, better DX |
-| State Management | React Context | - | Built-in, simple for our needs |
-| HTTP Client | Axios | 1.x | Promise-based, interceptors |
-| UI Library | Material-UI | 5.x | Comprehensive, customizable |
+| Component        | Technology    | Version | Rationale                        |
+| ---------------- | ------------- | ------- | -------------------------------- |
+| Framework        | React         | 18.x    | Component-based, large ecosystem |
+| Language         | TypeScript    | 5.x     | Type safety, better DX           |
+| State Management | React Context | -       | Built-in, simple for our needs   |
+| HTTP Client      | Axios         | 1.x     | Promise-based, interceptors      |
+| UI Library       | Material-UI   | 5.x     | Comprehensive, customizable      |
 
 ### DevOps & Infrastructure
 
-| Component | Technology | Version | Rationale |
-|-----------|------------|---------|-----------|
-| Containerization | Docker | 20.x | Industry standard |
-| Orchestration | Kubernetes | 1.24+ | Scalable, self-healing |
-| CI/CD | GitHub Actions | - | Integrated with GitHub |
-| Monitoring | Prometheus | - | Time-series data |
-| Visualization | Grafana | - | Rich dashboards |
-| Logging | Winston | 3.x | Structured logging |
+| Component        | Technology     | Version | Rationale              |
+| ---------------- | -------------- | ------- | ---------------------- |
+| Containerization | Docker         | 20.x    | Industry standard      |
+| Orchestration    | Kubernetes     | 1.24+   | Scalable, self-healing |
+| CI/CD            | GitHub Actions | -       | Integrated with GitHub |
+| Monitoring       | Prometheus     | -       | Time-series data       |
+| Visualization    | Grafana        | -       | Rich dashboards        |
+| Logging          | Winston        | 3.x     | Structured logging     |
 
 ## Design Decisions
 
@@ -486,12 +498,14 @@ class GetUserQuery implements Query<User> {
 **Decision**: Adopt microservices architecture
 
 **Rationale**:
+
 - Independent scaling of services
 - Technology diversity
 - Fault isolation
 - Team autonomy
 
 **Trade-offs**:
+
 - Increased operational complexity
 - Network latency
 - Distributed transaction management
@@ -501,12 +515,14 @@ class GetUserQuery implements Query<User> {
 **Decision**: Use PostgreSQL as primary database
 
 **Rationale**:
+
 - ACID compliance for financial transactions
 - Mature and well-understood
 - Excellent tooling and support
 - JSON support for flexibility
 
 **Trade-offs**:
+
 - Less flexible schema than NoSQL
 - Potential performance bottlenecks at scale
 
@@ -515,12 +531,14 @@ class GetUserQuery implements Query<User> {
 **Decision**: Use REST APIs
 
 **Rationale**:
+
 - Simpler to implement and understand
 - Good caching support
 - Mature ecosystem
 - Clear separation of concerns
 
 **Trade-offs**:
+
 - Over-fetching or under-fetching data
 - Multiple API calls for complex data
 
@@ -529,12 +547,14 @@ class GetUserQuery implements Query<User> {
 **Decision**: Use JWT for authentication
 
 **Rationale**:
+
 - Stateless authentication
 - Works well with microservices
 - Mobile-friendly
 - No server-side session storage
 
 **Trade-offs**:
+
 - Token revocation complexity
 - Larger request size
 - Security concerns if not handled properly
@@ -544,12 +564,14 @@ class GetUserQuery implements Query<User> {
 **Decision**: Use Docker containers
 
 **Rationale**:
+
 - Lightweight and portable
 - Consistent environments
 - Faster startup times
 - Better resource utilization
 
 **Trade-offs**:
+
 - Less isolation than VMs
 - Shared kernel vulnerability
 - Container management complexity
@@ -585,12 +607,12 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
 ```
 
 ## Performance Considerations

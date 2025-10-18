@@ -113,3 +113,4 @@ if (requests === 1) {
 if (requests > 10) {
   throw new Error('Rate limit exceeded');
 }
+```

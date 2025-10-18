@@ -1,68 +1,78 @@
 ---
-title: "Promo Code"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-10-15"
-updated_at: "2025-10-15"
-type: "specification"
-description: "Comprehensive specification for promo_code"
+title: 'Promo Code'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-10-15'
+updated_at: '2025-10-15'
+type: 'specification'
+description: 'Comprehensive specification for promo_code'
 ---
+
 # Promo Code
 
 model PromoCode {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  credits     Int
-  maxUses     Int?
-  usedCount   Int      @default(0)
-  expiresAt   DateTime?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
+id String @id @default(uuid())
+code String @unique
+credits Int
+maxUses Int?
+usedCount Int @default(0)
+expiresAt DateTime?
+active Boolean @default(true)
+createdAt DateTime @default(now())
 
-  redemptions PromoRedemption[]
+redemptions PromoRedemption[]
 
-  @@index([code])
-  @@map("promo_codes")
+@@index([code])
+@@map("promo_codes")
 }
+
 ## Fields
+
 - id: Primary key (UUID)
 - created_at: Timestamp of creation
 - updated_at: Timestamp of last update
 
 ## Relationships
+
 - This model shall maintain proper relationships with other models
 - Foreign key constraints must be properly defined
 - Cascade operations should be carefully considered
 
 ## Constraints
+
 - All required fields must be validated
 - Unique constraints must be enforced where applicable
 - Data integrity shall be maintained at all times
 
 ## Validation Rules
+
 - Input data must be properly sanitized
 - Business rules shall be enforced at the application level
 - Database constraints must be properly defined
 
 ## Overview
+
 This data model represents a core entity in the system architecture.
 It shall maintain data integrity and support business requirements efficiently.
 
 ## Indexes
+
 - Primary key index on id field for fast lookups
 - Index on frequently queried fields for performance optimization
 - Composite indexes on common query combinations
 - Regular index maintenance and monitoring required
 
 ## Security Considerations
+
 - Sensitive data shall be encrypted at rest
 - Access controls must be properly implemented
 - Data retention policies shall be enforced
 - Audit trails must be maintained for compliance
 
 ## Audit Requirements
+
 - All data modifications shall be logged
 - Change tracking must include user and timestamp
 - Historical data shall be preserved according to retention policies

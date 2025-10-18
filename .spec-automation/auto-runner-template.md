@@ -1,6 +1,7 @@
 # Auto-Runner Prompt Template
 
 ## วิธีใช้:
+
 1. รัน: node .spec-automation/tracker.js next
 2. ได้ task ถัดไป
 3. Copy prompt ที่เหมาะสมตาม task type
@@ -11,6 +12,7 @@
 ---
 
 ## TEMPLATE 1: Setup Task
+
 ```
 TASK: {{task_id}} - {{task_name}}
 
@@ -27,7 +29,8 @@ TASK: {{task_id}} - {{task_name}}
 ---
 
 ## TEMPLATE 2: Fix Spec File
-```
+
+````
 TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 
 **INPUT FILE:** {{input_path}}
@@ -46,7 +49,7 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
    - มี Testing Criteria: {{has_testing_criteria}}
 
 3. แก้ไขไฟล์โดยใช้มาตรฐานจาก spec_example_good.md:
-   
+
    **ต้องมีทุกส่วน:**
    - Front Matter (YAML) ครบถ้วน
    - 1. ภาพรวม (Overview)
@@ -76,7 +79,7 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 ```bash
    cd packages/speckit
    node dist/cli/index.js validate ../../{{input_path}}
-```
+````
 
 7. ถ้า validation fail:
    - แก้ไขข้อผิดพลาดตาม error message
@@ -84,6 +87,7 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 
 8. สร้าง checkpoint:
    สร้างไฟล์ .spec-automation/checkpoints/{{task_id}}.json:
+
 ```json
    {
      "task_id": "{{task_id}}",
@@ -106,32 +110,36 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 ```
 
 9. แสดงผลลัพธ์:
+
 ```
    ✅ {{task_id}} COMPLETE
-   
+
    📄 File: {{filename}}
    📊 Score: {{current_score}} → [new_score] (+XX)
    📏 Lines: [old] → [new] (+XX)
    ✅ Validation: PASSED
    ⏱️  Time: XX minutes
-   
+
    💾 Checkpoint: .spec-automation/checkpoints/{{task_id}}.json
-   
+
    🔄 Update tracker:
    node .spec-automation/tracker.js complete {{task_id}} XX
-   
+
    ➡️  Next Task:
    node .spec-automation/tracker.js next
 ```
+
 ```
 
 ---
 
 ## TEMPLATE 3: Batch Validation
 ```
+
 TASK: {{task_id}} - Validate Group {{group_name}}
 
 คำสั่ง:
+
 1. รัน speckit validate สำหรับทุกไฟล์ใน Group {{group_name}}
 
 2. สร้างรายงานเป็นตาราง:
@@ -144,87 +152,98 @@ TASK: {{task_id}} - Validate Group {{group_name}}
 4. บันทึกรายงานที่ .spec-automation/reports/validation-{{group_name}}.md
 
 5. แสดง:
+
 ```
    ✅ {{task_id}} COMPLETE
-   
+
    📊 Validation Results - Group {{group_name}}:
    - Total: X files
    - Passed: Y files (Z%)
    - Failed: W files
-   
+
    [ตาราง]
-   
+
    💾 Report: .spec-automation/reports/validation-{{group_name}}.md
 ```
+
 ```
 
 ---
 
 ## TEMPLATE 4: Batch Commit
 ```
+
 TASK: {{task_id}} - Commit Group {{group_name}} Changes
 
 คำสั่ง:
+
 1. สร้าง list ไฟล์ทั้งหมดที่แก้ไขใน Group {{group_name}}
 
 2. สร้าง commit message:
+
 ```
    docs(specs): improve {{count}} {{group_name}} spec files
-   
+
    Improved files:
    {{#each files}}
    - {{this}}: [สรุปการแก้ไข]
    {{/each}}
-   
+
    Changes:
    - Added complete metadata (front matter)
    - Added user stories with acceptance criteria
    - Defined clear scope (in/out)
    - Added technical requirements
    - Added testing criteria
-   
+
    Validation: {{passed}}/{{total}} files passed
    Average score improved: {{old_avg}} → {{new_avg}} (+{{diff}})
 ```
 
 3. รันคำสั่ง:
+
 ```bash
    git add {{files}}
    git commit -m "[commit message]"
 ```
 
 4. แสดง:
+
 ```
    ✅ {{task_id}} COMPLETE
-   
+
    📦 Committed {{count}} files
    🎯 Group {{group_name}} progress: {{percent}}%
-   
+
    📝 Commit: [commit hash]
 ```
+
 ```
 
 ---
 
 ## TEMPLATE 5: Create Documentation
 ```
+
 TASK: {{task_id}} - Create {{doc_name}}
 
 คำสั่ง:
+
 1. สร้างเอกสาร {{doc_name}} ตาม spec:
    {{doc_spec}}
 
 2. เนื้อหาต้องมี:
    {{#each sections}}
    - {{this}}
-   {{/each}}
+     {{/each}}
 
 3. บันทึกที่ {{output_path}}
 
 4. แสดง:
+
 ```
    ✅ {{task_id}} COMPLETE
-   
+
    📄 Created: {{doc_name}}
    💾 Path: {{output_path}}
    📏 Size: XX lines

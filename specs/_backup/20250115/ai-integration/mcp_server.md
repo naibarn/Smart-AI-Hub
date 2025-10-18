@@ -1,14 +1,15 @@
 ---
-title: "Mcp Server"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-10-15"
-updated_at: "2025-10-15"
-type: "specification"
-description: "Comprehensive specification for mcp_server"
+title: 'Mcp Server'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-10-15'
+updated_at: '2025-10-15'
+type: 'specification'
+description: 'Comprehensive specification for mcp_server'
 ---
+
 # MCP Server
 
 ## Overview
@@ -55,6 +56,7 @@ The MCP (Model Context Protocol) Server handles integration with various LLM pro
 ## WebSocket Protocol
 
 ### Client → Server
+
 ```typescript
 interface MCPRequest {
   id: string;
@@ -69,6 +71,7 @@ interface MCPRequest {
 ```
 
 ### Server → Client (Streaming)
+
 ```typescript
 interface MCPStreamChunk {
   id: string;
@@ -87,6 +90,7 @@ interface MCPStreamChunk {
 ```
 
 ### Server → Client (Non-streaming)
+
 ```typescript
 interface MCPResponse {
   id: string;
@@ -136,6 +140,7 @@ async function executeWithFallback(request: MCPRequest): Promise<MCPResponse> {
 ## Sora2 Video Generator Integration
 
 ### Video Request Structure
+
 ```typescript
 interface Sora2VideoRequest {
   prompt: string;
@@ -149,6 +154,7 @@ interface Sora2VideoRequest {
 ```
 
 ### Video Response Structure
+
 ```typescript
 interface Sora2VideoResponse {
   videoId: string;
@@ -165,6 +171,7 @@ interface Sora2VideoResponse {
 ### Sora2 API Endpoints
 
 #### Generate Video
+
 ```
 POST /api/mcp/sora2/generate
 Request: {
@@ -183,6 +190,7 @@ Response: {
 ```
 
 #### Check Video Status
+
 ```
 GET /api/mcp/sora2/status/:videoId
 Response: {
@@ -198,6 +206,7 @@ Response: {
 ## Custom GPT Integration for Video Workflows
 
 ### Video Workflow Request
+
 ```typescript
 interface VideoWorkflowRequest {
   workflow: 'text-to-video' | 'image-to-video' | 'video-enhancement';
@@ -217,18 +226,19 @@ interface VideoWorkflowRequest {
 ```
 
 ### GPT-Assisted Video Generation
+
 ```typescript
 app.post('/api/mcp/gpt/video-workflow', authenticate, async (req, res) => {
   const { workflow, input, parameters, sessionId } = req.body;
-  
+
   // Step 1: Use Custom GPT to analyze and enhance the request
   const enhancedPrompt = await gptService.enhanceVideoPrompt({
     originalPrompt: input.text,
     workflow,
     parameters,
-    sessionId
+    sessionId,
   });
-  
+
   // Step 2: Generate video with Sora2 using enhanced prompt
   const videoRequest = await sora2Service.createVideoRequest({
     prompt: enhancedPrompt,
@@ -236,14 +246,14 @@ app.post('/api/mcp/gpt/video-workflow', authenticate, async (req, res) => {
     resolution: parameters.resolution || '1080p',
     style: parameters.style,
     userId: req.user.id,
-    sessionId
+    sessionId,
   });
-  
+
   res.json({
     workflowId: generateId(),
     videoId: videoRequest.id,
     enhancedPrompt,
-    status: 'processing'
+    status: 'processing',
   });
 });
 ```
@@ -295,27 +305,33 @@ breaker.on('halfOpen', () => {
 - Error rate tracking
 - Usage analytics
 - Circuit breaker state monitoring
+
 ## Endpoints
+
 - Service shall provide RESTful API endpoints
 - All endpoints must follow consistent naming conventions
 - Response formats shall be standardized
 
 ## Authentication
+
 - Service shall implement proper authentication mechanisms
 - JWT tokens must be validated for protected endpoints
 - Role-based access control shall be enforced
 
 ## Error Handling
+
 - Proper error responses must be returned
 - Error codes shall follow standard conventions
 - Logging must be implemented for debugging
 
 ## Performance Requirements
+
 - Service shall respond within acceptable time limits
 - Resource usage must be optimized
 - Scalability considerations shall be addressed
 
 ## Deployment Requirements
+
 - Service shall be containerized for consistent deployment
 - Configuration must be externalized and environment-specific
 - Rolling updates shall be supported for zero-downtime deployment

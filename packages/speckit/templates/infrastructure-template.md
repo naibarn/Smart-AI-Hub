@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-infrastructure-{{infrastructure-name}}-{{sequence-number}}"
-title: "{{Infrastructure Name}} Infrastructure Specification"
-type: "service_spec"
-category: "architecture"
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft"
-priority: "{{priority-level}}"
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}}
-actualEffort: {{hours}}
+id: 'spec-infrastructure-{{infrastructure-name}}-{{sequence-number}}'
+title: '{{Infrastructure Name}} Infrastructure Specification'
+type: 'service_spec'
+category: 'architecture'
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft'
+priority: '{{priority-level}}'
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } }
+actualEffort: { { hours } }
 reviewers: []
 approvers: []
-tags: ["infrastructure", "{{infrastructure-type}}", "{{environment}}"]
+tags: ['infrastructure', '{{infrastructure-type}}', '{{environment}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{parent-spec-id}}"
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"]
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
+parent: '{{parent-spec-id}}'
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}']
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}']
 ---
 
 # {{Infrastructure Name}} Infrastructure Specification
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the infrastructure and its purpose
-  TIPS: 
+  TIPS:
   - Explain why this infrastructure is needed
   - Describe the business value and benefits
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Infrastructure Goals and Success Criteria
 
-<!-- 
+<!--
   PURPOSE: Define the goals and success criteria for the infrastructure
   TIPS:
   - Include both functional and non-functional goals
@@ -48,11 +48,13 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 -->
 
 ### Primary Goals
+
 1. **{{Goal 1}}**: {{Description and target metric}}
 2. **{{Goal 2}}**: {{Description and target metric}}
 3. **{{Goal 3}}**: {{Description and target metric}}
 
 ### Success Criteria
+
 - **Availability**: {{Availability targets (e.g., 99.9% uptime)}}
 - **Performance**: {{Performance criteria and benchmarks}}
 - **Scalability**: {{Scalability targets and growth capacity}}
@@ -61,7 +63,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Architecture Overview
 
-<!-- 
+<!--
   PURPOSE: Define the infrastructure architecture
   TIPS:
   - Include architecture diagrams
@@ -86,7 +88,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Infrastructure Components
 
-<!-- 
+<!--
   PURPOSE: Define the infrastructure components
   TIPS:
   - Include all components and their specifications
@@ -152,7 +154,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Configuration Management
 
-<!-- 
+<!--
   PURPOSE: Define configuration management approach
   TIPS:
   - Include infrastructure as code approach
@@ -183,7 +185,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Monitoring and Observability
 
-<!-- 
+<!--
   PURPOSE: Define monitoring and observability requirements
   TIPS:
   - Include monitoring tools and strategies
@@ -214,7 +216,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Security and Compliance
 
-<!-- 
+<!--
   PURPOSE: Define security and compliance requirements
   TIPS:
   - Include security controls and practices
@@ -245,7 +247,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Disaster Recovery and Business Continuity
 
-<!-- 
+<!--
   PURPOSE: Define disaster recovery and business continuity requirements
   TIPS:
   - Include backup and recovery strategies
@@ -278,7 +280,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Performance and Scalability
 
-<!-- 
+<!--
   PURPOSE: Define performance and scalability requirements
   TIPS:
   - Include performance benchmarks and targets
@@ -309,7 +311,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Deployment and Release Management
 
-<!-- 
+<!--
   PURPOSE: Define deployment and release management processes
   TIPS:
   - Include deployment strategies and procedures
@@ -333,7 +335,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Cost Management
 
-<!-- 
+<!--
   PURPOSE: Define cost management and optimization requirements
   TIPS:
   - Include cost monitoring and reporting
@@ -364,7 +366,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Testing Strategy
 
-<!-- 
+<!--
   PURPOSE: Define testing approach for infrastructure
   TIPS:
   - Include different types of testing
@@ -396,7 +398,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Risks and Mitigation
 
-<!-- 
+<!--
   PURPOSE: Identify risks and mitigation strategies
   TIPS:
   - Consider technical, business, and operational risks
@@ -406,8 +408,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Risk Assessment
 
-| Risk | Probability | Impact | Mitigation Strategy | Owner |
-|------|-------------|--------|-------------------|-------|
+| Risk                 | Probability         | Impact              | Mitigation Strategy     | Owner          |
+| -------------------- | ------------------- | ------------------- | ----------------------- | -------------- |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 
@@ -417,7 +419,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Implementation Notes
 
-<!-- 
+<!--
   PURPOSE: Provide technical guidance for implementation
   TIPS:
   - Include architectural considerations
@@ -449,20 +451,20 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

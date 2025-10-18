@@ -38,6 +38,7 @@ The RBAC system is built on a three-tier model:
 ### Core Tables
 
 #### Users Table
+
 ```sql
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -51,6 +52,7 @@ CREATE TABLE users (
 ```
 
 #### Roles Table
+
 ```sql
 CREATE TABLE roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -63,6 +65,7 @@ CREATE TABLE roles (
 ```
 
 #### Permissions Table
+
 ```sql
 CREATE TABLE permissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -78,6 +81,7 @@ CREATE TABLE permissions (
 ### Junction Tables
 
 #### UserRole Junction Table
+
 ```sql
 CREATE TABLE user_roles (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -88,6 +92,7 @@ CREATE TABLE user_roles (
 ```
 
 #### RolePermission Junction Table
+
 ```sql
 CREATE TABLE role_permissions (
   role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
@@ -132,12 +137,12 @@ async function checkPermission(
           id: { in: userRoles },
           users: {
             some: {
-              userId
-            }
-          }
-        }
-      }
-    }
+              userId,
+            },
+          },
+        },
+      },
+    },
   });
 
   // 3. Cache the result
@@ -179,6 +184,7 @@ The `role_permissions` table manages the many-to-many relationship between roles
 ### Cache Invalidation
 
 The cache is invalidated when:
+
 1. User roles are modified
 2. Role permissions are modified
 3. Permissions are modified

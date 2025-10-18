@@ -33,6 +33,7 @@ Before you start contributing, make sure you have:
 ### Setting Up Your Development Environment
 
 1. **Fork the repository**
+
    ```bash
    # Fork the repository on GitHub, then clone your fork
    git clone https://github.com/YOUR_USERNAME/Smart-AI-Hub.git
@@ -40,17 +41,20 @@ Before you start contributing, make sure you have:
    ```
 
 2. **Add the upstream repository**
+
    ```bash
    git remote add upstream https://github.com/Smart-AI-Hub/Smart-AI-Hub.git
    ```
 
 3. **Install dependencies**
+
    ```bash
    npm install
    npm run install:all
    ```
 
 4. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
@@ -180,6 +184,7 @@ type(scope): description
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -189,6 +194,7 @@ Types:
 - `chore`: Maintenance tasks
 
 Examples:
+
 - `feat(auth): add OAuth provider support`
 - `fix(api): resolve user profile update issue`
 - `docs(readme): update installation instructions`
@@ -198,12 +204,14 @@ Examples:
 ### Before Submitting
 
 1. **Ensure your branch is up to date**
+
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
 
 2. **Run all tests and ensure they pass**
+
    ```bash
    npm run test
    npm run lint
@@ -218,6 +226,7 @@ Examples:
 ### Creating a Pull Request
 
 1. **Push your branch to your fork**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -237,27 +246,33 @@ Examples:
 
 ```markdown
 ## Description
+
 Brief description of the changes made in this PR.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
 
 ## Issue(s) Addressed
+
 Fixes #(issue number)
 
 ## How Has This Been Tested?
+
 Please describe in detail how you tested your changes.
 
 ## Test Coverage
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] E2E tests added/updated
 - [ ] All tests pass
 
 ## Checklist
+
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -309,7 +324,7 @@ type UserRole = 'admin' | 'user';
 // Enums: PascalCase
 enum HttpStatus {
   OK = 200,
-  NotFound = 404
+  NotFound = 404,
 }
 ```
 
@@ -320,14 +335,14 @@ enum HttpStatus {
 async function createUser(userData: CreateUserRequest): Promise<User> {
   try {
     const hashedPassword = await hashPassword(userData.password);
-    
+
     const user = await prisma.user.create({
       data: {
         ...userData,
-        password: hashedPassword
-      }
+        password: hashedPassword,
+      },
     });
-    
+
     return user;
   } catch (error) {
     throw new Error(`Failed to create user: ${error.message}`);
@@ -348,22 +363,22 @@ const isValidEmail = (email: string): boolean => {
 async function updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundError('User not found');
     }
-    
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: updates
+      data: updates,
     });
-    
+
     return updatedUser;
   } catch (error) {
     if (error instanceof NotFoundError) {
       throw error;
     }
-    
+
     logger.error('Failed to update user profile', { userId, error });
     throw new InternalServerError('Failed to update user profile');
   }
@@ -436,14 +451,14 @@ describe('UserService', () => {
         email: 'test@example.com',
         password: 'Password123!',
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
 
       const expectedUser = {
         id: 'user-123',
         email: userData.email,
         firstName: userData.firstName,
-        lastName: userData.lastName
+        lastName: userData.lastName,
       };
 
       jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(null);
@@ -457,7 +472,7 @@ describe('UserService', () => {
       expect(userRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           email: userData.email,
-          password: expect.any(String) // Hashed password
+          password: expect.any(String), // Hashed password
         })
       );
     });
@@ -474,12 +489,10 @@ describe('User Registration API', () => {
       email: 'integration@example.com',
       password: 'Password123!',
       firstName: 'Integration',
-      lastName: 'Test'
+      lastName: 'Test',
     };
 
-    const response = await request(app)
-      .post('/api/auth/register')
-      .send(userData);
+    const response = await request(app).post('/api/auth/register').send(userData);
 
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
@@ -500,7 +513,7 @@ describe('User Registration API', () => {
 
 ### JSDoc Example
 
-```typescript
+````typescript
 /**
  * Creates a new user in the system
  * @param userData - The user data to create
@@ -524,7 +537,7 @@ describe('User Registration API', () => {
 async function createUser(userData: CreateUserRequest): Promise<User> {
   // Implementation
 }
-```
+````
 
 ### API Documentation
 
@@ -587,31 +600,39 @@ When reporting bugs, please include:
 
 ```markdown
 ## Bug Description
+
 A clear and concise description of what the bug is.
 
 ## To Reproduce
+
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
 ## Expected Behavior
+
 A clear and concise description of what you expected to happen.
 
 ## Actual Behavior
+
 A clear and concise description of what actually happened.
 
 ## Screenshots
+
 If applicable, add screenshots to help explain your problem.
 
 ## Environment
+
 - OS: [e.g. Windows 10, macOS 12.0]
 - Browser: [e.g. Chrome, Firefox]
 - Node.js version: [e.g. 18.0.0]
 - Application version: [e.g. 1.0.0]
 
 ## Additional Context
+
 Add any other context about the problem here.
 ```
 
@@ -629,18 +650,23 @@ When requesting features, please include:
 
 ```markdown
 ## Feature Description
+
 A clear and concise description of the feature you'd like to see added.
 
 ## Use Case
+
 Describe the use case or problem this feature would solve.
 
 ## Proposed Solution
+
 If you have a specific solution in mind, describe it here.
 
 ## Alternatives Considered
+
 Describe any alternative solutions or features you've considered.
 
 ## Additional Context
+
 Add any other context, mockups, or examples about the feature request here.
 ```
 

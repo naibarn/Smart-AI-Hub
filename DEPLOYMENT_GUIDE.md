@@ -64,12 +64,12 @@ Frontend → API Gateway → Auth Service → Database
 
 ### Infrastructure Requirements
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| CPU | 2 cores | 4 cores |
-| RAM | 4 GB | 8 GB |
-| Storage | 20 GB | 50 GB SSD |
-| Network | 100 Mbps | 1 Gbps |
+| Component | Minimum  | Recommended |
+| --------- | -------- | ----------- |
+| CPU       | 2 cores  | 4 cores     |
+| RAM       | 4 GB     | 8 GB        |
+| Storage   | 20 GB    | 50 GB SSD   |
+| Network   | 100 Mbps | 1 Gbps      |
 
 ### Software Requirements
 
@@ -192,18 +192,21 @@ NEW_RELIC_LICENSE_KEY=newrelic-key
 #### Quick Start with Docker Compose
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/your-username/Smart-AI-Hub.git
 cd Smart-AI-Hub
 ```
 
 2. Configure environment:
+
 ```bash
 cp .env.example .env.production
 # Edit .env.production with your values
 ```
 
 3. Deploy with Docker Compose:
+
 ```bash
 # Production deployment
 docker-compose -f docker-compose.prod.yml up -d
@@ -228,7 +231,7 @@ services:
       context: ./packages/frontend
       dockerfile: Dockerfile.prod
     ports:
-      - "80:80"
+      - '80:80'
     depends_on:
       - api-gateway
     environment:
@@ -241,7 +244,7 @@ services:
       context: ./packages/api-gateway
       dockerfile: Dockerfile.prod
     ports:
-      - "3001:3001"
+      - '3001:3001'
     depends_on:
       - auth-service
       - core-service
@@ -261,7 +264,7 @@ services:
       context: ./packages/auth-service
       dockerfile: Dockerfile.prod
     ports:
-      - "3002:3002"
+      - '3002:3002'
     depends_on:
       - postgres
     environment:
@@ -279,7 +282,7 @@ services:
       context: ./packages/core-service
       dockerfile: Dockerfile.prod
     ports:
-      - "3003:3003"
+      - '3003:3003'
     depends_on:
       - postgres
       - redis
@@ -299,7 +302,7 @@ services:
       context: ./packages/mcp-server
       dockerfile: Dockerfile.prod
     ports:
-      - "3004:3004"
+      - '3004:3004'
     depends_on:
       - redis
     environment:
@@ -317,7 +320,7 @@ services:
       context: ./packages/notification-service
       dockerfile: Dockerfile.prod
     ports:
-      - "3005:3005"
+      - '3005:3005'
     depends_on:
       - redis
     environment:
@@ -342,14 +345,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
     ports:
-      - "5432:5432"
+      - '5432:5432'
     restart: unless-stopped
 
   # Redis Cache
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -358,8 +361,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/ssl:/etc/nginx/ssl
@@ -384,12 +387,14 @@ volumes:
 #### Deploy with Helm
 
 1. Add the Helm repository:
+
 ```bash
 helm repo add smartaihub https://charts.smartaihub.com
 helm repo update
 ```
 
 2. Install the chart:
+
 ```bash
 helm install smartaihub smartaihub/smartaihub \
   --namespace smartaihub \
@@ -401,6 +406,7 @@ helm install smartaihub smartaihub/smartaihub \
 ```
 
 3. Check deployment:
+
 ```bash
 kubectl get pods -n smartaihub
 kubectl get services -n smartaihub
@@ -423,9 +429,9 @@ metadata:
   name: smartaihub-config
   namespace: smartaihub
 data:
-  NODE_ENV: "production"
-  LOG_LEVEL: "info"
-  REDIS_URL: "redis://redis-service:6379"
+  NODE_ENV: 'production'
+  LOG_LEVEL: 'info'
+  REDIS_URL: 'redis://redis-service:6379'
 ---
 # k8s/secret.yaml
 apiVersion: v1
@@ -456,34 +462,34 @@ spec:
         app: api-gateway
     spec:
       containers:
-      - name: api-gateway
-        image: smartaihub/api-gateway:latest
-        ports:
-        - containerPort: 3001
-        envFrom:
-        - configMapRef:
-            name: smartaihub-config
-        - secretRef:
-            name: smartaihub-secrets
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3001
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: api-gateway
+          image: smartaihub/api-gateway:latest
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: smartaihub-config
+            - secretRef:
+                name: smartaihub-secrets
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ---
 # k8s/service.yaml
 apiVersion: v1
@@ -495,9 +501,9 @@ spec:
   selector:
     app: api-gateway
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3001
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
   type: ClusterIP
 ---
 # k8s/ingress.yaml
@@ -509,23 +515,23 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
 spec:
   tls:
-  - hosts:
-    - api.yourdomain.com
-    secretName: smartaihub-tls
+    - hosts:
+        - api.yourdomain.com
+      secretName: smartaihub-tls
   rules:
-  - host: api.yourdomain.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: api-gateway-service
-            port:
-              number: 80
+    - host: api.yourdomain.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway-service
+                port:
+                  number: 80
 ```
 
 ### Cloud Platform Deployment
@@ -633,70 +639,70 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run tests
-      run: npm run test:coverage
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
 
   build:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    
-    - name: Login to Container Registry
-      uses: docker/login-action@v2
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: |
-          ghcr.io/${{ github.repository }}:latest
-          ghcr.io/${{ github.repository }}:${{ github.sha }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to Kubernetes
-      uses: azure/k8s-deploy@v1
-      with:
-        manifests: |
-          k8s/namespace.yaml
-          k8s/configmap.yaml
-          k8s/secret.yaml
-          k8s/deployment.yaml
-          k8s/service.yaml
-          k8s/ingress.yaml
-        images: |
-          ghcr.io/${{ github.repository }}:${{ github.sha }}
-        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Kubernetes
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            k8s/namespace.yaml
+            k8s/configmap.yaml
+            k8s/secret.yaml
+            k8s/deployment.yaml
+            k8s/service.yaml
+            k8s/ingress.yaml
+          images: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
 ```
 
 ## Database Deployment
@@ -720,7 +726,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
     ports:
-      - "5432:5432"
+      - '5432:5432'
     restart: unless-stopped
 
 volumes:
@@ -782,7 +788,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -795,7 +801,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
@@ -818,19 +824,19 @@ import { register, Counter, Histogram, Gauge } from 'prom-client';
 export const httpRequestsTotal = new Counter({
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 export const httpRequestDuration = new Histogram({
   name: 'http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route'],
-  buckets: [0.1, 0.5, 1, 2, 5]
+  buckets: [0.1, 0.5, 1, 2, 5],
 });
 
 export const activeConnections = new Gauge({
   name: 'active_connections',
-  help: 'Number of active connections'
+  help: 'Number of active connections',
 });
 
 // Register metrics
@@ -857,14 +863,16 @@ const logger = winston.createLogger({
   defaultMeta: { service: 'smartaihub' },
   transports: [
     new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' })
-  ]
+    new winston.transports.File({ filename: 'logs/combined.log' }),
+  ],
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple()
-  }));
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    })
+  );
 }
 
 export default logger;
@@ -881,16 +889,16 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
     ports:
-      - "9200:9200"
+      - '9200:9200'
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.5.0
     ports:
-      - "5044:5044"
+      - '5044:5044'
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     depends_on:
@@ -899,7 +907,7 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.5.0
     ports:
-      - "5601:5601"
+      - '5601:5601'
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
@@ -966,14 +974,14 @@ export const securityMiddleware = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", 'data:', 'https:'],
     },
   },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
-  }
+    preload: true,
+  },
 });
 ```
 
@@ -996,18 +1004,18 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
 ```
 
 ### Database Scaling
@@ -1033,31 +1041,31 @@ spec:
         app: postgres-replica
     spec:
       containers:
-      - name: postgres
-        image: postgres:15-alpine
-        env:
-        - name: POSTGRES_MASTER_SERVICE
-          value: postgres-service
-        - name: POSTGRES_REPLICATION_USER
-          value: replicator
-        - name: POSTGRES_REPLICATION_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secrets
-              key: replication-password
-        ports:
-        - containerPort: 5432
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_MASTER_SERVICE
+              value: postgres-service
+            - name: POSTGRES_REPLICATION_USER
+              value: replicator
+            - name: POSTGRES_REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: replication-password
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
   volumeClaimTemplates:
-  - metadata:
-      name: postgres-storage
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 10Gi
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: ['ReadWriteOnce']
+        resources:
+          requests:
+            storage: 10Gi
 ```
 
 ## Backup and Recovery

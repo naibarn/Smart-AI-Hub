@@ -7,8 +7,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@shared/redis-client": "workspace:*",
-    "@smart-ai-hub/shared": "workspace:*",
+    "@smart-ai-hub/shared": "file:../shared",
     "redis": "^4.6.13",
     "express": "^4.18.2",
     "cors": "^2.8.5",

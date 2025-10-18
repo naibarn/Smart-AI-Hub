@@ -1,0 +1,876 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PromptPay Credit Top-up API",
+    "version": "1.0.0",
+    "description": "API endpoints for purchasing credits via PromptPay with AI-powered slip verification",
+    "contact": {
+      "name": "Smart AI Hub API Team",
+      "email": "api@smartaihub.com",
+      "url": "https://smartaihub.com/docs"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://smartaihub.com/terms"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.smartaihub.com/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-staging.smartaihub.com/v1",
+      "description": "Staging"
+    },
+    {
+      "url": "http://localhost:3000/v1",
+      "description": "Local Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Credit Purchase",
+      "description": "Endpoints for credit purchase workflow"
+    },
+    {
+      "name": "Admin Review",
+      "description": "Admin endpoints for manual review (requires admin role)"
+    }
+  ],
+  "paths": {
+    "/credits/packages": {
+      "get": {
+        "summary": "List available credit packages",
+        "description": "Retrieve all active credit packages with pricing and details",
+        "tags": ["Credit Purchase"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of credit packages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "packages": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CreditPackage"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "packages": [
+                    {
+                      "id": "pkg_100_credits",
+                      "name": "Starter Pack",
+                      "credits": 100,
+                      "price_thb": 199.0,
+                      "bonus_credits": 0,
+                      "discount_percent": 0,
+                      "is_popular": false,
+                      "display_order": 1
+                    },
+                    {
+                      "id": "pkg_500_credits",
+                      "name": "Popular Pack",
+                      "credits": 500,
+                      "price_thb": 899.0,
+                      "bonus_credits": 50,
+                      "discount_percent": 10,
+                      "is_popular": true,
+                      "display_order": 2
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/credits/purchase/initiate": {
+      "post": {
+        "summary": "Initiate credit purchase",
+        "description": "Create a new credit purchase transaction and generate PromptPay QR code",
+        "tags": ["Credit Purchase"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["package_id"],
+                "properties": {
+                  "package_id": {
+                    "type": "string",
+                    "description": "ID of the credit package to purchase",
+                    "example": "pkg_100_credits"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Purchase initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseInitiated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid package ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_PACKAGE",
+                    "message": "Package not found or inactive"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded (5 per hour)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "RATE_LIMIT_EXCEEDED",
+                    "message": "Too many purchase initiations. Try again in 45 minutes."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/credits/purchase/upload-slip": {
+      "post": {
+        "summary": "Upload payment slip",
+        "description": "Upload payment slip image for AI verification",
+        "tags": ["Credit Purchase"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["transaction_id", "slip_image"],
+                "properties": {
+                  "transaction_id": {
+                    "type": "string",
+                    "description": "Transaction ID from initiate response",
+                    "example": "TXN-20250118-A7K9M"
+                  },
+                  "slip_image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Payment slip image file (JPG/PNG/PDF, max 10MB)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Slip uploaded successfully, verification started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "file_too_large": {
+                    "value": {
+                      "error": {
+                        "code": "SLIP_001",
+                        "message": "File too large. Maximum size is 10MB."
+                      }
+                    }
+                  },
+                  "invalid_format": {
+                    "value": {
+                      "error": {
+                        "code": "SLIP_002",
+                        "message": "Invalid file format. Please upload JPG, PNG or PDF."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "TRANSACTION_NOT_FOUND",
+                    "message": "Transaction not found or expired"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Slip already uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "SLIP_ALREADY_UPLOADED",
+                    "message": "A slip has already been uploaded for this transaction"
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/credits/purchase/{transaction_id}/status": {
+      "get": {
+        "summary": "Check transaction status",
+        "description": "Poll verification status of a transaction",
+        "tags": ["Credit Purchase"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Transaction ID",
+            "example": "TXN-20250118-A7K9M"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction status retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionStatus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/credits/review-queue": {
+      "get": {
+        "summary": "Get manual review queue",
+        "description": "Retrieve list of transactions flagged for manual review",
+        "tags": ["Admin Review"],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "adminRole": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by review status",
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "approved", "rejected"],
+              "default": "pending"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items to return",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Pagination offset",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review queue items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReviewQueueItem"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total number of items in queue"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "offset": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/credits/review/{transaction_id}": {
+      "post": {
+        "summary": "Submit manual review decision",
+        "description": "Approve, reject, or request more info for a flagged transaction",
+        "tags": ["Admin Review"],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "adminRole": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Transaction ID to review"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["decision"],
+                "properties": {
+                  "decision": {
+                    "type": "string",
+                    "enum": ["approve", "reject", "request_info"],
+                    "description": "Review decision"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Required if decision is reject",
+                    "example": "Slip appears to be edited"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Additional notes",
+                    "example": "Amount section shows signs of manipulation"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decision recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDecision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid decision or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_DECISION",
+                    "message": "Reason is required when decision is reject"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found in review queue"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreditPackage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Package ID",
+            "example": "pkg_100_credits"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name",
+            "example": "Starter Pack"
+          },
+          "credits": {
+            "type": "integer",
+            "description": "Number of credits",
+            "example": 100
+          },
+          "price_thb": {
+            "type": "number",
+            "format": "float",
+            "description": "Price in Thai Baht",
+            "example": 199.0
+          },
+          "bonus_credits": {
+            "type": "integer",
+            "description": "Bonus credits included",
+            "example": 10
+          },
+          "discount_percent": {
+            "type": "number",
+            "format": "float",
+            "description": "Discount percentage",
+            "example": 10.0
+          },
+          "is_popular": {
+            "type": "boolean",
+            "description": "Whether this is a popular package",
+            "example": false
+          },
+          "display_order": {
+            "type": "integer",
+            "description": "Sort order for display",
+            "example": 1
+          }
+        }
+      },
+      "PurchaseInitiated": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "description": "Unique transaction ID",
+            "example": "TXN-20250118-A7K9M"
+          },
+          "qr_code_data": {
+            "type": "string",
+            "description": "PromptPay QR code payload (EMVCo format)",
+            "example": "00020101021129370016A000000677010111011300669812345678..."
+          },
+          "qr_code_image": {
+            "type": "string",
+            "description": "Base64 encoded PNG image of QR code",
+            "example": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+          },
+          "promptpay_id": {
+            "type": "string",
+            "description": "Company PromptPay ID (masked)",
+            "example": "081-234-5678"
+          },
+          "amount_thb": {
+            "type": "number",
+            "format": "float",
+            "description": "Exact amount to transfer",
+            "example": 199.0
+          },
+          "reference": {
+            "type": "string",
+            "description": "Transaction reference number",
+            "example": "TXN-20250118-A7K9M"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "QR code expiration time (30 minutes)",
+            "example": "2025-01-18T14:30:00Z"
+          },
+          "instructions": {
+            "type": "object",
+            "properties": {
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "Scan QR code with your mobile banking app",
+                  "Verify amount is exactly 199.00 THB",
+                  "Complete transfer and save payment slip",
+                  "Upload slip on this page within 24 hours"
+                ]
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["Do not edit slip image", "Upload original screenshot only"]
+              }
+            }
+          }
+        }
+      },
+      "VerificationResult": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "example": "TXN-20250118-A7K9M"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["verifying", "approved", "rejected", "manual_review"],
+            "description": "Current verification status"
+          },
+          "verification_details": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "recipient_valid": {
+                "type": "boolean"
+              },
+              "recipient_confidence": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "amount_valid": {
+                "type": "boolean"
+              },
+              "amount_confidence": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "authenticity_score": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "duplicate_check_passed": {
+                "type": "boolean"
+              },
+              "overall_confidence": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          },
+          "credits_added": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Credits added if approved, null otherwise",
+            "example": 125
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable message",
+            "example": "Payment verified successfully. Credits added to your account."
+          },
+          "estimated_review_time": {
+            "type": "string",
+            "nullable": true,
+            "description": "If manual review needed, estimated time",
+            "example": "Within 2 hours"
+          }
+        }
+      },
+      "TransactionStatus": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending_payment",
+              "verifying",
+              "approved",
+              "rejected",
+              "manual_review",
+              "expired"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "verification_details": {
+            "type": "object",
+            "nullable": true
+          },
+          "rejection_reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ReviewQueueItem": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          },
+          "user_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "amount_thb": {
+            "type": "number",
+            "format": "float"
+          },
+          "flagged_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "flag_reason": {
+            "type": "string",
+            "example": "Low authenticity score (85%)"
+          },
+          "confidence_scores": {
+            "type": "object",
+            "properties": {
+              "recipient": {
+                "type": "number"
+              },
+              "amount": {
+                "type": "number"
+              },
+              "authenticity": {
+                "type": "number"
+              }
+            }
+          },
+          "slip_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Authenticated URL to view slip"
+          }
+        }
+      },
+      "ReviewDecision": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string",
+            "enum": ["approve", "reject", "request_info"]
+          },
+          "reviewed_by": {
+            "type": "string",
+            "description": "Admin user ID or email"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "description": "New transaction status after review"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Machine-readable error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable error message"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details",
+                "nullable": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token from user login"
+      },
+      "adminRole": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Admin-Role",
+        "description": "Admin role header (optional, for admin endpoints)"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Unauthorized - Missing or invalid token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "UNAUTHORIZED",
+                "message": "Authentication required. Please provide valid JWT token."
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden - User doesn't have required permissions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Admin role required to access this endpoint"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

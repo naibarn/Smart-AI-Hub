@@ -5,18 +5,21 @@ SpeckIt is a powerful validation system for software specifications that provide
 ## Features
 
 ### 🔧 Configurable Validation Rules
+
 - **Flexible Configuration**: Customize validation rules through JSON configuration files
 - **Project Presets**: Built-in presets for different project phases (draft, review, production)
 - **Custom Patterns**: Add your own validation patterns with regex
 - **Strictness Levels**: Adjust strictness for different aspects of validation
 
 ### 📊 Comprehensive Reporting
+
 - **Detailed Reports**: Generate markdown or JSON reports with fix suggestions
 - **Score Distribution**: View quality scores across all specifications
 - **Priority-based Fixes**: Get prioritized fix suggestions with effort estimates
 - **Recommendations**: Receive actionable recommendations for improving specification quality
 
 ### 🔍 Advanced Validation Features
+
 - **Traceability Validation**: Validate parent, dependency, and related links
 - **User Story Format Validation**: Check user stories follow proper format with variations
 - **Content Length Validation**: Smart content extraction that ignores markdown syntax
@@ -108,10 +111,7 @@ const markdown = reportGenerator.generateMarkdownReport(report);
       "as an?\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+"
     ],
     "requireAcceptanceCriteria": false,
-    "acceptanceCriteriaPatterns": [
-      "acceptance criteria",
-      "given\\s+.+\\s+when\\s+.+\\s+then\\s+.+"
-    ]
+    "acceptanceCriteriaPatterns": ["acceptance criteria", "given\\s+.+\\s+when\\s+.+\\s+then\\s+.+"]
   },
   "customPatterns": {
     "require_business_value": {
@@ -127,18 +127,21 @@ const markdown = reportGenerator.generateMarkdownReport(report);
 ### Presets
 
 #### Draft Preset
+
 - Lenient validation for early-stage specifications
 - Focus on basic structure and completeness
 - Version format validation disabled
 - Lower strictness levels
 
 #### Review Preset
+
 - Moderate validation for specifications under review
 - Enables acceptance criteria validation
 - Higher strictness levels
 - Traceability validation enabled
 
 #### Production Preset
+
 - Strict validation for production-ready specifications
 - All validations enabled
 - Highest strictness levels
@@ -147,21 +150,27 @@ const markdown = reportGenerator.generateMarkdownReport(report);
 ## Validation Features
 
 ### Content Length Validation
+
 Smart content extraction that:
+
 - Removes markdown front matter
 - Strips markdown syntax (headers, lists, links, code blocks)
 - Preserves actual text content for accurate length validation
 - Uses configurable thresholds for different content lengths
 
 ### User Story Format Validation
+
 Supports multiple user story formats:
+
 - "As a [user], I want to [action], so that [benefit]"
 - "As an [user], I want to [action], so that [benefit]"
 - "As a [user], I would like to [action], so that [benefit]"
 - "As a [user], I need to [action], so that [benefit]"
 
 ### Traceability Validation
+
 Validates:
+
 - Parent links for hierarchical relationships
 - Dependencies for specification relationships
 - Related links for cross-references
@@ -169,7 +178,9 @@ Validates:
 - Optional requirement based on configuration
 
 ### Type-specific Validation
+
 Different validation rules for:
+
 - **User Stories**: Format and acceptance criteria
 - **Functional Requirements**: Clear language and modal verbs
 - **Data Models**: Field definitions and data types
@@ -178,7 +189,9 @@ Different validation rules for:
 ## Reporting
 
 ### Validation Reports
+
 Generate comprehensive reports that include:
+
 - Summary statistics and score distribution
 - Individual specification reports with metrics
 - Prioritized fix suggestions with effort estimates
@@ -186,7 +199,9 @@ Generate comprehensive reports that include:
 - Actionable recommendations
 
 ### Fix Suggestions
+
 Each issue includes:
+
 - Category classification
 - Priority level (high, medium, low)
 - Effort estimate (quick, moderate, significant)
@@ -200,7 +215,7 @@ Each issue includes:
 ```typescript
 class ValidationEngine {
   constructor(configPath?: string, preset?: 'draft' | 'review' | 'production');
-  
+
   validateSpecification(specification: Specification): ValidationResult;
 }
 ```
@@ -210,14 +225,14 @@ class ValidationEngine {
 ```typescript
 class ValidationReportGenerator {
   constructor(config: ValidationConfig);
-  
+
   generateReport(
     specifications: Specification[],
     results: ValidationResult[],
     configPath?: string,
     preset?: string
   ): ValidationReport;
-  
+
   generateMarkdownReport(report: ValidationReport): string;
   generateJsonReport(report: ValidationReport): string;
 }
@@ -242,34 +257,42 @@ interface ValidationResult {
 SpeckIt provides specialized templates for different types of specifications, all designed to pass validation:
 
 #### Standard Template
+
 - **Use Case**: General purpose specifications
 - **Sections**: Metadata, Overview, User Stories, Functional Requirements, Non-Functional Requirements, Constraints, Dependencies, Data Models, API Specifications, Implementation Notes, Review and Approval
 
 #### Feature Template
+
 - **Use Case**: New features with comprehensive requirements
 - **Special Sections**: Feature Goals, Success Metrics, User Experience Design, Testing Strategy, Release and Deployment, Risks and Mitigation
 
 #### API Template
+
 - **Use Case**: API specifications with detailed contracts
 - **Special Sections**: API Contracts, Authentication/Authorization, Error Handling, Integration Requirements, Monitoring and Observability
 
 #### UI/UX Template
+
 - **Use Case**: UI features with design requirements
 - **Special Sections**: User Research, Design Requirements, User Journey, Screen and Component Designs, Usability Testing, Content Requirements
 
 #### Integration Template
+
 - **Use Case**: Third-party integrations
 - **Special Sections**: Third-Party System Information, Data Mapping and Transformation, Error Handling and Recovery, Security Considerations
 
 #### Infrastructure Template
+
 - **Use Case**: Infrastructure and deployment requirements
 - **Special Sections**: Architecture Overview, Infrastructure Components, Configuration Management, Disaster Recovery, Cost Management
 
 #### Bug Fix Template
+
 - **Use Case**: Bug fixes requiring specification
 - **Special Sections**: Bug Information, Root Cause Analysis, Fix Requirements, Testing Requirements, Implementation Plan
 
 #### Epic Template
+
 - **Use Case**: High-level epics with child specifications
 - **Special Sections**: Business Case, User Personas, Child Specifications, High-Level Architecture, Implementation Timeline
 
@@ -296,6 +319,7 @@ The script will guide you through selecting the appropriate template and filling
 ## Examples
 
 See the `examples/` directory for comprehensive usage examples:
+
 - Basic validation with different presets
 - Custom configuration usage
 - Report generation

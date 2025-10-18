@@ -9,6 +9,7 @@ The API has been updated with standardized response formats, versioning, and enh
 ## 1. Base URL Updates
 
 ### Auth Service
+
 ```javascript
 // Before
 const AUTH_BASE_URL = 'http://localhost:3001/api/auth';
@@ -19,6 +20,7 @@ const AUTH_BASE_URL = 'http://localhost:3001/api/v1/auth';
 ```
 
 ### Core Service
+
 ```javascript
 // Before
 const CORE_BASE_URL = 'http://localhost:3002/users';
@@ -32,6 +34,7 @@ const PAYMENTS_BASE_URL = 'http://localhost:3002/api/v1/payments';
 ```
 
 ### MCP Server
+
 ```javascript
 // Before
 const MCP_BASE_URL = 'http://localhost:3003/v1';
@@ -45,6 +48,7 @@ const MCP_BASE_URL = 'http://localhost:3003/api/v1';
 ### Success Responses
 
 #### Before
+
 ```javascript
 // Old format
 {
@@ -55,6 +59,7 @@ const MCP_BASE_URL = 'http://localhost:3003/api/v1';
 ```
 
 #### After
+
 ```javascript
 // New format
 {
@@ -70,6 +75,7 @@ const MCP_BASE_URL = 'http://localhost:3003/api/v1';
 ### Error Responses
 
 #### Before
+
 ```javascript
 // Old format
 {
@@ -82,6 +88,7 @@ const MCP_BASE_URL = 'http://localhost:3003/api/v1';
 ```
 
 #### After
+
 ```javascript
 // New format
 {
@@ -100,6 +107,7 @@ const MCP_BASE_URL = 'http://localhost:3003/api/v1';
 ### API Service Layer Updates
 
 #### Authentication Service
+
 ```javascript
 // Before
 class AuthService {
@@ -107,16 +115,16 @@ class AuthService {
     const response = await fetch(`${AUTH_BASE_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
       return {
         user: data.data.user,
         token: data.data.token,
-        refreshToken: data.data.refreshToken
+        refreshToken: data.data.refreshToken,
       };
     } else {
       throw new Error(data.error.message);
@@ -130,16 +138,16 @@ class AuthService {
     const response = await fetch(`${AUTH_BASE_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
-    
+
     const data = await response.json();
-    
+
     if (response.ok && data.data) {
       return {
         user: data.data.user,
         token: data.data.accessToken,
-        refreshToken: data.data.refreshToken
+        refreshToken: data.data.refreshToken,
       };
     } else {
       const error = data.error || { code: 'UNKNOWN_ERROR', message: 'Unknown error' };
@@ -150,20 +158,21 @@ class AuthService {
 ```
 
 #### User Service with Pagination
+
 ```javascript
 // Before
 class UserService {
   async getUsers(page = 1, limit = 20) {
     const response = await fetch(`${CORE_BASE_URL}?page=${page}&limit=${limit}`, {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
       return {
         users: data.data.users,
-        pagination: data.data.pagination
+        pagination: data.data.pagination,
       };
     } else {
       throw new Error(data.error.message);
@@ -175,15 +184,15 @@ class UserService {
 class UserService {
   async getUsers(page = 1, perPage = 20) {
     const response = await fetch(`${CORE_BASE_URL}?page=${page}&per_page=${perPage}`, {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
-    
+
     const data = await response.json();
-    
+
     if (response.ok && data.data) {
       return {
         users: data.data,
-        pagination: data.pagination
+        pagination: data.pagination,
       };
     } else {
       const error = data.error || { code: 'UNKNOWN_ERROR', message: 'Unknown error' };
@@ -196,6 +205,7 @@ class UserService {
 ### Error Handling Updates
 
 #### Global Error Handler
+
 ```javascript
 // Before
 function handleApiError(error) {
@@ -216,7 +226,7 @@ function handleApiError(error) {
       // Store request ID for debugging
       const requestId = data.error.request_id;
       console.error(`API Error [${requestId}]:`, data.error);
-      
+
       // Return user-friendly message
       return data.error.message;
     }
@@ -228,22 +238,22 @@ function handleApiError(error) {
 ### Request ID Tracking
 
 #### Adding Request ID to Logs
+
 ```javascript
 // Create a wrapper for fetch that tracks request IDs
 async function apiRequest(url, options = {}) {
   const response = await fetch(url, options);
   const data = await response.json();
-  
+
   // Extract request ID from headers or response body
-  const requestId = response.headers.get('x-request-id') || 
-                   data.meta?.request_id || 
-                   data.error?.request_id;
-  
+  const requestId =
+    response.headers.get('x-request-id') || data.meta?.request_id || data.error?.request_id;
+
   // Log request ID for debugging
   if (requestId) {
     console.log(`API Request [${requestId}]: ${options.method || 'GET'} ${url}`);
   }
-  
+
   return { response, data, requestId };
 }
 
@@ -251,7 +261,7 @@ async function apiRequest(url, options = {}) {
 const { response, data, requestId } = await apiRequest(`${AUTH_BASE_URL}/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
+  body: JSON.stringify({ email, password }),
 });
 
 if (!response.ok) {
@@ -263,6 +273,7 @@ if (!response.ok) {
 ## 4. Component Updates
 
 ### React Example: User List Component
+
 ```jsx
 // Before
 function UserList() {
@@ -270,15 +281,15 @@ function UserList() {
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     loadUsers();
   }, []);
-  
+
   const loadUsers = async (page = 1) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await userService.getUsers(page);
       setUsers(response.users);
@@ -289,7 +300,7 @@ function UserList() {
       setLoading(false);
     }
   };
-  
+
   // ... rest of component
 }
 
@@ -300,16 +311,16 @@ function UserList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [requestId, setRequestId] = useState(null);
-  
+
   useEffect(() => {
     loadUsers();
   }, []);
-  
+
   const loadUsers = async (page = 1) => {
     setLoading(true);
     setError(null);
     setRequestId(null);
-    
+
     try {
       const result = await userService.getUsers(page);
       setUsers(result.users);
@@ -323,7 +334,7 @@ function UserList() {
       setLoading(false);
     }
   };
-  
+
   // ... rest of component
 }
 ```
@@ -331,6 +342,7 @@ function UserList() {
 ## 5. Testing Updates
 
 ### Unit Test Example
+
 ```javascript
 // Before
 describe('AuthService', () => {
@@ -340,17 +352,17 @@ describe('AuthService', () => {
       data: {
         user: { id: '1', email: 'test@example.com' },
         token: 'mock-token',
-        refreshToken: 'mock-refresh-token'
-      }
+        refreshToken: 'mock-refresh-token',
+      },
     };
-    
+
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockResponse)
+      json: () => Promise.resolve(mockResponse),
     });
-    
+
     const result = await authService.login('test@example.com', 'password');
-    
+
     expect(result.user).toEqual({ id: '1', email: 'test@example.com' });
     expect(result.token).toBe('mock-token');
   });
@@ -363,21 +375,21 @@ describe('AuthService', () => {
       data: {
         user: { id: '1', email: 'test@example.com' },
         accessToken: 'mock-token',
-        refreshToken: 'mock-refresh-token'
+        refreshToken: 'mock-refresh-token',
       },
       meta: {
         timestamp: '2023-10-15T04:25:18.229Z',
-        request_id: 'req_1697355980362_abc123def'
-      }
+        request_id: 'req_1697355980362_abc123def',
+      },
     };
-    
+
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockResponse)
+      json: () => Promise.resolve(mockResponse),
     });
-    
+
     const result = await authService.login('test@example.com', 'password');
-    
+
     expect(result.user).toEqual({ id: '1', email: 'test@example.com' });
     expect(result.token).toBe('mock-token');
   });
@@ -400,20 +412,25 @@ describe('AuthService', () => {
 ## 7. Common Issues and Solutions
 
 ### Issue: Getting "success" field is undefined
+
 **Solution**: Update your response handling to check for `data.data` instead of `data.success`.
 
 ### Issue: Pagination not working
+
 **Solution**: Change `limit` parameter to `per_page` and update response handling to use `data.pagination` instead of `data.data.pagination`.
 
 ### Issue: Missing error details
+
 **Solution**: Access error details from `data.error.details` (if available) and include the request ID in error reports.
 
 ### Issue: Rate limiting errors
+
 **Solution**: Handle rate limiting errors (status 429) by displaying appropriate messages to users and implementing retry logic with exponential backoff.
 
 ## 8. Backward Compatibility
 
 Legacy endpoints will continue to work with deprecation warnings:
+
 - `Deprecation: true` header
 - `Sunset` header with deprecation date
 - `Link` header pointing to new endpoint

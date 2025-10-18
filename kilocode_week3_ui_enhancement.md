@@ -3,12 +3,15 @@ Enhance and complete existing UI Components for Smart AI Hub's Points System and
 # Task: Week 3 - UI Components Enhancement
 
 ## Objective
+
 Enhance and complete 4 existing UI components (PointsCreditsDashboard, MemberList, TransferForm, ReferralCard) to provide comprehensive functionality and excellent user experience. All enhancements must integrate with existing APIs, follow React best practices, and maintain consistency with the overall design system.
 
 ## Context
+
 Smart AI Hub has basic UI components that need to be enhanced with additional features to provide full functionality for the Points System and Multi-tier Hierarchy. This task will upgrade existing components to production-ready state with complete feature sets.
 
 ## Technology Stack
+
 - **Framework:** React 18+ with TypeScript
 - **UI Library:** Ant Design (antd)
 - **State Management:** React Hooks
@@ -27,6 +30,7 @@ Smart AI Hub has basic UI components that need to be enhanced with additional fe
 **File:** `packages/frontend/src/components/points/PointsCreditsDashboard.tsx`
 
 #### Current State
+
 The component currently displays basic Points and Credits balances. It needs to be enhanced with comprehensive features for managing Points and Credits.
 
 #### Features to Add
@@ -34,6 +38,7 @@ The component currently displays basic Points and Credits balances. It needs to 
 ##### 1. Daily Rewards Section
 
 **Requirements:**
+
 - Display Daily Reward status (Claimed/Not Claimed today)
 - Show reward amount (e.g., "500 Points")
 - Show claim button (disabled if already claimed)
@@ -120,6 +125,7 @@ const DailyRewardSection: React.FC<DailyRewardSectionProps> = ({
 ```
 
 **API Integration:**
+
 - `GET /api/v1/points/daily-reward/status` - Check claim status
 - `POST /api/v1/points/daily-reward` - Claim reward
 
@@ -128,6 +134,7 @@ const DailyRewardSection: React.FC<DailyRewardSectionProps> = ({
 ##### 2. Purchase Points Section
 
 **Requirements:**
+
 - Form to select Points package
 - Display pricing (10,000 Points = 1 USD)
 - Multiple package options (10K, 50K, 100K, 500K, 1M Points)
@@ -269,6 +276,7 @@ const PurchasePointsSection: React.FC<PurchasePointsSectionProps> = ({
 ```
 
 **API Integration:**
+
 - `POST /api/v1/points/purchase` - Create purchase order
 - Stripe/PayPal SDK integration
 
@@ -277,6 +285,7 @@ const PurchasePointsSection: React.FC<PurchasePointsSectionProps> = ({
 ##### 3. Exchange Rate Section
 
 **Requirements:**
+
 - Display current exchange rate (1 Credit = X Points)
 - Calculator to preview exchange
 - Exchange button
@@ -382,6 +391,7 @@ const ExchangeRateSection: React.FC<ExchangeRateSectionProps> = ({
 ```
 
 **API Integration:**
+
 - `GET /api/v1/exchange-rate` - Get current rate
 - `POST /api/v1/points/exchange` - Exchange credits to points
 
@@ -390,6 +400,7 @@ const ExchangeRateSection: React.FC<ExchangeRateSectionProps> = ({
 ##### 4. Charts Section
 
 **Requirements:**
+
 - Balance History Line Chart (last 30 days)
 - Transaction Types Pie Chart
 - Responsive design
@@ -472,6 +483,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
 ##### 5. Recent Transactions Section
 
 **Requirements:**
+
 - Display 10 most recent transactions
 - Show type, amount, date
 - Color-coded by type (credit/debit)
@@ -605,6 +617,7 @@ export const PointsCreditsDashboard: React.FC = () => {
 ```
 
 **Deliverable:**
+
 - ✅ Fully enhanced PointsCreditsDashboard component
 - ✅ All 5 sections implemented
 - ✅ API integration complete
@@ -620,6 +633,7 @@ export const PointsCreditsDashboard: React.FC = () => {
 **File:** `packages/frontend/src/components/MemberList.tsx`
 
 #### Current State
+
 Basic table showing members. Needs advanced filtering, sorting, bulk actions, and export functionality.
 
 #### Features to Add
@@ -627,6 +641,7 @@ Basic table showing members. Needs advanced filtering, sorting, bulk actions, an
 ##### 1. Filters
 
 **Requirements:**
+
 - Filter by Tier (multi-select)
 - Filter by Status (Active/Blocked)
 - Search by Name/Email
@@ -706,6 +721,7 @@ const FilterSection: React.FC<{
 ##### 2. Sorting
 
 **Requirements:**
+
 - Sort by Name (A-Z, Z-A)
 - Sort by Tier
 - Sort by Points (High-Low, Low-High)
@@ -801,6 +817,7 @@ const columns = [
 ##### 3. Bulk Actions
 
 **Requirements:**
+
 - Select multiple members (checkboxes)
 - Bulk block/unblock
 - Bulk transfer
@@ -860,6 +877,7 @@ const BulkActionsBar = () => (
 ##### 4. Export
 
 **Requirements:**
+
 - Export to CSV
 - Export to Excel
 - Export filtered/selected data only
@@ -915,6 +933,7 @@ const ExportButtons = () => (
 ##### 5. Enhanced Pagination
 
 **Requirements:**
+
 - Configurable page size (10, 20, 50, 100)
 - Jump to page
 - Show total count
@@ -926,7 +945,7 @@ const ExportButtons = () => (
 const [pagination, setPagination] = useState({
   current: 1,
   pageSize: 20,
-  total: 0
+  total: 0,
 });
 
 const paginationConfig = {
@@ -937,7 +956,7 @@ const paginationConfig = {
   pageSizeOptions: ['10', '20', '50', '100'],
   onChange: (page: number, pageSize: number) => {
     setPagination({ ...pagination, current: page, pageSize });
-  }
+  },
 };
 ```
 
@@ -997,6 +1016,7 @@ export const MemberList: React.FC = () => {
 ```
 
 **Deliverable:**
+
 - ✅ Fully enhanced MemberList component
 - ✅ Advanced filtering
 - ✅ Sorting on all columns
@@ -1017,6 +1037,7 @@ export const MemberList: React.FC = () => {
 ##### 1. User Search/Autocomplete
 
 **Requirements:**
+
 - Search by name or email
 - Autocomplete dropdown
 - **Filtered by Visibility Rules** ⭐ Critical
@@ -1069,6 +1090,7 @@ const handleSearch = async (value: string) => {
 ```
 
 **API Integration:**
+
 - `GET /api/v1/users/search?q={query}` - Search users (with visibility filtering)
 
 ---
@@ -1076,6 +1098,7 @@ const handleSearch = async (value: string) => {
 ##### 2. Enhanced Validation
 
 **Requirements:**
+
 - Check sufficient balance
 - Check minimum amount (e.g., 1 Point/Credit)
 - Check authorization (can transfer to this user?)
@@ -1104,9 +1127,9 @@ const validateTransfer = async (recipient: User, amount: number, type: 'points' 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
-      body: JSON.stringify({ recipientId: recipient.id })
+      body: JSON.stringify({ recipientId: recipient.id }),
     });
     const { authorized, reason } = await response.json();
     if (!authorized) {
@@ -1125,6 +1148,7 @@ const validateTransfer = async (recipient: User, amount: number, type: 'points' 
 ##### 3. Confirmation Dialog
 
 **Requirements:**
+
 - Show transfer details
 - Show recipient info
 - Show amount and type
@@ -1180,6 +1204,7 @@ const showConfirmDialog = () => {
 ##### 4. Success/Error Messages
 
 **Requirements:**
+
 - Success notification with details
 - Error handling with clear messages
 - Transaction ID display
@@ -1236,6 +1261,7 @@ const handleTransfer = async () => {
 ##### 5. Transfer History
 
 **Requirements:**
+
 - Show recent transfers (last 5)
 - Link to full history page
 - Quick repeat transfer
@@ -1369,6 +1395,7 @@ export const TransferForm: React.FC = () => {
 ```
 
 **Deliverable:**
+
 - ✅ Fully enhanced TransferForm component
 - ✅ User search with visibility filtering
 - ✅ Comprehensive validation
@@ -1389,6 +1416,7 @@ export const TransferForm: React.FC = () => {
 ##### 1. QR Code
 
 **Requirements:**
+
 - Generate QR Code from invite link
 - Download QR Code as image
 - Customizable size
@@ -1436,6 +1464,7 @@ const QRCodeSection: React.FC<{ inviteLink: string }> = ({ inviteLink }) => {
 ##### 2. Social Share Buttons
 
 **Requirements:**
+
 - Facebook, Twitter, Line, Email, WhatsApp
 - Custom share message
 - Popup windows
@@ -1524,6 +1553,7 @@ const SocialShareSection: React.FC<{ inviteLink: string }> = ({ inviteLink }) =>
 ##### 3. Statistics
 
 **Requirements:**
+
 - Total Referrals count
 - Active Referrals count
 - Total Rewards earned
@@ -1574,6 +1604,7 @@ const StatisticsSection: React.FC<{
 ##### 4. Copy Link Button
 
 **Requirements:**
+
 - One-click copy
 - Success notification
 - Visual feedback
@@ -1660,6 +1691,7 @@ export const ReferralCard: React.FC = () => {
 ```
 
 **Deliverable:**
+
 - ✅ Fully enhanced ReferralCard component
 - ✅ QR Code generation and download
 - ✅ Social share buttons (5 platforms)
@@ -1671,6 +1703,7 @@ export const ReferralCard: React.FC = () => {
 ## Quality Standards
 
 ### Code Quality
+
 - ✅ TypeScript with proper types
 - ✅ React Hooks best practices
 - ✅ Error handling
@@ -1680,6 +1713,7 @@ export const ReferralCard: React.FC = () => {
 - ✅ Accessibility (a11y)
 
 ### UI/UX
+
 - ✅ Consistent with Ant Design
 - ✅ Mobile-friendly
 - ✅ Fast and smooth
@@ -1687,6 +1721,7 @@ export const ReferralCard: React.FC = () => {
 - ✅ Intuitive interactions
 
 ### Security
+
 - ✅ Visibility rules enforced
 - ✅ Authorization checks
 - ✅ Input sanitization
@@ -1714,6 +1749,7 @@ The Week 3 task is considered complete when:
 ## Deliverables Summary
 
 ### Enhanced Components (4)
+
 1. ✅ `PointsCreditsDashboard.tsx` - Complete dashboard with 5 sections
 2. ✅ `MemberList.tsx` - Advanced table with filters, sorting, bulk actions
 3. ✅ `TransferForm.tsx` - Complete form with validation and confirmation
@@ -1759,4 +1795,3 @@ The Week 3 task is considered complete when:
 ## Output
 
 Please enhance all 4 components as specified. Confirm when complete and ready for testing.
-

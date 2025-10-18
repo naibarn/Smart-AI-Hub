@@ -8,39 +8,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - New feature description
 - Another new feature
 
 ### Changed
+
 - Changed feature description
 - Updated behavior
 
 ### Deprecated
+
 - Feature that will be removed in future versions
 
 ### Removed
+
 - Feature that has been removed
 
 ### Fixed
+
 - Bug fix description
 - Another bug fix
 
 ### Security
+
 - Security fix description
 
 ### Dependencies
+
 - Updated dependency X to version Y
 - Added new dependency
 
 ### Documentation
+
 - Updated documentation for feature X
 - Added new API documentation
 
 ### Testing
+
 - Added tests for feature X
 - Improved test coverage
 
 ### Infrastructure
+
 - Updated CI/CD pipeline
 - Improved deployment process
 
@@ -49,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Version X.Y.Z] - YYYY-MM-DD
 
 ### Added
+
 - User authentication system with JWT tokens
 - OAuth integration with Google and GitHub
 - Credit system with Stripe payment integration
@@ -59,28 +70,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive API documentation
 
 ### Changed
+
 - Updated project architecture to microservices
 - Migrated from monolith to service-oriented architecture
 - Improved error handling and logging
 - Enhanced security with rate limiting and input validation
 
 ### Deprecated
+
 - Legacy authentication method (will be removed in v2.0.0)
 - Old API endpoints (will be removed in v2.0.0)
 
 ### Fixed
+
 - Fixed user registration email verification
 - Resolved credit calculation issues
 - Fixed OAuth callback handling
 - Addressed security vulnerabilities in input validation
 
 ### Security
+
 - Implemented rate limiting on authentication endpoints
 - Added input validation and sanitization
 - Enhanced password security with stronger hashing
 - Improved JWT token security
 
 ### Dependencies
+
 - Updated Node.js to version 18.x
 - Upgraded React to version 18.x
 - Updated TypeScript to version 5.x
@@ -88,18 +104,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrated Stripe SDK for payment processing
 
 ### Documentation
+
 - Created comprehensive API documentation
 - Added development and deployment guides
 - Documented security guidelines
 - Added architecture documentation
 
 ### Testing
+
 - Implemented unit tests with 85% coverage
 - Added integration tests for API endpoints
 - Created E2E tests for critical user journeys
 - Added security testing suite
 
 ### Infrastructure
+
 - Set up CI/CD pipeline with GitHub Actions
 - Implemented automated testing and deployment
 - Added monitoring and logging with Prometheus and Grafana
@@ -110,15 +129,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Version 0.9.0] - 2023-09-15
 
 ### Added
+
 - Initial project setup
 - Basic user authentication
 - Simple credit system
 - Basic AI model integration
 
 ### Changed
+
 - Initial architecture design
 
 ### Fixed
+
 - Initial bug fixes
 
 ---
@@ -126,6 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Version 0.1.0] - 2023-08-01
 
 ### Added
+
 - Project initialization
 - Basic project structure
 - Initial documentation
@@ -137,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Versioning Format
 
 Follow Semantic Versioning (SemVer):
+
 - **MAJOR**: Incompatible API changes
 - **MINOR**: New functionality in a backwards compatible manner
 - **PATCH**: Backwards compatible bug fixes
@@ -267,6 +291,7 @@ See [MIGRATION.md](./MIGRATION.md) for detailed migration instructions.
 ### Questions?
 
 For questions about the changelog format or process, please:
+
 - Check the [Contributing Guide](./CONTRIBUTING.md)
 - Open an issue for discussion
 - Contact the development team

@@ -5,6 +5,7 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 **PRIORITY:** {{priority}}
 
 คำสั่ง:
+
 1. อ่านไฟล์ {{input_path}}
 
 2. วิเคราะห์ปัญหาที่พบ:
@@ -16,18 +17,18 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
    - มี Testing Criteria: {{has_testing_criteria}}
 
 3. แก้ไขไฟล์โดยใช้มาตรฐานจาก spec_example_good.md:
-   
+
    **ต้องมีทุกส่วน:**
    - Front Matter (YAML) ครบถ้วน
    - 1. ภาพรวม (Overview)
    - 2. วัตถุประสงค์ (Objectives) - 3-5 ข้อ
    - 3. User Stories - อย่างน้อย 2 stories
-     * แต่ละ story ต้องมี Acceptance Criteria 5-7 ข้อ
+     - แต่ละ story ต้องมี Acceptance Criteria 5-7 ข้อ
    - 4. ขอบเขตงาน (In Scope 5-7 ข้อ / Out of Scope 3-5 ข้อ)
    - 5. ข้อกำหนดทางเทคนิค
-     * Backend API Endpoints (ถ้ามี) - ตาราง
-     * Security Requirements
-     * Frontend Requirements
+     - Backend API Endpoints (ถ้ามี) - ตาราง
+     - Security Requirements
+     - Frontend Requirements
    - 6. การทดสอบ (Unit/Integration/E2E อย่างละ 3+ ข้อ)
    - 7. Dependencies และ Assumptions
    - 8. Non-Functional Requirements
@@ -43,6 +44,7 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 5. บันทึกไฟล์ใหม่ทับไฟล์เดิมที่ {{input_path}}
 
 6. รัน validation:
+
 ```bash
    cd packages/speckit
    node dist/cli/index.js validate ../../{{input_path}}
@@ -54,6 +56,7 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 
 8. สร้าง checkpoint:
    สร้างไฟล์ .spec-automation/checkpoints/{{task_id}}.json:
+
 ```json
    {
      "task_id": "{{task_id}}",
@@ -76,19 +79,21 @@ TASK: {{task_id}} - แก้ไขไฟล์ {{filename}}
 ```
 
 9. แสดงผลลัพธ์:
+
 ```
    ✅ {{task_id}} COMPLETE
-   
+
    📄 File: {{filename}}
    📊 Score: {{current_score}} → [new_score] (+XX)
    📏 Lines: [old] → [new] (+XX)
    ✅ Validation: PASSED
    ⏱️  Time: XX minutes
-   
+
    💾 Checkpoint: .spec-automation/checkpoints/{{task_id}}.json
-   
+
    🔄 Update tracker:
    node .spec-automation/tracker.js complete {{task_id}} XX
-   
+
    ➡️  Next Task:
    node .spec-automation/tracker.js next
+```

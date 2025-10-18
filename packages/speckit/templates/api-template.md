@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-api-{{api-name}}-{{sequence-number}}"
-title: "{{API Name}} API Specification"
-type: "api_spec"
-category: "architecture"
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft"
-priority: "{{priority-level}}"
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}}
-actualEffort: {{hours}}
+id: 'spec-api-{{api-name}}-{{sequence-number}}'
+title: '{{API Name}} API Specification'
+type: 'api_spec'
+category: 'architecture'
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft'
+priority: '{{priority-level}}'
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } }
+actualEffort: { { hours } }
 reviewers: []
 approvers: []
-tags: ["api", "{{api-category}}", "{{protocol}}"]
+tags: ['api', '{{api-category}}', '{{protocol}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{parent-spec-id}}"
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"]
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
+parent: '{{parent-spec-id}}'
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}']
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}']
 ---
 
 # {{API Name}} API Specification
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the API and its purpose
-  TIPS: 
+  TIPS:
   - Explain the API's role in the system architecture
   - Describe the business value and use cases
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## API Goals and Principles
 
-<!-- 
+<!--
   PURPOSE: Define the goals and design principles for the API
   TIPS:
   - Include both functional and non-functional goals
@@ -48,18 +48,20 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 -->
 
 ### Primary Goals
+
 1. **{{Goal 1}}**: {{Description and target metric}}
 2. **{{Goal 2}}**: {{Description and target metric}}
 3. **{{Goal 3}}**: {{Description and target metric}}
 
 ### Design Principles
+
 - **{{Principle 1}}**: {{Description and rationale}}
 - **{{Principle 2}}**: {{Description and rationale}}
 - **{{Principle 3}}**: {{Description and rationale}}
 
 ## API Contracts
 
-<!-- 
+<!--
   PURPOSE: Define the API contracts and interfaces
   TIPS:
   - Use OpenAPI/Swagger specification format
@@ -75,7 +77,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Authentication and Authorization
 
-<!-- 
+<!--
   PURPOSE: Define security requirements for the API
   TIPS:
   - Specify authentication methods
@@ -84,20 +86,23 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 -->
 
 #### Authentication
+
 - **Method**: {{OAuth 2.0, API Key, JWT, etc.}}
 - **Implementation Details**: {{Authentication flow and requirements}}
 
 #### Authorization
+
 - **Model**: {{RBAC, ABAC, scopes, etc.}}
 - **Permissions**: {{Permission structure and requirements}}
 
 #### Rate Limiting
+
 - **Rate Limit**: {{X requests per Y time period}}
 - **Quota**: {{Daily/monthly limits if applicable}}
 
 ### Endpoints
 
-<!-- 
+<!--
   PURPOSE: Define all API endpoints
   TIPS:
   - Group endpoints by resource or functionality
@@ -114,6 +119,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 **Description**: {{Brief description of the endpoint purpose}}
 
 **Request Headers**:
+
 ```
 {{Header-Name}}: {{Header-Value}}
 {{Header-Name}}: {{Header-Value}}
@@ -121,8 +127,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 **Request Parameters**:
 
-| Parameter | Type | Required | Description | Example |
-|-----------|------|----------|-------------|---------|
+| Parameter      | Type     | Required   | Description     | Example     |
+| -------------- | -------- | ---------- | --------------- | ----------- |
 | {{param-name}} | {{type}} | {{yes/no}} | {{description}} | {{example}} |
 | {{param-name}} | {{type}} | {{yes/no}} | {{description}} | {{example}} |
 
@@ -137,14 +143,14 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 **Response**:
 
-| Status Code | Description | Schema |
-|-------------|-------------|--------|
-| 200 | {{Success description}} | {{Response schema reference}} |
-| 201 | {{Created description}} | {{Response schema reference}} |
-| 400 | {{Bad request description}} | {{Error schema reference}} |
-| 401 | {{Unauthorized description}} | {{Error schema reference}} |
-| 404 | {{Not found description}} | {{Error schema reference}} |
-| 500 | {{Server error description}} | {{Error schema reference}} |
+| Status Code | Description                  | Schema                        |
+| ----------- | ---------------------------- | ----------------------------- |
+| 200         | {{Success description}}      | {{Response schema reference}} |
+| 201         | {{Created description}}      | {{Response schema reference}} |
+| 400         | {{Bad request description}}  | {{Error schema reference}}    |
+| 401         | {{Unauthorized description}} | {{Error schema reference}}    |
+| 404         | {{Not found description}}    | {{Error schema reference}}    |
+| 500         | {{Server error description}} | {{Error schema reference}}    |
 
 **Success Response Example**:
 
@@ -177,7 +183,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Data Models
 
-<!-- 
+<!--
   PURPOSE: Define data models and schemas
   TIPS:
   - Include all data structures used by the API
@@ -218,7 +224,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Error Handling
 
-<!-- 
+<!--
   PURPOSE: Define error handling strategy
   TIPS:
   - Include error code taxonomy
@@ -228,10 +234,10 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 #### Error Codes
 
-| Error Code | HTTP Status | Description | Resolution |
-|------------|-------------|-------------|------------|
-| {{error-code}} | {{status}} | {{description}} | {{resolution guidance}} |
-| {{error-code}} | {{status}} | {{description}} | {{resolution guidance}} |
+| Error Code     | HTTP Status | Description     | Resolution              |
+| -------------- | ----------- | --------------- | ----------------------- |
+| {{error-code}} | {{status}}  | {{description}} | {{resolution guidance}} |
+| {{error-code}} | {{status}}  | {{description}} | {{resolution guidance}} |
 
 #### Error Response Format
 
@@ -252,7 +258,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Non-Functional Requirements
 
-<!-- 
+<!--
   PURPOSE: Define quality attributes and system constraints
   TIPS:
   - Include measurable criteria for each requirement
@@ -289,7 +295,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Integration Requirements
 
-<!-- 
+<!--
   PURPOSE: Define integration requirements and patterns
   TIPS:
   - Include both internal and external integrations
@@ -313,7 +319,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Testing Strategy
 
-<!-- 
+<!--
   PURPOSE: Define testing approach and requirements
   TIPS:
   - Include different types of testing
@@ -342,7 +348,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Deployment and Operations
 
-<!-- 
+<!--
   PURPOSE: Define deployment and operational requirements
   TIPS:
   - Consider deployment strategy and environments
@@ -371,7 +377,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## API Documentation
 
-<!-- 
+<!--
   PURPOSE: Define documentation requirements
   TIPS:
   - Include both developer and operational documentation
@@ -394,7 +400,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Risks and Mitigation
 
-<!-- 
+<!--
   PURPOSE: Identify risks and mitigation strategies
   TIPS:
   - Consider technical, business, and operational risks
@@ -404,14 +410,14 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Risk Assessment
 
-| Risk | Probability | Impact | Mitigation Strategy | Owner |
-|------|-------------|--------|-------------------|-------|
+| Risk                 | Probability         | Impact              | Mitigation Strategy     | Owner          |
+| -------------------- | ------------------- | ------------------- | ----------------------- | -------------- |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 
 ## Implementation Notes
 
-<!-- 
+<!--
   PURPOSE: Provide technical guidance for implementation
   TIPS:
   - Include architectural considerations
@@ -443,20 +449,20 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

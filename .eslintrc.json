@@ -1,7 +1,8 @@
 {
   "env": {
     "es2021": true,
-    "node": true
+    "node": true,
+    "jest": true
   },
   "extends": ["eslint:recommended", "@typescript-eslint/recommended", "prettier"],
   "parser": "@typescript-eslint/parser",
@@ -16,5 +17,43 @@
     "no-console": "warn",
     "prettier/prettier": "error"
   },
-  "ignorePatterns": ["dist/", "node_modules/", "coverage/"]
+  "ignorePatterns": ["dist/", "node_modules/", "coverage/"],
+  "overrides": [
+    {
+      "files": ["**/*.cjs"],
+      "parserOptions": { "sourceType": "script" },
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off",
+        "no-undef": "off",
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["tests/**/*", "packages/**/src/__tests__/**/*", "**/__tests__/**/*"],
+      "env": { "jest": true, "node": true },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["**/*.js"],
+      "parserOptions": { "sourceType": "script" },
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off",
+        "no-undef": "off"
+      }
+    },
+    {
+      "files": [
+        "packages/core-service/prisma/**/*",
+        "scripts/**/*",
+        "packages/**/scripts/**/*"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
 }

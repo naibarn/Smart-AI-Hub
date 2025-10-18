@@ -1,6 +1,7 @@
 TASK: Implement Automated Backup Service for Smart AI Hub with Complete Spec Kit Documentation
 
 OBJECTIVE:
+
 1. Create a comprehensive Spec Kit document for the Automated Backup Service following the standard 16-section format
 2. Implement a lightweight automated backup system that backs up only critical data
 3. Monitor backup status and send alerts on failures
@@ -8,6 +9,7 @@ OBJECTIVE:
 
 CONTEXT:
 The Smart AI Hub currently has a basic backup script (scripts/backup.sh) but lacks:
+
 - Complete Spec Kit documentation (16 sections)
 - Automated scheduling (requires manual cron setup)
 - Dedicated backup service container
@@ -34,6 +36,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 อธิบายระบบ Automated Backup Service ว่าคืออะไร ทำไมต้องมี และมีความสำคัญอย่างไร
 
 **ควรครอบคลุม:**
+
 - ระบบ backup อัตโนมัติสำหรับข้อมูลสำคัญ
 - Lightweight strategy (backup เฉพาะข้อมูลที่จำเป็นต่อการกู้ระบบ)
 - Email delivery ไปยัง Administrators
@@ -47,6 +50,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 ระบุเป้าหมายหลักของระบบ Automated Backup Service
 
 **ตัวอย่าง:**
+
 - ป้องกันการสูญเสียข้อมูลสำคัญ
 - ลด Recovery Time Objective (RTO) ให้ต่ำที่สุด
 - ให้ Administrators สามารถเข้าถึง backup ได้ง่ายผ่าน email
@@ -64,6 +68,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 **เพื่อที่จะ** [เป้าหมาย]
 
 **Acceptance Criteria:**
+
 - [ ] เกณฑ์ที่ 1
 - [ ] เกณฑ์ที่ 2
 - [ ] ...
@@ -77,6 +82,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 **เพื่อที่จะ** เก็บสำรองข้อมูลไว้ที่ปลอดภัยและเข้าถึงได้ง่าย
 
 **Acceptance Criteria:**
+
 - [ ] ระบบต้องส่ง email พร้อม backup file ทุกวันเวลา 2:00 AM
 - [ ] Email ต้องมี backup summary (ขนาด, วันที่, รายการข้อมูล)
 - [ ] ถ้าไฟล์ < 25MB ต้องแนบใน email
@@ -90,6 +96,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 **เพื่อที่จะ** ลดขนาดไฟล์และเวลาในการ backup
 
 **Acceptance Criteria:**
+
 - [ ] Backup ต้องรวม: Users, Credits, Points, Transactions (3 เดือน), Organizations, Config
 - [ ] Backup ต้องไม่รวม: Logs เก่า, Session data, Transactions เก่ากว่า 3 เดือน
 - [ ] ขนาดไฟล์ต้อง < 100MB (เป้าหมาย < 50MB)
@@ -102,6 +109,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 **เพื่อที่จะ** แก้ไขปัญหาได้ทันท่วงที
 
 **Acceptance Criteria:**
+
 - [ ] ระบบต้องส่ง alert email เมื่อ backup ล้มเหลว
 - [ ] Alert ต้องระบุสาเหตุของความล้มเหลว
 - [ ] Alert ต้องส่งถึง Administrators ทันที
@@ -114,6 +122,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 **เพื่อที่จะ** กู้ระบบได้ทันทีเมื่อเกิดปัญหา
 
 **Acceptance Criteria:**
+
 - [ ] Backup file ต้องมี README หรือ BACKUP_INFO.txt อธิบายวิธี restore
 - [ ] Restore procedure ต้องชัดเจนและทำตามได้ง่าย
 - [ ] Backup ต้อง verify integrity ก่อนส่ง
@@ -126,6 +135,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 **เพื่อที่จะ** มั่นใจว่าระบบ backup ทำงานปกติ
 
 **Acceptance Criteria:**
+
 - [ ] ระบบต้องมี healthcheck endpoint
 - [ ] ระบบต้องบันทึก timestamp ของ backup ล่าสุด
 - [ ] ระบบต้องบันทึกขนาดของ backup ล่าสุด
@@ -136,6 +146,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 #### 4. ขอบเขตงาน (Scope)
 
 **4.1 ในขอบเขตงาน (In Scope):**
+
 - Automated backup scheduler (daily at 2 AM)
 - Lightweight backup (critical data only, last 3 months transactions)
 - Email delivery to administrators
@@ -147,6 +158,7 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 - Configuration backup (.env, docker-compose, nginx, SSL)
 
 **4.2 นอกขอบเขตงาน (Out of Scope):**
+
 - Cloud storage integration (AWS S3, Google Cloud Storage) - Phase 2
 - Incremental backups - Phase 2
 - Point-in-time recovery - Phase 2
@@ -161,17 +173,20 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 #### 5. ข้อกำหนดด้านฟังก์ชัน (Functional Requirements)
 
 **FR-1: Automated Backup Scheduling**
+
 - ระบบต้องทำ backup อัตโนมัติทุกวันเวลา 2:00 AM
 - ใช้ cron job ใน Docker container
 - Configurable schedule ผ่าน environment variable
 
 **FR-2: Lightweight Backup Strategy**
+
 - Backup เฉพาะ tables: users, user_roles, organizations, agencies, referrals, exchange_rates, system_settings
 - Backup transactions (credits, points, purchases, transfers) ย้อนหลัง 3 เดือนเท่านั้น
 - Backup configuration files: .env.production, docker-compose.prod.yml, nginx.prod.conf, SSL certificates
 - ไม่ backup: logs เก่า, session data, audit logs เก่า, transactions เก่ากว่า 3 เดือน
 
 **FR-3: Email Delivery**
+
 - ส่ง backup file ไปยัง Administrators ทุกวัน
 - แนบไฟล์ถ้าขนาด < 25MB
 - ให้ download link ถ้าขนาด > 25MB
@@ -179,18 +194,21 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 - รวม restore instructions ใน email
 
 **FR-4: Backup Monitoring**
+
 - Healthcheck ตรวจสอบ backup ล่าสุด
 - Alert ถ้าไม่มี backup ใน 25 ชั่วโมง
 - Alert ถ้าขนาดไฟล์ผิดปกติ (< 1MB หรือ > 100MB)
 - บันทึก metrics: last backup timestamp, size, success rate
 
 **FR-5: Backup Verification**
+
 - Verify gzip integrity
 - Check file size
 - Verify database dump readable
 - Create backup summary
 
 **FR-6: Backup Retention**
+
 - เก็บ backup ไว้ 30 วัน
 - ลบ backup เก่าอัตโนมัติ
 - Configurable retention period
@@ -200,26 +218,31 @@ PROJECT REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 #### 6. ข้อกำหนดด้านไม่ใช่ฟังก์ชัน (Non-Functional Requirements)
 
 **NFR-1: Performance**
+
 - Backup ต้องเสร็จภายใน 10 นาที
 - ขนาดไฟล์ต้อง < 100MB (เป้าหมาย < 50MB)
 - Email delivery ต้องเสร็จภายใน 5 นาที
 
 **NFR-2: Reliability**
+
 - Backup success rate ≥ 99%
 - Retry logic สำหรับ email delivery (3 ครั้ง)
 - Error handling ครบถ้วน
 
 **NFR-3: Security**
+
 - Backup files ต้องเก็บใน secure directory
 - SMTP credentials ต้องเก็บใน environment variables
 - Backup files ต้อง verify integrity
 
 **NFR-4: Maintainability**
+
 - Code ต้อง documented ชัดเจน
 - Scripts ต้องมี error messages ที่เข้าใจง่าย
 - Logging ครบถ้วน
 
 **NFR-5: Scalability**
+
 - รองรับ database ขนาดใหญ่ (up to 10GB)
 - Configurable backup scope
 
@@ -259,6 +282,7 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 ไม่มี API endpoints (ระบบทำงานแบบ standalone service)
 
 **Docker Healthcheck:**
+
 - Command: `/scripts/backup-monitor.sh`
 - Interval: 1 hour
 - Timeout: 10 seconds
@@ -302,20 +326,24 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 #### 10. Security Considerations
 
 **SC-1: Backup File Security**
+
 - เก็บ backup files ใน `/backups` directory (mounted volume)
 - ไม่ expose backup files ผ่าน web server
 - Backup files ต้อง readable เฉพาะ root และ postgres user
 
 **SC-2: SMTP Credentials**
+
 - เก็บใน environment variables
 - ไม่ commit ใน git
 - ใช้ app-specific passwords สำหรับ Gmail
 
 **SC-3: Email Security**
+
 - ใช้ TLS สำหรับ SMTP connection
 - Verify SMTP server certificate
 
 **SC-4: Database Credentials**
+
 - เก็บใน environment variables
 - ไม่ log passwords
 - ใช้ read-only user สำหรับ backup (ถ้าเป็นไปได้)
@@ -326,13 +354,13 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 
 **Error Scenarios:**
 
-| Error | Handling | Alert |
-|-------|----------|-------|
-| Database connection failed | Retry 3 times, then alert | Yes |
-| Backup compression failed | Alert immediately | Yes |
-| Email delivery failed | Retry 3 times, then alert | Yes |
-| Disk space full | Alert immediately | Yes |
-| Backup verification failed | Alert immediately | Yes |
+| Error                      | Handling                  | Alert |
+| -------------------------- | ------------------------- | ----- |
+| Database connection failed | Retry 3 times, then alert | Yes   |
+| Backup compression failed  | Alert immediately         | Yes   |
+| Email delivery failed      | Retry 3 times, then alert | Yes   |
+| Disk space full            | Alert immediately         | Yes   |
+| Backup verification failed | Alert immediately         | Yes   |
 
 **Error Messages:**
 
@@ -348,18 +376,22 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 #### 12. Performance Requirements
 
 **PR-1: Backup Time**
+
 - Target: < 5 นาที
 - Maximum: < 10 นาที
 
 **PR-2: File Size**
+
 - Target: < 50MB
 - Maximum: < 100MB
 
 **PR-3: Email Delivery**
+
 - Target: < 2 นาที
 - Maximum: < 5 นาที
 
 **PR-4: Monitoring Check**
+
 - Target: < 5 วินาที
 - Maximum: < 10 วินาที
 
@@ -368,11 +400,13 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 #### 13. Deployment Strategy
 
 **DS-1: Docker Container**
+
 - สร้าง `Dockerfile.backup`
 - เพิ่ม service ใน `docker-compose.prod.yml`
 - Mount volumes: `/backups`, `/scripts`, `/ssl`, config files
 
 **DS-2: Environment Variables**
+
 - เพิ่มใน `.env.production`:
   - SMTP configuration
   - Admin emails
@@ -391,6 +425,7 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 **DS-4: Rollback Plan**
 
 ถ้าเกิดปัญหา:
+
 1. Stop backup service
 2. Revert docker-compose.prod.yml
 3. Continue manual backups
@@ -438,6 +473,7 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 **File:** `docs/BACKUP_SYSTEM.md`
 
 **Contents:**
+
 - Overview
 - What's backed up
 - Backup schedule
@@ -450,6 +486,7 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 **File:** `docs/BACKUP_DEVELOPMENT.md`
 
 **Contents:**
+
 - Architecture
 - Code structure
 - Scripts explanation
@@ -461,6 +498,7 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 **File:** `docs/BACKUP_OPERATIONS.md`
 
 **Contents:**
+
 - How to check backup status
 - How to trigger manual backup
 - How to restore from backup
@@ -542,14 +580,14 @@ curl https://api.smartaihub.com/health
 
 ```yaml
 ---
-title: "Automated Backup Service Specification"
-author: "Development Team"
-created_date: "2025-10-17"
-last_updated: "2025-10-17"
-version: "1.0"
-status: "Draft"
-priority: "P0 - Critical"
-related_specs: ["DISASTER_RECOVERY_PLAN", "DATABASE_MANAGEMENT"]
+title: 'Automated Backup Service Specification'
+author: 'Development Team'
+created_date: '2025-10-17'
+last_updated: '2025-10-17'
+version: '1.0'
+status: 'Draft'
+priority: 'P0 - Critical'
+related_specs: ['DISASTER_RECOVERY_PLAN', 'DATABASE_MANAGEMENT']
 ---
 ```
 
@@ -635,4 +673,3 @@ related_specs: ["DISASTER_RECOVERY_PLAN", "DATABASE_MANAGEMENT"]
 REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 
 START WITH: Creating the Spec Kit document (specs/AUTOMATED_BACKUP_SERVICE_SPEC.md) with all 16 sections complete.
-

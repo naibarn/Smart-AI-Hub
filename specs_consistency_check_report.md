@@ -6,6 +6,7 @@
 ## Executive Summary
 
 This report analyzes the consistency between different specification documents in the Smart AI Hub project, focusing on:
+
 1. Credit deduction rules comparison
 2. API endpoint consistency between auth service spec and architecture documentation
 
@@ -33,6 +34,7 @@ Sora2 Video Generation: 30 credits per video
 ```
 
 **Additional References**:
+
 - [`specs/01_requirements/functional/fr_credit_03.md`](specs/01_requirements/functional/fr_3.md) and [`fr_credit_04.md`](specs/01_requirements/functional/fr_4.md) contain API specifications for credit checking and deduction but not the actual credit costs
 - [`docs/architecture.md`](docs/architecture.md:2162) mentions credit calculation but doesn't specify values
 
@@ -49,6 +51,7 @@ Sora2 Video Generation: 30 credits per video
 **Source**: [`specs/02_architecture/services/auth_service.md`](specs/02_architecture/services/auth_service.md:52-69)
 
 List of endpoints:
+
 - `POST /register` - User registration
 - `POST /login` - User login
 - `POST /logout` - User logout (blacklist token)
@@ -69,6 +72,7 @@ List of endpoints:
 **Source**: [`docs/architecture.md`](docs/architecture.md:2110-2139)
 
 The Authentication Flow Diagram shows the following flow:
+
 1. Client sends `POST /api/auth/login` to API Gateway
 2. API Gateway forwards to Auth Service
 3. Auth Service verifies password with database
@@ -94,6 +98,7 @@ The Authentication Flow Diagram shows the following flow:
 **Source**: [`docs/architecture.md`](docs/architecture.md:128-132)
 
 The API Gateway routing rules show:
+
 ```
 /api/auth/* → auth-service:3001
 ```

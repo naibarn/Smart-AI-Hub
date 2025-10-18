@@ -37,6 +37,7 @@ Tests the route guards and access control mechanisms for all user tiers:
 - **General**: Can only access general routes
 
 #### Key Test Cases:
+
 - Route protection for each user tier
 - Navigation menu visibility based on user tier
 - API endpoint access control
@@ -53,6 +54,7 @@ Tests the visibility rules that govern what users can see based on their tier:
 - **General**: Can only see themselves
 
 #### Key Test Cases:
+
 - User list visibility based on hierarchy
 - Transfer recipient visibility
 - Search functionality respects visibility rules
@@ -69,6 +71,7 @@ Tests the transfer functionality for both points and credits:
 - Transfer limit enforcement
 
 #### Key Test Cases:
+
 - Successful transfers
 - Transfer to invisible users (should fail)
 - Transfer with insufficient balance (should fail)
@@ -85,6 +88,7 @@ Tests the block/unblock functionality:
 - Unblock functionality works correctly
 
 #### Key Test Cases:
+
 - Successful blocking
 - Blocking higher-tier users (should fail)
 - Blocking without permission (should fail)
@@ -101,6 +105,7 @@ Tests the referral system with invite codes:
 - Referral tracking works properly
 
 #### Key Test Cases:
+
 - Referral code generation
 - Signup with referral code
 - Reward distribution
@@ -116,6 +121,7 @@ Tests the Points System features:
 - Auto top-up functionality
 
 #### Key Test Cases:
+
 - Daily reward collection
 - Exchange rate application
 - Purchase process
@@ -164,6 +170,7 @@ Performance testing under load:
 - Identifies performance bottlenecks
 
 #### Key Metrics:
+
 - Requests per second
 - Response time percentiles
 - Error rates
@@ -286,7 +293,7 @@ const config = {
   rampUpTime: 10, // seconds
   endpoints: [
     // ... endpoint definitions
-  ]
+  ],
 };
 ```
 
@@ -313,16 +320,19 @@ const config = {
 ### Debugging Tips
 
 1. Use the Playwright UI mode for interactive debugging:
+
    ```bash
    npx playwright test --ui
    ```
 
 2. Run tests in headed mode to see the browser:
+
    ```bash
    npx playwright test --headed
    ```
 
 3. Use the Playwright Inspector for step-by-step debugging:
+
    ```bash
    PWDEBUG=1 npx playwright test
    ```

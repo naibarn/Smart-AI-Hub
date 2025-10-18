@@ -1,14 +1,14 @@
 ---
-title: "EPIC-001: User Authentication System"
-spec_id: "EPIC-001"
-spec_type: "epic"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "P1"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-description: "Comprehensive specification for User Authentication system including core authentication, session-based authentication, and OAuth with verification codes"
+title: 'EPIC-001: User Authentication System'
+spec_id: 'EPIC-001'
+spec_type: 'epic'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'P1'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+description: 'Comprehensive specification for User Authentication system including core authentication, session-based authentication, and OAuth with verification codes'
 ---
 
 # EPIC-001: User Authentication System
@@ -32,22 +32,27 @@ The system ensures secure user authentication across multiple access methods whi
 ## 3. Features
 
 ### 3.1. Core Authentication (FEAT-001)
+
 Traditional JWT-based authentication with email/password and OAuth provider support.
 
 ### 3.2. Session-Based Authentication (FEAT-002)
+
 Server-side session management for third-party integrations requiring enhanced security.
 
 ### 3.3. OAuth with Verification Codes (FEAT-003)
+
 Specialized OAuth flow with verification codes for Custom GPT integration.
 
 ## 4. User Stories
 
 ### Story 1: User Registration and Email Verification
+
 **As a** new user  
 **I want to** register for an account with my email and password  
 **So that** I can access the Smart AI Hub platform and its features
 
 **Acceptance Criteria:**
+
 - [FEAT-001-AC001] Users must register with a valid email address and secure password
 - [FEAT-001-AC002] Passwords must meet minimum security requirements (8+ chars, uppercase, number, special)
 - [FEAT-001-AC003] Users must receive a verification email after successful registration
@@ -57,11 +62,13 @@ Specialized OAuth flow with verification codes for Custom GPT integration.
 - [FEAT-001-AC007] Registration must fail gracefully with clear error messages for invalid inputs
 
 ### Story 2: User Login and Session Management
+
 **As a** registered user  
 **I want to** log in to my account securely  
 **So that** I can access my personalized features and maintain my session across platform interactions
 
 **Acceptance Criteria:**
+
 - [FEAT-001-AC008] Users must log in with their email and password
 - [FEAT-001-AC009] Successful login must generate access and refresh tokens
 - [FEAT-001-AC010] Access tokens must expire after 15 minutes for security
@@ -71,11 +78,13 @@ Specialized OAuth flow with verification codes for Custom GPT integration.
 - [FEAT-001-AC014] Failed login attempts must be rate limited to prevent brute force attacks
 
 ### Story 3: OAuth Integration with External Providers
+
 **As a** user  
 **I want to** authenticate using external providers like Google  
 **So that** I can quickly access the platform without creating additional credentials
 
 **Acceptance Criteria:**
+
 - [FEAT-001-AC015] Users must be able to authenticate using Google OAuth 2.0
 - [FEAT-001-AC016] Google authentication must create or link to existing user accounts
 - [FEAT-001-AC017] Users must be able to connect multiple OAuth providers to their account
@@ -85,11 +94,13 @@ Specialized OAuth flow with verification codes for Custom GPT integration.
 - [FEAT-001-AC021] Users must be able to disconnect OAuth providers from their account
 
 ### Story 4: Password Reset and Recovery
+
 **As a** user  
 **I want to** reset my forgotten password securely  
 **So that** I can regain access to my account without compromising security
 
 **Acceptance Criteria:**
+
 - [FEAT-001-AC022] Users must request password reset with their registered email
 - [FEAT-001-AC023] Password reset tokens must be sent via email
 - [FEAT-001-AC024] Reset tokens must expire after 1 hour for security
@@ -99,11 +110,13 @@ Specialized OAuth flow with verification codes for Custom GPT integration.
 - [FEAT-001-AC028] Users must receive confirmation emails when their password is changed
 
 ### Story 5: Third-Party Session-Based Authentication
+
 **As a** third-party developer  
 **I want to** use session-based authentication for my integration  
 **So that** I can securely authenticate users with enhanced control
 
 **Acceptance Criteria:**
+
 - [FEAT-002-AC001] Third-party services must be able to create session tokens for users
 - [FEAT-002-AC002] Session tokens must be stored server-side in Redis
 - [FEAT-002-AC003] Sessions must have configurable expiration times (default: 7 days)
@@ -113,11 +126,13 @@ Specialized OAuth flow with verification codes for Custom GPT integration.
 - [FEAT-002-AC007] Session tokens must use cryptographically secure random generation
 
 ### Story 6: Custom GPT Integration with Verification Codes
+
 **As a** user integrating with Custom GPT  
 **I want to** authenticate using verification codes  
 **So that** I can securely connect to the video generation platform
 
 **Acceptance Criteria:**
+
 - [FEAT-003-AC001] Users must initiate Custom GPT integration through the platform
 - [FEAT-003-AC002] A unique verification code must be generated after OAuth authentication
 - [FEAT-003-AC003] Verification codes must be displayed in a user-friendly interface
@@ -141,6 +156,7 @@ Specialized OAuth flow with verification codes for Custom GPT integration.
 ### 5.2. Database Schema
 
 #### Users Table
+
 ```sql
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -155,6 +171,7 @@ CREATE TABLE users (
 ```
 
 #### Refresh Tokens Table
+
 ```sql
 CREATE TABLE refresh_tokens (
   token VARCHAR(255) PRIMARY KEY,
@@ -165,6 +182,7 @@ CREATE TABLE refresh_tokens (
 ```
 
 #### Verification Tokens Table
+
 ```sql
 CREATE TABLE verification_tokens (
   token VARCHAR(255) PRIMARY KEY,
@@ -179,6 +197,7 @@ CREATE TABLE verification_tokens (
 ### 5.3. API Endpoints
 
 #### Core Authentication Endpoints
+
 ```
 POST /api/auth/register          // User registration
 POST /api/auth/login             // User login
@@ -191,6 +210,7 @@ GET  /api/auth/me                // Current user info
 ```
 
 #### OAuth Endpoints
+
 ```
 GET  /api/auth/oauth/google               // Google OAuth initiate
 GET  /api/auth/oauth/google/callback      // Google OAuth callback
@@ -200,6 +220,7 @@ POST /api/auth/oauth/session/confirm     // Confirm session with parameters
 ```
 
 #### Session-Based Authentication Endpoints
+
 ```
 POST /api/auth/sessions                 // Create new session
 GET  /api/auth/sessions/:token          // Verify session
@@ -210,6 +231,7 @@ PUT  /api/auth/sessions/:token/extend   // Extend session
 ```
 
 #### OAuth with Verification Codes Endpoints
+
 ```
 GET  /auth/oauth/initiate               // Initiate OAuth with session
 GET  /auth/oauth/callback               // OAuth callback
@@ -250,22 +272,26 @@ interface JWTPayload {
 ### 5.5. Session Token Format
 
 Session Tokens will have the following format:
+
 ```
 VERIFIED-{random_string}
 ```
 
 Where:
+
 - `VERIFIED` is the prefix identifying it as a session token
 - `random_string` is a 32-character random string from a cryptographically secure generator
 
 ### 5.6. Verification Code Format
 
 Verification Codes will have the following format:
+
 ```
 VERIFIED-{random_string}
 ```
 
 Where:
+
 - `VERIFIED` is the prefix identifying it as a verification code
 - `random_string` is a 16-character random string (A-Z, 0-9)
 
@@ -494,30 +520,35 @@ Where:
 ## 11. Timeline and Milestones
 
 ### Phase 1: Core Authentication (2 weeks)
+
 - User registration and login implementation
 - JWT token management
 - Email verification system
 - Password reset functionality
 
 ### Phase 2: OAuth Integration (2 weeks)
+
 - Google OAuth implementation
 - Sora2 OAuth with verification codes
 - OAuth account linking
 - Session management enhancement
 
 ### Phase 3: Session-Based Authentication (2 weeks)
+
 - Session token system
 - Redis integration
 - Session management APIs
 - Session monitoring
 
 ### Phase 4: Security and Performance (1 week)
+
 - Security hardening and testing
 - Rate limiting implementation
 - Performance optimization
 - Comprehensive testing
 
 ### Phase 5: Deployment and Monitoring (1 week)
+
 - Production deployment
 - Monitoring and alerting setup
 - Documentation completion
@@ -525,17 +556,17 @@ Where:
 
 ## 12. Sign-off
 
-**Product Owner:** ________________ Date: ____
+**Product Owner:** ******\_\_\_\_****** Date: \_\_\_\_
 
-**Tech Lead:** ________________ Date: ____
+**Tech Lead:** ******\_\_\_\_****** Date: \_\_\_\_
 
-**QA Lead:** ________________ Date: ____
+**QA Lead:** ******\_\_\_\_****** Date: \_\_\_\_
 
-**DevOps Lead:** ________________ Date: ____
+**DevOps Lead:** ******\_\_\_\_****** Date: \_\_\_\_
 
 ## 13. Cross-References
 
-- **Related Specifications**: 
+- **Related Specifications**:
   - [FEAT-001] Core Authentication System
   - [FEAT-002] Session-Based Authentication System
   - [FEAT-003] OAuth with Verification Codes System

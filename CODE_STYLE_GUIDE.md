@@ -111,14 +111,14 @@ const isValidEmail = (email: string): boolean => {
 async function createUser(userData: CreateUserRequest): Promise<User> {
   try {
     const hashedPassword = await hashPassword(userData.password);
-    
+
     const user = await prisma.user.create({
       data: {
         ...userData,
-        password: hashedPassword
-      }
+        password: hashedPassword,
+      },
     });
-    
+
     return user;
   } catch (error) {
     throw new Error(`Failed to create user: ${error.message}`);
@@ -128,23 +128,22 @@ async function createUser(userData: CreateUserRequest): Promise<User> {
 // Good: Async/await for asynchronous operations
 async function fetchUserData(userId: string): Promise<User> {
   const response = await fetch(`/api/users/${userId}`);
-  
+
   if (!response.ok) {
     throw new Error(`Failed to fetch user: ${response.statusText}`);
   }
-  
+
   return response.json();
 }
 
 // Bad: Mixing async/await with .then() chains
 async function fetchUserData(userId: string): Promise<User> {
-  return fetch(`/api/users/${userId}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch user: ${response.statusText}`);
-      }
-      return response.json();
-    });
+  return fetch(`/api/users/${userId}`).then((response) => {
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user: ${response.statusText}`);
+    }
+    return response.json();
+  });
 }
 ```
 
@@ -194,7 +193,10 @@ type UserProfile = {
 ```typescript
 // Good: Custom error classes
 class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
@@ -211,22 +213,22 @@ class NotFoundError extends Error {
 async function updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    
+
     if (!user) {
       throw new NotFoundError('User', userId);
     }
-    
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: updates
+      data: updates,
     });
-    
+
     return updatedUser;
   } catch (error) {
     if (error instanceof NotFoundError) {
       throw error;
     }
-    
+
     logger.error('Failed to update user profile', { userId, error });
     throw new InternalServerError('Failed to update user profile');
   }
@@ -237,7 +239,7 @@ async function updateUserProfile(userId: string, updates: Partial<User>): Promis
   try {
     return await prisma.user.update({
       where: { id: userId },
-      data: updates
+      data: updates,
     });
   } catch (error) {
     console.log('Something went wrong');
@@ -259,11 +261,11 @@ export const calculateAge = (birthDate: Date): number => {
   const birth = new Date(birthDate);
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     age--;
   }
-  
+
   return age;
 };
 
@@ -293,10 +295,10 @@ interface UserProfileProps {
   className?: string;
 }
 
-const UserProfile: React.FC<UserProfileProps> = ({ 
-  userId, 
-  onUpdate, 
-  className 
+const UserProfile: React.FC<UserProfileProps> = ({
+  userId,
+  onUpdate,
+  className
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -368,13 +370,13 @@ function useApi<T>(url: string): UseApiResult<T> {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error(`API request failed: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       setData(result);
     } catch (err) {
@@ -412,11 +414,7 @@ const UserProfile: React.FC<{ userId: string }> = ({ userId }) => {
 
 ```typescript
 // Good: Destructure props and state
-const UserProfile: React.FC<UserProfileProps> = ({ 
-  userId, 
-  onUpdate, 
-  className 
-}) => {
+const UserProfile: React.FC<UserProfileProps> = ({ userId, onUpdate, className }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -427,7 +425,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 // Bad: Accessing props directly
 const UserProfile: React.FC<UserProfileProps> = (props) => {
   const [user, setUser] = useState<User | null>(null);
-  
+
   // Using props.userId instead of destructured userId
   useEffect(() => {
     fetchUser(props.userId);
@@ -523,7 +521,7 @@ const Title = styled.h1`
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   padding: 0.5rem 1rem;
-  background-color: ${props => 
+  background-color: ${props =>
     props.variant === 'secondary' ? '#6c757d' : '#007bff'
   };
   color: white;
@@ -533,7 +531,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${props => 
+    background-color: ${props =>
       props.variant === 'secondary' ? '#545b62' : '#0056b3'
     };
   }
@@ -655,16 +653,16 @@ packages/frontend/src/
 
 ```typescript
 // Good: kebab-case for files
-user-profile.component.tsx
-user.service.ts
-user-profile.module.css
-api.util.ts
+user - profile.component.tsx;
+user.service.ts;
+user - profile.module.css;
+api.util.ts;
 
 // Bad: inconsistent naming
-UserProfile.tsx
-userservice.ts
-UserProfile.css
-apiUtils.ts
+UserProfile.tsx;
+userservice.ts;
+UserProfile.css;
+apiUtils.ts;
 ```
 
 ### Variables and Functions
@@ -718,7 +716,7 @@ const defaultPageSize = 20;
 enum UserRole {
   ADMIN = 'admin',
   USER = 'user',
-  MODERATOR = 'moderator'
+  MODERATOR = 'moderator',
 }
 
 enum HttpStatus {
@@ -727,14 +725,14 @@ enum HttpStatus {
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
   NOT_FOUND = 404,
-  INTERNAL_SERVER_ERROR = 500
+  INTERNAL_SERVER_ERROR = 500,
 }
 
 // Bad: inconsistent naming
 enum userRole {
   admin = 'admin',
   user = 'user',
-  moderator = 'moderator'
+  moderator = 'moderator',
 }
 ```
 
@@ -812,7 +810,10 @@ class UserService {
 ```typescript
 // Good: Custom error classes
 class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
@@ -837,12 +838,7 @@ class UnauthorizedError extends Error {
 
 ```typescript
 // Good: Centralized error handling
-export const errorHandler = (
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error('Unhandled error', { error, url: req.url });
 
   if (error instanceof ValidationError) {
@@ -851,8 +847,8 @@ export const errorHandler = (
       error: {
         code: 'VALIDATION_ERROR',
         message: error.message,
-        field: error.field
-      }
+        field: error.field,
+      },
     });
   }
 
@@ -861,8 +857,8 @@ export const errorHandler = (
       success: false,
       error: {
         code: 'NOT_FOUND',
-        message: error.message
-      }
+        message: error.message,
+      },
     });
   }
 
@@ -871,8 +867,8 @@ export const errorHandler = (
       success: false,
       error: {
         code: 'UNAUTHORIZED',
-        message: error.message
-      }
+        message: error.message,
+      },
     });
   }
 
@@ -881,8 +877,8 @@ export const errorHandler = (
     success: false,
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: 'An unexpected error occurred'
-    }
+      message: 'An unexpected error occurred',
+    },
   });
 };
 ```
@@ -944,7 +940,7 @@ it('should fail', async () => {
 
 ### JSDoc Comments
 
-```typescript
+````typescript
 /**
  * Creates a new user in the system
  * @param userData - The user data to create
@@ -968,31 +964,27 @@ it('should fail', async () => {
 async function createUser(userData: CreateUserRequest): Promise<User> {
   // Implementation
 }
-```
+````
 
 ### Component Documentation
 
-```typescript
+````typescript
 /**
  * UserProfile component displays user information and allows editing
  * @component
  * @example
  * ```tsx
- * <UserProfile 
- *   userId="user-123" 
+ * <UserProfile
+ *   userId="user-123"
  *   onUpdate={(user) => console.log('User updated:', user)}
  *   className="custom-profile"
  * />
  * ```
  */
-const UserProfile: React.FC<UserProfileProps> = ({ 
-  userId, 
-  onUpdate, 
-  className 
-}) => {
+const UserProfile: React.FC<UserProfileProps> = ({ userId, onUpdate, className }) => {
   // Component implementation
 };
-```
+````
 
 ## Git Standards
 
@@ -1048,10 +1040,7 @@ from 16.x to 18.x.
 
 ```json
 {
-  "extends": [
-    "@typescript-eslint/recommended",
-    "prettier"
-  ],
+  "extends": ["@typescript-eslint/recommended", "prettier"],
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
   "rules": {

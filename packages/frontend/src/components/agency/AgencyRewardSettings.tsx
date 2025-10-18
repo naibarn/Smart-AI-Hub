@@ -61,6 +61,13 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
     return Promise.resolve();
   };
 
+  const parseNumber = (value?: string) => {
+    if (!value) return 0;
+    const cleaned = value.replace(/\$\s?|(,*)/g, '');
+    const parsed = parseInt(cleaned || '0', 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
   return (
     <Card title="Referral Reward Configuration" loading={loading}>
       <Alert
@@ -100,7 +107,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
             placeholder="e.g., 5000"
             min={0}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => parseInt(value!.replace(/\$\s?|(,*)/g, '') || '0', 10)}
+            parser={parseNumber as any}
             addonAfter="Points"
           />
         </Form.Item>
@@ -119,7 +126,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
             placeholder="e.g., 2000"
             min={0}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => parseInt(value!.replace(/\$\s?|(,*)/g, '') || '0', 10)}
+            parser={parseNumber as any}
             addonAfter="Points"
           />
         </Form.Item>
@@ -138,7 +145,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
             placeholder="e.g., 1000"
             min={0}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => parseInt(value!.replace(/\$\s?|(,*)/g, '') || '0', 10)}
+            parser={parseNumber as any}
             addonAfter="Points"
           />
         </Form.Item>

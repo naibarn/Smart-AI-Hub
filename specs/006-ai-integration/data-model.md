@@ -72,16 +72,16 @@ model AIProvider {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| name | String | Provider name (e.g., "OpenAI", "Claude") | Unique, Required |
-| type | String | Provider type | 'llm' | 'video' | 'image', Required |
-| status | String | Current status | 'active' | 'inactive' | 'degraded', Default: active |
-| capabilities | Json | Array of supported capabilities | JSON array, Required |
-| config | Json | Provider-specific configuration | JSON object, Required |
-| createdAt | DateTime | Creation timestamp | Auto-generated, Required |
-| updatedAt | DateTime | Last update timestamp | Auto-updated, Required |
+| Field        | Type     | Description                              | Constraints              |
+| ------------ | -------- | ---------------------------------------- | ------------------------ | ---------- | --------------------------- |
+| id           | String   | Primary key identifier                   | UUID, Required           |
+| name         | String   | Provider name (e.g., "OpenAI", "Claude") | Unique, Required         |
+| type         | String   | Provider type                            | 'llm'                    | 'video'    | 'image', Required           |
+| status       | String   | Current status                           | 'active'                 | 'inactive' | 'degraded', Default: active |
+| capabilities | Json     | Array of supported capabilities          | JSON array, Required     |
+| config       | Json     | Provider-specific configuration          | JSON object, Required    |
+| createdAt    | DateTime | Creation timestamp                       | Auto-generated, Required |
+| updatedAt    | DateTime | Last update timestamp                    | Auto-updated, Required   |
 
 ### AIModel
 
@@ -112,17 +112,17 @@ model AIModel {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| providerId | String | Reference to AI provider | UUID, Required |
-| name | String | Model name (e.g., "gpt-4", "claude-3") | Required |
-| type | String | Model type | 'completion' | 'chat' | 'embedding' | 'video', Required |
-| maxTokens | Int? | Maximum token limit | Positive integer or null |
-| pricing | Json | Pricing information | JSON object, Required |
-| capabilities | Json? | Model-specific capabilities | JSON object or null |
-| createdAt | DateTime | Creation timestamp | Auto-generated, Required |
-| updatedAt | DateTime | Last update timestamp | Auto-updated, Required |
+| Field        | Type     | Description                            | Constraints              |
+| ------------ | -------- | -------------------------------------- | ------------------------ | ------ | ----------- | ----------------- |
+| id           | String   | Primary key identifier                 | UUID, Required           |
+| providerId   | String   | Reference to AI provider               | UUID, Required           |
+| name         | String   | Model name (e.g., "gpt-4", "claude-3") | Required                 |
+| type         | String   | Model type                             | 'completion'             | 'chat' | 'embedding' | 'video', Required |
+| maxTokens    | Int?     | Maximum token limit                    | Positive integer or null |
+| pricing      | Json     | Pricing information                    | JSON object, Required    |
+| capabilities | Json?    | Model-specific capabilities            | JSON object or null      |
+| createdAt    | DateTime | Creation timestamp                     | Auto-generated, Required |
+| updatedAt    | DateTime | Last update timestamp                  | Auto-updated, Required   |
 
 ### AIUsageLog
 
@@ -161,21 +161,21 @@ model AIUsageLog {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| userId | String | User who made the request | UUID, Required |
-| modelId | String | AI model used | UUID, Required |
-| providerId | String | AI provider used | UUID, Required |
-| sessionId | String? | WebSocket session identifier | String or null |
-| requestType | String | Type of request | 'completion' | 'chat' | 'video' | 'workflow', Required |
-| tokensUsed | Int | Number of tokens consumed | Non-negative integer, Default: 0 |
-| creditsUsed | Int | Credits charged | Non-negative integer, Default: 0 |
-| latency | Int? | Response time in milliseconds | Positive integer or null |
-| status | String | Request status | 'success' | 'error' | 'timeout', Required |
-| errorMessage | String? | Error message (if failed) | String or null |
-| metadata | Json? | Additional request/response data | JSON object or null |
-| createdAt | DateTime | Request timestamp | Auto-generated, Required |
+| Field        | Type     | Description                      | Constraints                      |
+| ------------ | -------- | -------------------------------- | -------------------------------- | ------- | ------------------- | -------------------- |
+| id           | String   | Primary key identifier           | UUID, Required                   |
+| userId       | String   | User who made the request        | UUID, Required                   |
+| modelId      | String   | AI model used                    | UUID, Required                   |
+| providerId   | String   | AI provider used                 | UUID, Required                   |
+| sessionId    | String?  | WebSocket session identifier     | String or null                   |
+| requestType  | String   | Type of request                  | 'completion'                     | 'chat'  | 'video'             | 'workflow', Required |
+| tokensUsed   | Int      | Number of tokens consumed        | Non-negative integer, Default: 0 |
+| creditsUsed  | Int      | Credits charged                  | Non-negative integer, Default: 0 |
+| latency      | Int?     | Response time in milliseconds    | Positive integer or null         |
+| status       | String   | Request status                   | 'success'                        | 'error' | 'timeout', Required |
+| errorMessage | String?  | Error message (if failed)        | String or null                   |
+| metadata     | Json?    | Additional request/response data | JSON object or null              |
+| createdAt    | DateTime | Request timestamp                | Auto-generated, Required         |
 
 ### VideoRequest
 
@@ -216,24 +216,24 @@ model VideoRequest {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| userId | String | User who requested the video | UUID, Required |
-| providerId | String | Video generation provider | UUID, Required |
-| prompt | String | Text prompt for video generation | String, Required |
-| parameters | Json | Video generation parameters | JSON object, Required |
-| status | String | Generation status | 'queued' | 'processing' | 'completed' | 'failed', Default: queued |
-| url | String? | URL of generated video | String or null |
-| thumbnailUrl | String? | URL of video thumbnail | String or null |
-| creditsUsed | Int | Credits charged for generation | Non-negative integer, Default: 0 |
-| duration | Int? | Video duration in seconds | Positive integer or null |
-| progress | Int | Generation progress percentage | 0-100, Default: 0 |
-| errorMessage | String? | Error message (if failed) | String or null |
-| metadata | Json? | Additional video metadata | JSON object or null |
-| createdAt | DateTime | Request timestamp | Auto-generated, Required |
-| completedAt | DateTime? | Completion timestamp | DateTime or null |
-| expiresAt | DateTime? | URL expiration date | DateTime or null |
+| Field        | Type      | Description                      | Constraints                      |
+| ------------ | --------- | -------------------------------- | -------------------------------- | ------------ | ----------- | ------------------------- |
+| id           | String    | Primary key identifier           | UUID, Required                   |
+| userId       | String    | User who requested the video     | UUID, Required                   |
+| providerId   | String    | Video generation provider        | UUID, Required                   |
+| prompt       | String    | Text prompt for video generation | String, Required                 |
+| parameters   | Json      | Video generation parameters      | JSON object, Required            |
+| status       | String    | Generation status                | 'queued'                         | 'processing' | 'completed' | 'failed', Default: queued |
+| url          | String?   | URL of generated video           | String or null                   |
+| thumbnailUrl | String?   | URL of video thumbnail           | String or null                   |
+| creditsUsed  | Int       | Credits charged for generation   | Non-negative integer, Default: 0 |
+| duration     | Int?      | Video duration in seconds        | Positive integer or null         |
+| progress     | Int       | Generation progress percentage   | 0-100, Default: 0                |
+| errorMessage | String?   | Error message (if failed)        | String or null                   |
+| metadata     | Json?     | Additional video metadata        | JSON object or null              |
+| createdAt    | DateTime  | Request timestamp                | Auto-generated, Required         |
+| completedAt  | DateTime? | Completion timestamp             | DateTime or null                 |
+| expiresAt    | DateTime? | URL expiration date              | DateTime or null                 |
 
 ### VideoWorkflow
 
@@ -265,19 +265,19 @@ model VideoWorkflow {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| videoRequestId | String | Reference to video request | UUID, Unique, Required |
-| workflowType | String | Type of workflow | 'text-to-video' | 'image-to-video' | 'video-enhancement', Required |
-| input | Json | Workflow input data | JSON object, Required |
-| enhancedPrompt | String? | GPT-enhanced prompt | String or null |
-| parameters | Json | Workflow parameters | JSON object, Required |
-| status | String | Workflow status | 'processing' | 'completed' | 'failed', Default: processing |
-| steps | Json? | Workflow step tracking | JSON array or null |
-| metadata | Json? | Additional workflow data | JSON object or null |
-| createdAt | DateTime | Creation timestamp | Auto-generated, Required |
-| completedAt | DateTime? | Completion timestamp | DateTime or null |
+| Field          | Type      | Description                | Constraints              |
+| -------------- | --------- | -------------------------- | ------------------------ | ---------------- | ----------------------------- |
+| id             | String    | Primary key identifier     | UUID, Required           |
+| videoRequestId | String    | Reference to video request | UUID, Unique, Required   |
+| workflowType   | String    | Type of workflow           | 'text-to-video'          | 'image-to-video' | 'video-enhancement', Required |
+| input          | Json      | Workflow input data        | JSON object, Required    |
+| enhancedPrompt | String?   | GPT-enhanced prompt        | String or null           |
+| parameters     | Json      | Workflow parameters        | JSON object, Required    |
+| status         | String    | Workflow status            | 'processing'             | 'completed'      | 'failed', Default: processing |
+| steps          | Json?     | Workflow step tracking     | JSON array or null       |
+| metadata       | Json?     | Additional workflow data   | JSON object or null      |
+| createdAt      | DateTime  | Creation timestamp         | Auto-generated, Required |
+| completedAt    | DateTime? | Completion timestamp       | DateTime or null         |
 
 ## Database Schema
 
@@ -311,7 +311,7 @@ CREATE TABLE ai_models (
     capabilities JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    
+
     CONSTRAINT unique_provider_model UNIQUE (provider_id, name)
 );
 
@@ -334,7 +334,7 @@ CREATE TABLE ai_usage_logs (
     error_message TEXT,
     metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    
+
     CONSTRAINT fk_usage_logs_model FOREIGN KEY (model_id) REFERENCES ai_models(id),
     CONSTRAINT fk_usage_logs_provider FOREIGN KEY (provider_id) REFERENCES ai_providers(id)
 );
@@ -364,7 +364,7 @@ CREATE TABLE video_requests (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMP WITH TIME ZONE,
     expires_at TIMESTAMP WITH TIME ZONE,
-    
+
     CONSTRAINT fk_video_requests_provider FOREIGN KEY (provider_id) REFERENCES ai_providers(id)
 );
 
@@ -387,7 +387,7 @@ CREATE TABLE video_workflows (
     metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMP WITH TIME ZONE,
-    
+
     CONSTRAINT fk_video_workflows_request FOREIGN KEY (video_request_id) REFERENCES video_requests(id) ON DELETE CASCADE
 );
 
@@ -439,20 +439,20 @@ CREATE INDEX idx_video_workflows_status ON video_workflows(status);
 
 ```sql
 -- Efficient usage analytics query
-SELECT 
+SELECT
     DATE_TRUNC('day', created_at) as date,
     COUNT(*) as total_requests,
     SUM(tokens_used) as total_tokens,
     SUM(credits_used) as total_credits,
     AVG(latency) as avg_latency
 FROM ai_usage_logs
-WHERE user_id = $1 
+WHERE user_id = $1
   AND created_at BETWEEN $2 AND $3
 GROUP BY DATE_TRUNC('day', created_at)
 ORDER BY date;
 
 -- Efficient video status tracking
-SELECT 
+SELECT
     vr.id,
     vr.status,
     vr.progress,
@@ -520,19 +520,19 @@ async function migrateAIProviders() {
       name: 'OpenAI',
       type: 'llm',
       capabilities: ['completion', 'chat', 'embedding'],
-      config: { apiVersion: 'v1', endpoint: 'https://api.openai.com' }
+      config: { apiVersion: 'v1', endpoint: 'https://api.openai.com' },
     },
     {
       name: 'Claude',
       type: 'llm',
       capabilities: ['completion', 'chat'],
-      config: { apiVersion: '2023-06-01', endpoint: 'https://api.anthropic.com' }
-    }
+      config: { apiVersion: '2023-06-01', endpoint: 'https://api.anthropic.com' },
+    },
   ];
-  
+
   for (const provider of providers) {
     await db.aIProvider.create({
-      data: provider
+      data: provider,
     });
   }
 }
@@ -551,7 +551,7 @@ async function migrateAIProviders() {
 
 ```sql
 -- Provider performance metrics
-SELECT 
+SELECT
     p.name as provider_name,
     COUNT(*) as total_requests,
     AVG(ul.latency) as avg_latency,
@@ -564,7 +564,7 @@ GROUP BY p.id, p.name
 ORDER BY total_requests DESC;
 
 -- Video generation analytics
-SELECT 
+SELECT
     DATE_TRUNC('week', created_at) as week,
     COUNT(*) as total_requests,
     SUM(credits_used) as total_credits,
@@ -618,19 +618,17 @@ describe('AIProvider Model', () => {
       name: 'Test Provider',
       type: 'llm',
       capabilities: ['completion', 'chat'],
-      config: { apiKey: 'test-key' }
+      config: { apiKey: 'test-key' },
     });
-    
+
     expect(provider.name).toBe('Test Provider');
     expect(provider.status).toBe('active');
   });
-  
+
   test('should enforce unique provider names', async () => {
     await AIProvider.create({ name: 'DUPLICATE', type: 'llm' });
-    
-    await expect(
-      AIProvider.create({ name: 'DUPLICATE', type: 'llm' })
-    ).rejects.toThrow();
+
+    await expect(AIProvider.create({ name: 'DUPLICATE', type: 'llm' })).rejects.toThrow();
   });
 });
 ```
@@ -642,21 +640,21 @@ describe('Video Generation Flow', () => {
   test('should complete video generation workflow', async () => {
     const user = await createTestUser();
     const provider = await createTestProvider();
-    
+
     const videoRequest = await VideoRequest.create({
       userId: user.id,
       providerId: provider.id,
       prompt: 'Test video',
-      parameters: { duration: 30, resolution: '1080p' }
+      parameters: { duration: 30, resolution: '1080p' },
     });
-    
+
     // Simulate processing
     await videoRequest.update({
       status: 'completed',
       url: 'https://cdn.example.com/video.mp4',
-      completedAt: new Date()
+      completedAt: new Date(),
     });
-    
+
     expect(videoRequest.status).toBe('completed');
     expect(videoRequest.url).toBeTruthy();
   });
@@ -677,9 +675,9 @@ model AIAgent {
   userId      String   // Owner user
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   conversations AIConversation[]
-  
+
   @@index([userId])
   @@map("ai_agents")
 }
@@ -691,9 +689,9 @@ model AIConversation {
   messages  Json     // Conversation history
   status    String   // 'active' | 'archived'
   createdAt DateTime @default(now())
-  
+
   agent     AIAgent @relation(fields: [agentId], references: [id])
-  
+
   @@index([agentId])
   @@index([userId])
   @@map("ai_conversations")
@@ -715,7 +713,7 @@ model MultiModalRequest {
   metadata    Json?    // Additional metadata
   createdAt   DateTime @default(now())
   completedAt DateTime?
-  
+
   @@index([userId])
   @@index([inputType])
   @@index([status])

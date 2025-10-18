@@ -58,16 +58,19 @@ Services → Log Files → Promtail → Loki → Grafana
 ### Quick Start
 
 1. Navigate to the logging directory:
+
    ```bash
    cd logging
    ```
 
 2. Start the logging stack:
+
    ```bash
    docker-compose -f docker-compose.logging.yml up -d
    ```
 
 3. Verify services are running:
+
    ```bash
    docker-compose -f docker-compose.logging.yml ps
    ```
@@ -79,18 +82,19 @@ Services → Log Files → Promtail → Loki → Grafana
 
 ### Service Endpoints
 
-| Service | Port | Endpoint | Description |
-|---------|------|----------|-------------|
-| Loki | 3100 | http://localhost:3100 | Log API |
-| Promtail | 9080 | http://localhost:9080 | Metrics API |
-| Grafana | 3000 | http://localhost:3000 | Dashboard |
-| Alertmanager | 9093 | http://localhost:9093 | Alert UI |
+| Service      | Port | Endpoint              | Description |
+| ------------ | ---- | --------------------- | ----------- |
+| Loki         | 3100 | http://localhost:3100 | Log API     |
+| Promtail     | 9080 | http://localhost:9080 | Metrics API |
+| Grafana      | 3000 | http://localhost:3000 | Dashboard   |
+| Alertmanager | 9093 | http://localhost:9093 | Alert UI    |
 
 ## Configuration
 
 ### Loki Configuration (`loki-config.yml`)
 
 Key settings:
+
 - 30-day retention policy
 - Filesystem storage
 - Ingestion rate limiting
@@ -99,6 +103,7 @@ Key settings:
 ### Promtail Configuration (`promtail-config.yml`)
 
 Key settings:
+
 - Multiple scrape configs for different services
 - JSON and logfmt parsing
 - Label extraction for efficient querying
@@ -116,6 +121,7 @@ Key settings:
 ### Application Logs
 
 All services write logs to:
+
 - Combined logs: `/var/log/{service}/combined-YYYY-MM-DD.log`
 - Error logs: `/var/log/{service}/error-YYYY-MM-DD.log`
 
@@ -128,6 +134,7 @@ All services write logs to:
 ### Log Format
 
 All application logs use JSON format:
+
 ```json
 {
   "timestamp": "2023-10-15T09:30:00.000Z",
@@ -145,6 +152,7 @@ All application logs use JSON format:
 ### Alert Rules
 
 Pre-configured alerts for:
+
 - High error rate (>5%)
 - No logs received (5 minutes)
 - Database errors
@@ -225,24 +233,28 @@ Pre-configured alerts for:
 ### Common Issues
 
 #### Loki Not Receiving Logs
+
 1. Check Promtail status: `docker logs promtail`
 2. Verify Loki connectivity: `curl http://loki:3100/ready`
 3. Check Promtail configuration
 4. Review network connectivity
 
 #### Slow Query Performance
+
 1. Optimize LogQL queries
 2. Check Loki resource usage
 3. Review label usage
 4. Consider query time range
 
 #### High Memory Usage
+
 1. Monitor Loki memory usage
 2. Check query patterns
 3. Review retention settings
 4. Scale resources if needed
 
 #### Missing Logs
+
 1. Verify service logging configuration
 2. Check Promtail scrape configs
 3. Review log file permissions
@@ -306,6 +318,7 @@ curl http://localhost:9080/metrics
 ### Service Integration
 
 Services integrate with logging by:
+
 1. Using shared logger library
 2. Configuring log output location
 3. Implementing structured logging

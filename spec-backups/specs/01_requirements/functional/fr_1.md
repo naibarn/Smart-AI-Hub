@@ -11,4 +11,3 @@ description: Comprehensive specification for fr_1
 ---
 
 # Fr 1
-

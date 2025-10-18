@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
-    "@smart-ai-hub/shared": "workspace:*",
+    "@smart-ai-hub/shared": "file:../shared",
     "axios": "^1.6.0",
     "cron": "^3.1.0",
     "dotenv": "^16.3.0",

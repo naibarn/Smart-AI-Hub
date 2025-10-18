@@ -27,15 +27,15 @@ This checklist provides a step-by-step guide for migrating 24 specification file
 
 ### Delete Template Files
 
-| File | Status | Verified Deleted | Backup Confirmed |
-|------|--------|-------------------|------------------|
-| `fr_1.md` | [ ] | [ ] | [ ] |
-| `fr_2.md` | [ ] | [ ] | [ ] |
-| `fr_3.md` | [ ] | [ ] | [ ] |
-| `fr_4.md` | [ ] | [ ] | [ ] |
-| `fr_5.md` | [ ] | [ ] | [ ] |
-| `fr_6.md` | [ ] | [ ] | [ ] |
-| `epic_1.md` | [ ] | [ ] | [ ] |
+| File        | Status | Verified Deleted | Backup Confirmed |
+| ----------- | ------ | ---------------- | ---------------- |
+| `fr_1.md`   | [ ]    | [ ]              | [ ]              |
+| `fr_2.md`   | [ ]    | [ ]              | [ ]              |
+| `fr_3.md`   | [ ]    | [ ]              | [ ]              |
+| `fr_4.md`   | [ ]    | [ ]              | [ ]              |
+| `fr_5.md`   | [ ]    | [ ]              | [ ]              |
+| `fr_6.md`   | [ ]    | [ ]              | [ ]              |
+| `epic_1.md` | [ ]    | [ ]              | [ ]              |
 
 ### Create New Folder Structure
 
@@ -390,6 +390,7 @@ This checklist provides a step-by-step guide for migrating 24 specification file
 ### Required Sections Check
 
 For each specification, verify these sections are present:
+
 - [ ] Metadata (with all required fields)
 - [ ] Overview
 - [ ] User Stories
@@ -401,6 +402,7 @@ For each specification, verify these sections are present:
 ### Metadata Validation
 
 For each specification, verify metadata includes:
+
 - [ ] spec_id (correct format)
 - [ ] title
 - [ ] type (Epic/Feature)
@@ -427,6 +429,7 @@ For each specification, verify metadata includes:
 ## Rollback Plan
 
 If migration needs to be rolled back:
+
 1. [ ] Restore from backup created in Phase 0
 2. [ ] Verify all original files are present
 3. [ ] Test that original structure works

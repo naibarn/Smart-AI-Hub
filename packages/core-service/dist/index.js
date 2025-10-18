@@ -163,17 +163,17 @@ app.listen(PORT, async () => {
     await prisma.$connect();
     // Initialize Redis connection
     await (0, redis_1.connectRedis)();
-    console.log(`Core Service running on port ${PORT}`);
+    // console.log(`Core Service running on port ${PORT}`);
 });
 // Graceful shutdown
 process.on('SIGINT', async () => {
-    console.log('Shutting down gracefully...');
+    // console.log('Shutting down gracefully...');
     await (0, redis_1.disconnectRedis)();
     await prisma.$disconnect();
     process.exit(0);
 });
 process.on('SIGTERM', async () => {
-    console.log('Shutting down gracefully...');
+    // console.log('Shutting down gracefully...');
     await (0, redis_1.disconnectRedis)();
     await prisma.$disconnect();
     process.exit(0);

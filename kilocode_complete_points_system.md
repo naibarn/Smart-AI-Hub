@@ -33,11 +33,11 @@ Add Points field to User model if not already present:
 ```prisma
 model User {
   // Existing fields...
-  
+
   // Points System
   points                Int              @default(0)
   credits               Int              @default(0)
-  
+
   // Relations
   pointTransactions     PointTransaction[]
   creditTransactions    CreditTransaction[]
@@ -58,9 +58,9 @@ model PointTransaction {
   description String?
   metadata    Json                @default("{}")
   createdAt   DateTime            @default(now())
-  
+
   user        User                @relation(fields: [userId], references: [id])
-  
+
   @@index([userId, createdAt])
 }
 
@@ -91,9 +91,9 @@ model CreditTransaction {
   description String?
   metadata    Json                  @default("{}")
   createdAt   DateTime              @default(now())
-  
+
   user        User                  @relation(fields: [userId], references: [id])
-  
+
   @@index([userId, createdAt])
 }
 
@@ -117,7 +117,7 @@ model ExchangeRate {
   createdBy             String
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
-  
+
   creator               User     @relation(fields: [createdBy], references: [id])
 }
 ```
@@ -130,9 +130,9 @@ model DailyReward {
   userId      String
   points      Int      @default(100)
   claimedAt   DateTime @default(now())
-  
+
   user        User     @relation(fields: [userId], references: [id])
-  
+
   @@index([userId, claimedAt])
 }
 ```
@@ -149,9 +149,9 @@ model AutoTopupLog {
   balanceBefore   Json     // { points: X, credits: Y }
   balanceAfter    Json     // { points: X, credits: Y }
   createdAt       DateTime @default(now())
-  
+
   user            User     @relation(fields: [userId], references: [id])
-  
+
   @@index([userId, createdAt])
 }
 ```
@@ -182,16 +182,16 @@ export class PointService {
   async getBalance(userId: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { points: true }
+      select: { points: true },
     });
-    
+
     if (!user) {
       throw new Error('User not found');
     }
-    
+
     return user.points;
   }
-  
+
   /**
    * Add points to user (with transaction logging)
    */
@@ -205,27 +205,27 @@ export class PointService {
     if (amount <= 0) {
       throw new Error('Amount must be positive');
     }
-    
+
     await prisma.$transaction(async (tx) => {
       // Get current balance
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { points: true }
+        select: { points: true },
       });
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       const balanceBefore = user.points;
       const balanceAfter = balanceBefore + amount;
-      
+
       // Update balance
       await tx.user.update({
         where: { id: userId },
-        data: { points: balanceAfter }
+        data: { points: balanceAfter },
       });
-      
+
       // Log transaction
       await tx.pointTransaction.create({
         data: {
@@ -235,12 +235,12 @@ export class PointService {
           balanceBefore,
           balanceAfter,
           description,
-          metadata: metadata || {}
-        }
+          metadata: metadata || {},
+        },
       });
     });
   }
-  
+
   /**
    * Deduct points from user (with transaction logging)
    */
@@ -254,32 +254,32 @@ export class PointService {
     if (amount <= 0) {
       throw new Error('Amount must be positive');
     }
-    
+
     await prisma.$transaction(async (tx) => {
       // Get current balance with row lock
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { points: true }
+        select: { points: true },
       });
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       const balanceBefore = user.points;
-      
+
       if (balanceBefore < amount) {
         throw new Error('Insufficient points balance');
       }
-      
+
       const balanceAfter = balanceBefore - amount;
-      
+
       // Update balance
       await tx.user.update({
         where: { id: userId },
-        data: { points: balanceAfter }
+        data: { points: balanceAfter },
       });
-      
+
       // Log transaction
       await tx.pointTransaction.create({
         data: {
@@ -289,79 +289,72 @@ export class PointService {
           balanceBefore,
           balanceAfter,
           description,
-          metadata: metadata || {}
-        }
+          metadata: metadata || {},
+        },
       });
     });
   }
-  
+
   /**
    * Get points transaction history
    */
-  async getHistory(
-    userId: string,
-    page: number = 1,
-    limit: number = 20
-  ): Promise<any> {
+  async getHistory(userId: string, page: number = 1, limit: number = 20): Promise<any> {
     const skip = (page - 1) * limit;
-    
+
     const [transactions, total] = await Promise.all([
       prisma.pointTransaction.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit
+        take: limit,
       }),
       prisma.pointTransaction.count({
-        where: { userId }
-      })
+        where: { userId },
+      }),
     ]);
-    
+
     return {
       data: transactions,
       total,
       page,
       limit,
-      hasMore: skip + transactions.length < total
+      hasMore: skip + transactions.length < total,
     };
   }
-  
+
   /**
    * Exchange credits to points
    */
-  async exchangeCreditsToPoints(
-    userId: string,
-    creditsAmount: number
-  ): Promise<void> {
+  async exchangeCreditsToPoints(userId: string, creditsAmount: number): Promise<void> {
     if (creditsAmount <= 0) {
       throw new Error('Credits amount must be positive');
     }
-    
+
     // Get exchange rate
     const exchangeRate = await this.getActiveExchangeRate();
     const pointsAmount = creditsAmount * exchangeRate.creditToPointsRate;
-    
+
     await prisma.$transaction(async (tx) => {
       // Get current balances
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { credits: true, points: true }
+        select: { credits: true, points: true },
       });
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       if (user.credits < creditsAmount) {
         throw new Error('Insufficient credits balance');
       }
-      
+
       // Deduct credits
       await tx.user.update({
         where: { id: userId },
-        data: { credits: user.credits - creditsAmount }
+        data: { credits: user.credits - creditsAmount },
       });
-      
+
       // Log credit transaction
       await tx.creditTransaction.create({
         data: {
@@ -371,16 +364,16 @@ export class PointService {
           balanceBefore: user.credits,
           balanceAfter: user.credits - creditsAmount,
           description: `Exchanged ${creditsAmount} credits to ${pointsAmount} points`,
-          metadata: { pointsAmount, exchangeRate: exchangeRate.creditToPointsRate }
-        }
+          metadata: { pointsAmount, exchangeRate: exchangeRate.creditToPointsRate },
+        },
       });
-      
+
       // Add points
       await tx.user.update({
         where: { id: userId },
-        data: { points: user.points + pointsAmount }
+        data: { points: user.points + pointsAmount },
       });
-      
+
       // Log point transaction
       await tx.pointTransaction.create({
         data: {
@@ -390,12 +383,12 @@ export class PointService {
           balanceBefore: user.points,
           balanceAfter: user.points + pointsAmount,
           description: `Exchanged from ${creditsAmount} credits`,
-          metadata: { creditsAmount, exchangeRate: exchangeRate.creditToPointsRate }
-        }
+          metadata: { creditsAmount, exchangeRate: exchangeRate.creditToPointsRate },
+        },
       });
     });
   }
-  
+
   /**
    * Purchase points with money (USD)
    */
@@ -408,11 +401,11 @@ export class PointService {
     if (amountUSD <= 0) {
       throw new Error('Amount must be positive');
     }
-    
+
     // Get exchange rate
     const exchangeRate = await this.getActiveExchangeRate();
     const pointsAmount = Math.floor(amountUSD * exchangeRate.pointsToDollarRate);
-    
+
     await this.addPoints(
       userId,
       pointsAmount,
@@ -422,31 +415,31 @@ export class PointService {
         amountUSD,
         paymentMethod,
         paymentId,
-        exchangeRate: exchangeRate.pointsToDollarRate
+        exchangeRate: exchangeRate.pointsToDollarRate,
       }
     );
   }
-  
+
   /**
    * Get active exchange rate
    */
   async getActiveExchangeRate(): Promise<any> {
     const rate = await prisma.exchangeRate.findFirst({
       where: { isActive: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
-    
+
     if (!rate) {
       // Return default rates if none configured
       return {
         creditToPointsRate: 1000,
-        pointsToDollarRate: 10000
+        pointsToDollarRate: 10000,
       };
     }
-    
+
     return rate;
   }
-  
+
   /**
    * Check if user needs auto top-up and execute if needed
    */
@@ -454,66 +447,66 @@ export class PointService {
     const AUTO_TOPUP_ENABLED = process.env.AUTO_TOPUP_ENABLED === 'true';
     const AUTO_TOPUP_THRESHOLD = parseInt(process.env.AUTO_TOPUP_THRESHOLD || '10');
     const AUTO_TOPUP_CREDITS = parseInt(process.env.AUTO_TOPUP_CREDITS || '1');
-    
+
     if (!AUTO_TOPUP_ENABLED) {
       return false;
     }
-    
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { points: true, credits: true }
+      select: { points: true, credits: true },
     });
-    
+
     if (!user) {
       throw new Error('User not found');
     }
-    
+
     // Check if auto top-up is needed
     const needsTopup = user.points <= AUTO_TOPUP_THRESHOLD && user.credits >= AUTO_TOPUP_CREDITS;
-    
+
     if (!needsTopup) {
       return false;
     }
-    
+
     // Execute auto top-up
     await this.executeAutoTopup(userId, AUTO_TOPUP_CREDITS);
-    
+
     return true;
   }
-  
+
   /**
    * Execute auto top-up
    */
   private async executeAutoTopup(userId: string, creditsToUse: number): Promise<void> {
     const exchangeRate = await this.getActiveExchangeRate();
     const pointsToAdd = creditsToUse * exchangeRate.creditToPointsRate;
-    
+
     await prisma.$transaction(async (tx) => {
       // Get current balances
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { credits: true, points: true }
+        select: { credits: true, points: true },
       });
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       if (user.credits < creditsToUse) {
         throw new Error('Insufficient credits for auto top-up');
       }
-      
+
       const balanceBefore = {
         points: user.points,
-        credits: user.credits
+        credits: user.credits,
       };
-      
+
       // Deduct credits
       await tx.user.update({
         where: { id: userId },
-        data: { credits: user.credits - creditsToUse }
+        data: { credits: user.credits - creditsToUse },
       });
-      
+
       // Log credit transaction
       await tx.creditTransaction.create({
         data: {
@@ -523,16 +516,16 @@ export class PointService {
           balanceBefore: user.credits,
           balanceAfter: user.credits - creditsToUse,
           description: `Auto top-up: ${creditsToUse} credits to ${pointsToAdd} points`,
-          metadata: { autoTopup: true, pointsAdded: pointsToAdd }
-        }
+          metadata: { autoTopup: true, pointsAdded: pointsToAdd },
+        },
       });
-      
+
       // Add points
       await tx.user.update({
         where: { id: userId },
-        data: { points: user.points + pointsToAdd }
+        data: { points: user.points + pointsToAdd },
       });
-      
+
       // Log point transaction
       await tx.pointTransaction.create({
         data: {
@@ -542,15 +535,15 @@ export class PointService {
           balanceBefore: user.points,
           balanceAfter: user.points + pointsToAdd,
           description: `Auto top-up from ${creditsToUse} credits`,
-          metadata: { creditsUsed: creditsToUse, autoTopup: true }
-        }
+          metadata: { creditsUsed: creditsToUse, autoTopup: true },
+        },
       });
-      
+
       const balanceAfter = {
         points: user.points + pointsToAdd,
-        credits: user.credits - creditsToUse
+        credits: user.credits - creditsToUse,
       };
-      
+
       // Log auto top-up
       await tx.autoTopupLog.create({
         data: {
@@ -559,51 +552,51 @@ export class PointService {
           pointsAdded: pointsToAdd,
           triggerReason: 'low_balance',
           balanceBefore,
-          balanceAfter
-        }
+          balanceAfter,
+        },
       });
     });
   }
-  
+
   /**
    * Claim daily login reward
    */
   async claimDailyReward(userId: string): Promise<number> {
     const DAILY_REWARD_POINTS = parseInt(process.env.DAILY_REWARD_POINTS || '100');
-    
+
     // Check if already claimed today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const existingReward = await prisma.dailyReward.findFirst({
       where: {
         userId,
         claimedAt: {
-          gte: today
-        }
-      }
+          gte: today,
+        },
+      },
     });
-    
+
     if (existingReward) {
       throw new Error('Daily reward already claimed today');
     }
-    
+
     await prisma.$transaction(async (tx) => {
       // Add points
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { points: true }
+        select: { points: true },
       });
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       await tx.user.update({
         where: { id: userId },
-        data: { points: user.points + DAILY_REWARD_POINTS }
+        data: { points: user.points + DAILY_REWARD_POINTS },
       });
-      
+
       // Log transaction
       await tx.pointTransaction.create({
         data: {
@@ -612,19 +605,19 @@ export class PointService {
           amount: DAILY_REWARD_POINTS,
           balanceBefore: user.points,
           balanceAfter: user.points + DAILY_REWARD_POINTS,
-          description: 'Daily login reward'
-        }
+          description: 'Daily login reward',
+        },
       });
-      
+
       // Record daily reward
       await tx.dailyReward.create({
         data: {
           userId,
-          points: DAILY_REWARD_POINTS
-        }
+          points: DAILY_REWARD_POINTS,
+        },
       });
     });
-    
+
     return DAILY_REWARD_POINTS;
   }
 }
@@ -652,19 +645,19 @@ export class PointController {
     try {
       const userId = req.user.id;
       const balance = await pointService.getBalance(userId);
-      
+
       res.json({
         success: true,
-        data: { points: balance }
+        data: { points: balance },
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * POST /api/v1/points/deduct
    */
@@ -672,36 +665,36 @@ export class PointController {
     try {
       const userId = req.user.id;
       const { amount, description } = req.body;
-      
+
       if (!amount || amount <= 0) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid amount'
+          error: 'Invalid amount',
         });
       }
-      
+
       await pointService.deductPoints(userId, amount, 'deduct', description);
-      
+
       // Check and execute auto top-up if needed
       const toppedUp = await pointService.checkAndExecuteAutoTopup(userId);
-      
+
       const newBalance = await pointService.getBalance(userId);
-      
+
       res.json({
         success: true,
         data: {
           points: newBalance,
-          autoToppedUp: toppedUp
-        }
+          autoToppedUp: toppedUp,
+        },
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * GET /api/v1/points/history
    */
@@ -710,21 +703,21 @@ export class PointController {
       const userId = req.user.id;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
-      
+
       const history = await pointService.getHistory(userId, page, limit);
-      
+
       res.json({
         success: true,
-        ...history
+        ...history,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * POST /api/v1/points/exchange
    */
@@ -732,30 +725,30 @@ export class PointController {
     try {
       const userId = req.user.id;
       const { credits } = req.body;
-      
+
       if (!credits || credits <= 0) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid credits amount'
+          error: 'Invalid credits amount',
         });
       }
-      
+
       await pointService.exchangeCreditsToPoints(userId, credits);
-      
+
       const newBalance = await pointService.getBalance(userId);
-      
+
       res.json({
         success: true,
-        data: { points: newBalance }
+        data: { points: newBalance },
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * POST /api/v1/points/purchase
    */
@@ -763,37 +756,37 @@ export class PointController {
     try {
       const userId = req.user.id;
       const { amountUSD, paymentMethod, paymentId } = req.body;
-      
+
       if (!amountUSD || amountUSD <= 0) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid amount'
+          error: 'Invalid amount',
         });
       }
-      
+
       if (!paymentMethod || !paymentId) {
         return res.status(400).json({
           success: false,
-          error: 'Payment information required'
+          error: 'Payment information required',
         });
       }
-      
+
       await pointService.purchasePoints(userId, amountUSD, paymentMethod, paymentId);
-      
+
       const newBalance = await pointService.getBalance(userId);
-      
+
       res.json({
         success: true,
-        data: { points: newBalance }
+        data: { points: newBalance },
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * POST /api/v1/points/daily-reward
    */
@@ -801,34 +794,34 @@ export class PointController {
     try {
       const userId = req.user.id;
       const points = await pointService.claimDailyReward(userId);
-      
+
       res.json({
         success: true,
-        data: { points }
+        data: { points },
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * GET /api/v1/points/exchange-rate
    */
   async getExchangeRate(req: Request, res: Response) {
     try {
       const rate = await pointService.getActiveExchangeRate();
-      
+
       res.json({
         success: true,
-        data: rate
+        data: rate,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
@@ -856,7 +849,8 @@ router.use(authenticate);
 router.get('/balance', pointController.getBalance);
 
 // Deduct points
-router.post('/deduct', 
+router.post(
+  '/deduct',
   rateLimit({ max: 100, windowMs: 60000 }), // 100 requests per minute
   pointController.deduct
 );
@@ -865,19 +859,22 @@ router.post('/deduct',
 router.get('/history', pointController.getHistory);
 
 // Exchange credits to points
-router.post('/exchange',
+router.post(
+  '/exchange',
   rateLimit({ max: 10, windowMs: 60000 }), // 10 exchanges per minute
   pointController.exchange
 );
 
 // Purchase points with money
-router.post('/purchase',
+router.post(
+  '/purchase',
   rateLimit({ max: 5, windowMs: 60000 }), // 5 purchases per minute
   pointController.purchase
 );
 
 // Claim daily reward
-router.post('/daily-reward',
+router.post(
+  '/daily-reward',
   rateLimit({ max: 1, windowMs: 86400000 }), // 1 claim per day
   pointController.claimDailyReward
 );
@@ -928,26 +925,26 @@ export class ExchangeRateController {
               profile: {
                 select: {
                   firstName: true,
-                  lastName: true
-                }
-              }
-            }
-          }
-        }
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
       });
-      
+
       res.json({
         success: true,
-        data: rates
+        data: rates,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * POST /api/v1/admin/exchange-rates
    */
@@ -955,76 +952,76 @@ export class ExchangeRateController {
     try {
       const userId = req.user.id;
       const { creditToPointsRate, pointsToDollarRate } = req.body;
-      
+
       if (!creditToPointsRate || creditToPointsRate <= 0) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid creditToPointsRate'
+          error: 'Invalid creditToPointsRate',
         });
       }
-      
+
       if (!pointsToDollarRate || pointsToDollarRate <= 0) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid pointsToDollarRate'
+          error: 'Invalid pointsToDollarRate',
         });
       }
-      
+
       // Deactivate all existing rates
       await prisma.exchangeRate.updateMany({
         where: { isActive: true },
-        data: { isActive: false }
+        data: { isActive: false },
       });
-      
+
       // Create new rate
       const rate = await prisma.exchangeRate.create({
         data: {
           creditToPointsRate,
           pointsToDollarRate,
           isActive: true,
-          createdBy: userId
-        }
+          createdBy: userId,
+        },
       });
-      
+
       res.json({
         success: true,
-        data: rate
+        data: rate,
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
-  
+
   /**
    * PUT /api/v1/admin/exchange-rates/:id/activate
    */
   async activate(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      
+
       // Deactivate all rates
       await prisma.exchangeRate.updateMany({
         where: { isActive: true },
-        data: { isActive: false }
+        data: { isActive: false },
       });
-      
+
       // Activate this rate
       const rate = await prisma.exchangeRate.update({
         where: { id },
-        data: { isActive: true }
+        data: { isActive: true },
       });
-      
+
       res.json({
         success: true,
-        data: rate
+        data: rate,
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        error: error.message
+        error: error.message,
       });
     }
   }
@@ -1105,31 +1102,31 @@ import { prisma } from '../../src/lib/prisma';
 
 describe('PointService', () => {
   let testUserId: string;
-  
+
   beforeEach(async () => {
     // Create test user
     const user = await prisma.user.create({
       data: {
         email: 'test@example.com',
         points: 1000,
-        credits: 10
-      }
+        credits: 10,
+      },
     });
     testUserId = user.id;
   });
-  
+
   afterEach(async () => {
     // Clean up
     await prisma.user.delete({ where: { id: testUserId } });
   });
-  
+
   describe('getBalance', () => {
     it('should return user points balance', async () => {
       const balance = await pointService.getBalance(testUserId);
       expect(balance).toBe(1000);
     });
   });
-  
+
   describe('addPoints', () => {
     it('should add points and log transaction', async () => {
       await pointService.addPoints(testUserId, 500, 'purchase');
@@ -1137,92 +1134,92 @@ describe('PointService', () => {
       expect(balance).toBe(1500);
     });
   });
-  
+
   describe('deductPoints', () => {
     it('should deduct points and log transaction', async () => {
       await pointService.deductPoints(testUserId, 300, 'deduct');
       const balance = await pointService.getBalance(testUserId);
       expect(balance).toBe(700);
     });
-    
+
     it('should throw error if insufficient balance', async () => {
-      await expect(
-        pointService.deductPoints(testUserId, 2000, 'deduct')
-      ).rejects.toThrow('Insufficient points balance');
+      await expect(pointService.deductPoints(testUserId, 2000, 'deduct')).rejects.toThrow(
+        'Insufficient points balance'
+      );
     });
   });
-  
+
   describe('exchangeCreditsToPoints', () => {
     it('should exchange credits to points at correct rate', async () => {
       await pointService.exchangeCreditsToPoints(testUserId, 5);
-      
+
       const user = await prisma.user.findUnique({
         where: { id: testUserId },
-        select: { points: true, credits: true }
+        select: { points: true, credits: true },
       });
-      
+
       expect(user.credits).toBe(5); // 10 - 5
       expect(user.points).toBe(6000); // 1000 + (5 * 1000)
     });
-    
+
     it('should throw error if insufficient credits', async () => {
-      await expect(
-        pointService.exchangeCreditsToPoints(testUserId, 20)
-      ).rejects.toThrow('Insufficient credits balance');
+      await expect(pointService.exchangeCreditsToPoints(testUserId, 20)).rejects.toThrow(
+        'Insufficient credits balance'
+      );
     });
   });
-  
+
   describe('checkAndExecuteAutoTopup', () => {
     it('should execute auto top-up when points low and credits available', async () => {
       // Set points to 5 (below threshold of 10)
       await prisma.user.update({
         where: { id: testUserId },
-        data: { points: 5, credits: 10 }
+        data: { points: 5, credits: 10 },
       });
-      
+
       const toppedUp = await pointService.checkAndExecuteAutoTopup(testUserId);
       expect(toppedUp).toBe(true);
-      
+
       const user = await prisma.user.findUnique({
         where: { id: testUserId },
-        select: { points: true, credits: true }
+        select: { points: true, credits: true },
       });
-      
+
       expect(user.points).toBe(1005); // 5 + 1000
       expect(user.credits).toBe(9); // 10 - 1
     });
-    
+
     it('should not execute auto top-up when points above threshold', async () => {
       const toppedUp = await pointService.checkAndExecuteAutoTopup(testUserId);
       expect(toppedUp).toBe(false);
     });
-    
+
     it('should not execute auto top-up when insufficient credits', async () => {
       await prisma.user.update({
         where: { id: testUserId },
-        data: { points: 5, credits: 0 }
+        data: { points: 5, credits: 0 },
       });
-      
+
       const toppedUp = await pointService.checkAndExecuteAutoTopup(testUserId);
       expect(toppedUp).toBe(false);
     });
   });
-  
+
   describe('claimDailyReward', () => {
     it('should claim daily reward successfully', async () => {
       const points = await pointService.claimDailyReward(testUserId);
       expect(points).toBe(100);
-      
+
       const balance = await pointService.getBalance(testUserId);
       expect(balance).toBe(1100); // 1000 + 100
     });
-    
+
     it('should throw error if already claimed today', async () => {
       await pointService.claimDailyReward(testUserId);
-      
-      await expect(
-        pointService.claimDailyReward(testUserId)
-      ).rejects.toThrow('Daily reward already claimed today');
+
+      await expect(pointService.claimDailyReward(testUserId)).rejects.toThrow(
+        'Daily reward already claimed today'
+      );
     });
   });
 });
@@ -1240,60 +1237,59 @@ import { generateToken } from '../../src/utils/auth';
 describe('Points API', () => {
   let authToken: string;
   let testUserId: string;
-  
+
   beforeAll(async () => {
     // Create test user and get token
     const user = await createTestUser();
     testUserId = user.id;
     authToken = generateToken(user);
   });
-  
+
   describe('GET /api/v1/points/balance', () => {
     it('should return points balance', async () => {
       const response = await request(app)
         .get('/api/v1/points/balance')
         .set('Authorization', `Bearer ${authToken}`);
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveProperty('points');
     });
-    
+
     it('should return 401 if not authenticated', async () => {
-      const response = await request(app)
-        .get('/api/v1/points/balance');
-      
+      const response = await request(app).get('/api/v1/points/balance');
+
       expect(response.status).toBe(401);
     });
   });
-  
+
   describe('POST /api/v1/points/exchange', () => {
     it('should exchange credits to points', async () => {
       const response = await request(app)
         .post('/api/v1/points/exchange')
         .set('Authorization', `Bearer ${authToken}`)
         .send({ credits: 5 });
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
-    
+
     it('should return 400 if invalid credits amount', async () => {
       const response = await request(app)
         .post('/api/v1/points/exchange')
         .set('Authorization', `Bearer ${authToken}`)
         .send({ credits: -5 });
-      
+
       expect(response.status).toBe(400);
     });
   });
-  
+
   describe('POST /api/v1/points/daily-reward', () => {
     it('should claim daily reward', async () => {
       const response = await request(app)
         .post('/api/v1/points/daily-reward')
         .set('Authorization', `Bearer ${authToken}`);
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.points).toBe(100);
@@ -1308,7 +1304,7 @@ describe('Points API', () => {
 
 Create API documentation in `API_DOCUMENTATION.md`:
 
-```markdown
+````markdown
 ## Points System APIs
 
 ### Get Points Balance
@@ -1316,6 +1312,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **GET** `/api/v1/points/balance`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1324,12 +1321,14 @@ Create API documentation in `API_DOCUMENTATION.md`:
   }
 }
 ```
+````
 
 ### Deduct Points
 
 **POST** `/api/v1/points/deduct`
 
 **Request:**
+
 ```json
 {
   "amount": 100,
@@ -1338,6 +1337,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1353,6 +1353,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **GET** `/api/v1/points/history?page=1&limit=20`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1369,6 +1370,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **POST** `/api/v1/points/exchange`
 
 **Request:**
+
 ```json
 {
   "credits": 5
@@ -1376,6 +1378,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1390,6 +1393,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **POST** `/api/v1/points/purchase`
 
 **Request:**
+
 ```json
 {
   "amountUSD": 10,
@@ -1399,6 +1403,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1413,6 +1418,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **POST** `/api/v1/points/daily-reward`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1427,6 +1433,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **GET** `/api/v1/points/exchange-rate`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1450,6 +1457,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 **POST** `/api/v1/admin/exchange-rates`
 
 **Request:**
+
 ```json
 {
   "creditToPointsRate": 1200,
@@ -1460,6 +1468,7 @@ Create API documentation in `API_DOCUMENTATION.md`:
 ### Activate Exchange Rate
 
 **PUT** `/api/v1/admin/exchange-rates/:id/activate`
+
 ```
 
 ---
@@ -1495,3 +1504,4 @@ Create API documentation in `API_DOCUMENTATION.md`:
 
 Please implement the complete Points System following this specification. Ensure all features work correctly and are properly tested before deployment.
 
+```

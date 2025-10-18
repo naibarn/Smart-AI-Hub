@@ -34,6 +34,7 @@ This document outlines the security guidelines and best practices for the Smart 
 ### 1. Defense in Depth
 
 Implement multiple layers of security controls:
+
 - Network security
 - Application security
 - Data security
@@ -42,6 +43,7 @@ Implement multiple layers of security controls:
 ### 2. Principle of Least Privilege
 
 Grant minimum necessary permissions:
+
 - Users have only required permissions
 - Services have minimal access rights
 - Default deny policies
@@ -49,6 +51,7 @@ Grant minimum necessary permissions:
 ### 3. Secure by Default
 
 Ensure secure configurations:
+
 - Secure defaults for all settings
 - No default passwords
 - All communications encrypted
@@ -56,6 +59,7 @@ Ensure secure configurations:
 ### 4. Fail Securely
 
 Ensure failures don't compromise security:
+
 - Secure error handling
 - Fail closed, not open
 - Minimal error information disclosure
@@ -63,6 +67,7 @@ Ensure failures don't compromise security:
 ### 5. Trust but Verify
 
 Validate all inputs and assumptions:
+
 - Input validation
 - Output encoding
 - Zero trust architecture
@@ -72,6 +77,7 @@ Validate all inputs and assumptions:
 ### Potential Threats
 
 #### External Threats
+
 - **DDoS Attacks**: Overwhelming system resources
 - **Injection Attacks**: SQL, NoSQL, command injection
 - **Authentication Attacks**: Brute force, credential stuffing
@@ -79,11 +85,13 @@ Validate all inputs and assumptions:
 - **MITM Attacks**: Man-in-the-middle attacks
 
 #### Internal Threats
+
 - **Insider Threats**: Malicious or negligent employees
 - **Privilege Escalation**: Gaining unauthorized access
 - **Data Exfiltration**: Unauthorized data export
 
 #### System Threats
+
 - **Vulnerabilities**: Software vulnerabilities
 - **Misconfigurations**: Insecure configurations
 - **Zero-day Exploits**: Unknown vulnerabilities
@@ -118,50 +126,50 @@ const passwordPolicy = {
   requireNumbers: true,
   requireSpecialChars: true,
   preventCommonPasswords: true,
-  preventUserInfo: true
+  preventUserInfo: true,
 };
 
 // Password validation
 function validatePassword(password: string, userInfo: UserInfo): ValidationResult {
   const errors: string[] = [];
-  
+
   if (password.length < passwordPolicy.minLength) {
     errors.push('Password must be at least 8 characters long');
   }
-  
+
   if (password.length > passwordPolicy.maxLength) {
     errors.push('Password must not exceed 128 characters');
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push('Password must contain at least one uppercase letter');
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push('Password must contain at least one lowercase letter');
   }
-  
+
   if (!/\d/.test(password)) {
     errors.push('Password must contain at least one number');
   }
-  
+
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
     errors.push('Password must contain at least one special character');
   }
-  
+
   // Check for common passwords
   if (isCommonPassword(password)) {
     errors.push('Password is too common. Please choose a more secure password');
   }
-  
+
   // Check for user information in password
   if (containsUserInfo(password, userInfo)) {
     errors.push('Password cannot contain your personal information');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 }
 ```
@@ -178,7 +186,7 @@ function generateMFASecret(userEmail: string): MFASecret {
   return speakeasy.generateSecret({
     name: `Smart AI Hub (${userEmail})`,
     issuer: 'Smart AI Hub',
-    length: 32
+    length: 32,
   });
 }
 
@@ -187,9 +195,9 @@ async function generateMFAQRCode(secret: string): Promise<string> {
   const otpauthUrl = speakeasy.otpauthURL({
     secret: secret,
     label: 'Smart AI Hub',
-    issuer: 'Smart AI Hub'
+    issuer: 'Smart AI Hub',
   });
-  
+
   return qrcode.toDataURL(otpauthUrl);
 }
 
@@ -199,7 +207,7 @@ function verifyMFAToken(token: string, secret: string): boolean {
     secret: secret,
     encoding: 'base32',
     token: token,
-    window: 2 // Allow 2 steps before and after
+    window: 2, // Allow 2 steps before and after
   });
 }
 ```
@@ -218,8 +226,8 @@ const sessionConfig = {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'strict'
-  }
+    sameSite: 'strict',
+  },
 };
 
 // Session middleware
@@ -230,16 +238,16 @@ function validateSession(req: Request, res: Response, next: NextFunction) {
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  
+
   // Check session age
   const sessionAge = Date.now() - req.session.createdAt;
   const maxSessionAge = 24 * 60 * 60 * 1000; // 24 hours
-  
+
   if (sessionAge > maxSessionAge) {
     req.session.destroy();
     return res.status(401).json({ error: 'Session expired' });
   }
-  
+
   next();
 }
 ```
@@ -253,7 +261,7 @@ function validateSession(req: Request, res: Response, next: NextFunction) {
 enum Role {
   ADMIN = 'admin',
   USER = 'user',
-  MODERATOR = 'moderator'
+  MODERATOR = 'moderator',
 }
 
 // Permission definitions
@@ -264,7 +272,7 @@ enum Permission {
   READ_CREDITS = 'read:credits',
   WRITE_CREDITS = 'write:credits',
   ACCESS_AI_MODELS = 'access:ai_models',
-  MANAGE_SYSTEM = 'manage:system'
+  MANAGE_SYSTEM = 'manage:system',
 }
 
 // Role-Permission mapping
@@ -276,19 +284,15 @@ const rolePermissions: Record<Role, Permission[]> = {
     Permission.READ_CREDITS,
     Permission.WRITE_CREDITS,
     Permission.ACCESS_AI_MODELS,
-    Permission.MANAGE_SYSTEM
+    Permission.MANAGE_SYSTEM,
   ],
   [Role.MODERATOR]: [
     Permission.READ_USERS,
     Permission.WRITE_USERS,
     Permission.READ_CREDITS,
-    Permission.ACCESS_AI_MODELS
+    Permission.ACCESS_AI_MODELS,
   ],
-  [Role.USER]: [
-    Permission.READ_CREDITS,
-    Permission.WRITE_CREDITS,
-    Permission.ACCESS_AI_MODELS
-  ]
+  [Role.USER]: [Permission.READ_CREDITS, Permission.WRITE_CREDITS, Permission.ACCESS_AI_MODELS],
 };
 
 // Authorization middleware
@@ -296,11 +300,11 @@ function requirePermission(permission: Permission) {
   return (req: Request, res: Response, next: NextFunction) => {
     const userRole = req.user?.role as Role;
     const userPermissions = rolePermissions[userRole] || [];
-    
+
     if (!userPermissions.includes(permission)) {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
-    
+
     next();
   };
 }
@@ -318,25 +322,25 @@ function checkResourceOwnership(resourceType: string) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const resourceId = req.params.id;
     const userId = req.user?.id;
-    
+
     try {
       const resource = await getResourceById(resourceType, resourceId);
-      
+
       if (!resource) {
         return res.status(404).json({ error: 'Resource not found' });
       }
-      
+
       // Admin can access all resources
       if (req.user?.role === Role.ADMIN) {
         req.resource = resource;
         return next();
       }
-      
+
       // Check ownership
       if (resource.userId !== userId) {
         return res.status(403).json({ error: 'Access denied' });
       }
-      
+
       req.resource = resource;
       next();
     } catch (error) {
@@ -346,11 +350,7 @@ function checkResourceOwnership(resourceType: string) {
 }
 
 // Usage example
-app.get('/api/credits/:id', 
-  authenticate, 
-  checkResourceOwnership('credit'), 
-  getCreditDetails
-);
+app.get('/api/credits/:id', authenticate, checkResourceOwnership('credit'), getCreditDetails);
 ```
 
 ## Data Protection
@@ -363,20 +363,15 @@ const encryptionConfig = {
   // Transparent Data Encryption (TDE)
   tde: {
     enabled: true,
-    algorithm: 'AES-256'
+    algorithm: 'AES-256',
   },
-  
+
   // Column-level encryption
   columnEncryption: {
-    sensitiveFields: [
-      'email',
-      'phoneNumber',
-      'creditCard',
-      'ssn'
-    ],
+    sensitiveFields: ['email', 'phoneNumber', 'creditCard', 'ssn'],
     algorithm: 'AES-256-GCM',
-    keyRotationPeriod: 90 // days
-  }
+    keyRotationPeriod: 90, // days
+  },
 };
 
 // Field-level encryption
@@ -385,32 +380,32 @@ import crypto from 'crypto';
 class FieldEncryption {
   private static readonly algorithm = 'aes-256-gcm';
   private static readonly keyLength = 32;
-  
+
   static encrypt(text: string, key: string): EncryptedData {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipher(this.algorithm, key);
     cipher.setAAD(Buffer.from('smartaihub', 'utf8'));
-    
+
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    
+
     const authTag = cipher.getAuthTag();
-    
+
     return {
       encrypted,
       iv: iv.toString('hex'),
-      authTag: authTag.toString('hex')
+      authTag: authTag.toString('hex'),
     };
   }
-  
+
   static decrypt(encryptedData: EncryptedData, key: string): string {
     const decipher = crypto.createDecipher(this.algorithm, key);
     decipher.setAAD(Buffer.from('smartaihub', 'utf8'));
     decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
-    
+
     let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
-    
+
     return decrypted;
   }
 }
@@ -424,27 +419,23 @@ const httpsConfig = {
   // TLS configuration
   tls: {
     version: 'TLSv1.3',
-    ciphers: [
-      'TLS_AES_256_GCM_SHA384',
-      'TLS_CHACHA20_POLY1305_SHA256',
-      'TLS_AES_128_GCM_SHA256'
-    ],
-    honorCipherOrder: true
+    ciphers: ['TLS_AES_256_GCM_SHA384', 'TLS_CHACHA20_POLY1305_SHA256', 'TLS_AES_128_GCM_SHA256'],
+    honorCipherOrder: true,
   },
-  
+
   // HSTS (HTTP Strict Transport Security)
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
-  
+
   // Certificate configuration
   certificate: {
     autoRenew: true,
     renewalPeriod: 30, // days
-    provider: 'letsencrypt'
-  }
+    provider: 'letsencrypt',
+  },
 };
 
 // Express HTTPS setup
@@ -455,12 +446,12 @@ const options = {
   key: fs.readFileSync('./ssl/private.key'),
   cert: fs.readFileSync('./ssl/certificate.crt'),
   ca: fs.readFileSync('./ssl/ca_bundle.crt'),
-  
+
   // SPDY/HTTP2 configuration
   spdy: {
     protocols: ['h2', 'http/1.1'],
-    plain: false
-  }
+    plain: false,
+  },
 };
 
 spdy.createServer(options, app).listen(443, () => {
@@ -478,15 +469,15 @@ class DataMasker {
     const maskedUsername = username.slice(0, 2) + '*'.repeat(username.length - 2);
     return `${maskedUsername}@${domain}`;
   }
-  
+
   static maskPhoneNumber(phone: string): string {
     return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
   }
-  
+
   static maskCreditCard(cardNumber: string): string {
     return cardNumber.replace(/\d(?=\d{4})/g, '*');
   }
-  
+
   static maskSSN(ssn: string): string {
     return ssn.replace(/\d{3}-\d{2}-\d{4}/, '***-**-****');
   }
@@ -500,7 +491,7 @@ function sanitizeUserData(user: User): SafeUser {
     firstName: user.firstName,
     lastName: user.lastName,
     role: user.role,
-    createdAt: user.createdAt
+    createdAt: user.createdAt,
   };
 }
 ```
@@ -519,37 +510,37 @@ const schemas = {
     email: Joi.string().email().required(),
     password: Joi.string().min(8).max(128).required(),
     firstName: Joi.string().min(1).max(50).required(),
-    lastName: Joi.string().min(1).max(50).required()
+    lastName: Joi.string().min(1).max(50).required(),
   }),
-  
+
   userUpdate: Joi.object({
     firstName: Joi.string().min(1).max(50),
     lastName: Joi.string().min(1).max(50),
-    phone: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/)
+    phone: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/),
   }),
-  
+
   creditPurchase: Joi.object({
     packageId: Joi.string().required(),
     paymentMethodId: Joi.string().required(),
-    amount: Joi.number().positive().max(10000).required()
-  })
+    amount: Joi.number().positive().max(10000).required(),
+  }),
 };
 
 // Validation middleware
 function validate(schema: Joi.ObjectSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = schema.validate(req.body);
-    
+
     if (error) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: error.details.map(detail => ({
+        details: error.details.map((detail) => ({
           field: detail.path.join('.'),
-          message: detail.message
-        }))
+          message: detail.message,
+        })),
       });
     }
-    
+
     req.body = value;
     next();
   };
@@ -593,14 +584,15 @@ const authLimiter = rateLimit({
 });
 
 // API-specific rate limiter
-const createApiLimiter = (windowMs: number, max: number) => rateLimit({
-  store: new RedisStore({
-    sendCommand: (...args: string[]) => redis.call(...args),
-  }),
-  windowMs,
-  max,
-  keyGenerator: (req) => req.user?.id || req.ip,
-});
+const createApiLimiter = (windowMs: number, max: number) =>
+  rateLimit({
+    store: new RedisStore({
+      sendCommand: (...args: string[]) => redis.call(...args),
+    }),
+    windowMs,
+    max,
+    keyGenerator: (req) => req.user?.id || req.ip,
+  });
 
 // Usage example
 app.use('/api/', generalLimiter);
@@ -620,38 +612,35 @@ class ApiKeyService {
   static generateApiKey(): string {
     return crypto.randomBytes(32).toString('hex');
   }
-  
+
   // Create API key for user
   static async createApiKey(userId: string, name: string): Promise<ApiKey> {
     const key = this.generateApiKey();
     const keyHash = crypto.createHash('sha256').update(key).digest('hex');
-    
+
     return ApiKey.create({
       userId,
       name,
       keyHash,
       permissions: ['read', 'write'],
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   }
-  
+
   // Validate API key
   static async validateApiKey(key: string): Promise<ApiKey | null> {
     const keyHash = crypto.createHash('sha256').update(key).digest('hex');
-    
+
     return ApiKey.findOne({
       where: { keyHash, active: true },
-      include: [{ model: User, attributes: ['id', 'role'] }]
+      include: [{ model: User, attributes: ['id', 'role'] }],
     });
   }
-  
+
   // Revoke API key
   static async revokeApiKey(keyId: string, userId: string): Promise<boolean> {
-    const result = await ApiKey.update(
-      { active: false },
-      { where: { id: keyId, userId } }
-    );
-    
+    const result = await ApiKey.update({ active: false }, { where: { id: keyId, userId } });
+
     return result[0] > 0;
   }
 }
@@ -659,21 +648,21 @@ class ApiKeyService {
 // API key authentication middleware
 async function authenticateApiKey(req: Request, res: Response, next: NextFunction) {
   const apiKey = req.headers['x-api-key'] as string;
-  
+
   if (!apiKey) {
     return res.status(401).json({ error: 'API key required' });
   }
-  
+
   try {
     const keyData = await ApiKeyService.validateApiKey(apiKey);
-    
+
     if (!keyData) {
       return res.status(401).json({ error: 'Invalid API key' });
     }
-    
+
     // Update last used timestamp
     await keyData.update({ lastUsedAt: new Date() });
-    
+
     req.user = keyData.user;
     req.apiKey = keyData;
     next();
@@ -696,12 +685,12 @@ networks:
   frontend:
     driver: bridge
     internal: false
-    
+
   # Backend network (internal)
   backend:
     driver: bridge
     internal: true
-    
+
   # Database network (isolated)
   database:
     driver: bridge
@@ -712,27 +701,27 @@ services:
   frontend:
     networks:
       - frontend
-      
+
   # API Gateway
   api-gateway:
     networks:
       - frontend
       - backend
-      
+
   # Backend services
   auth-service:
     networks:
       - backend
-      
+
   core-service:
     networks:
       - backend
-      
+
   # Database
   postgres:
     networks:
       - database
-      
+
   # Redis
   redis:
     networks:
@@ -866,37 +855,37 @@ const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
-    }
+      frameSrc: ["'none'"],
+    },
   },
-  
+
   // HTTP Strict Transport Security
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
-  
+
   // X-Frame-Options
   frameguard: {
-    action: 'deny'
+    action: 'deny',
   },
-  
+
   // X-Content-Type-Options
   noSniff: true,
-  
+
   // Referrer Policy
   referrerPolicy: {
-    policy: 'strict-origin-when-cross-origin'
+    policy: 'strict-origin-when-cross-origin',
   },
-  
+
   // X-XSS-Protection
-  xssFilter: true
+  xssFilter: true,
 });
 
 app.use(securityHeaders);
@@ -917,10 +906,10 @@ class XSSProtection {
   static sanitizeHTML(html: string): string {
     return purify.sanitize(html, {
       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li'],
-      ALLOWED_ATTR: []
+      ALLOWED_ATTR: [],
     });
   }
-  
+
   // Escape user input
   static escapeInput(input: string): string {
     return input
@@ -930,12 +919,12 @@ class XSSProtection {
       .replace(/"/g, '"')
       .replace(/'/g, '&#x27;');
   }
-  
+
   // Validate and sanitize user-generated content
   static processUserContent(content: string): string {
     // First escape the input
     const escaped = this.escapeInput(content);
-    
+
     // Then sanitize if it's supposed to be HTML
     return this.sanitizeHTML(escaped);
   }
@@ -944,10 +933,10 @@ class XSSProtection {
 // Usage in API endpoints
 app.post('/api/content', (req, res) => {
   const { content } = req.body;
-  
+
   // Sanitize user content
   const sanitizedContent = XSSProtection.processUserContent(content);
-  
+
   // Store sanitized content
   // ...
 });
@@ -965,10 +954,10 @@ class UserService {
   // Secure user lookup
   static async getUserById(userId: string): Promise<User | null> {
     return prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
   }
-  
+
   // Secure user search
   static async searchUsers(query: string): Promise<User[]> {
     return prisma.user.findMany({
@@ -976,18 +965,18 @@ class UserService {
         OR: [
           { firstName: { contains: query, mode: 'insensitive' } },
           { lastName: { contains: query, mode: 'insensitive' } },
-          { email: { contains: query, mode: 'insensitive' } }
-        ]
+          { email: { contains: query, mode: 'insensitive' } },
+        ],
       },
-      take: 10
+      take: 10,
     });
   }
-  
+
   // Secure user update
   static async updateUser(userId: string, data: Partial<User>): Promise<User> {
     return prisma.user.update({
       where: { id: userId },
-      data
+      data,
     });
   }
 }
@@ -1004,7 +993,7 @@ class RawQueryService {
       FROM users
       GROUP BY role
     `;
-    
+
     return result;
   }
 }
@@ -1024,70 +1013,62 @@ describe('Security Tests', () => {
     it('should prevent brute force attacks', async () => {
       const credentials = {
         email: 'test@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       };
-      
+
       // Make multiple login attempts
       const attempts = [];
       for (let i = 0; i < 10; i++) {
-        attempts.push(
-          request(app)
-            .post('/api/auth/login')
-            .send(credentials)
-        );
+        attempts.push(request(app).post('/api/auth/login').send(credentials));
       }
-      
+
       const results = await Promise.allSettled(attempts);
-      
+
       // Should be rate limited after several attempts
-      const rateLimited = results.some(result => 
-        result.status === 'fulfilled' && 
-        result.value.status === 429
+      const rateLimited = results.some(
+        (result) => result.status === 'fulfilled' && result.value.status === 429
       );
-      
+
       expect(rateLimited).toBe(true);
     });
-    
+
     it('should prevent SQL injection in login', async () => {
       const maliciousInput = {
         email: "'; DROP TABLE users; --",
-        password: "password"
+        password: 'password',
       };
-      
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(maliciousInput);
-      
+
+      const response = await request(app).post('/api/auth/login').send(maliciousInput);
+
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('validation');
     });
   });
-  
+
   describe('API Security', () => {
     it('should prevent XSS in API responses', async () => {
       const maliciousContent = '<script>alert("XSS")</script>';
-      
+
       const response = await request(app)
         .post('/api/content')
         .send({ content: maliciousContent })
         .set('Authorization', 'Bearer valid-token');
-      
+
       expect(response.body.content).not.toContain('<script>');
     });
-    
+
     it('should enforce rate limiting', async () => {
-      const requests = Array(20).fill(null).map(() =>
-        request(app)
-          .get('/api/credits/balance')
-          .set('Authorization', 'Bearer valid-token')
-      );
-      
+      const requests = Array(20)
+        .fill(null)
+        .map(() =>
+          request(app).get('/api/credits/balance').set('Authorization', 'Bearer valid-token')
+        );
+
       const results = await Promise.allSettled(requests);
-      const rateLimited = results.some(result => 
-        result.status === 'fulfilled' && 
-        result.value.status === 429
+      const rateLimited = results.some(
+        (result) => result.status === 'fulfilled' && result.value.status === 429
       );
-      
+
       expect(rateLimited).toBe(true);
     });
   });
@@ -1161,32 +1142,32 @@ class IncidentResponse {
   static async blockIP(ip: string): Promise<void> {
     // Add to firewall rules
     await this.addFirewallRule(ip);
-    
+
     // Add to blocklist in Redis
     await redis.setex(`blocked:${ip}`, 86400, 'true');
-    
+
     // Log the action
     logger.warn('IP blocked due to suspicious activity', { ip });
   }
-  
+
   // Disable compromised account
   static async disableAccount(userId: string): Promise<void> {
     await User.update(
-      { 
+      {
         active: false,
         disabledAt: new Date(),
-        disabledReason: 'Security incident'
+        disabledReason: 'Security incident',
       },
       { where: { id: userId } }
     );
-    
+
     // Revoke all sessions
     await this.revokeAllSessions(userId);
-    
+
     // Send notification
     await notificationService.sendSecurityAlert(userId);
   }
-  
+
   // Create security incident
   static async createIncident(details: IncidentDetails): Promise<Incident> {
     return Incident.create({
@@ -1195,7 +1176,7 @@ class IncidentResponse {
       description: details.description,
       affectedUsers: details.affectedUsers,
       status: 'open',
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   }
 }
@@ -1213,15 +1194,15 @@ class GDPRService {
     const user = await User.findByPk(userId);
     const credits = await CreditAccount.findAll({ where: { userId } });
     const usageLogs = await UsageLog.findAll({ where: { userId } });
-    
+
     return {
       personalData: user,
       financialData: credits,
       usageData: usageLogs,
-      exportDate: new Date()
+      exportDate: new Date(),
     };
   }
-  
+
   // Right to erasure
   static async deleteUserData(userId: string): Promise<void> {
     // Anonymize user data instead of deleting for audit purposes
@@ -1231,28 +1212,25 @@ class GDPRService {
         firstName: 'Deleted',
         lastName: 'User',
         phone: null,
-        address: null
+        address: null,
       },
       { where: { id: userId } }
     );
-    
+
     // Delete sensitive data
     await CreditAccount.destroy({ where: { userId } });
     await UsageLog.destroy({ where: { userId } });
-    
+
     // Revoke all API keys
-    await ApiKey.update(
-      { active: false },
-      { where: { userId } }
-    );
+    await ApiKey.update({ active: false }, { where: { userId } });
   }
-  
+
   // Data processing consent
   static async updateConsent(userId: string, consent: ConsentData): Promise<void> {
     await UserConsent.upsert({
       userId,
       ...consent,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
   }
 }
@@ -1270,10 +1248,10 @@ class ComplianceLogger {
       resource,
       action,
       timestamp: new Date(),
-      compliance: 'SOC2'
+      compliance: 'SOC2',
     });
   }
-  
+
   // Log security events
   static logSecurityEvent(event: SecurityEvent): void {
     logger.warn('Security event', {
@@ -1281,10 +1259,10 @@ class ComplianceLogger {
       severity: event.severity,
       description: event.description,
       timestamp: new Date(),
-      compliance: 'SOC2'
+      compliance: 'SOC2',
     });
   }
-  
+
   // Log changes to sensitive data
   static logDataChange(userId: string, resource: string, changes: any): void {
     logger.info('Data change', {
@@ -1292,7 +1270,7 @@ class ComplianceLogger {
       resource,
       changes,
       timestamp: new Date(),
-      compliance: 'SOC2'
+      compliance: 'SOC2',
     });
   }
 }

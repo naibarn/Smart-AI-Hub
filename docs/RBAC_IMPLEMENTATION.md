@@ -17,6 +17,7 @@ This document describes the implementation of Role-Based Access Control (RBAC) i
 ### Database Schema
 
 #### User Model
+
 ```prisma
 model User {
   id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -33,12 +34,13 @@ model User {
   userRoles          UserRole[]
   promoCodeUsages    PromoCodeUsage[]
   payments           Payment[]
-  
+
   @@map("users")
 }
 ```
 
 #### Role Model
+
 ```prisma
 model Role {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -55,6 +57,7 @@ model Role {
 ```
 
 #### Permission Model
+
 ```prisma
 model Permission {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -71,6 +74,7 @@ model Permission {
 ```
 
 #### UserRole Junction Table
+
 ```prisma
 model UserRole {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -86,6 +90,7 @@ model UserRole {
 ```
 
 #### RolePermission Junction Table
+
 ```prisma
 model RolePermission {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -103,23 +108,28 @@ model RolePermission {
 ## Key Changes from Previous Implementation
 
 ### User Model Changes
+
 - Changed `emailVerified` field to `verified`
 - Changed single `roleId` to many-to-many `roles` relationship via `UserRole` junction table
 - Maintained all other fields as specified in the specs
 
 ### Role Model Changes
+
 - Removed JSON `permissions` field
 - Added `isSystem` field to distinguish system-defined roles
 - Implemented many-to-many relationship with permissions via `RolePermission` junction table
 
 ### CreditAccount Model Changes
+
 - Simplified from multiple balance fields (`currentBalance`, `totalPurchased`, `totalUsed`) to a single `balance` field
 - Maintained relationship with User model
 
 ## Implementation Details
 
 ### JWT Token Structure
+
 The JWT token payload now includes:
+
 ```json
 {
   "id": "user-id",
@@ -130,24 +140,31 @@ The JWT token payload now includes:
 ```
 
 ### Permission Checking
+
 Permission checking is now performed via database queries through the `permissionService.hasPermission()` method. This ensures real-time permission validation and allows for dynamic permission updates.
 
 ### Middleware Implementation
 
 #### RBAC Middleware
+
 The `rbac.middleware.ts` provides three main functions:
+
 1. `requirePermission(resource, action)` - Checks if user has specific permission
 2. `requireRoles(roles)` - Checks if user has any of the specified roles
 3. `requireSelfOrRole(roles)` - Allows access to own resources or users with specified roles
 
 #### Auth Middleware
+
 The `auth.middleware.ts` has been updated to:
+
 - Include roles array in JWT token
 - Include permissions array in JWT token
 - Support the new RBAC structure
 
 ### Credit Service Updates
+
 The `credit.service.ts` has been updated to work with the simplified CreditAccount model:
+
 - Uses single `balance` field instead of multiple balance fields
 - Removed complex balance tracking logic
 - Simplified transaction recording
@@ -165,15 +182,18 @@ The migration was performed in phases to ensure data integrity:
 ### Data Transformation
 
 #### User Roles Migration
+
 - Existing single `roleId` values were migrated to `UserRole` junction table
 - Users without roles were assigned default "user" role
 
 #### Role Permissions Migration
+
 - Existing JSON `permissions` in Role model were extracted
 - Individual permissions were created in `Permission` model
 - Role-permission relationships were created in `RolePermission` table
 
 #### Credit Account Migration
+
 - `currentBalance` values were migrated to new `balance` field
 - `totalPurchased` and `totalUsed` fields were dropped
 - Historical data preserved in credit transactions
@@ -181,12 +201,14 @@ The migration was performed in phases to ensure data integrity:
 ## Testing
 
 ### Test Coverage
+
 - All middleware functions tested with various scenarios
 - Permission checking logic validated
 - Role assignment and verification tested
 - Credit service operations tested with new schema
 
 ### Test Results
+
 - 84 out of 86 tests passing
 - 2 failing tests related to external service configuration (Stripe)
 - Core RBAC functionality fully tested and working
@@ -194,6 +216,7 @@ The migration was performed in phases to ensure data integrity:
 ## Usage Examples
 
 ### Checking Permissions
+
 ```typescript
 // In middleware
 await requirePermission('users', 'delete')(req, res, next);
@@ -203,6 +226,7 @@ const hasPermission = await permissionService.hasPermission(userId, 'users', 'de
 ```
 
 ### Assigning Roles
+
 ```typescript
 // Assign role to user
 await userRoleService.assignRole(userId, roleId);
@@ -212,13 +236,14 @@ await userRoleService.removeRole(userId, roleId);
 ```
 
 ### Managing Permissions
+
 ```typescript
 // Create permission
 await permissionService.createPermission({
   name: 'users:delete',
   resource: 'users',
   action: 'delete',
-  description: 'Delete user accounts'
+  description: 'Delete user accounts',
 });
 
 // Assign permission to role

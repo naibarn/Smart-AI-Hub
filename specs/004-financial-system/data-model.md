@@ -18,7 +18,7 @@ CREATE TABLE credit_accounts (
 );
 
 -- Foreign key constraint
-ALTER TABLE credit_accounts ADD CONSTRAINT fk_credit_accounts_user_id 
+ALTER TABLE credit_accounts ADD CONSTRAINT fk_credit_accounts_user_id
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 -- Indexes for performance
@@ -40,7 +40,7 @@ CREATE TABLE credit_transactions (
 );
 
 -- Foreign key constraint
-ALTER TABLE credit_transactions ADD CONSTRAINT fk_credit_transactions_account_id 
+ALTER TABLE credit_transactions ADD CONSTRAINT fk_credit_transactions_account_id
     FOREIGN KEY (account_id) REFERENCES credit_accounts(id) ON DELETE CASCADE;
 
 -- Indexes for performance
@@ -67,7 +67,7 @@ CREATE TABLE payment_transactions (
 );
 
 -- Foreign key constraint
-ALTER TABLE payment_transactions ADD CONSTRAINT fk_payment_transactions_account_id 
+ALTER TABLE payment_transactions ADD CONSTRAINT fk_payment_transactions_account_id
     FOREIGN KEY (account_id) REFERENCES credit_accounts(id) ON DELETE CASCADE;
 
 -- Indexes for performance
@@ -140,6 +140,7 @@ model PaymentTransaction {
 ## Entity Relationships
 
 ### CreditAccount Entity
+
 - **Primary Key**: id (UUID)
 - **Unique Fields**: userId
 - **Attributes**:
@@ -153,6 +154,7 @@ model PaymentTransaction {
   - One-to-many with PaymentTransaction
 
 ### CreditTransaction Entity
+
 - **Primary Key**: id (UUID)
 - **Attributes**:
   - `accountId`: Reference to the credit account
@@ -165,6 +167,7 @@ model PaymentTransaction {
   - Many-to-one with CreditAccount
 
 ### PaymentTransaction Entity
+
 - **Primary Key**: id (UUID)
 - **Attributes**:
   - `accountId`: Reference to the credit account
@@ -182,12 +185,14 @@ model PaymentTransaction {
 ## Data Validation Rules
 
 ### CreditAccount Entity Validation
+
 - **userId**: Must reference an existing user, must be unique
 - **balance**: Must be a non-negative integer, default to 0
 - **createdAt**: Automatically set to current timestamp
 - **updatedAt**: Automatically updated on changes
 
 ### CreditTransaction Entity Validation
+
 - **accountId**: Must reference an existing credit account
 - **amount**: Must be an integer, positive for credits, negative for debits
 - **type**: Must be one of: purchase, usage, refund, bonus
@@ -196,10 +201,11 @@ model PaymentTransaction {
 - **createdAt**: Automatically set to current timestamp
 
 ### PaymentTransaction Entity Validation
+
 - **accountId**: Must reference an existing credit account
 - **amount**: Must be a positive integer
 - **paymentMethod**: Must be a valid payment method
-- **paymentProvider`: Must be a valid payment provider
+- \*\*paymentProvider`: Must be a valid payment provider
 - **status**: Must be one of: pending, completed, failed, refunded
 - **failureReason**: Required if status is failed
 - **createdAt**: Automatically set to current timestamp
@@ -208,18 +214,21 @@ model PaymentTransaction {
 ## Security Considerations
 
 ### Financial Data Protection
+
 - All financial data must be encrypted at rest
 - Access to financial data must be strictly controlled
 - Financial operations must be auditable and traceable
 - Sensitive payment information must never be stored
 
 ### Transaction Integrity
+
 - All financial transactions must be atomic
 - Database transactions must ensure consistency
 - Concurrent operations must be properly synchronized
 - System must prevent race conditions in credit operations
 
 ### Audit Requirements
+
 - All financial operations must be logged with full details
 - Audit logs must be immutable and tamper-proof
 - Audit logs must be retained for regulatory compliance
@@ -228,6 +237,7 @@ model PaymentTransaction {
 ## Performance Optimization
 
 ### Indexing Strategy
+
 - Primary key indexes on all tables
 - Unique index on user_id in credit_accounts
 - Composite indexes on account_id + created_at for transaction history
@@ -235,12 +245,14 @@ model PaymentTransaction {
 - Regular index maintenance and monitoring
 
 ### Query Optimization
+
 - Use efficient queries for balance checks
 - Optimize transaction history queries with proper pagination
 - Use database transactions for multi-step operations
 - Implement connection pooling for high-volume operations
 
 ### Caching Strategy
+
 - Cache user credit balances with appropriate TTL
 - Cache frequently accessed transaction summaries
 - Implement cache invalidation on balance changes
@@ -249,6 +261,7 @@ model PaymentTransaction {
 ## Migration Strategy
 
 ### Initial Migration
+
 ```sql
 -- Create credit_accounts table
 CREATE TABLE credit_accounts (
@@ -285,13 +298,13 @@ CREATE TABLE payment_transactions (
 );
 
 -- Add foreign key constraints
-ALTER TABLE credit_accounts ADD CONSTRAINT fk_credit_accounts_user_id 
+ALTER TABLE credit_accounts ADD CONSTRAINT fk_credit_accounts_user_id
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
-ALTER TABLE credit_transactions ADD CONSTRAINT fk_credit_transactions_account_id 
+ALTER TABLE credit_transactions ADD CONSTRAINT fk_credit_transactions_account_id
     FOREIGN KEY (account_id) REFERENCES credit_accounts(id) ON DELETE CASCADE;
 
-ALTER TABLE payment_transactions ADD CONSTRAINT fk_payment_transactions_account_id 
+ALTER TABLE payment_transactions ADD CONSTRAINT fk_payment_transactions_account_id
     FOREIGN KEY (account_id) REFERENCES credit_accounts(id) ON DELETE CASCADE;
 
 -- Create indexes
@@ -307,6 +320,7 @@ CREATE INDEX idx_payment_transactions_provider_tx_id ON payment_transactions(pro
 ```
 
 ### Data Migration
+
 ```sql
 -- Create credit accounts for existing users
 INSERT INTO credit_accounts (user_id, balance, created_at, updated_at)
@@ -319,12 +333,13 @@ SELECT ca.id, 100, 'bonus', 'Welcome bonus credits', NOW()
 FROM credit_accounts ca
 WHERE ca.user_id IN (SELECT id FROM users WHERE created_at < '2025-01-01')
 AND NOT EXISTS (
-    SELECT 1 FROM credit_transactions ct 
+    SELECT 1 FROM credit_transactions ct
     WHERE ct.account_id = ca.id AND ct.type = 'bonus'
 );
 ```
 
 ### Future Schema Changes
+
 - All schema changes must maintain backward compatibility
 - Use database migrations for all structural changes
 - Test migrations thoroughly before production deployment

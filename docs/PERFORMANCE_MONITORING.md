@@ -60,6 +60,7 @@ The Smart AI Hub Performance Monitoring System provides comprehensive monitoring
 ### Metrics Collected
 
 #### System Metrics
+
 - CPU usage
 - Memory consumption
 - Disk I/O
@@ -67,6 +68,7 @@ The Smart AI Hub Performance Monitoring System provides comprehensive monitoring
 - Uptime
 
 #### Application Metrics
+
 - Request rates
 - Response times
 - Error rates
@@ -74,6 +76,7 @@ The Smart AI Hub Performance Monitoring System provides comprehensive monitoring
 - Queue sizes
 
 #### Business Metrics
+
 - User activity
 - API usage patterns
 - Resource consumption
@@ -91,6 +94,7 @@ The monitoring dashboard is protected by role-based access control (RBAC):
 ### Dashboard Pages
 
 #### 1. Main Dashboard (`/admin/monitoring`)
+
 - System health overview
 - Key performance indicators
 - Service status summary
@@ -98,6 +102,7 @@ The monitoring dashboard is protected by role-based access control (RBAC):
 - Quick navigation
 
 #### 2. Performance Analysis (`/admin/monitoring/performance`)
+
 - Response time trends
 - Throughput metrics
 - Error rate analysis
@@ -105,6 +110,7 @@ The monitoring dashboard is protected by role-based access control (RBAC):
 - Performance bottlenecks
 
 #### 3. Database Monitoring (`/admin/monitoring/database`)
+
 - Query performance
 - Connection management
 - Slow query analysis
@@ -112,6 +118,7 @@ The monitoring dashboard is protected by role-based access control (RBAC):
 - Database health
 
 #### 4. Alert Management (`/admin/monitoring/alerts`)
+
 - Active alerts list
 - Alert history
 - Alert acknowledgment
@@ -119,6 +126,7 @@ The monitoring dashboard is protected by role-based access control (RBAC):
 - Severity filtering
 
 #### 5. System Resources (`/admin/monitoring/system`)
+
 - CPU usage trends
 - Memory consumption
 - Disk utilization
@@ -126,6 +134,7 @@ The monitoring dashboard is protected by role-based access control (RBAC):
 - Resource optimization
 
 #### 6. Grafana Integration (`/admin/monitoring/grafana`)
+
 - Embedded Grafana dashboards
 - Advanced visualizations
 - Custom time ranges
@@ -208,6 +217,7 @@ ALERTMANAGER_SMTP_PASSWORD=your-password
 ### Setup Steps
 
 1. **Start Monitoring Stack**
+
    ```bash
    cd monitoring
    docker-compose -f docker-compose.monitoring.yml up -d
@@ -273,21 +283,25 @@ Create custom dashboards in Grafana:
 ### Common Issues
 
 #### Metrics Not Available
+
 - Check Prometheus configuration
 - Verify service endpoints are accessible
 - Confirm metrics are being exported
 
 #### Alerts Not Firing
+
 - Review alert rule configuration
 - Check Alertmanager logs
 - Verify notification settings
 
 #### Dashboard Not Loading
+
 - Confirm API connectivity
 - Check browser console for errors
 - Verify authentication tokens
 
 #### High Resource Usage
+
 - Identify resource-intensive processes
 - Check for memory leaks
 - Optimize database queries
@@ -395,31 +409,37 @@ Monitor the monitoring system itself:
 ### Monitoring API Endpoints
 
 #### Overview Metrics
+
 ```
 GET /api/v1/monitoring/overview
 ```
 
 #### Performance Metrics
+
 ```
 GET /api/v1/monitoring/performance?timeRange=1h
 ```
 
 #### Database Metrics
+
 ```
 GET /api/v1/monitoring/database?timeRange=1h
 ```
 
 #### Alerts
+
 ```
 GET /api/v1/monitoring/alerts?status=active&severity=critical
 ```
 
 #### System Metrics
+
 ```
 GET /api/v1/monitoring/system?timeRange=1h
 ```
 
 #### Services Status
+
 ```
 GET /api/v1/monitoring/services
 ```

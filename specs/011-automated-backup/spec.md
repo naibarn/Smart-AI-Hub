@@ -1,14 +1,14 @@
 ---
-title: "Automated Backup Service Specification"
-spec_id: "FEAT-011"
-author: "Development Team"
-created_date: "2025-10-17"
-last_updated: "2025-10-17"
-version: "1.0"
-status: "Draft"
-priority: "P0 - Critical"
-related_specs: ["DISASTER_RECOVERY_PLAN", "DATABASE_MANAGEMENT"]
-tags: ["infrastructure", "backup", "automation", "disaster-recovery"]
+title: 'Automated Backup Service Specification'
+spec_id: 'FEAT-011'
+author: 'Development Team'
+created_date: '2025-10-17'
+last_updated: '2025-10-17'
+version: '1.0'
+status: 'Draft'
+priority: 'P0 - Critical'
+related_specs: ['DISASTER_RECOVERY_PLAN', 'DATABASE_MANAGEMENT']
+tags: ['infrastructure', 'backup', 'automation', 'disaster-recovery']
 ---
 
 # Automated Backup Service Specification
@@ -20,6 +20,7 @@ The Automated Backup Service is a critical component of Smart AI Hub that automa
 The system uses a lightweight backup strategy, backing up only data essential for system recovery. It sends backup files to Administrators via email daily and includes monitoring and alerting to detect issues immediately.
 
 Importance for Business Continuity and Disaster Recovery:
+
 - Reduces Recovery Time Objective (RTO) from several hours to just 30 minutes
 - Prevents loss of critical data such as user information, credits, and points
 - Supports point-in-time system recovery for the last 30 days
@@ -45,6 +46,7 @@ The Automated Backup Service has the following primary objectives:
 **So that I can** keep data safely stored and easily accessible
 
 **Acceptance Criteria:**
+
 - [ ] System must send email with backup file every day at 2:00 AM
 - [ ] Email must include backup summary (size, date, data list)
 - [ ] If file < 25MB, attach in email
@@ -58,6 +60,7 @@ The Automated Backup Service has the following primary objectives:
 **So that I can** reduce file size and backup time
 
 **Acceptance Criteria:**
+
 - [ ] Backup must include: Users, Credits, Points, Transactions (3 months), Organizations, Config
 - [ ] Backup must exclude: Old logs, Session data, Transactions older than 3 months
 - [ ] File size must be < 100MB (target < 50MB)
@@ -70,6 +73,7 @@ The Automated Backup Service has the following primary objectives:
 **So that I can** fix problems immediately
 
 **Acceptance Criteria:**
+
 - [ ] System must send alert email when backup fails
 - [ ] Alert must specify failure reason
 - [ ] Alert must be sent to Administrators immediately
@@ -82,6 +86,7 @@ The Automated Backup Service has the following primary objectives:
 **So that I can** recover system immediately when problems occur
 
 **Acceptance Criteria:**
+
 - [ ] Backup file must have README or BACKUP_INFO.txt explaining restore procedure
 - [ ] Restore procedure must be clear and easy to follow
 - [ ] Backup must verify integrity before sending
@@ -94,6 +99,7 @@ The Automated Backup Service has the following primary objectives:
 **So that I can** ensure backup system is working normally
 
 **Acceptance Criteria:**
+
 - [ ] System must have healthcheck endpoint
 - [ ] System must record timestamp of latest backup
 - [ ] System must record size of latest backup
@@ -102,6 +108,7 @@ The Automated Backup Service has the following primary objectives:
 ## 4. Scope
 
 ### 4.1 In Scope
+
 - Automated backup scheduler (daily at 2 AM)
 - Lightweight backup (critical data only, last 3 months transactions)
 - Email delivery to administrators
@@ -113,6 +120,7 @@ The Automated Backup Service has the following primary objectives:
 - Configuration backup (.env, docker-compose, nginx, SSL)
 
 ### 4.2 Out of Scope
+
 - Cloud storage integration (AWS S3, Google Cloud Storage) - Phase 2
 - Incremental backups - Phase 2
 - Point-in-time recovery - Phase 2
@@ -125,17 +133,20 @@ The Automated Backup Service has the following primary objectives:
 ## 5. Functional Requirements
 
 **FR-1: Automated Backup Scheduling**
+
 - System must perform backup automatically every day at 2:00 AM
 - Use cron job in Docker container
 - Configurable schedule via environment variable
 
 **FR-2: Lightweight Backup Strategy**
+
 - Backup only tables: users, user_roles, organizations, agencies, referrals, exchange_rates, system_settings
 - Backup transactions (credits, points, purchases, transfers) only for last 3 months
 - Backup configuration files: .env.production, docker-compose.prod.yml, nginx.prod.conf, SSL certificates
 - Do not backup: old logs, session data, old audit logs, transactions older than 3 months
 
 **FR-3: Email Delivery**
+
 - Send backup file to Administrators every day
 - Attach file if size < 25MB
 - Provide download link if size > 25MB
@@ -143,18 +154,21 @@ The Automated Backup Service has the following primary objectives:
 - Include restore instructions in email
 
 **FR-4: Backup Monitoring**
+
 - Healthcheck to verify latest backup
 - Alert if no backup in 25 hours
 - Alert if file size is abnormal (< 1MB or > 100MB)
 - Record metrics: last backup timestamp, size, success rate
 
 **FR-5: Backup Verification**
+
 - Verify gzip integrity
 - Check file size
 - Verify database dump readable
 - Create backup summary
 
 **FR-6: Backup Retention**
+
 - Keep backups for 30 days
 - Automatically delete old backups
 - Configurable retention period
@@ -162,26 +176,31 @@ The Automated Backup Service has the following primary objectives:
 ## 6. Non-Functional Requirements
 
 **NFR-1: Performance**
+
 - Backup must complete within 10 minutes
 - File size must be < 100MB (target < 50MB)
 - Email delivery must complete within 5 minutes
 
 **NFR-2: Reliability**
+
 - Backup success rate ≥ 99%
 - Retry logic for email delivery (3 times)
 - Comprehensive error handling
 
 **NFR-3: Security**
+
 - Backup files must be stored in secure directory
 - SMTP credentials must be stored in environment variables
 - Backup files must verify integrity
 
 **NFR-4: Maintainability**
+
 - Code must be clearly documented
 - Scripts must have understandable error messages
 - Comprehensive logging
 
 **NFR-5: Scalability**
+
 - Support large databases (up to 10GB)
 - Configurable backup scope
 
@@ -217,6 +236,7 @@ critical_backup_YYYYMMDD_HHMMSS.tar.gz
 No API endpoints (system works as standalone service)
 
 **Docker Healthcheck:**
+
 - Command: `/scripts/backup-monitor.sh`
 - Interval: 1 hour
 - Timeout: 10 seconds
@@ -256,20 +276,24 @@ No API endpoints (system works as standalone service)
 ## 10. Security Considerations
 
 **SC-1: Backup File Security**
+
 - Store backup files in `/backups` directory (mounted volume)
 - Do not expose backup files via web server
 - Backup files must be readable only by root and postgres user
 
 **SC-2: SMTP Credentials**
+
 - Store in environment variables
 - Do not commit in git
 - Use app-specific passwords for Gmail
 
 **SC-3: Email Security**
+
 - Use TLS for SMTP connection
 - Verify SMTP server certificate
 
 **SC-4: Database Credentials**
+
 - Store in environment variables
 - Do not log passwords
 - Use read-only user for backup (if possible)
@@ -278,13 +302,13 @@ No API endpoints (system works as standalone service)
 
 **Error Scenarios:**
 
-| Error | Handling | Alert |
-|-------|----------|-------|
-| Database connection failed | Retry 3 times, then alert | Yes |
-| Backup compression failed | Alert immediately | Yes |
-| Email delivery failed | Retry 3 times, then alert | Yes |
-| Disk space full | Alert immediately | Yes |
-| Backup verification failed | Alert immediately | Yes |
+| Error                      | Handling                  | Alert |
+| -------------------------- | ------------------------- | ----- |
+| Database connection failed | Retry 3 times, then alert | Yes   |
+| Backup compression failed  | Alert immediately         | Yes   |
+| Email delivery failed      | Retry 3 times, then alert | Yes   |
+| Disk space full            | Alert immediately         | Yes   |
+| Backup verification failed | Alert immediately         | Yes   |
 
 **Error Messages:**
 
@@ -298,29 +322,35 @@ Must be clear, with sufficient details for debugging
 ## 12. Performance Requirements
 
 **PR-1: Backup Time**
+
 - Target: < 5 minutes
 - Maximum: < 10 minutes
 
 **PR-2: File Size**
+
 - Target: < 50MB
 - Maximum: < 100MB
 
 **PR-3: Email Delivery**
+
 - Target: < 2 minutes
 - Maximum: < 5 minutes
 
 **PR-4: Monitoring Check**
+
 - Target: < 5 seconds
 - Maximum: < 10 seconds
 
 ## 13. Deployment Strategy
 
 **DS-1: Docker Container**
+
 - Create `Dockerfile.backup`
 - Add service in `docker-compose.prod.yml`
 - Mount volumes: `/backups`, `/scripts`, `/ssl`, config files
 
 **DS-2: Environment Variables**
+
 - Add to `.env.production`:
   - SMTP configuration
   - Admin emails
@@ -339,6 +369,7 @@ Must be clear, with sufficient details for debugging
 **DS-4: Rollback Plan**
 
 If problems occur:
+
 1. Stop backup service
 2. Revert docker-compose.prod.yml
 3. Continue manual backups
@@ -382,6 +413,7 @@ If problems occur:
 **File:** `docs/BACKUP_SYSTEM.md`
 
 **Contents:**
+
 - Overview
 - What's backed up
 - Backup schedule
@@ -394,6 +426,7 @@ If problems occur:
 **File:** `docs/BACKUP_DEVELOPMENT.md`
 
 **Contents:**
+
 - Architecture
 - Code structure
 - Scripts explanation
@@ -405,6 +438,7 @@ If problems occur:
 **File:** `docs/BACKUP_OPERATIONS.md`
 
 **Contents:**
+
 - How to check backup status
 - How to trigger manual backup
 - How to restore from backup

@@ -1,17 +1,17 @@
 ---
-spec_id: "FEAT-004"
-title: "AI Integration & Model Context Protocol"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "high"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-type: "feature"
-category: "technical"
-description: "Comprehensive system for integrating with various LLM providers, managing real-time communication, and handling AI workflows"
-tags: ["ai", "llm", "mcp", "websocket", "video-generation"]
-related_specs: ["EPIC-002: Financial System & Credits", "FEAT-001: User Management & Profiles"]
+spec_id: 'FEAT-004'
+title: 'AI Integration & Model Context Protocol'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'high'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+type: 'feature'
+category: 'technical'
+description: 'Comprehensive system for integrating with various LLM providers, managing real-time communication, and handling AI workflows'
+tags: ['ai', 'llm', 'mcp', 'websocket', 'video-generation']
+related_specs: ['EPIC-002: Financial System & Credits', 'FEAT-001: User Management & Profiles']
 ---
 
 # AI Integration & Model Context Protocol
@@ -37,6 +37,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 ## Acceptance Criteria
 
 ### LLM Provider Integration
+
 - [ ] System supports multiple LLM providers (OpenAI, Claude, etc.)
 - [ ] Provider switching is transparent to end users
 - [ ] Automatic fallback when primary provider fails
@@ -44,6 +45,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 - [ ] Rate limiting and quota management are implemented
 
 ### Real-time Communication
+
 - [ ] WebSocket connections are established and maintained
 - [ ] Streaming responses are delivered in real-time
 - [ ] Connection failures are handled gracefully
@@ -51,6 +53,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 - [ ] Connection state is properly synchronized
 
 ### Video Generation
+
 - [ ] Text-to-video generation is supported
 - [ ] Video generation status is tracked
 - [ ] Generated videos are accessible via URLs
@@ -58,6 +61,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 - [ ] Generation failures are handled appropriately
 
 ### Usage Tracking and Billing
+
 - [ ] Token usage is accurately tracked
 - [ ] Credits are deducted based on usage
 - [ ] Usage reports are generated
@@ -65,6 +69,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 - [ ] Usage limits are enforced
 
 ### Security and Performance
+
 - [ ] All requests are properly authenticated
 - [ ] Input validation and sanitization are implemented
 - [ ] Circuit breaker pattern prevents cascading failures
@@ -76,6 +81,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 ### System Architecture
 
 #### Core Components
+
 - **MCP Server**: Central service handling AI provider integrations
 - **WebSocket Handler**: Manages real-time bidirectional communication
 - **Provider Adapters**: Standardized interfaces for different AI providers
@@ -83,6 +89,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 - **Circuit Breaker**: Fault tolerance for provider failures
 
 #### Technology Stack
+
 - **Runtime**: Node.js 20 LTS
 - **Framework**: Express.js 4.x
 - **Port**: 3003
@@ -94,11 +101,13 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 ### API Endpoints
 
 #### WebSocket Connection
+
 - **Endpoint**: `ws://localhost:3003/mcp`
 - **Authentication**: JWT token required
 - **Protocol**: Custom JSON-based protocol
 
 #### REST Endpoints
+
 - **Generate Video**: `POST /api/mcp/sora2/generate`
 - **Video Status**: `GET /api/mcp/sora2/status/:videoId`
 - **GPT Workflow**: `POST /api/mcp/gpt/video-workflow`
@@ -106,6 +115,7 @@ The AI Integration & Model Context Protocol (MCP) feature provides a comprehensi
 ### Data Models
 
 #### MCP Request
+
 ```typescript
 interface MCPRequest {
   id: string;
@@ -120,6 +130,7 @@ interface MCPRequest {
 ```
 
 #### MCP Response
+
 ```typescript
 interface MCPResponse {
   id: string;
@@ -140,6 +151,7 @@ interface MCPResponse {
 ```
 
 #### Video Request
+
 ```typescript
 interface Sora2VideoRequest {
   prompt: string;
@@ -153,6 +165,7 @@ interface Sora2VideoRequest {
 ```
 
 #### Video Response
+
 ```typescript
 interface Sora2VideoResponse {
   videoId: string;
@@ -169,6 +182,7 @@ interface Sora2VideoResponse {
 ### Business Logic
 
 #### Provider Fallback Strategy
+
 ```typescript
 const providerPriority = ['openai', 'claude'];
 
@@ -194,6 +208,7 @@ async function executeWithFallback(request: MCPRequest): Promise<MCPResponse> {
 ```
 
 #### Circuit Breaker Implementation
+
 ```typescript
 import CircuitBreaker from 'opossum';
 
@@ -214,12 +229,14 @@ breaker.on('open', () => {
 ### Integration Points
 
 #### Sora2 Video Generation API
+
 - Text-to-video conversion
 - Custom style and resolution options
 - Asynchronous processing with status tracking
 - CDN integration for video delivery
 
 #### Custom GPT Integration
+
 - Enhanced video generation workflows
 - Prompt optimization and enhancement
 - Multi-step AI processing pipelines
@@ -248,6 +265,7 @@ breaker.on('open', () => {
 ### WebSocket Protocol
 
 #### Connection Flow
+
 1. Client initiates WebSocket connection with JWT token
 2. Server validates token and establishes connection
 3. Client sends MCP request with specified parameters
@@ -256,6 +274,7 @@ breaker.on('open', () => {
 6. Connection remains open for additional requests
 
 #### Message Formats
+
 ```typescript
 // Client → Server
 {
@@ -291,6 +310,7 @@ breaker.on('open', () => {
 ### Video Generation Workflow
 
 #### Standard Text-to-Video
+
 1. User submits text prompt and parameters
 2. System validates request and checks credits
 3. Request queued for Sora2 processing
@@ -299,6 +319,7 @@ breaker.on('open', () => {
 6. Completed video delivered via CDN
 
 #### Enhanced GPT-Assisted Workflow
+
 1. User provides initial prompt and workflow type
 2. Custom GPT analyzes and enhances the prompt
 3. Enhanced prompt used for video generation
@@ -308,12 +329,14 @@ breaker.on('open', () => {
 ### Error Handling
 
 #### Provider Errors
+
 - **Rate Limiting**: Automatic backoff and retry
 - **Quota Exceeded**: Switch to alternative provider
 - **Model Unavailable**: Fallback to similar model
 - **API Failure**: Circuit breaker activation
 
 #### System Errors
+
 - **WebSocket Disconnection**: Automatic reconnection
 - **Queue Overflow**: Load shedding with notification
 - **Credit Insufficient**: Clear error with upgrade options
@@ -322,6 +345,7 @@ breaker.on('open', () => {
 ### Monitoring and Observability
 
 #### Key Metrics
+
 - Request/response latency
 - Provider success rates
 - Token usage patterns
@@ -329,6 +353,7 @@ breaker.on('open', () => {
 - Connection metrics
 
 #### Alerting
+
 - Provider failure rates > 10%
 - Response times > 5 seconds
 - Error rates > 5%
@@ -338,6 +363,7 @@ breaker.on('open', () => {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Provider adapter functionality
 - WebSocket protocol handling
 - Request/response transformation
@@ -345,6 +371,7 @@ breaker.on('open', () => {
 - Credit calculation accuracy
 
 ### Integration Tests
+
 - End-to-end request flow
 - Provider fallback mechanisms
 - Video generation pipeline
@@ -352,6 +379,7 @@ breaker.on('open', () => {
 - Multi-provider scenarios
 
 ### Performance Tests
+
 - Load testing for concurrent connections
 - Stress testing for high-volume requests
 - Latency measurement under load
@@ -359,6 +387,7 @@ breaker.on('open', () => {
 - Scalability validation
 
 ### Security Tests
+
 - Authentication validation
 - Input sanitization
 - Rate limiting effectiveness
@@ -368,17 +397,20 @@ breaker.on('open', () => {
 ## Deployment Considerations
 
 ### Environment Configuration
+
 - Development: Local LLM instances, mock providers
 - Staging: Production-like environment with limited quotas
 - Production: Full provider integration with monitoring
 
 ### Scaling Strategy
+
 - Horizontal scaling for WebSocket handlers
 - Provider-specific connection pooling
 - Queue-based load distribution
 - Auto-scaling based on connection metrics
 
 ### Backup and Recovery
+
 - Provider configuration backups
 - Request queue persistence
 - Connection state recovery
@@ -387,18 +419,21 @@ breaker.on('open', () => {
 ## Future Enhancements
 
 ### Additional Providers
+
 - Google Gemini integration
 - Anthropic Claude 3 support
 - Local model hosting
 - Custom model adapters
 
 ### Advanced Features
+
 - Multi-modal AI capabilities
 - Custom fine-tuned models
 - Agent-based workflows
 - Collaborative AI sessions
 
 ### Optimization
+
 - Response caching strategies
 - Predictive resource allocation
 - Intelligent routing

@@ -3,6 +3,7 @@
 ## 📋 สถานะปัจจุบันจาก Backlog.md
 
 ### ✅ สิ่งที่เสร็จแล้ว (84/218 points, 38.5%):
+
 - Database setup และ schema implementation
 - Basic authentication API (login, register, JWT)
 - Email verification system พร้อม OTP
@@ -16,6 +17,7 @@
 - API Gateway development server
 
 ### 🔄 สิ่งที่กำลังทำอยู่ (Sprint 4):
+
 - OpenAI SDK integration (E4.2) - 🔄 IN PROGRESS
 - Frontend React app setup (E5.1) - 🔄 IN PROGRESS
 
@@ -325,6 +327,7 @@ Focus on local development testing with critical path coverage.
 ## 📊 **Success Criteria สำหรับ Local Development**
 
 ### **Functional Requirements:**
+
 - [ ] OpenAI integration working with streaming responses
 - [ ] Claude integration working with provider switching
 - [ ] Authentication UI complete with all flows
@@ -333,6 +336,7 @@ Focus on local development testing with critical path coverage.
 - [ ] Basic testing framework operational
 
 ### **Quality Requirements:**
+
 - [ ] Error handling implemented throughout
 - [ ] Loading states for all async operations
 - [ ] Responsive design working on mobile/desktop
@@ -340,6 +344,7 @@ Focus on local development testing with critical path coverage.
 - [ ] Basic test coverage for critical paths
 
 ### **Integration Requirements:**
+
 - [ ] All services communicating correctly
 - [ ] WebSocket connections stable
 - [ ] Credit deduction working with AI requests

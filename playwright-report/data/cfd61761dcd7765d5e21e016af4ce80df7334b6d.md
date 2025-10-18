@@ -2,43 +2,43 @@
 
 ```yaml
 - generic [active] [ref=e1]:
-  - heading "Members" [level=1] [ref=e2]
-  - generic [ref=e3]:
-    - link "Dashboard" [ref=e4] [cursor=pointer]:
-      - /url: /dashboard
-    - link "Points" [ref=e5] [cursor=pointer]:
-      - /url: /points
-    - link "Members" [ref=e6] [cursor=pointer]:
-      - /url: /members
-    - link "Transfer" [ref=e7] [cursor=pointer]:
-      - /url: /transfer
-    - link "Referrals" [ref=e8] [cursor=pointer]:
-      - /url: /referral
-    - link "Block Users" [ref=e9] [cursor=pointer]:
-      - /url: /block
-    - link "Agency Settings" [ref=e10] [cursor=pointer]:
-      - /url: /agency/settings
-    - link "Organization Settings" [ref=e11] [cursor=pointer]:
-      - /url: /organization/settings
-  - table [ref=e12]:
-    - rowgroup [ref=e13]:
-      - row "ID Name Email Role Status" [ref=e14]:
-        - cell "ID" [ref=e15]
-        - cell "Name" [ref=e16]
-        - cell "Email" [ref=e17]
-        - cell "Role" [ref=e18]
-        - cell "Status" [ref=e19]
-    - rowgroup [ref=e20]:
-      - row "1 John Doe john@example.com General Active" [ref=e21]:
-        - cell "1" [ref=e22]
-        - cell "John Doe" [ref=e23]
-        - cell "john@example.com" [ref=e24]
-        - cell "General" [ref=e25]
-        - cell "Active" [ref=e26]
-      - row "2 Jane Smith jane@example.com Admin Active" [ref=e27]:
-        - cell "2" [ref=e28]
-        - cell "Jane Smith" [ref=e29]
-        - cell "jane@example.com" [ref=e30]
-        - cell "Admin" [ref=e31]
-        - cell "Active" [ref=e32]
+    - heading "Members" [level=1] [ref=e2]
+    - generic [ref=e3]:
+        - link "Dashboard" [ref=e4] [cursor=pointer]:
+            - /url: /dashboard
+        - link "Points" [ref=e5] [cursor=pointer]:
+            - /url: /points
+        - link "Members" [ref=e6] [cursor=pointer]:
+            - /url: /members
+        - link "Transfer" [ref=e7] [cursor=pointer]:
+            - /url: /transfer
+        - link "Referrals" [ref=e8] [cursor=pointer]:
+            - /url: /referral
+        - link "Block Users" [ref=e9] [cursor=pointer]:
+            - /url: /block
+        - link "Agency Settings" [ref=e10] [cursor=pointer]:
+            - /url: /agency/settings
+        - link "Organization Settings" [ref=e11] [cursor=pointer]:
+            - /url: /organization/settings
+    - table [ref=e12]:
+        - rowgroup [ref=e13]:
+            - row "ID Name Email Role Status" [ref=e14]:
+                - cell "ID" [ref=e15]
+                - cell "Name" [ref=e16]
+                - cell "Email" [ref=e17]
+                - cell "Role" [ref=e18]
+                - cell "Status" [ref=e19]
+        - rowgroup [ref=e20]:
+            - row "1 John Doe john@example.com General Active" [ref=e21]:
+                - cell "1" [ref=e22]
+                - cell "John Doe" [ref=e23]
+                - cell "john@example.com" [ref=e24]
+                - cell "General" [ref=e25]
+                - cell "Active" [ref=e26]
+            - row "2 Jane Smith jane@example.com Admin Active" [ref=e27]:
+                - cell "2" [ref=e28]
+                - cell "Jane Smith" [ref=e29]
+                - cell "jane@example.com" [ref=e30]
+                - cell "Admin" [ref=e31]
+                - cell "Active" [ref=e32]
 ```

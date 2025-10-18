@@ -17,10 +17,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -82,10 +79,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -166,10 +160,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -231,10 +222,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -296,10 +284,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -368,10 +353,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -440,10 +422,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -512,10 +491,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -574,10 +550,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -646,10 +619,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -718,10 +688,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -790,10 +757,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -918,10 +882,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -980,10 +941,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1048,10 +1006,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1116,10 +1071,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1178,10 +1130,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1257,10 +1206,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1319,10 +1265,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1381,10 +1324,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1443,10 +1383,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1505,10 +1442,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1567,10 +1501,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1629,10 +1560,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1691,10 +1619,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1746,10 +1671,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1824,10 +1746,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1889,10 +1808,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -1951,10 +1867,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2029,10 +1942,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2097,10 +2007,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2159,10 +2066,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2231,10 +2135,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2299,10 +2200,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2439,10 +2337,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2507,10 +2402,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2575,10 +2467,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2691,10 +2580,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2753,10 +2639,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -2911,10 +2794,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -3009,10 +2889,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -3113,10 +2990,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -3229,10 +3103,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -3339,10 +3210,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -3419,10 +3287,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },
@@ -3527,10 +3392,7 @@
           "priority": "medium"
         },
         "validation": {
-          "required": [
-            "title",
-            "content"
-          ],
+          "required": ["title", "content"],
           "patterns": []
         }
       },

@@ -31,6 +31,7 @@ GET /api/v1/webhooks
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -62,6 +63,7 @@ POST /api/v1/webhooks
 ```
 
 **Request Body:**
+
 ```json
 {
   "url": "https://example.com/webhook",
@@ -71,6 +73,7 @@ POST /api/v1/webhooks
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -95,6 +98,7 @@ GET /api/v1/webhooks/:id
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -119,6 +123,7 @@ PUT /api/v1/webhooks/:id
 ```
 
 **Request Body:**
+
 ```json
 {
   "url": "https://example.com/updated-webhook",
@@ -128,6 +133,7 @@ PUT /api/v1/webhooks/:id
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -152,6 +158,7 @@ DELETE /api/v1/webhooks/:id
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -172,6 +179,7 @@ POST /api/v1/webhooks/:id/test
 ```
 
 **Request Body:**
+
 ```json
 {
   "eventType": "user.created",
@@ -182,6 +190,7 @@ POST /api/v1/webhooks/:id/test
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -201,6 +210,7 @@ POST /api/v1/webhooks/:id/toggle
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -219,11 +229,13 @@ GET /api/v1/webhooks/:id/logs
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Number of logs per page (default: 20)
 - `status` (optional): Filter by status (success, failed, pending)
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -253,12 +265,14 @@ GET /api/v1/webhooks/:id/logs
 The following event types are supported:
 
 ### User Events
+
 - `user.created` - Triggered when a new user is created
 - `user.updated` - Triggered when user profile is updated
 - `user.login` - Triggered when user logs in
 - `user.logout` - Triggered when user logs out
 
 ### Credit Events
+
 - `credit.depleted` - Triggered when user's credits reach 0
 - `credit.low` - Triggered when user's credits fall below threshold (default: 10)
 - `credit.purchased` - Triggered when user purchases credits
@@ -266,6 +280,7 @@ The following event types are supported:
 - `credit.promo_redeemed` - Triggered when user redeems a promo code
 
 ### Service Events
+
 - `service.completed` - Triggered when an AI service completes successfully
 - `service.failed` - Triggered when an AI service fails
 - `service.started` - Triggered when an AI service starts processing
@@ -309,11 +324,8 @@ To verify the signature:
 const crypto = require('crypto');
 
 function verifySignature(payload, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
-  
+  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
   return `sha256=${expectedSignature}` === signature;
 }
 
@@ -344,7 +356,7 @@ def verify_signature(payload, signature, secret):
         payload.encode('utf-8'),
         hashlib.sha256
     ).hexdigest()
-    
+
     return f"sha256={expected_signature}" == signature
 
 # Usage

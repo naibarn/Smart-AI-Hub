@@ -1,14 +1,14 @@
 ---
-spec_id: "FEAT-001"
-title: "User Management & Profiles"
-type: "Feature"
-status: "Active"
-business_domain: "User Management"
-priority: "High"
-parent_epic: "EPIC-001"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-version: "1.0.0"
+spec_id: 'FEAT-001'
+title: 'User Management & Profiles'
+type: 'Feature'
+status: 'Active'
+business_domain: 'User Management'
+priority: 'High'
+parent_epic: 'EPIC-001'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+version: '1.0.0'
 ---
 
 # FEAT-001: User Management & Profiles
@@ -20,23 +20,29 @@ This specification defines the User Management & Profiles feature, which provide
 ## User Stories
 
 ### US-001: User Profile Creation
+
 As a new user, I want to create a profile with my personal information so that I can use the system's features and services.
 
 ### US-002: Profile Information Management
+
 As a registered user, I want to update my profile information so that I can keep my personal details current.
 
 ### US-003: Role Assignment
+
 As an administrator, I want to assign roles to users so that I can control access permissions within the system.
 
 ### US-004: User Profile Viewing
+
 As a user, I want to view my profile information so that I can verify my account details.
 
 ### US-005: User Account Deactivation
+
 As an administrator, I want to deactivate user accounts so that I can manage user lifecycle and security.
 
 ## Acceptance Criteria
 
 ### AC-001: User Profile Creation
+
 - Users must provide valid email address for account creation
 - System must validate email uniqueness before account creation
 - Users must set a secure password following password policy
@@ -44,6 +50,7 @@ As an administrator, I want to deactivate user accounts so that I can manage use
 - User profile must be created with default role assignment
 
 ### AC-002: Profile Information Management
+
 - Users can update their profile information through a user-friendly interface
 - System must validate all input data before saving changes
 - Email changes require re-verification of the new email address
@@ -51,6 +58,7 @@ As an administrator, I want to deactivate user accounts so that I can manage use
 - All profile changes must be logged for audit purposes
 
 ### AC-003: Role Assignment
+
 - Administrators can assign multiple roles to a single user
 - System must validate role assignments against business rules
 - Role assignments must take effect immediately
@@ -58,6 +66,7 @@ As an administrator, I want to deactivate user accounts so that I can manage use
 - All role assignments must be logged for audit purposes
 
 ### AC-004: User Profile Viewing
+
 - Users can view their complete profile information
 - Profile display must be organized and easy to understand
 - Sensitive information must be appropriately masked
@@ -65,6 +74,7 @@ As an administrator, I want to deactivate user accounts so that I can manage use
 - Profile view must include account creation and last update dates
 
 ### AC-005: User Account Deactivation
+
 - Administrators can deactivate user accounts
 - Deactivated accounts cannot access system resources
 - Deactivation must preserve user data for compliance
@@ -76,6 +86,7 @@ As an administrator, I want to deactivate user accounts so that I can manage use
 ### Database Schema
 
 #### User Model
+
 ```prisma
 model User {
   id            String   @id @default(uuid())
@@ -96,6 +107,7 @@ model User {
 ```
 
 #### UserRole Model
+
 ```prisma
 model UserRole {
   userId    String
@@ -129,7 +141,9 @@ model UserRole {
 ## Data Models
 
 ### User Entity
+
 The User entity represents individual users in the system with the following attributes:
+
 - **id**: Unique identifier (UUID)
 - **email**: Unique email address for authentication
 - **passwordHash**: Hashed password for local authentication
@@ -139,12 +153,15 @@ The User entity represents individual users in the system with the following att
 - **updatedAt**: Last update timestamp
 
 ### UserRole Entity
+
 The UserRole entity manages the many-to-many relationship between users and roles:
+
 - **userId**: Reference to the user
 - **roleId**: Reference to the role
 - **assignedAt**: Timestamp when the role was assigned
 
 ### Relationships
+
 - User to UserRole: One-to-many relationship
 - UserRole to Role: Many-to-one relationship
 - User to CreditAccount: One-to-one relationship (optional)
@@ -155,6 +172,7 @@ The UserRole entity manages the many-to-many relationship between users and role
 ### User Management Endpoints
 
 #### Create User Profile
+
 ```
 POST /api/users
 Content-Type: application/json
@@ -176,6 +194,7 @@ Response:
 ```
 
 #### Update User Profile
+
 ```
 PUT /api/users/{userId}
 Content-Type: application/json
@@ -199,6 +218,7 @@ Response:
 ```
 
 #### Get User Profile
+
 ```
 GET /api/users/{userId}
 Authorization: Bearer {token}
@@ -219,6 +239,7 @@ Response:
 ### Role Management Endpoints
 
 #### Assign Role to User
+
 ```
 POST /api/users/{userId}/roles
 Content-Type: application/json
@@ -237,6 +258,7 @@ Response:
 ```
 
 #### Remove Role from User
+
 ```
 DELETE /api/users/{userId}/roles/{roleId}
 Authorization: Bearer {admin_token}
@@ -248,6 +270,7 @@ Response:
 ```
 
 #### Get User Roles
+
 ```
 GET /api/users/{userId}/roles
 Authorization: Bearer {token}
@@ -268,24 +291,28 @@ Response:
 ## Implementation Notes
 
 ### User Profile Management
+
 - Profile updates must trigger re-verification for email changes
 - System must maintain a complete audit trail of all profile changes
 - Profile data must be validated according to business rules
 - Profile images must be stored with appropriate security controls
 
 ### Role Assignment Logic
+
 - Role assignments must follow hierarchical business rules
 - System must prevent circular role dependencies
 - Role assignments must be immediately effective
 - Role removal must not leave users without basic access
 
 ### Error Handling
+
 - All operations must return appropriate HTTP status codes
 - Error messages must be user-friendly but not reveal sensitive information
 - System must log all errors for debugging and monitoring
 - Client applications must handle errors gracefully
 
 ### Testing Requirements
+
 - Unit tests must cover all user management operations
 - Integration tests must verify role assignment workflows
 - Security tests must validate access control mechanisms

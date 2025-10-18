@@ -5,6 +5,7 @@ This directory contains the complete staging environment setup for Smart AI Hub,
 ## 🎯 Purpose
 
 The staging environment serves as a production-like environment where:
+
 - New features are tested before production deployment
 - Performance and security testing is conducted
 - Deployment procedures are validated
@@ -193,6 +194,7 @@ bash validate-deployment.sh collect    # Collect test results
 Access Prometheus at http://localhost:9090
 
 Key metrics to monitor:
+
 - `up` - Service availability
 - `http_requests_total` - HTTP request count
 - `http_request_duration_seconds` - Request duration
@@ -204,6 +206,7 @@ Key metrics to monitor:
 Access Grafana at http://localhost:3000 (admin/admin123)
 
 Pre-configured dashboards:
+
 - System Overview
 - Application Performance
 - Database Performance
@@ -240,19 +243,19 @@ ANTHROPIC_API_KEY=sk-ant-test1234567890abcdef1234567890abcdef
 
 ### Service Ports
 
-| Service | Container Port | Host Port |
-|---------|----------------|-----------|
-| Nginx | 80 | 8080 |
-| Nginx (HTTPS) | 443 | 8443 |
-| Auth Service | 3001 | - |
-| Core Service | 3002 | - |
-| MCP Server | 3003 | - |
-| Analytics Service | 3004 | - |
-| API Gateway | 8080 | - |
-| PostgreSQL | 5432 | - |
-| Redis | 6379 | - |
-| Prometheus | 9090 | 9090 |
-| Grafana | 3000 | 3000 |
+| Service           | Container Port | Host Port |
+| ----------------- | -------------- | --------- |
+| Nginx             | 80             | 8080      |
+| Nginx (HTTPS)     | 443            | 8443      |
+| Auth Service      | 3001           | -         |
+| Core Service      | 3002           | -         |
+| MCP Server        | 3003           | -         |
+| Analytics Service | 3004           | -         |
+| API Gateway       | 8080           | -         |
+| PostgreSQL        | 5432           | -         |
+| Redis             | 6379           | -         |
+| Prometheus        | 9090           | 9090      |
+| Grafana           | 3000           | 3000      |
 
 ## 🧪 Test Data
 
@@ -265,6 +268,7 @@ ANTHROPIC_API_KEY=sk-ant-test1234567890abcdef1234567890abcdef
 ### Test Payment
 
 Use Stripe test mode with test card numbers:
+
 - **Visa:** 4242424242424242
 - **Mastercard:** 5555555555554444
 - **American Express:** 378282246310005
@@ -316,28 +320,31 @@ jobs:
 ### Common Issues
 
 1. **Port Conflicts**
+
    ```bash
    # Check what's using ports
    netstat -tulpn | grep :8080
-   
+
    # Stop conflicting services
    sudo systemctl stop nginx
    ```
 
 2. **Docker Issues**
+
    ```bash
    # Clean up Docker
    docker system prune -a
-   
+
    # Rebuild containers
    docker-compose -f docker-compose.staging.yml build --no-cache
    ```
 
 3. **Database Connection Issues**
+
    ```bash
    # Check database status
    docker-compose -f docker-compose.staging.yml exec postgres pg_isready -U postgres
-   
+
    # Check database logs
    docker-compose -f docker-compose.staging.yml logs postgres
    ```

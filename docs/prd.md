@@ -1,8 +1,9 @@
 ---
-title: "prd"
-author: "Development Team"
-version: "1.0.0"
+title: 'prd'
+author: 'Development Team'
+version: '1.0.0'
 ---
+
 # Product Requirements Document (PRD)
 
 ## Smart AI Hub - Custom GPT Authorization & Multi-Service Platform
@@ -191,10 +192,12 @@ Sora2 Video Generation: 30 credits per video
 ```
 
 #### FR-AUTH-05: Session-Based Authentication
+
 **Priority**: High
 **Description**: Support session-based authentication for third-party integrations
 
 **Requirements**:
+
 - Generate secure session tokens (format: VERIFIED-{random_string})
 - Store sessions in Redis with configurable expiration (default: 7 days)
 - Provide API endpoint to verify session tokens
@@ -203,16 +206,19 @@ Sora2 Video Generation: 30 credits per video
 - Handle session expiration gracefully
 
 **Acceptance Criteria**:
+
 - Session tokens are cryptographically secure
 - Session verification responds within 100ms
 - Expired sessions return 401 Unauthorized
 - Invalid sessions return 404 Not Found
 
 #### FR-CREDIT-03: User-Specific Credit Check API
+
 **Priority**: High
 **Description**: Provide API for third-party services to check user credit balance
 
 **Requirements**:
+
 - Accept user ID via X-User-ID header
 - Accept service name and cost in request body
 - Return whether user has sufficient credits
@@ -221,6 +227,7 @@ Sora2 Video Generation: 30 credits per video
 - Respond within 200ms
 
 **API Specification**:
+
 ```
 POST /api/mcp/v1/credits/check
 Headers: X-User-ID: {user_id}
@@ -229,16 +236,19 @@ Response: { sufficient: boolean, balance: number }
 ```
 
 **Acceptance Criteria**:
+
 - Accurately checks user credit balance
 - Returns 402 if insufficient credits
 - Returns 404 if user not found
 - Handles concurrent requests correctly
 
 #### FR-CREDIT-04: User-Specific Credit Deduction API
+
 **Priority**: High
 **Description**: Provide API for third-party services to deduct credits from user balance
 
 **Requirements**:
+
 - Accept user ID via X-User-ID header
 - Accept service name, cost, and metadata in request body
 - Atomically deduct credits from user balance
@@ -247,6 +257,7 @@ Response: { sufficient: boolean, balance: number }
 - Support rollback on failure
 
 **API Specification**:
+
 ```
 POST /api/mcp/v1/credits/deduct
 Headers: X-User-ID: {user_id}
@@ -255,16 +266,19 @@ Response: { status: "ok", new_balance: number, transaction_id: string }
 ```
 
 **Acceptance Criteria**:
+
 - Deduction is atomic (no race conditions)
 - Transaction record is created
 - Returns 402 if insufficient credits
 - Supports concurrent deductions safely
 
 #### FR-AUTH-06: OAuth with Verification Codes
+
 **Priority**: High
 **Description**: Support OAuth flow with verification codes for Custom GPT integration
 
 **Requirements**:
+
 - Accept session parameter in OAuth initiation URL
 - Generate verification code on successful authentication
 - Display verification code on success page
@@ -273,6 +287,7 @@ Response: { status: "ok", new_balance: number, transaction_id: string }
 - Maintain backward compatibility with traditional OAuth flow
 
 **Flow**:
+
 1. Third-party service generates unique session ID
 2. User is redirected to /auth/google?session={id}&return_to=chatgpt
 3. User authenticates with Google
@@ -282,6 +297,7 @@ Response: { status: "ok", new_balance: number, transaction_id: string }
 7. Third-party service uses code as session token
 
 **Acceptance Criteria**:
+
 - Verification codes are unique and secure
 - Success page is user-friendly with Thai language
 - Copy button works on all major browsers
@@ -462,8 +478,10 @@ Content-Security-Policy: default-src 'self'
 - IP whitelisting for admin endpoints
 
 #### NFR-SEC-04: Session Security
+
 **Priority**: High
 **Requirements**:
+
 - Session tokens must be cryptographically random (minimum 128-bit entropy)
 - Sessions must expire after configurable period (default: 7 days)
 - Session storage must be secure (Redis with authentication)
@@ -472,8 +490,10 @@ Content-Security-Policy: default-src 'self'
 - Log all session creation and verification events
 
 #### NFR-SEC-05: Credit Transaction Integrity
+
 **Priority**: Critical
 **Requirements**:
+
 - Credit deductions must be atomic
 - Prevent double-spending through database transactions
 - Create audit trail for all credit operations

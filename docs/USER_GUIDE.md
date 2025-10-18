@@ -35,6 +35,7 @@ Welcome to the Smart AI Hub Points System! This guide will help you understand h
 ### First Time Login
 
 After logging in for the first time, you'll be taken to your dashboard where you can:
+
 - View your current points and credits balance
 - See your user tier and permissions
 - Access available features based on your tier
@@ -124,6 +125,7 @@ Credits are a premium currency that can be used for special features and service
 ### Using Credits
 
 Credits can be used for:
+
 - Premium features
 - Advanced analytics
 - Priority support
@@ -277,6 +279,7 @@ Credits can be used for:
 
 **Issue**: Can't log in to my account
 **Solution**:
+
 1. Check that you're using the correct email and password
 2. Try resetting your password
 3. Clear your browser cache and cookies
@@ -286,6 +289,7 @@ Credits can be used for:
 
 **Issue**: Transfer failed
 **Solution**:
+
 1. Check that you have sufficient balance
 2. Verify the recipient is visible to you
 3. Ensure the recipient is not blocked
@@ -295,6 +299,7 @@ Credits can be used for:
 
 **Issue**: Can't claim daily rewards
 **Solution**:
+
 1. Check if 24 hours have passed since your last claim
 2. Try refreshing the page
 3. Check if your account is in good standing
@@ -303,6 +308,7 @@ Credits can be used for:
 
 **Issue**: Can't exchange points for credits
 **Solution**:
+
 1. Check if you have sufficient points
 2. Verify the exchange system is operational
 3. Try with a different amount
@@ -391,4 +397,4 @@ A: Report any security concerns to our security team at security@smarthub.com.
 
 ---
 
-*This guide is regularly updated to reflect the latest features and changes. Last updated: October 2023*
+_This guide is regularly updated to reflect the latest features and changes. Last updated: October 2023_

@@ -53,11 +53,13 @@
 ## Content Merged
 
 ### From Usage Log
+
 - Basic Prisma schema for usage tracking
 - Core fields: userId, service, model, tokens, credits, metadata
 - Basic indexes for performance
 
 ### Additional Enhancements
+
 - **Aggregated Usage Model**: For pre-computed aggregations at different time granularities
 - **Performance Metrics Model**: For tracking response times, success rates, and throughput
 - **Cost Analysis Model**: For tracking costs and budget usage

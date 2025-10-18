@@ -22,11 +22,13 @@ The validation engine now properly cleans content before checking length:
 4. **Trims Content**: Leading and trailing whitespace is removed
 
 **Example**:
+
 ```markdown
 ---
-title: "Specification"
-author: "Author"
+title: 'Specification'
+author: 'Author'
 ---
+
 # Header
 
 This is actual content that will be counted.
@@ -60,12 +62,14 @@ The actual content counted would be: "Header This is actual content that will be
 ### User Story Specifications
 
 #### User Story Format
+
 **Rule Name**: `user_story_format`  
 **Pattern**: `/as a\s+.+\s+i want to\s+.+\s+so that\s+.+/i`  
 **Description**: User story should follow format: "As a [user], I want to [action], so that [benefit]"  
 **Severity**: Warning (Optional)
 
 #### Acceptance Criteria
+
 **Rule Name**: `acceptance_criteria`  
 **Pattern**: `/acceptance criteria|given\s+when\s+then/i`  
 **Description**: User story should include acceptance criteria  
@@ -74,6 +78,7 @@ The actual content counted would be: "Header This is actual content that will be
 ### Functional Requirement Specifications
 
 #### Requirement Clarity
+
 **Rule Name**: `requirement clarity`  
 **Pattern**: `/(shall|must|should|will)\s+/i`  
 **Description**: Functional requirement should use clear language (shall, must, should, will)  
@@ -82,12 +87,14 @@ The actual content counted would be: "Header This is actual content that will be
 ### Data Model Specifications
 
 #### Field Definitions
+
 **Rule Name**: `field_definitions`  
 **Pattern**: `/field|property|column|attribute/i`  
 **Description**: Data model should define fields/properties  
 **Severity**: Warning (Optional)
 
 #### Data Types
+
 **Rule Name**: `data_types`  
 **Pattern**: `/string|number|boolean|date|array|object/i`  
 **Description**: Data model should specify data types  
@@ -96,12 +103,14 @@ The actual content counted would be: "Header This is actual content that will be
 ### Service Specification
 
 #### API Endpoints
+
 **Rule Name**: `api_endpoints`  
 **Pattern**: `/endpoint|route|\/api\//i`  
 **Description**: Service specification should define API endpoints  
 **Severity**: Warning (Optional)
 
 #### HTTP Methods
+
 **Rule Name**: `methods`  
 **Pattern**: `/get|post|put|delete|patch/i`  
 **Description**: Service specification should specify HTTP methods  
@@ -112,21 +121,25 @@ The actual content counted would be: "Header This is actual content that will be
 The validation engine calculates the following metrics:
 
 ### Completeness Score
+
 - Checks required fields presence
 - Evaluates metadata completeness
 - Assesses content quality based on length
 
 ### Clarity Score
+
 - Deducts points for clarity warnings
 - Penalizes overly brief content
 - Considers content length thresholds
 
 ### Consistency Score
+
 - Validates ID format consistency
 - Checks version format compliance
 - Evaluates title length compliance
 
 ### Traceability Score
+
 - Has dependencies (33.33%)
 - Has tags (33.33%)
 - Has proper categorization (33.33%)
@@ -143,32 +156,41 @@ The overall score is calculated as follows:
 ## Error Types
 
 ### Missing Field
+
 Required field is not present or is empty.
 
 ### Invalid Format
+
 Field value doesn't match expected pattern or format.
 
 ### Pattern Mismatch
+
 Content doesn't match the required pattern.
 
 ### Dependency Error
+
 Invalid dependency format or circular dependency.
 
 ### Schema Violation
+
 Custom validation rule failed.
 
 ## Warning Types
 
 ### Incomplete Content
+
 Content is missing recommended elements or too brief.
 
 ### Unclear Requirement
+
 Requirement language is ambiguous or unclear.
 
 ### Missing Acceptance Criteria
+
 User story lacks acceptance criteria.
 
 ### Dependency Warning
+
 Potential issue with dependencies.
 
 ## Best Practices

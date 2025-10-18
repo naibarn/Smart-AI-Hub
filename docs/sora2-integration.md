@@ -1,8 +1,9 @@
 ---
-title: "sora2-integration"
-author: "Development Team"
-version: "1.0.0"
+title: 'sora2-integration'
+author: 'Development Team'
+version: '1.0.0'
 ---
+
 # Sora2 Integration Documentation
 
 This document provides comprehensive information about the Sora2 Video Generator integration endpoints implemented in the Smart AI Hub.
@@ -24,9 +25,11 @@ The Sora2 integration requires three main components:
 Verifies a session token and returns user information.
 
 **Headers:**
+
 - `X-Session-Token`: Session token in format `VERIFIED-{code}`
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -40,10 +43,12 @@ Verifies a session token and returns user information.
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized`: Missing or invalid session token
 - `500 Internal Server Error`: Server error
 
 **Implementation Details:**
+
 - Session tokens are stored in Redis with 7-day expiration
 - Format: `VERIFIED-{random_string}`
 - Created during OAuth callback with session parameter
@@ -55,9 +60,11 @@ Verifies a session token and returns user information.
 Checks if a user has sufficient credits for a service.
 
 **Headers:**
+
 - `X-User-ID`: User UUID
 
 **Request Body:**
+
 ```json
 {
   "service": "sora2-video-generation",
@@ -66,6 +73,7 @@ Checks if a user has sufficient credits for a service.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "sufficient": true,
@@ -74,6 +82,7 @@ Checks if a user has sufficient credits for a service.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: Missing user ID, service, or cost
 - `404 Not Found`: User not found
 - `500 Internal Server Error`: Server error
@@ -85,9 +94,11 @@ Checks if a user has sufficient credits for a service.
 Deducts credits for a service usage and creates a transaction record.
 
 **Headers:**
+
 - `X-User-ID`: User UUID
 
 **Request Body:**
+
 ```json
 {
   "service": "sora2-video-generation",
@@ -101,6 +112,7 @@ Deducts credits for a service usage and creates a transaction record.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "status": "ok",
@@ -110,12 +122,14 @@ Deducts credits for a service usage and creates a transaction record.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: Missing required fields
 - `402 Payment Required`: Insufficient credits
 - `404 Not Found`: User not found
 - `500 Internal Server Error`: Server error
 
 **Implementation Details:**
+
 - Uses database transactions for atomic operations
 - Creates credit transaction records
 - Updates user credit account balance
@@ -127,10 +141,12 @@ Deducts credits for a service usage and creates a transaction record.
 Initiates Google OAuth flow with optional session parameters.
 
 **Query Parameters:**
+
 - `session` (optional): Session ID for verification code flow
 - `return_to` (optional): Destination after authentication (default: "chatgpt")
 
 **Flow:**
+
 1. Generate state parameter with session data
 2. Store state in Redis (10-minute expiration)
 3. Redirect to Google OAuth
@@ -140,11 +156,13 @@ Initiates Google OAuth flow with optional session parameters.
 Handles Google OAuth callback and creates verification codes for session-based flow.
 
 **Session-based Flow (when session parameter provided):**
+
 1. Generate verification code: `VERIFIED-{random_string}`
 2. Store verification code in Redis (10-minute expiration)
 3. Redirect to success page with verification code
 
 **Traditional Flow (when no session parameter):**
+
 1. Generate JWT tokens
 2. Redirect to frontend with tokens
 
@@ -153,6 +171,7 @@ Handles Google OAuth callback and creates verification codes for session-based f
 **URL:** `/oauth-success.html`
 
 Displays authentication success with either:
+
 - Verification code (session-based flow)
 - Success message (traditional flow)
 
@@ -161,6 +180,7 @@ Displays authentication success with either:
 ### Sora2 Video Generation Flow
 
 1. **Initiate OAuth**
+
    ```
    GET /api/auth/google?session=SESSION_ID&return_to=chatgpt
    ```
@@ -173,6 +193,7 @@ Displays authentication success with either:
 3. **Verification Code Exchange**
    - Sora2 receives verification code from user
    - Sora2 calls session verification endpoint:
+
    ```
    GET /api/auth/verify-session
    Headers: X-Session-Token: VERIFIED-{code}
@@ -180,6 +201,7 @@ Displays authentication success with either:
 
 4. **Credit Check**
    - Sora2 checks user credits:
+
    ```
    POST /api/mcp/v1/credits/check
    Headers: X-User-ID: {user_id}
@@ -192,8 +214,8 @@ Displays authentication success with either:
    ```
    POST /api/mcp/v1/credits/deduct
    Headers: X-User-ID: {user_id}
-   Body: { 
-     service: "sora2-video-generation", 
+   Body: {
+     service: "sora2-video-generation",
      cost: 30,
      metadata: { videoId: "video-uuid" }
    }
@@ -202,18 +224,21 @@ Displays authentication success with either:
 ## Security Considerations
 
 ### Session Management
+
 - Session tokens have 7-day expiration
 - Verification codes have 10-minute expiration
 - Redis storage for fast access and automatic cleanup
 - CSRF protection via state parameters
 
 ### Credit Management
+
 - Atomic transactions prevent race conditions
 - Credit balance validation before deduction
 - Transaction logging for audit trail
 - Rollback mechanism for failed operations
 
 ### OAuth Security
+
 - State parameter validation
 - IP and User-Agent verification
 - Secure token generation
@@ -222,6 +247,7 @@ Displays authentication success with either:
 ## Error Handling
 
 ### Common Error Codes
+
 - `400 Bad Request`: Invalid input parameters
 - `401 Unauthorized`: Invalid session token
 - `402 Payment Required`: Insufficient credits
@@ -229,6 +255,7 @@ Displays authentication success with either:
 - `500 Internal Server Error`: Server error
 
 ### Error Response Format
+
 ```json
 {
   "success": false,
@@ -239,12 +266,14 @@ Displays authentication success with either:
 ## Monitoring and Logging
 
 ### Key Metrics
+
 - OAuth initiation and completion rates
 - Credit check and deduction operations
 - Session verification success/failure rates
 - Error rates by endpoint
 
 ### Log Messages
+
 - OAuth flow events
 - Credit transaction details
 - Session creation and verification
@@ -253,16 +282,19 @@ Displays authentication success with either:
 ## Testing
 
 ### Unit Tests
+
 - Session verification endpoint tests
 - Credit check and deduction tests
 - OAuth flow simulation tests
 
 ### Integration Tests
+
 - End-to-end OAuth flow with session parameters
 - Credit management workflow
 - Error handling scenarios
 
 ### Test Files
+
 - `packages/auth-service/src/__tests__/session.test.js`
 - `packages/auth-service/src/__tests__/oauth.sora2.test.js`
 - `packages/core-service/src/__tests__/credit.sora2.test.ts`
@@ -270,6 +302,7 @@ Displays authentication success with either:
 ## Deployment Notes
 
 ### Environment Variables
+
 - `REDIS_URL`: Redis connection string
 - `FRONTEND_URL`: Frontend application URL
 - `GOOGLE_CLIENT_ID`: Google OAuth client ID
@@ -277,7 +310,9 @@ Displays authentication success with either:
 - `GOOGLE_CALLBACK_URL`: OAuth callback URL
 
 ### API Gateway Configuration
+
 Update API Gateway routes to proxy the new endpoints:
+
 - `/api/auth/verify-session` → auth-service
 - `/api/mcp/v1/credits/*` → core-service
 - `/oauth-success.html` → auth-service (static file)
@@ -302,6 +337,7 @@ Update API Gateway routes to proxy the new endpoints:
    - Review callback URL configuration
 
 ### Debug Commands
+
 ```bash
 # Check Redis sessions
 redis-cli keys "session:*"
@@ -314,3 +350,4 @@ SELECT * FROM credit_transactions WHERE user_id = 'user-uuid';
 # Verify API Gateway routes
 curl -X GET http://api-gateway/api/auth/verify-session \
   -H "X-Session-Token: VERIFIED-test"
+```

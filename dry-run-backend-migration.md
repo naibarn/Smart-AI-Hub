@@ -15,6 +15,7 @@ This dry run simulation analyzes the migration of 24 files from the `specs/backe
 **Files:** 6 (auth_service.md, fr_auth_05.md, fr_auth_06.md, fr_1.md, fr_2.md, fr_3.md)
 
 #### Content Analysis:
+
 - **auth_service.md**: Comprehensive 904-line authentication service specification with detailed technical requirements
 - **fr_auth_05.md**: 701-line Session-Based Authentication System specification in Thai
 - **fr_auth_06.md**: 723-line OAuth with Verification Codes System specification in Thai
@@ -23,12 +24,14 @@ This dry run simulation analyzes the migration of 24 files from the `specs/backe
 - **fr_3.md**: 689-line Credit Management System specification in Thai
 
 #### Conflicts Identified:
+
 1. **Language Inconsistency**: Mix of English and Thai content
 2. **Content Duplication**: auth_service.md overlaps with fr_1.md, fr_auth_05.md, and fr_auth_06.md
 3. **Scope Misalignment**: fr_3.md (Credit Management) doesn't belong in Authentication group
 4. **Template Issues**: All files have excessive boilerplate content (lines 280-900+)
 
 #### Merged Content Preview:
+
 ```yaml
 # specs/001-user-authentication/spec.md
 ---
@@ -70,17 +73,20 @@ Comprehensive authentication system supporting multiple methods including OAuth 
 **Files:** 4 (credit_account.md, fr_credit_03.md, fr_credit_04.md, fr_3.md)
 
 #### Content Analysis:
+
 - **credit_account.md**: Data model specification
 - **fr_credit_03.md**: Credit System functional requirement
 - **fr_credit_04.md**: Credit System functional requirement
 - **fr_3.md**: 689-line Credit Management System (incorrectly placed in Authentication group)
 
 #### Conflicts Identified:
+
 1. **Misplaced File**: fr_3.md should be in this group, not Authentication group
 2. **Content Duplication**: Similar credit management concepts across multiple files
 3. **Format Inconsistency**: Mix of data model and functional requirement formats
 
 #### Merged Content Preview:
+
 ```yaml
 # specs/002-credit-system/spec.md
 ---
@@ -122,15 +128,18 @@ Real-time credit tracking and management system for AI service usage with immuta
 **Files:** 8 (user.md, permission.md, user_role.md, role_permission.md, credit_account.md, promo_code.md, promo_redemption.md, usage_log.md)
 
 #### Content Analysis:
+
 - All files are data model specifications
 - Consistent format with Prisma schema definitions
 - Well-structured and minimal duplication
 
 #### Conflicts Identified:
+
 1. **File Duplication**: credit_account.md exists in both Credit System and Data Models groups
 2. **Cross-References**: Models reference each other, requiring careful migration order
 
 #### Merged Content Preview:
+
 ```yaml
 # specs/003-data-models/spec.md
 ---
@@ -164,16 +173,19 @@ Core data models for the Smart AI Hub platform using Prisma ORM.
 **Files:** 4 (api_gateway.md, core_service.md, mcp_server.md, auth_service.md)
 
 #### Content Analysis:
+
 - **api_gateway.md**: API Gateway service specification
 - **core_service.md**: Core business logic service
 - **mcp_server.md**: MCP Server for AI integrations
 - **auth_service.md**: Authentication service (also in Authentication group)
 
 #### Conflicts Identified:
+
 1. **File Duplication**: auth_service.md exists in both Authentication and Backend Services groups
 2. **Service Boundaries**: Unclear separation between core_service and auth_service
 
 #### Merged Content Preview:
+
 ```yaml
 # specs/004-backend-services/spec.md
 ---
@@ -210,14 +222,17 @@ Microservices architecture for the Smart AI Hub platform.
 **Files:** 1 (epic_1.md)
 
 #### Content Analysis:
+
 - Single file with epic definition
 - Minimal content, well-structured
 
 #### Conflicts Identified:
+
 1. **Minimal Content**: Only one file in this group
 2. **Generic Title**: "epic_1.md" doesn't indicate content
 
 #### Merged Content Preview:
+
 ```yaml
 # specs/005-epic-management/spec.md
 ---
@@ -248,14 +263,17 @@ Framework for managing epics within the Smart AI Hub platform.
 **Files:** 1 (agents_marketplace.md)
 
 #### Content Analysis:
+
 - Single file with marketplace specification
 - Well-structured content
 
 #### Conflicts Identified:
+
 1. **Minimal Content**: Only one file in this group
 2. **Unclear Scope**: Unclear if this is a complete specification
 
 #### Merged Content Preview:
+
 ```yaml
 # specs/006-agents-marketplace/spec.md
 ---
@@ -283,21 +301,25 @@ Marketplace for AI agents and integrations.
 ## Critical Issues Summary
 
 ### 1. File Duplications (3 instances)
+
 - **auth_service.md**: Exists in both Authentication and Backend Services groups
 - **credit_account.md**: Exists in both Credit System and Data Models groups
 - **fr_3.md**: Credit Management file incorrectly placed in Authentication group
 
 ### 2. Content Inconsistencies
+
 - **Language Mix**: Thai and English content mixed within groups
 - **Format Variations**: Different template structures across files
 - **Scope Misalignment**: Files placed in incorrect logical groups
 
 ### 3. Template Issues
+
 - **Excessive Boilerplate**: Most files have 400+ lines of repetitive template content
 - **Generic Placeholders**: Multiple sections with "This section provides comprehensive details..." placeholders
 - **Missing Specificity**: Lack of concrete implementation details in many sections
 
 ### 4. Cross-Reference Dependencies
+
 - **Model References**: Data models reference each other, requiring careful migration order
 - **Service Dependencies**: Services reference each other's APIs
 - **Authentication Flow**: Multiple files describe parts of the same authentication flow
@@ -305,18 +327,21 @@ Marketplace for AI agents and integrations.
 ## Recommendations for Resolution
 
 ### 1. Pre-Migration Cleanup
+
 1. **Remove Duplicates**: Decide on canonical location for duplicated files
 2. **Standardize Language**: Choose either English or Thai for each specification
 3. **Clean Templates**: Remove excessive boilerplate content
 4. **Verify Grouping**: Ensure files are in correct logical groups
 
 ### 2. Migration Strategy
+
 1. **Migrate Data Models First**: Start with EPIC-003 as it has fewest dependencies
 2. **Resolve Cross-References**: Update cross-references to new locations
 3. **Consolidate Content**: Merge related content from multiple files
 4. **Update Registry**: Add all new specifications to specs-registry.yaml
 
 ### 3. Post-Migration Validation
+
 1. **Link Verification**: Verify all cross-references work correctly
 2. **Content Review**: Review merged content for completeness
 3. **Format Validation**: Ensure all files follow new template format
@@ -324,15 +349,15 @@ Marketplace for AI agents and integrations.
 
 ## Migration Effort Estimate
 
-| Group | Files | Conflicts | Manual Effort |
-|-------|-------|-----------|---------------|
-| User Authentication | 6 | 4 | 4 hours |
-| Credit System | 4 | 2 | 3 hours |
-| Data Models | 8 | 2 | 2 hours |
-| Backend Services | 4 | 2 | 3 hours |
-| Epic Management | 1 | 1 | 1 hour |
-| Agents Marketplace | 1 | 1 | 1 hour |
-| **Total** | **24** | **12** | **14 hours** |
+| Group               | Files  | Conflicts | Manual Effort |
+| ------------------- | ------ | --------- | ------------- |
+| User Authentication | 6      | 4         | 4 hours       |
+| Credit System       | 4      | 2         | 3 hours       |
+| Data Models         | 8      | 2         | 2 hours       |
+| Backend Services    | 4      | 2         | 3 hours       |
+| Epic Management     | 1      | 1         | 1 hour        |
+| Agents Marketplace  | 1      | 1         | 1 hour        |
+| **Total**           | **24** | **12**    | **14 hours**  |
 
 ## Next Steps
 

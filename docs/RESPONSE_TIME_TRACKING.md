@@ -33,12 +33,12 @@ The response time tracking system consists of several components working togethe
 
 The system defines four SLA tiers with different response time thresholds:
 
-| SLA Tier | Threshold (P95) | Description | Example Endpoints |
-|----------|----------------|-------------|-------------------|
-| Critical | < 500ms | Mission-critical operations that must be fast | auth, mcp chat |
-| High | < 1000ms | Important user-facing features | users, credits |
-| Medium | < 2000ms | Analytics and monitoring features | analytics, monitoring |
-| Low | < 5000ms | Background processing and reports | webhooks, reports |
+| SLA Tier | Threshold (P95) | Description                                   | Example Endpoints     |
+| -------- | --------------- | --------------------------------------------- | --------------------- |
+| Critical | < 500ms         | Mission-critical operations that must be fast | auth, mcp chat        |
+| High     | < 1000ms        | Important user-facing features                | users, credits        |
+| Medium   | < 2000ms        | Analytics and monitoring features             | analytics, monitoring |
+| Low      | < 5000ms        | Background processing and reports             | webhooks, reports     |
 
 ### Configuration File
 
@@ -51,39 +51,25 @@ SLA configuration is stored in `config/sla-config.json`:
       "threshold": 500,
       "description": "Mission-critical operations",
       "alertDuration": "5m",
-      "endpoints": [
-        "/api/v1/auth/login",
-        "/api/v1/auth/register",
-        "/api/v1/mcp/chat"
-      ]
+      "endpoints": ["/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/mcp/chat"]
     },
     "high": {
       "threshold": 1000,
       "description": "Important user-facing features",
       "alertDuration": "10m",
-      "endpoints": [
-        "/api/v1/users/profile",
-        "/api/v1/credits/balance",
-        "/api/v1/analytics/usage"
-      ]
+      "endpoints": ["/api/v1/users/profile", "/api/v1/credits/balance", "/api/v1/analytics/usage"]
     },
     "medium": {
       "threshold": 2000,
       "description": "Analytics and monitoring features",
       "alertDuration": "15m",
-      "endpoints": [
-        "/api/v1/analytics/reports",
-        "/api/v1/monitoring/overview"
-      ]
+      "endpoints": ["/api/v1/analytics/reports", "/api/v1/monitoring/overview"]
     },
     "low": {
       "threshold": 5000,
       "description": "Background processing and reports",
       "alertDuration": "30m",
-      "endpoints": [
-        "/api/v1/webhooks/process",
-        "/api/v1/reports/generate"
-      ]
+      "endpoints": ["/api/v1/webhooks/process", "/api/v1/reports/generate"]
     }
   },
   "defaultTier": "medium",
@@ -202,8 +188,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Critical endpoint SLA violation"
-          description: "{{ $labels.service }} {{ $labels.route }} has P95 response time of {{ $value }}ms, exceeding 500ms threshold"
+          summary: 'Critical endpoint SLA violation'
+          description: '{{ $labels.service }} {{ $labels.route }} has P95 response time of {{ $value }}ms, exceeding 500ms threshold'
 
       - alert: HighPriorityEndpointSLAViolation
         expr: histogram_quantile(0.95, sum(rate(http_response_time_milliseconds_bucket{sla_tier="high"}[5m])) by (le, service, route)) > 1000
@@ -211,8 +197,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High priority endpoint SLA violation"
-          description: "{{ $labels.service }} {{ $labels.route }} has P95 response time of {{ $value }}ms, exceeding 1000ms threshold"
+          summary: 'High priority endpoint SLA violation'
+          description: '{{ $labels.service }} {{ $labels.route }} has P95 response time of {{ $value }}ms, exceeding 1000ms threshold'
 
       - alert: FrequentSlowRequests
         expr: rate(slow_requests_total[5m]) / rate(http_response_time_milliseconds_count[5m]) > 0.1
@@ -220,8 +206,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Frequent slow requests detected"
-          description: "{{ $labels.service }} has {{ $value | humanizePercentage }} of requests exceeding SLA thresholds"
+          summary: 'Frequent slow requests detected'
+          description: '{{ $labels.service }} has {{ $value | humanizePercentage }} of requests exceeding SLA thresholds'
 
       - alert: ResponseTimeDegradation
         expr: histogram_quantile(0.95, sum(rate(http_response_time_milliseconds_bucket[5m])) by (le, service, route)) > 1.5 * performance_baseline_p95_ms
@@ -229,8 +215,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Response time degradation detected"
-          description: "{{ $labels.service }} {{ $labels.route }} response time is 50% higher than baseline"
+          summary: 'Response time degradation detected'
+          description: '{{ $labels.service }} {{ $labels.route }} response time is 50% higher than baseline'
 ```
 
 ## Response Time Analytics UI
@@ -286,6 +272,7 @@ The dashboard is built with the following React components:
 The following API endpoints are available for response time analytics:
 
 ### Overview Metrics
+
 ```
 GET /api/v1/monitoring/response-time/overview
 ```
@@ -293,6 +280,7 @@ GET /api/v1/monitoring/response-time/overview
 Returns overall metrics including average response time, SLA compliance, and top violators.
 
 ### Endpoint Metrics
+
 ```
 GET /api/v1/monitoring/response-time/endpoints
 ```
@@ -300,6 +288,7 @@ GET /api/v1/monitoring/response-time/endpoints
 Returns detailed metrics for each endpoint with filtering and pagination options.
 
 ### Historical Trends
+
 ```
 GET /api/v1/monitoring/response-time/trends
 ```
@@ -307,6 +296,7 @@ GET /api/v1/monitoring/response-time/trends
 Returns historical trend data for response time percentiles.
 
 ### SLA Violations
+
 ```
 GET /api/v1/monitoring/response-time/violations
 ```
@@ -314,6 +304,7 @@ GET /api/v1/monitoring/response-time/violations
 Returns list of SLA violations with details and filtering options.
 
 ### Performance Baselines
+
 ```
 GET /api/v1/monitoring/response-time/baselines
 ```
@@ -321,6 +312,7 @@ GET /api/v1/monitoring/response-time/baselines
 Returns performance baselines for comparison with current metrics.
 
 ### Comparative Analysis
+
 ```
 GET /api/v1/monitoring/response-time/compare
 ```
@@ -457,6 +449,7 @@ GRAFANA_PASSWORD=admin123
 **Symptoms**: `X-Response-Time` header not present in responses
 
 **Solutions**:
+
 1. Verify monitoring middleware is enabled in all services
 2. Check if `ENABLE_RESPONSE_TIME_TRACKING=true` is set
 3. Restart services after configuration changes
@@ -466,6 +459,7 @@ GRAFANA_PASSWORD=admin123
 **Symptoms**: Expected alerts not being generated
 
 **Solutions**:
+
 1. Verify Prometheus alert rules are loaded
 2. Check AlertManager configuration
 3. Verify alert thresholds and durations
@@ -476,6 +470,7 @@ GRAFANA_PASSWORD=admin123
 **Symptoms**: No baseline data available
 
 **Solutions**:
+
 1. Verify cron job is configured correctly
 2. Check analytics service logs
 3. Verify database connectivity
@@ -486,6 +481,7 @@ GRAFANA_PASSWORD=admin123
 **Symptoms**: Grafana or UI dashboard empty
 
 **Solutions**:
+
 1. Verify Prometheus is collecting metrics
 2. Check data source configuration in Grafana
 3. Verify query syntax and time ranges
@@ -496,6 +492,7 @@ GRAFANA_PASSWORD=admin123
 #### High Metrics Collection Overhead
 
 **Solutions**:
+
 1. Optimize Prometheus query performance
 2. Use appropriate metric sampling
 3. Consider metric aggregation
@@ -504,6 +501,7 @@ GRAFANA_PASSWORD=admin123
 #### Slow Dashboard Loading
 
 **Solutions**:
+
 1. Implement pagination for large datasets
 2. Use appropriate caching strategies
 3. Optimize database queries

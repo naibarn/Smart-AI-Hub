@@ -36,7 +36,7 @@ CREATE TABLE roles (
 );
 
 -- Foreign key for role hierarchy
-ALTER TABLE roles ADD CONSTRAINT fk_roles_parent 
+ALTER TABLE roles ADD CONSTRAINT fk_roles_parent
     FOREIGN KEY (parent_id) REFERENCES roles(id) ON DELETE SET NULL;
 
 -- Indexes for performance
@@ -44,7 +44,7 @@ CREATE INDEX idx_roles_name ON roles(name);
 CREATE INDEX idx_roles_parent_id ON roles(parent_id);
 
 -- Prevent circular references in role hierarchy
-CREATE CONSTRAINT check_no_circular_reference 
+CREATE CONSTRAINT check_no_circular_reference
     CHECK (id != parent_id);
 ```
 
@@ -90,7 +90,7 @@ model Role {
   // Self-referencing relationship for hierarchy
   parent      Role?           @relation("RoleHierarchy", fields: [parentId], references: [id])
   children    Role[]          @relation("RoleHierarchy")
-  
+
   // Relationships to other entities
   users       UserRole[]
   permissions RolePermission[]
@@ -116,6 +116,7 @@ model RolePermission {
 ## Entity Relationships
 
 ### Permission Entity
+
 - **Primary Key**: id (UUID)
 - **Unique Fields**: name, resource+action combination
 - **Attributes**:
@@ -126,6 +127,7 @@ model RolePermission {
   - One-to-many with RolePermission
 
 ### Role Entity
+
 - **Primary Key**: id (UUID)
 - **Unique Fields**: name
 - **Attributes**:
@@ -140,6 +142,7 @@ model RolePermission {
   - One-to-many with RolePermission
 
 ### RolePermission Entity
+
 - **Composite Primary Key**: roleId + permissionId
 - **Foreign Keys**: roleId (references Role), permissionId (references Permission)
 - **Relationships**:
@@ -149,12 +152,14 @@ model RolePermission {
 ## Data Validation Rules
 
 ### Permission Entity Validation
+
 - **name**: Must be unique, follow pattern "resource.action"
 - **resource**: Must be a valid resource type defined in the system
 - **action**: Must be a valid action type (create, read, update, delete, etc.)
 - **resource+action**: Combination must be unique
 
 ### Role Entity Validation
+
 - **name**: Must be unique, cannot be empty
 - **description**: Optional but recommended
 - **parentId**: Must reference an existing role or be null
@@ -162,6 +167,7 @@ model RolePermission {
 - **Deletion**: Cannot delete role if assigned to users
 
 ### RolePermission Entity Validation
+
 - **roleId**: Must reference an existing role
 - **permissionId**: Must reference an existing permission
 - **Uniqueness**: Role-permission combination must be unique
@@ -169,18 +175,21 @@ model RolePermission {
 ## Security Considerations
 
 ### Access Control Enforcement
+
 - Permission checks must be performed at multiple layers
 - Database access must be controlled by application-level permissions
 - Sensitive operations must require multiple permissions
 - Permission inheritance must be properly implemented and secured
 
 ### Data Protection
+
 - Role and permission data must be protected from unauthorized modification
 - Audit logs must track all permission changes
 - Permission caches must be properly secured
 - Role hierarchy must be protected from manipulation
 
 ### Performance Security
+
 - Permission checks must be optimized to prevent timing attacks
 - Caching mechanisms must not expose permission information
 - Error messages must not reveal sensitive permission information
@@ -188,18 +197,21 @@ model RolePermission {
 ## Performance Optimization
 
 ### Indexing Strategy
+
 - Primary key indexes on all tables
 - Unique indexes on permission resource-action combinations
 - Composite indexes on role-permission relationships
 - Indexes for frequently queried role hierarchy paths
 
 ### Query Optimization
+
 - Use recursive queries for role hierarchy resolution
 - Implement efficient permission aggregation algorithms
 - Optimize database queries for complex permission checks
 - Consider materialized views for complex permission calculations
 
 ### Caching Strategy
+
 - Cache user permissions with appropriate TTL
 - Cache role-permission mappings for frequently accessed roles
 - Implement cache invalidation on permission changes
@@ -208,6 +220,7 @@ model RolePermission {
 ## Migration Strategy
 
 ### Initial Migration
+
 ```sql
 -- Create permissions table
 CREATE TABLE permissions (
@@ -245,11 +258,12 @@ CREATE INDEX idx_role_permissions_role_id ON role_permissions(role_id);
 CREATE INDEX idx_role_permissions_permission_id ON role_permissions(permission_id);
 
 -- Add foreign key constraints
-ALTER TABLE roles ADD CONSTRAINT fk_roles_parent 
+ALTER TABLE roles ADD CONSTRAINT fk_roles_parent
     FOREIGN KEY (parent_id) REFERENCES roles(id) ON DELETE SET NULL;
 ```
 
 ### Seed Data
+
 ```sql
 -- Insert basic permissions
 INSERT INTO permissions (name, resource, action) VALUES
@@ -274,6 +288,7 @@ SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'admin';
 ```
 
 ### Future Schema Changes
+
 - All schema changes must maintain backward compatibility
 - Role hierarchy changes must be carefully tested
 - Permission changes must consider existing assignments

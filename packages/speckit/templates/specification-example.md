@@ -1,25 +1,25 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-requirements-user-authentication-001"
-title: "User Authentication Specification"
-type: "functional_requirement"
-category: "requirements"
-author: "John Doe"
-version: "1.0.0"
-status: "draft"
-priority: "high"
-createdAt: "2025-10-17"
-updatedAt: "2025-10-17"
+id: 'spec-requirements-user-authentication-001'
+title: 'User Authentication Specification'
+type: 'functional_requirement'
+category: 'requirements'
+author: 'John Doe'
+version: '1.0.0'
+status: 'draft'
+priority: 'high'
+createdAt: '2025-10-17'
+updatedAt: '2025-10-17'
 estimatedEffort: 16
 actualEffort: 0
-reviewers: ["Jane Smith", "Mike Johnson"]
+reviewers: ['Jane Smith', 'Mike Johnson']
 approvers: []
-tags: ["authentication", "security", "user-management"]
+tags: ['authentication', 'security', 'user-management']
 
 # Traceability links for SpeckIt validation
-parent: "epic-user-management-001"
-dependencies: ["spec-architecture-user-service-001", "spec-data-models-user-001"]
-related: ["spec-requirements-user-registration-002", "spec-requirements-password-reset-003"]
+parent: 'epic-user-management-001'
+dependencies: ['spec-architecture-user-service-001', 'spec-data-models-user-001']
+related: ['spec-requirements-user-registration-002', 'spec-requirements-password-reset-003']
 ---
 
 # User Authentication Specification
@@ -97,6 +97,7 @@ spec-requirements-user-authentication-001 shall authenticate users based on emai
 **Traceability:** Links to user story spec-requirements-user-authentication-001
 
 **Acceptance Criteria:**
+
 - System shall validate email format and existence
 - System shall verify password against stored hash
 - System shall generate JWT token upon successful authentication
@@ -110,6 +111,7 @@ spec-requirements-user-authentication-001 must maintain user sessions using JWT 
 **Traceability:** Links to user story spec-requirements-user-authentication-001
 
 **Acceptance Criteria:**
+
 - System shall issue JWT tokens with 24-hour expiration
 - System shall support refresh tokens for extended sessions
 - System shall validate tokens on protected resource access
@@ -123,6 +125,7 @@ spec-requirements-user-authentication-001 shall implement security measures to p
 **Traceability:** Links to user story spec-requirements-user-authentication-001
 
 **Acceptance Criteria:**
+
 - System shall lock accounts after 5 failed login attempts
 - System shall implement password complexity requirements
 - System shall use bcrypt for password hashing
@@ -189,16 +192,16 @@ spec-requirements-user-authentication-001 shall implement security measures to p
 
 ### User
 
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| id | UUID | Primary Key | Unique user identifier |
-| email | String | Unique, Required | User email address |
-| passwordHash | String | Required | Bcrypt hash of password |
-| lastLoginAt | DateTime | Optional | Timestamp of last login |
-| loginAttempts | Integer | Default: 0 | Number of failed login attempts |
-| lockedUntil | DateTime | Optional | Account lock expiration |
-| createdAt | DateTime | Required | Account creation timestamp |
-| updatedAt | DateTime | Required | Last update timestamp |
+| Field         | Type     | Constraints      | Description                     |
+| ------------- | -------- | ---------------- | ------------------------------- |
+| id            | UUID     | Primary Key      | Unique user identifier          |
+| email         | String   | Unique, Required | User email address              |
+| passwordHash  | String   | Required         | Bcrypt hash of password         |
+| lastLoginAt   | DateTime | Optional         | Timestamp of last login         |
+| loginAttempts | Integer  | Default: 0       | Number of failed login attempts |
+| lockedUntil   | DateTime | Optional         | Account lock expiration         |
+| createdAt     | DateTime | Required         | Account creation timestamp      |
+| updatedAt     | DateTime | Required         | Last update timestamp           |
 
 ### Relationships
 
@@ -296,19 +299,19 @@ Implement authentication as a microservice with separate endpoints for login, lo
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
-| 2025-10-17 | Jane Smith | Added security requirements for GDPR compliance | Approved |
-| 2025-10-17 | Mike Johnson | Clarified performance requirements | Approved |
+| Date       | Reviewer     | Comments                                        | Status   |
+| ---------- | ------------ | ----------------------------------------------- | -------- |
+| 2025-10-17 | Jane Smith   | Added security requirements for GDPR compliance | Approved |
+| 2025-10-17 | Mike Johnson | Clarified performance requirements              | Approved |
 
 ### Approval
 
 | Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
-| | | | | |
+| ---- | -------- | ---- | -------- | -------- |
+|      |          |      |          |          |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | 2025-10-17 | John Doe | Initial version |
+| Version | Date       | Author   | Changes         |
+| ------- | ---------- | -------- | --------------- |
+| 1.0.0   | 2025-10-17 | John Doe | Initial version |

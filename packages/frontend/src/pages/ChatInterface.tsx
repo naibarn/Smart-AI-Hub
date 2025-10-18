@@ -284,7 +284,7 @@ const ChatInterface: React.FC = () => {
       </GlassCard>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }} icon={<ErrorIcon />}>
+        <Alert severity="error" sx={{ mb: 3 }} icon={<AlertCircle size={18} />}>
           {error}
         </Alert>
       )}
@@ -300,7 +300,9 @@ const ChatInterface: React.FC = () => {
             <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
               {messages.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Bot size={48} sx={{ color: theme.palette.text.secondary, mb: 2 }} />
+                  <Box sx={{ color: theme.palette.text.secondary, mb: 2 }}>
+                    <Bot size={48} />
+                  </Box>
                   <Typography variant="body2" color="text.secondary">
                     Start a conversation with the AI assistant
                   </Typography>

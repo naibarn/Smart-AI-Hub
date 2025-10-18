@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-integration-{{integration-name}}-{{sequence-number}}"
-title: "{{Integration Name}} Integration Specification"
-type: "service_spec"
-category: "architecture"
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft"
-priority: "{{priority-level}}"
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}}
-actualEffort: {{hours}}
+id: 'spec-integration-{{integration-name}}-{{sequence-number}}'
+title: '{{Integration Name}} Integration Specification'
+type: 'service_spec'
+category: 'architecture'
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft'
+priority: '{{priority-level}}'
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } }
+actualEffort: { { hours } }
 reviewers: []
 approvers: []
-tags: ["integration", "{{integration-type}}", "{{third-party}}"]
+tags: ['integration', '{{integration-type}}', '{{third-party}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{parent-spec-id}}"
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"]
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
+parent: '{{parent-spec-id}}'
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}']
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}']
 ---
 
 # {{Integration Name}} Integration Specification
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the integration and its purpose
-  TIPS: 
+  TIPS:
   - Explain why this integration is needed
   - Describe the business value and benefits
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Integration Goals and Success Criteria
 
-<!-- 
+<!--
   PURPOSE: Define the goals and success criteria for the integration
   TIPS:
   - Include both functional and non-functional goals
@@ -48,11 +48,13 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 -->
 
 ### Primary Goals
+
 1. **{{Goal 1}}**: {{Description and target metric}}
 2. **{{Goal 2}}**: {{Description and target metric}}
 3. **{{Goal 3}}**: {{Description and target metric}}
 
 ### Success Criteria
+
 - **Data Synchronization**: {{Data synchronization success criteria}}
 - **Performance**: {{Performance criteria and benchmarks}}
 - **Reliability**: {{Reliability and availability targets}}
@@ -60,7 +62,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Third-Party System Information
 
-<!-- 
+<!--
   PURPOSE: Provide detailed information about the third-party system
   TIPS:
   - Include system documentation and support contacts
@@ -93,7 +95,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Integration Architecture
 
-<!-- 
+<!--
   PURPOSE: Define the integration architecture and patterns
   TIPS:
   - Include integration patterns and data flow
@@ -120,7 +122,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Data Mapping and Transformation
 
-<!-- 
+<!--
   PURPOSE: Define data mapping and transformation requirements
   TIPS:
   - Include field-level mappings
@@ -132,16 +134,16 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 #### {{Entity Name}} Mapping
 
-| Source Field | Target Field | Data Type | Transformation | Validation |
-|--------------|--------------|-----------|-----------------|------------|
-| {{source-field}} | {{target-field}} | {{type}} | {{transformation logic}} | {{validation rules}} |
-| {{source-field}} | {{target-field}} | {{type}} | {{transformation logic}} | {{validation rules}} |
+| Source Field     | Target Field     | Data Type | Transformation           | Validation           |
+| ---------------- | ---------------- | --------- | ------------------------ | -------------------- |
+| {{source-field}} | {{target-field}} | {{type}}  | {{transformation logic}} | {{validation rules}} |
+| {{source-field}} | {{target-field}} | {{type}}  | {{transformation logic}} | {{validation rules}} |
 
 #### {{Another Entity}} Mapping
 
-| Source Field | Target Field | Data Type | Transformation | Validation |
-|--------------|--------------|-----------|-----------------|------------|
-| {{source-field}} | {{target-field}} | {{type}} | {{transformation logic}} | {{validation rules}} |
+| Source Field     | Target Field     | Data Type | Transformation           | Validation           |
+| ---------------- | ---------------- | --------- | ------------------------ | -------------------- |
+| {{source-field}} | {{target-field}} | {{type}}  | {{transformation logic}} | {{validation rules}} |
 
 ### Data Transformation Rules
 
@@ -153,7 +155,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Integration Contracts
 
-<!-- 
+<!--
   PURPOSE: Define the integration contracts and interfaces
   TIPS:
   - Include API contracts, data schemas, and protocols
@@ -171,8 +173,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 **Request Parameters**:
 
-| Parameter | Type | Required | Description | Example |
-|-----------|------|----------|-------------|---------|
+| Parameter      | Type     | Required   | Description     | Example     |
+| -------------- | -------- | ---------- | --------------- | ----------- |
 | {{param-name}} | {{type}} | {{yes/no}} | {{description}} | {{example}} |
 
 **Request Body** (if applicable):
@@ -186,12 +188,12 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 **Response**:
 
-| Status Code | Description | Schema |
-|-------------|-------------|--------|
-| 200 | {{Success description}} | {{Response schema reference}} |
-| 400 | {{Bad request description}} | {{Error schema reference}} |
-| 401 | {{Unauthorized description}} | {{Error schema reference}} |
-| 500 | {{Server error description}} | {{Error schema reference}} |
+| Status Code | Description                  | Schema                        |
+| ----------- | ---------------------------- | ----------------------------- |
+| 200         | {{Success description}}      | {{Response schema reference}} |
+| 400         | {{Bad request description}}  | {{Error schema reference}}    |
+| 401         | {{Unauthorized description}} | {{Error schema reference}}    |
+| 500         | {{Server error description}} | {{Error schema reference}}    |
 
 **Success Response Example**:
 
@@ -237,7 +239,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Error Handling and Recovery
 
-<!-- 
+<!--
   PURPOSE: Define error handling and recovery strategies
   TIPS:
   - Include error categorization and handling
@@ -247,8 +249,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Error Categories
 
-| Error Type | Description | Handling Strategy | Retry Logic |
-|------------|-------------|------------------|-------------|
+| Error Type     | Description     | Handling Strategy     | Retry Logic     |
+| -------------- | --------------- | --------------------- | --------------- |
 | {{error-type}} | {{description}} | {{handling strategy}} | {{retry logic}} |
 | {{error-type}} | {{description}} | {{handling strategy}} | {{retry logic}} |
 
@@ -269,7 +271,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Monitoring and Logging
 
-<!-- 
+<!--
   PURPOSE: Define monitoring and logging requirements
   TIPS:
   - Include key metrics and alerts
@@ -299,7 +301,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Security Considerations
 
-<!-- 
+<!--
   PURPOSE: Define security requirements and considerations
   TIPS:
   - Include data protection and privacy requirements
@@ -328,7 +330,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Testing Strategy
 
-<!-- 
+<!--
   PURPOSE: Define testing approach and requirements
   TIPS:
   - Include different types of testing
@@ -361,7 +363,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Deployment and Operations
 
-<!-- 
+<!--
   PURPOSE: Define deployment and operational requirements
   TIPS:
   - Consider deployment strategy and environments
@@ -390,7 +392,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Risks and Mitigation
 
-<!-- 
+<!--
   PURPOSE: Identify risks and mitigation strategies
   TIPS:
   - Consider technical, business, and operational risks
@@ -400,8 +402,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Risk Assessment
 
-| Risk | Probability | Impact | Mitigation Strategy | Owner |
-|------|-------------|--------|-------------------|-------|
+| Risk                 | Probability         | Impact              | Mitigation Strategy     | Owner          |
+| -------------------- | ------------------- | ------------------- | ----------------------- | -------------- |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 
@@ -411,7 +413,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Implementation Notes
 
-<!-- 
+<!--
   PURPOSE: Provide technical guidance for implementation
   TIPS:
   - Include architectural considerations
@@ -443,20 +445,20 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

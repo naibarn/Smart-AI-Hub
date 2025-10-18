@@ -24,23 +24,23 @@ app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
 app.post('/webhook', (req, res) => {
   const signature = req.headers['x-webhook-signature'];
   const webhookSecret = 'your_webhook_secret';
-  
+
   // Verify signature
   const expectedSignature = crypto
     .createHmac('sha256', webhookSecret)
     .update(req.body)
     .digest('hex');
-  
+
   if (`sha256=${expectedSignature}` !== signature) {
     return res.status(401).send('Invalid signature');
   }
-  
+
   // Parse the event
   const event = JSON.parse(req.body);
-  
+
   // Handle the event
   handleWebhookEvent(event);
-  
+
   // Respond quickly
   res.status(200).send('OK');
 });
@@ -95,27 +95,27 @@ curl -X POST http://localhost:3005/api/v1/webhooks/WEBHOOK_ID/test \
 
 ### Webhook Endpoints
 
-| Environment | Webhook URL |
-|-------------|-------------|
-| Production | `https://smartaihub.com/webhooks/smartaihub` |
-| Staging | `https://staging.smartaihub.com/webhooks/smartaihub` |
-| Development | `http://localhost:3000/webhooks/smartaihub` |
+| Environment | Webhook URL                                          |
+| ----------- | ---------------------------------------------------- |
+| Production  | `https://smartaihub.com/webhooks/smartaihub`         |
+| Staging     | `https://staging.smartaihub.com/webhooks/smartaihub` |
+| Development | `http://localhost:3000/webhooks/smartaihub`          |
 
 ### Application URLs
 
-| Environment | Application URL |
-|-------------|-----------------|
-| Production | `https://smartaihub.com` |
-| Staging | `https://staging.smartaihub.com` |
-| Development | `http://localhost:3000` |
+| Environment | Application URL                  |
+| ----------- | -------------------------------- |
+| Production  | `https://smartaihub.com`         |
+| Staging     | `https://staging.smartaihub.com` |
+| Development | `http://localhost:3000`          |
 
 ### OAuth Redirect URIs
 
-| Environment | OAuth Redirect URI |
-|-------------|-------------------|
-| Production | `https://smartaihub.com/auth/callback` |
-| Staging | `https://staging.smartaihub.com/auth/callback` |
-| Development | `http://localhost:3000/auth/callback` |
+| Environment | OAuth Redirect URI                             |
+| ----------- | ---------------------------------------------- |
+| Production  | `https://smartaihub.com/auth/callback`         |
+| Staging     | `https://staging.smartaihub.com/auth/callback` |
+| Development | `http://localhost:3000/auth/callback`          |
 
 ## Event Reference
 
@@ -466,27 +466,27 @@ app.post('/webhook', async (req, res) => {
     // Verify signature
     const signature = req.headers['x-webhook-signature'];
     const webhookSecret = process.env.WEBHOOK_SECRET;
-    
+
     if (!verifySignature(req.body, signature, webhookSecret)) {
       return res.status(401).send('Invalid signature');
     }
-    
+
     // Parse event
     const event = JSON.parse(req.body);
-    
+
     // Check for duplicates
     if (processedEvents.has(event.id)) {
       return res.status(200).send('Duplicate event');
     }
-    
+
     // Mark as processed
     processedEvents.add(event.id);
-    
+
     // Process asynchronously
-    processWebhookEvent(event).catch(error => {
+    processWebhookEvent(event).catch((error) => {
       console.error('Error processing webhook:', error);
     });
-    
+
     // Respond immediately
     res.status(200).send('OK');
   } catch (error) {
@@ -496,23 +496,20 @@ app.post('/webhook', async (req, res) => {
 });
 
 function verifySignature(payload, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
-  
+  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
   return `sha256=${expectedSignature}` === signature;
 }
 
 async function processWebhookEvent(event) {
   // Implement your event processing logic here
   console.log(`Processing event: ${event.eventType}`, event.data);
-  
+
   // Example: Update user in database
   if (event.eventType === 'user.created') {
     await updateUserInDatabase(event.data);
   }
-  
+
   // Example: Send notification
   if (event.eventType === 'credit.low') {
     await sendLowCreditNotification(event.data);
@@ -542,24 +539,24 @@ def webhook():
         # Get signature
         signature = request.headers.get('X-Webhook-Signature')
         webhook_secret = os.environ.get('WEBHOOK_SECRET')
-        
+
         # Verify signature
         if not verify_signature(request.data, signature, webhook_secret):
             return jsonify({'error': 'Invalid signature'}), 401
-        
+
         # Parse event
         event = json.loads(request.data)
-        
+
         # Check for duplicates
         if event['id'] in processed_events:
             return jsonify({'status': 'duplicate'}), 200
-        
+
         # Mark as processed
         processed_events.add(event['id'])
-        
+
         # Process asynchronously
         threading.Thread(target=process_webhook_event, args=(event,)).start()
-        
+
         return jsonify({'status': 'ok'}), 200
     except Exception as e:
         print(f'Webhook error: {e}')
@@ -571,7 +568,7 @@ def verify_signature(payload, signature, secret):
         payload,
         hashlib.sha256
     ).hexdigest()
-    
+
     return f'sha256={expected_signature}' == signature
 
 def process_webhook_event(event):
@@ -603,46 +600,46 @@ class WebhookController extends Controller
             // Get signature
             $signature = $request->header('X-Webhook-Signature');
             $webhookSecret = config('services.webhook.secret');
-            
+
             // Verify signature
             if (!$this->verifySignature($request->getContent(), $signature, $webhookSecret)) {
                 return response()->json(['error' => 'Invalid signature'], 401);
             }
-            
+
             // Parse event
             $event = json_decode($request->getContent(), true);
-            
+
             // Check for duplicates
             if (cache()->has("webhook_{$event['id']}")) {
                 return response()->json(['status' => 'duplicate'], 200);
             }
-            
+
             // Mark as processed
             cache()->put("webhook_{$event['id']}", true, 3600);
-            
+
             // Process asynchronously
             dispatch(function () use ($event) {
                 $this->processWebhookEvent($event);
             });
-            
+
             return response()->json(['status' => 'ok'], 200);
         } catch (\Exception $e) {
             Log::error('Webhook error: ' . $e->getMessage());
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
-    
+
     private function verifySignature($payload, $signature, $secret)
     {
         $expectedSignature = hash_hmac('sha256', $payload, $secret);
         return 'sha256=' . $expectedSignature === $signature;
     }
-    
+
     private function processWebhookEvent($event)
     {
         try {
             Log::info("Processing event: {$event['eventType']}");
-            
+
             // Implement your event processing logic here
             switch ($event['eventType']) {
                 case 'user.created':
@@ -657,12 +654,12 @@ class WebhookController extends Controller
             Log::error('Error processing webhook: ' . $e->getMessage());
         }
     }
-    
+
     private function handleUserCreated($data)
     {
         // Handle user created event
     }
-    
+
     private function handleCreditLow($data)
     {
         // Handle credit low event

@@ -125,9 +125,11 @@ The MCP (Model Context Protocol) Server provides real-time WebSocket communicati
 ### HTTP Endpoints
 
 #### GET /health
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "OK",
@@ -146,9 +148,11 @@ Health check endpoint.
 ```
 
 #### GET /stats
+
 Connection statistics for monitoring.
 
 **Response:**
+
 ```json
 {
   "totalConnections": 5,
@@ -175,6 +179,7 @@ WebSocket connections must include a JWT token for authentication. The token can
 #### Message Format
 
 **Client → Server Request:**
+
 ```json
 {
   "id": "req-123",
@@ -194,6 +199,7 @@ WebSocket connections must include a JWT token for authentication. The token can
 ```
 
 **Server → Client Response:**
+
 ```json
 {
   "id": "req-123",
@@ -209,6 +215,7 @@ WebSocket connections must include a JWT token for authentication. The token can
 ```
 
 **Error Response:**
+
 ```json
 {
   "id": "req-123",
@@ -236,17 +243,17 @@ WebSocket connections must include a JWT token for authentication. The token can
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | 3003 |
-| `NODE_ENV` | Environment | development |
-| `JWT_SECRET` | JWT signing secret | Required |
-| `REDIS_URL` | Redis connection URL | redis://localhost:6379 |
-| `DATABASE_URL` | PostgreSQL URL | Required |
-| `OPENAI_API_KEY` | OpenAI API key | Optional |
-| `CLAUDE_API_KEY` | Claude API key | Optional |
-| `CREDIT_SERVICE_URL` | Credit service URL | http://localhost:3002 |
-| `AUTH_SERVICE_URL` | Auth service URL | http://localhost:3001 |
+| Variable             | Description          | Default                |
+| -------------------- | -------------------- | ---------------------- |
+| `PORT`               | Server port          | 3003                   |
+| `NODE_ENV`           | Environment          | development            |
+| `JWT_SECRET`         | JWT signing secret   | Required               |
+| `REDIS_URL`          | Redis connection URL | redis://localhost:6379 |
+| `DATABASE_URL`       | PostgreSQL URL       | Required               |
+| `OPENAI_API_KEY`     | OpenAI API key       | Optional               |
+| `CLAUDE_API_KEY`     | Claude API key       | Optional               |
+| `CREDIT_SERVICE_URL` | Credit service URL   | http://localhost:3002  |
+| `AUTH_SERVICE_URL`   | Auth service URL     | http://localhost:3001  |
 
 ### Model Pricing
 
@@ -279,6 +286,7 @@ src/
 ## Dependencies
 
 ### Core Dependencies
+
 - `ws`: WebSocket library
 - `express`: HTTP server framework
 - `jsonwebtoken`: JWT token handling
@@ -287,6 +295,7 @@ src/
 - `axios`: HTTP client for service communication
 
 ### Development Dependencies
+
 - `typescript`: TypeScript compiler
 - `ts-node-dev`: Development server with hot reload
 - `jest`: Testing framework
@@ -297,6 +306,7 @@ src/
 ### Structured Logging
 
 The server uses Winston for structured logging with the following levels:
+
 - `error`: Error conditions
 - `warn`: Warning conditions
 - `info`: Informational messages
@@ -346,6 +356,7 @@ The server uses Winston for structured logging with the following levels:
 ### Debug Mode
 
 Enable debug logging by setting:
+
 ```bash
 LOG_LEVEL=debug
 ```
@@ -353,6 +364,7 @@ LOG_LEVEL=debug
 ### Health Checks
 
 Monitor server health:
+
 ```bash
 curl http://localhost:3003/health
 ```
@@ -360,6 +372,7 @@ curl http://localhost:3003/health
 ## Integration with Smart AI Hub
 
 The MCP Server integrates with:
+
 - **Auth Service**: For JWT validation and user authentication
 - **Credit Service**: For credit balance checking and deduction
 - **Shared Package**: For common utilities and type definitions

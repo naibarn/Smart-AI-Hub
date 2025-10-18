@@ -59,18 +59,21 @@
 ## Content Merged
 
 ### From API Gateway
+
 - Request routing rules and proxy configuration
 - Rate limiting implementation with role-based limits
 - Security features including JWT validation and CORS handling
 - Monitoring and health check endpoints
 
 ### From Core Service
+
 - User management and role-based access control
 - Credit account management and transaction processing
 - Usage analytics and promotional code system
 - Database schema and business logic
 
 ### Additional Enhancements
+
 - Added comprehensive error handling documentation
 - Included performance optimization strategies
 - Documented integration points with other services

@@ -17,18 +17,8 @@
     "database": {
       "enabled": true,
       "source": "../../prisma/schema.prisma",
-      "models": [
-        "Agent",
-        "AgentSetting",
-        "AgentApprovalLog",
-        "AgentUsageLog"
-      ],
-      "enums": [
-        "AgentType",
-        "AgentVisibility",
-        "AgentStatus",
-        "ApprovalAction"
-      ]
+      "models": ["Agent", "AgentSetting", "AgentApprovalLog", "AgentUsageLog"],
+      "enums": ["AgentType", "AgentVisibility", "AgentStatus", "ApprovalAction"]
     },
     "api": {
       "enabled": true,
@@ -67,13 +57,7 @@
       "enabled": true,
       "pages": {
         "source": "../../packages/frontend/src/pages/**/*.tsx",
-        "pages": [
-          "Marketplace",
-          "AgentDetail",
-          "CreateAgent",
-          "MyAgents",
-          "AgentApprovalQueue"
-        ]
+        "pages": ["Marketplace", "AgentDetail", "CreateAgent", "MyAgents", "AgentApprovalQueue"]
       },
       "components": {
         "source": "../../packages/frontend/src/components/**/*.tsx",
@@ -119,4 +103,3 @@
     "failOnWarnings": false
   }
 }
-

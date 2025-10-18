@@ -34,9 +34,19 @@
         "veryShortContentThreshold": { "type": "number", "minimum": 0, "default": 20 },
         "minTitleLength": { "type": "number", "minimum": 1, "default": 3 },
         "maxTitleLength": { "type": "number", "minimum": 1, "default": 100 },
-        "excellentScoreThreshold": { "type": "number", "minimum": 0, "maximum": 100, "default": 90 },
+        "excellentScoreThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 90
+        },
         "goodScoreThreshold": { "type": "number", "minimum": 0, "maximum": 100, "default": 70 },
-        "acceptableScoreThreshold": { "type": "number", "minimum": 0, "maximum": 100, "default": 50 },
+        "acceptableScoreThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50
+        },
         "maxWarningsForGoodScore": { "type": "number", "minimum": 0, "default": 3 },
         "maxErrorsForGoodScore": { "type": "number", "minimum": 0, "default": 0 },
         "maxWarningsForAcceptableScore": { "type": "number", "minimum": 0, "default": 5 },
@@ -65,8 +75,15 @@
           "type": "object",
           "properties": {
             "pattern": { "type": "string", "description": "Regular expression pattern" },
-            "description": { "type": "string", "description": "Description of what this pattern checks" },
-            "required": { "type": "boolean", "default": false, "description": "Whether this pattern is required" },
+            "description": {
+              "type": "string",
+              "description": "Description of what this pattern checks"
+            },
+            "required": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether this pattern is required"
+            },
             "type": { "type": "string", "enum": ["error", "warning"], "default": "warning" }
           },
           "required": ["pattern", "description"]

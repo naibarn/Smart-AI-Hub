@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-{{category}}-{{feature-name}}-{{sequence-number}}"
-title: "{{Feature Name}} Specification"
-type: "{{specification-type}}" # Options: user_story, functional_requirement, data_model, service_spec, epic, api_spec, ui_spec
-category: "{{specification-category}}" # Options: requirements, architecture, backlog, documentation
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft" # Options: draft, review, approved, implemented, deprecated
-priority: "{{priority-level}}" # Options: low, medium, high, critical
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}} # Estimated effort in hours
-actualEffort: {{hours}} # Actual effort in hours (update when completed)
+id: 'spec-{{category}}-{{feature-name}}-{{sequence-number}}'
+title: '{{Feature Name}} Specification'
+type: '{{specification-type}}' # Options: user_story, functional_requirement, data_model, service_spec, epic, api_spec, ui_spec
+category: '{{specification-category}}' # Options: requirements, architecture, backlog, documentation
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft' # Options: draft, review, approved, implemented, deprecated
+priority: '{{priority-level}}' # Options: low, medium, high, critical
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } } # Estimated effort in hours
+actualEffort: { { hours } } # Actual effort in hours (update when completed)
 reviewers: [] # List of reviewer names
 approvers: [] # List of approver names
-tags: ["{{tag1}}", "{{tag2}}", "{{tag3}}"]
+tags: ['{{tag1}}', '{{tag2}}', '{{tag3}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{parent-spec-id}}" # Parent specification ID (optional)
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"] # Related specification IDs
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"] # Related specification IDs
+parent: '{{parent-spec-id}}' # Parent specification ID (optional)
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}'] # Related specification IDs
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}'] # Related specification IDs
 ---
 
 # {{Feature Name}} Specification
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the feature and its business context
-  TIPS: 
+  TIPS:
   - Explain why this feature is needed
   - Describe the business value and benefits
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"] # Related specificat
 
 ## User Stories
 
-<!-- 
+<!--
   PURPOSE: Define user needs in a standardized format
   TIPS:
   - Use the exact format: "As a [user type], I want to [action], so that [benefit]"
@@ -82,7 +82,7 @@ Scenario: {{Scenario description}}
 
 ## Functional Requirements
 
-<!-- 
+<!--
   PURPOSE: Define specific system behaviors and functions
   TIPS:
   - Use clear, unambiguous language with modal verbs (shall, must, should)
@@ -98,6 +98,7 @@ Scenario: {{Scenario description}}
 **Traceability:** Links to user story {{user-story-id}}
 
 **Acceptance Criteria:**
+
 - {{Specific criterion 1}}
 - {{Specific criterion 2}}
 - {{Specific criterion 3}}
@@ -109,12 +110,13 @@ Scenario: {{Scenario description}}
 **Traceability:** Links to user story {{user-story-id}}
 
 **Acceptance Criteria:**
+
 - {{Specific criterion 1}}
 - {{Specific criterion 2}}
 
 ## Non-Functional Requirements
 
-<!-- 
+<!--
   PURPOSE: Define quality attributes and system constraints
   TIPS:
   - Include measurable criteria for each requirement
@@ -146,7 +148,7 @@ Scenario: {{Scenario description}}
 
 ## Constraints and Assumptions
 
-<!-- 
+<!--
   PURPOSE: Document limitations and assumptions that affect the implementation
   TIPS:
   - Be specific about technical, business, or regulatory constraints
@@ -169,7 +171,7 @@ Scenario: {{Scenario description}}
 
 ## Dependencies and Related Specifications
 
-<!-- 
+<!--
   PURPOSE: Document relationships with other specifications and external dependencies
   TIPS:
   - Include both internal and external dependencies
@@ -194,7 +196,7 @@ Scenario: {{Scenario description}}
 
 ## Data Model
 
-<!-- 
+<!--
   PURPOSE: Define data structures and relationships (if applicable)
   TIPS:
   - Include field names, types, and constraints
@@ -204,8 +206,8 @@ Scenario: {{Scenario description}}
 
 ### {{Entity Name}}
 
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
+| Field          | Type          | Constraints     | Description     |
+| -------------- | ------------- | --------------- | --------------- |
 | {{field-name}} | {{data-type}} | {{constraints}} | {{description}} |
 | {{field-name}} | {{data-type}} | {{constraints}} | {{description}} |
 | {{field-name}} | {{data-type}} | {{constraints}} | {{description}} |
@@ -217,7 +219,7 @@ Scenario: {{Scenario description}}
 
 ## API Specification (if applicable)
 
-<!-- 
+<!--
   PURPOSE: Define API endpoints and contracts (if applicable)
   TIPS:
   - Include HTTP methods, endpoints, and request/response formats
@@ -257,7 +259,7 @@ Scenario: {{Scenario description}}
 
 ## Implementation Notes
 
-<!-- 
+<!--
   PURPOSE: Provide technical guidance for implementation
   TIPS:
   - Include architectural considerations
@@ -276,7 +278,7 @@ Scenario: {{Scenario description}}
 
 ## Review and Approval
 
-<!-- 
+<!--
   PURPOSE: Document review and approval process
   TIPS:
   - Include review checklist
@@ -295,20 +297,20 @@ Scenario: {{Scenario description}}
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-epic-{{epic-name}}-{{sequence-number}}"
-title: "{{Epic Name}} Epic"
-type: "epic"
-category: "backlog"
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft"
-priority: "{{priority-level}}"
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}}
-actualEffort: {{hours}}
+id: 'spec-epic-{{epic-name}}-{{sequence-number}}'
+title: '{{Epic Name}} Epic'
+type: 'epic'
+category: 'backlog'
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft'
+priority: '{{priority-level}}'
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } }
+actualEffort: { { hours } }
 reviewers: []
 approvers: []
-tags: ["epic", "{{epic-category}}", "{{initiative}}"]
+tags: ['epic', '{{epic-category}}', '{{initiative}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{initiative-spec-id}}"
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"]
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
+parent: '{{initiative-spec-id}}'
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}']
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}']
 ---
 
 # {{Epic Name}} Epic
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the epic and its strategic importance
-  TIPS: 
+  TIPS:
   - Explain the strategic value and business impact
   - Describe how this epic aligns with organizational goals
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Epic Goals and Success Metrics
 
-<!-- 
+<!--
   PURPOSE: Define the strategic goals and success metrics for the epic
   TIPS:
   - Include both business and technical goals
@@ -70,7 +70,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Business Case
 
-<!-- 
+<!--
   PURPOSE: Document the business case for the epic
   TIPS:
   - Include cost-benefit analysis
@@ -95,10 +95,10 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Cost-Benefit Analysis
 
-| Cost Item | Estimated Cost | Benefit Item | Estimated Benefit |
-|------------|----------------|--------------|-------------------|
-| {{cost item}} | {{amount}} | {{benefit item}} | {{amount}} |
-| {{cost item}} | {{amount}} | {{benefit item}} | {{amount}} |
+| Cost Item     | Estimated Cost | Benefit Item     | Estimated Benefit |
+| ------------- | -------------- | ---------------- | ----------------- |
+| {{cost item}} | {{amount}}     | {{benefit item}} | {{amount}}        |
+| {{cost item}} | {{amount}}     | {{benefit item}} | {{amount}}        |
 
 ### ROI and Payback
 
@@ -108,7 +108,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## User Personas and Journey
 
-<!-- 
+<!--
   PURPOSE: Define user personas and their journey
   TIPS:
   - Include primary and secondary personas
@@ -144,7 +144,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Epic Scope
 
-<!-- 
+<!--
   PURPOSE: Define what is in and out of scope for the epic
   TIPS:
   - Be specific about boundaries
@@ -171,7 +171,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Child Specifications
 
-<!-- 
+<!--
   PURPOSE: List and describe child specifications
   TIPS:
   - Group child specs by functionality or phase
@@ -232,7 +232,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## High-Level Architecture
 
-<!-- 
+<!--
   PURPOSE: Provide high-level architectural overview
   TIPS:
   - Include architectural diagrams
@@ -261,7 +261,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Risks and Dependencies
 
-<!-- 
+<!--
   PURPOSE: Identify risks and dependencies
   TIPS:
   - Include technical, business, and operational risks
@@ -271,8 +271,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Risks
 
-| Risk | Probability | Impact | Mitigation Strategy | Owner |
-|------|-------------|--------|-------------------|-------|
+| Risk                 | Probability         | Impact              | Mitigation Strategy     | Owner          |
+| -------------------- | ------------------- | ------------------- | ----------------------- | -------------- |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 
@@ -295,7 +295,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Implementation Timeline
 
-<!-- 
+<!--
   PURPOSE: Define high-level implementation timeline
   TIPS:
   - Include major milestones
@@ -305,11 +305,11 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Major Milestones
 
-| Milestone | Target Date | Description | Dependencies |
-|-----------|-------------|-------------|--------------|
-| {{milestone 1}} | {{date}} | {{description}} | {{dependencies}} |
-| {{milestone 2}} | {{date}} | {{description}} | {{dependencies}} |
-| {{milestone 3}} | {{date}} | {{description}} | {{dependencies}} |
+| Milestone       | Target Date | Description     | Dependencies     |
+| --------------- | ----------- | --------------- | ---------------- |
+| {{milestone 1}} | {{date}}    | {{description}} | {{dependencies}} |
+| {{milestone 2}} | {{date}}    | {{description}} | {{dependencies}} |
+| {{milestone 3}} | {{date}}    | {{description}} | {{dependencies}} |
 
 ### Release Phases
 
@@ -326,7 +326,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Testing Strategy
 
-<!-- 
+<!--
   PURPOSE: Define high-level testing strategy
   TIPS:
   - Include testing types and approach
@@ -356,7 +356,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Release and Deployment
 
-<!-- 
+<!--
   PURPOSE: Define release and deployment strategy
   TIPS:
   - Consider release frequency and approach
@@ -384,7 +384,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Success Measurement
 
-<!-- 
+<!--
   PURPOSE: Define how success will be measured
   TIPS:
   - Include measurement methods and tools
@@ -411,7 +411,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Stakeholder Communication
 
-<!-- 
+<!--
   PURPOSE: Define stakeholder communication plan
   TIPS:
   - Include communication frequency and channels
@@ -428,8 +428,8 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Communication Plan
 
-| Audience | Frequency | Channel | Content |
-|----------|-----------|---------|---------|
+| Audience     | Frequency     | Channel     | Content          |
+| ------------ | ------------- | ----------- | ---------------- |
 | {{audience}} | {{frequency}} | {{channel}} | {{content type}} |
 | {{audience}} | {{frequency}} | {{channel}} | {{content type}} |
 
@@ -448,20 +448,20 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

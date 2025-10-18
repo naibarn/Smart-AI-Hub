@@ -460,14 +460,7 @@
       "spec": "SPEC-ID-kebab-case-name.md",
       "contracts": "api-spec.json"
     },
-    "metadata_requirements": [
-      "spec_id",
-      "title",
-      "type",
-      "status",
-      "business_domain",
-      "priority"
-    ],
+    "metadata_requirements": ["spec_id", "title", "type", "status", "business_domain", "priority"],
     "cross_reference_format": "[SPEC-ID](../folder/spec.md)"
   },
   "quality_checks": {

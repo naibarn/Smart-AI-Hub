@@ -272,7 +272,7 @@ export async function applyVisibilityFilters(
     return { users: [], total: 0 };
   }
 
-  let whereClause: any = {};
+  const whereClause: any = {};
 
   // Build visibility filter based on user tier
   switch (currentUser.tier) {

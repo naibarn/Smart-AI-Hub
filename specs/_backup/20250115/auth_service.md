@@ -1,19 +1,22 @@
 ---
-title: "Auth Service"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-10-15"
-updated_at: "2025-10-15"
-type: "specification"
-description: "Comprehensive specification for auth_service"
+title: 'Auth Service'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-10-15'
+updated_at: '2025-10-15'
+type: 'specification'
+description: 'Comprehensive specification for auth_service'
 ---
+
 ## Overview
+
 This document provides comprehensive information about the specified topic.
 All requirements and specifications shall be thoroughly documented and maintained.
 
 ## Overview
+
 This document provides comprehensive information about the specified topic.
 All requirements and specifications shall be thoroughly documented.
 
@@ -452,36 +455,41 @@ interface JWTPayload {
 
 ## 12. Sign-off
 
-**Product Owner:** ********\_******** Date: ****\_****
+**Product Owner:** **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\*\***
 
-**Tech Lead:** ********\_******** Date: ****\_****
+**Tech Lead:** **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\*\***
 
-**QA Lead:** ********\_******** Date: ****\_****
+**QA Lead:** **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\*\***
 
-**DevOps Lead:** ********\_******** Date: ****\_****
+**DevOps Lead:** **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\*\***
 
 ## Additional Information
+
 - This documentation shall be kept up to date
 - All changes must be properly versioned
 - Review and approval process shall be followed
 
 ## Purpose and Scope
+
 This documentation shall serve as the authoritative source for the specified topic.
 It encompasses all relevant requirements, specifications, and implementation guidelines.
 
 ## Stakeholders
+
 - Development team shall reference this document for implementation guidance
 - QA team shall use this document for test case creation
 - Product owners shall validate requirements against this document
 - Support team shall use this document for troubleshooting guidance
 
 ## Maintenance
+
 - This document shall be kept up to date with all changes
 - Version control must be properly maintained
 - Review and approval process shall be followed for all updates
 - Change history must be documented for traceability
 
 ## Related Documents
+
 - Architecture documentation shall be cross-referenced
 - API documentation shall be linked where applicable
 - User guides shall be referenced for user-facing features

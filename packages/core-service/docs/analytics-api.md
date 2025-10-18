@@ -27,6 +27,7 @@ Authorization: Bearer <your-jwt-token>
 Get comprehensive dashboard data including overview metrics, service breakdowns, model usage, time series data, and top users.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date (ISO 8601 format)
 - `endDate` (optional): Filter by end date (ISO 8601 format)
 - `service` (optional): Filter by specific service
@@ -34,6 +35,7 @@ Get comprehensive dashboard data including overview metrics, service breakdowns,
 - `userId` (optional): Filter by specific user ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -94,6 +96,7 @@ Get comprehensive dashboard data including overview metrics, service breakdowns,
 Get overall usage metrics with optional filtering.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `service` (optional): Filter by service
@@ -101,6 +104,7 @@ Get overall usage metrics with optional filtering.
 - `userId` (optional): Filter by user ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -122,11 +126,13 @@ Get overall usage metrics with optional filtering.
 Get usage breakdown by service.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `userId` (optional): Filter by user ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -156,12 +162,14 @@ Get usage breakdown by service.
 Get usage breakdown by AI model.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `service` (optional): Filter by service
 - `userId` (optional): Filter by user ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -191,6 +199,7 @@ Get usage breakdown by AI model.
 Get usage data over time with flexible grouping.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `service` (optional): Filter by service
@@ -199,6 +208,7 @@ Get usage data over time with flexible grouping.
 - `groupBy` (optional): Group by period (`day`, `week`, `month`). Default: `day`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -228,6 +238,7 @@ Get usage data over time with flexible grouping.
 Get users with highest usage.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `service` (optional): Filter by service
@@ -235,6 +246,7 @@ Get users with highest usage.
 - `limit` (optional): Number of users to return (1-100). Default: 10
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -258,6 +270,7 @@ Get users with highest usage.
 Export usage data as CSV file.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `service` (optional): Filter by service
@@ -267,11 +280,13 @@ Export usage data as CSV file.
 - `limit` (optional): Records per page (1-5000). Default: 1000
 
 **Response:**
+
 - Content-Type: `text/csv`
 - Content-Disposition: `attachment; filename="usage-data-YYYY-MM-DD.csv"`
 - X-Total-Count: Total number of records
 
 **CSV Format:**
+
 ```csv
 ID,User ID,Email,Service,Model,Tokens,Credits,Metadata,Created At
 uuid-123,user-123,user@example.com,mcp,gpt-4,100,50,"{""endpoint"":""/api/chat""}",2025-01-01T12:00:00Z
@@ -284,12 +299,14 @@ uuid-123,user-123,user@example.com,mcp,gpt-4,100,50,"{""endpoint"":""/api/chat""
 Get usage analytics for the authenticated user only.
 
 **Query Parameters:**
+
 - `startDate` (optional): Filter by start date
 - `endDate` (optional): Filter by end date
 - `service` (optional): Filter by service
 - `model` (optional): Filter by model
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -348,24 +365,26 @@ The analytics system automatically tracks usage through middleware. The followin
 ### Integration Points
 
 #### Credit Service Integration
+
 When credits are deducted via the credit service, usage is automatically recorded:
 
 ```typescript
 // This automatically records usage
 await creditService.deductCredits(userId, 'mcp', 100, {
   model: 'gpt-4',
-  tokens: 1000
+  tokens: 1000,
 });
 ```
 
 #### Manual Usage Recording
+
 For custom tracking, use the analytics service directly:
 
 ```typescript
 import { recordUsage } from '../services/analytics.service';
 
 await recordUsage(userId, 'custom-service', 'gpt-4', 1000, 100, {
-  customField: 'value'
+  customField: 'value',
 });
 ```
 
@@ -385,6 +404,7 @@ All endpoints return standardized error responses:
 ```
 
 Common error codes:
+
 - `UNAUTHORIZED`: Invalid or missing authentication token
 - `FORBIDDEN`: Insufficient permissions
 - `VALIDATION_ERROR`: Invalid query parameters
@@ -393,6 +413,7 @@ Common error codes:
 ## Rate Limiting
 
 Analytics endpoints are subject to rate limiting based on user roles:
+
 - Admin: Unlimited requests
 - Manager: 120 requests per minute
 - User: 60 requests per minute
@@ -412,6 +433,7 @@ Usage logs are retained according to the platform's data retention policy. Defau
 ## Monitoring
 
 The analytics service includes built-in monitoring:
+
 - Request timing tracking
 - Error rate monitoring
 - Database query performance

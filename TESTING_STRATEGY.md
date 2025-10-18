@@ -72,18 +72,21 @@ Implement quality gates at each stage of development:
 ```
 
 ### Unit Tests (70%)
+
 - Fast, isolated tests for individual functions and components
 - Mock external dependencies
 - Run on every commit
 - Provide immediate feedback
 
 ### Integration Tests (20%)
+
 - Test interactions between components
 - Use real databases and services
 - Verify data flow and communication
 - Run in CI/CD pipeline
 
 ### End-to-End Tests (10%)
+
 - Test complete user workflows
 - Use real browsers and environments
 - Simulate real user behavior
@@ -115,34 +118,34 @@ Verify quality attributes of the system:
 
 ### Backend Testing
 
-| Tool | Purpose | Version |
-|------|---------|---------|
-| Jest | Unit testing framework | 29.x |
-| Supertest | HTTP assertions | 6.x |
-| Prisma Test Client | Database testing | 5.x |
-| Sinon | Spies and mocks | 15.x |
-| Faker | Test data generation | 6.x |
-| Artillery | Performance testing | 2.x |
+| Tool               | Purpose                | Version |
+| ------------------ | ---------------------- | ------- |
+| Jest               | Unit testing framework | 29.x    |
+| Supertest          | HTTP assertions        | 6.x     |
+| Prisma Test Client | Database testing       | 5.x     |
+| Sinon              | Spies and mocks        | 15.x    |
+| Faker              | Test data generation   | 6.x     |
+| Artillery          | Performance testing    | 2.x     |
 
 ### Frontend Testing
 
-| Tool | Purpose | Version |
-|------|---------|---------|
-| Jest | Unit testing framework | 29.x |
-| React Testing Library | Component testing | 13.x |
-| Cypress | E2E testing | 12.x |
-| Playwright | E2E testing | 1.x |
-| Storybook | Component testing | 7.x |
-| Lighthouse | Performance testing | 10.x |
+| Tool                  | Purpose                | Version |
+| --------------------- | ---------------------- | ------- |
+| Jest                  | Unit testing framework | 29.x    |
+| React Testing Library | Component testing      | 13.x    |
+| Cypress               | E2E testing            | 12.x    |
+| Playwright            | E2E testing            | 1.x     |
+| Storybook             | Component testing      | 7.x     |
+| Lighthouse            | Performance testing    | 10.x    |
 
 ### Security Testing
 
-| Tool | Purpose | Version |
-|------|---------|---------|
-| OWASP ZAP | Security scanning | 2.x |
-| Snyk | Vulnerability scanning | 1.x |
-| Semgrep | Static analysis | 1.x |
-| Burp Suite | Penetration testing | 2023.x |
+| Tool       | Purpose                | Version |
+| ---------- | ---------------------- | ------- |
+| OWASP ZAP  | Security scanning      | 2.x     |
+| Snyk       | Vulnerability scanning | 1.x     |
+| Semgrep    | Static analysis        | 1.x     |
+| Burp Suite | Penetration testing    | 2023.x  |
 
 ## Test Environment Setup
 
@@ -154,23 +157,16 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testMatch: [
-    '<rootDir>/tests/**/*.test.ts',
-    '<rootDir>/src/**/*.test.ts'
-  ],
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/index.ts'
-  ],
+  testMatch: ['<rootDir>/tests/**/*.test.ts', '<rootDir>/src/**/*.test.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/index.ts'],
   coverageThreshold: {
     global: {
       branches: 80,
       functions: 80,
       lines: 80,
-      statements: 80
-    }
-  }
+      statements: 80,
+    },
+  },
 };
 ```
 
@@ -186,17 +182,17 @@ const prisma = new PrismaClient();
 beforeAll(async () => {
   // Set test database URL
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-  
+
   // Reset database
   execSync('npx prisma migrate reset --force --skip-seed', {
-    env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL }
+    env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL },
   });
-  
+
   // Run migrations
   execSync('npx prisma migrate deploy', {
-    env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL }
+    env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL },
   });
-  
+
   // Connect to test database
   await prisma.$connect();
 });
@@ -246,7 +242,7 @@ describe('UserService', () => {
         email: 'test@example.com',
         password: 'password123',
         firstName: 'John',
-        lastName: 'Doe'
+        lastName: 'Doe',
       };
 
       const expectedUser = {
@@ -255,7 +251,7 @@ describe('UserService', () => {
         firstName: userData.firstName,
         lastName: userData.lastName,
         role: 'user',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       mockUserRepository.findByEmail.mockResolvedValue(null);
@@ -273,7 +269,7 @@ describe('UserService', () => {
         password: expect.any(String), // Hashed password
         firstName: userData.firstName,
         lastName: userData.lastName,
-        role: 'user'
+        role: 'user',
       });
       expect(mockCreditService.createAccount).toHaveBeenCalledWith(expectedUser.id);
     });
@@ -284,7 +280,7 @@ describe('UserService', () => {
         email: 'existing@example.com',
         password: 'password123',
         firstName: 'John',
-        lastName: 'Doe'
+        lastName: 'Doe',
       };
 
       const existingUser = { id: 'user-456', email: userData.email };
@@ -317,7 +313,7 @@ describe('AuthController', () => {
       login: jest.fn(),
       register: jest.fn(),
       refreshToken: jest.fn(),
-      logout: jest.fn()
+      logout: jest.fn(),
     } as any;
 
     authController = new AuthController(mockAuthService);
@@ -328,7 +324,7 @@ describe('AuthController', () => {
       // Arrange
       const loginData = {
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       };
 
       const expectedResponse = {
@@ -336,27 +332,25 @@ describe('AuthController', () => {
           id: 'user-123',
           email: loginData.email,
           firstName: 'John',
-          lastName: 'Doe'
+          lastName: 'Doe',
         },
         tokens: {
           accessToken: 'access-token',
           refreshToken: 'refresh-token',
-          expiresIn: 3600
-        }
+          expiresIn: 3600,
+        },
       };
 
       mockAuthService.login.mockResolvedValue(expectedResponse);
 
       // Act
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginData);
+      const response = await request(app).post('/api/auth/login').send(loginData);
 
       // Assert
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         success: true,
-        data: expectedResponse
+        data: expectedResponse,
       });
       expect(mockAuthService.login).toHaveBeenCalledWith(loginData);
     });
@@ -365,15 +359,13 @@ describe('AuthController', () => {
       // Arrange
       const loginData = {
         email: 'test@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       };
 
       mockAuthService.login.mockRejectedValue(new Error('Invalid credentials'));
 
       // Act
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginData);
+      const response = await request(app).post('/api/auth/login').send(loginData);
 
       // Assert
       expect(response.status).toBe(401);
@@ -381,8 +373,8 @@ describe('AuthController', () => {
         success: false,
         error: {
           code: 'AUTHENTICATION_FAILED',
-          message: 'Invalid credentials'
-        }
+          message: 'Invalid credentials',
+        },
       });
     });
   });
@@ -408,25 +400,21 @@ describe('Authentication Integration Tests', () => {
         email: 'integration@example.com',
         password: 'password123',
         firstName: 'Integration',
-        lastName: 'Test'
+        lastName: 'Test',
       };
 
       // Register user
-      const registerResponse = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
+      const registerResponse = await request(app).post('/api/auth/register').send(userData);
 
       expect(registerResponse.status).toBe(201);
       expect(registerResponse.body.success).toBe(true);
       expect(registerResponse.body.data.user.email).toBe(userData.email);
 
       // Login with registered user
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: userData.email,
-          password: userData.password
-        });
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: userData.email,
+        password: userData.password,
+      });
 
       expect(loginResponse.status).toBe(200);
       expect(loginResponse.body.success).toBe(true);
@@ -434,7 +422,7 @@ describe('Authentication Integration Tests', () => {
 
       // Verify user in database
       const user = await prisma.user.findUnique({
-        where: { email: userData.email }
+        where: { email: userData.email },
       });
 
       expect(user).toBeTruthy();
@@ -451,19 +439,15 @@ describe('Authentication Integration Tests', () => {
         email: 'protected@example.com',
         password: 'password123',
         firstName: 'Protected',
-        lastName: 'Test'
+        lastName: 'Test',
       };
 
-      await request(app)
-        .post('/api/auth/register')
-        .send(userData);
+      await request(app).post('/api/auth/register').send(userData);
 
-      const loginResponse = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: userData.email,
-          password: userData.password
-        });
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: userData.email,
+        password: userData.password,
+      });
 
       authToken = loginResponse.body.data.tokens.accessToken;
     });
@@ -479,8 +463,7 @@ describe('Authentication Integration Tests', () => {
     });
 
     it('should reject protected route without token', async () => {
-      const response = await request(app)
-        .get('/api/users/me');
+      const response = await request(app).get('/api/users/me');
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -514,17 +497,17 @@ describe('Credit System Integration Tests', () => {
 
   beforeAll(async () => {
     creditService = new CreditService();
-    
+
     // Create test user
     const user = await prisma.user.create({
       data: {
         email: 'credit@example.com',
         passwordHash: 'hashedpassword',
         firstName: 'Credit',
-        lastName: 'Test'
-      }
+        lastName: 'Test',
+      },
     });
-    
+
     userId = user.id;
   });
 
@@ -584,9 +567,9 @@ describe('Credit System Integration Tests', () => {
       await creditService.createAccount(userId, initialBalance);
 
       // Try to deduct more than available
-      await expect(
-        creditService.deductCredits(userId, deductAmount)
-      ).rejects.toThrow('Insufficient credits');
+      await expect(creditService.deductCredits(userId, deductAmount)).rejects.toThrow(
+        'Insufficient credits'
+      );
     });
   });
 });
@@ -627,7 +610,9 @@ test.describe('User Registration and AI Model Usage Journey', () => {
     await page.click('[data-testid="purchase-submit"]');
 
     // Verify successful purchase
-    await expect(page.locator('[data-testid="success-message"]')).toContainText('Credits purchased successfully');
+    await expect(page.locator('[data-testid="success-message"]')).toContainText(
+      'Credits purchased successfully'
+    );
     await expect(page.locator('[data-testid="credit-balance"]')).toContainText('1000');
 
     // Navigate to AI model interface
@@ -654,12 +639,14 @@ test.describe('User Registration and AI Model Usage Journey', () => {
 
   test('should handle login with invalid credentials', async ({ page }) => {
     await page.goto('/login');
-    
+
     await page.fill('[data-testid="email-input"]', 'invalid@example.com');
     await page.fill('[data-testid="password-input"]', 'wrongpassword');
     await page.click('[data-testid="login-submit"]');
 
-    await expect(page.locator('[data-testid="error-message"]')).toContainText('Invalid credentials');
+    await expect(page.locator('[data-testid="error-message"]')).toContainText(
+      'Invalid credentials'
+    );
   });
 });
 ```
@@ -675,56 +662,56 @@ config:
   phases:
     - duration: 60
       arrivalRate: 10
-      name: "Warm up"
+      name: 'Warm up'
     - duration: 120
       arrivalRate: 50
-      name: "Ramp up load"
+      name: 'Ramp up load'
     - duration: 300
       arrivalRate: 100
-      name: "Sustained load"
-  processor: "./tests/performance/processor.js"
+      name: 'Sustained load'
+  processor: './tests/performance/processor.js'
 
 scenarios:
-  - name: "User Registration and Login"
+  - name: 'User Registration and Login'
     weight: 20
     flow:
       - post:
-          url: "/api/auth/register"
+          url: '/api/auth/register'
           json:
-            email: "{{ randomEmail() }}"
-            password: "Password123!"
-            firstName: "{{ randomFirstName() }}"
-            lastName: "{{ randomLastName() }}"
+            email: '{{ randomEmail() }}'
+            password: 'Password123!'
+            firstName: '{{ randomFirstName() }}'
+            lastName: '{{ randomLastName() }}'
           capture:
-            - json: "$.data.user.id"
-              as: "userId"
+            - json: '$.data.user.id'
+              as: 'userId'
 
-  - name: "AI Model Interaction"
+  - name: 'AI Model Interaction'
     weight: 80
     flow:
       - post:
-          url: "/api/auth/login"
+          url: '/api/auth/login'
           json:
-            email: "loadtest@example.com"
-            password: "Password123!"
+            email: 'loadtest@example.com'
+            password: 'Password123!'
           capture:
-            - json: "$.data.tokens.accessToken"
-              as: "authToken"
-      
+            - json: '$.data.tokens.accessToken'
+              as: 'authToken'
+
       - get:
-          url: "/api/mcp/models"
+          url: '/api/mcp/models'
           headers:
-            Authorization: "Bearer {{ authToken }}"
-      
+            Authorization: 'Bearer {{ authToken }}'
+
       - post:
-          url: "/api/mcp/chat/completions"
+          url: '/api/mcp/chat/completions'
           headers:
-            Authorization: "Bearer {{ authToken }}"
+            Authorization: 'Bearer {{ authToken }}'
           json:
-            model: "gpt-3.5-turbo"
+            model: 'gpt-3.5-turbo'
             messages:
-              - role: "user"
-                content: "Hello, this is a load test message"
+              - role: 'user'
+                content: 'Hello, this is a load test message'
 ```
 
 ### Performance Test Processor
@@ -742,7 +729,7 @@ module.exports = {
   },
   randomLastName() {
     return random.lastName();
-  }
+  },
 };
 ```
 
@@ -760,12 +747,10 @@ describe('Authentication Security Tests', () => {
     it('should prevent SQL injection in login', async () => {
       const maliciousInput = {
         email: "'; DROP TABLE users; --",
-        password: "password"
+        password: 'password',
       };
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(maliciousInput);
+      const response = await request(app).post('/api/auth/login').send(maliciousInput);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('validation');
@@ -776,12 +761,10 @@ describe('Authentication Security Tests', () => {
         email: 'xss@example.com',
         password: 'Password123!',
         firstName: '<script>alert("XSS")</script>',
-        lastName: 'Test'
+        lastName: 'Test',
       };
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(maliciousInput);
+      const response = await request(app).post('/api/auth/register').send(maliciousInput);
 
       expect(response.status).toBe(201);
       expect(response.body.data.user.firstName).not.toContain('<script>');
@@ -790,20 +773,17 @@ describe('Authentication Security Tests', () => {
     it('should enforce rate limiting on login attempts', async () => {
       const loginData = {
         email: 'ratelimit@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       };
 
       // Make multiple login attempts
-      const attempts = Array(10).fill(null).map(() =>
-        request(app)
-          .post('/api/auth/login')
-          .send(loginData)
-      );
+      const attempts = Array(10)
+        .fill(null)
+        .map(() => request(app).post('/api/auth/login').send(loginData));
 
       const results = await Promise.allSettled(attempts);
-      const rateLimited = results.some(result => 
-        result.status === 'fulfilled' && 
-        result.value.status === 429
+      const rateLimited = results.some(
+        (result) => result.status === 'fulfilled' && result.value.status === 429
       );
 
       expect(rateLimited).toBe(true);
@@ -851,7 +831,7 @@ describe('Auth Service API Contract', () => {
     port: 1234,
     log: './logs/pact.log',
     dir: './pacts',
-    logLevel: 'INFO'
+    logLevel: 'INFO',
   });
 
   beforeAll(async () => {
@@ -871,17 +851,17 @@ describe('Auth Service API Contract', () => {
           method: 'POST',
           path: '/api/auth/login',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: {
             email: 'test@example.com',
-            password: 'password123'
-          }
+            password: 'password123',
+          },
         },
         willRespondWith: {
           status: 200,
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: {
             success: true,
@@ -890,25 +870,25 @@ describe('Auth Service API Contract', () => {
                 id: Pact.like('user-123'),
                 email: 'test@example.com',
                 firstName: 'Test',
-                lastName: 'User'
+                lastName: 'User',
               },
               tokens: {
                 accessToken: Pact.like('jwt-token'),
                 refreshToken: Pact.like('refresh-token'),
-                expiresIn: Pact.like(3600)
-              }
-            }
-          }
-        }
+                expiresIn: Pact.like(3600),
+              },
+            },
+          },
+        },
       });
     });
 
     it('should return user data and tokens on successful login', async () => {
       const api = new API('http://localhost:1234');
-      
+
       const response = await api.login({
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       });
 
       expect(response.success).toBe(true);
@@ -940,7 +920,7 @@ const MockedLoginForm = () => (
 describe('LoginForm Component', () => {
   it('should render login form elements', () => {
     render(<MockedLoginForm />);
-    
+
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
@@ -949,10 +929,10 @@ describe('LoginForm Component', () => {
   it('should show validation errors for empty fields', async () => {
     const user = userEvent.setup();
     render(<MockedLoginForm />);
-    
+
     const loginButton = screen.getByRole('button', { name: /login/i });
     await user.click(loginButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/email is required/i)).toBeInTheDocument();
       expect(screen.getByText(/password is required/i)).toBeInTheDocument();
@@ -962,13 +942,13 @@ describe('LoginForm Component', () => {
   it('should show error for invalid email format', async () => {
     const user = userEvent.setup();
     render(<MockedLoginForm />);
-    
+
     const emailInput = screen.getByLabelText(/email/i);
     await user.type(emailInput, 'invalid-email');
-    
+
     const loginButton = screen.getByRole('button', { name: /login/i });
     await user.click(loginButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/invalid email format/i)).toBeInTheDocument();
     });
@@ -982,15 +962,15 @@ describe('LoginForm Component', () => {
 
     const user = userEvent.setup();
     render(<MockedLoginForm />);
-    
+
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/password/i);
     const loginButton = screen.getByRole('button', { name: /login/i });
-    
+
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
     await user.click(loginButton);
-    
+
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
         email: 'test@example.com',
@@ -1017,9 +997,9 @@ describe('Database Schema Tests', () => {
     // Set up test database
     process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
     execSync('npx prisma migrate deploy', {
-      env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL }
+      env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL },
     });
-    
+
     await prisma.$connect();
   });
 
@@ -1033,16 +1013,14 @@ describe('Database Schema Tests', () => {
         email: 'unique@example.com',
         passwordHash: 'hashedpassword',
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
 
       // Create first user
       await prisma.user.create({ data: userData });
 
       // Attempt to create second user with same email
-      await expect(
-        prisma.user.create({ data: userData })
-      ).rejects.toThrow();
+      await expect(prisma.user.create({ data: userData })).rejects.toThrow();
     });
 
     it('should enforce not null constraints', async () => {
@@ -1050,12 +1028,10 @@ describe('Database Schema Tests', () => {
         email: null,
         passwordHash: 'hashedpassword',
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
 
-      await expect(
-        prisma.user.create({ data: invalidUserData as any })
-      ).rejects.toThrow();
+      await expect(prisma.user.create({ data: invalidUserData as any })).rejects.toThrow();
     });
   });
 
@@ -1068,8 +1044,8 @@ describe('Database Schema Tests', () => {
           email: 'credit@example.com',
           passwordHash: 'hashedpassword',
           firstName: 'Credit',
-          lastName: 'Test'
-        }
+          lastName: 'Test',
+        },
       });
       userId = user.id;
     });
@@ -1078,24 +1054,20 @@ describe('Database Schema Tests', () => {
       const invalidCreditData = {
         userId: 'non-existent-user-id',
         balance: 1000,
-        currency: 'credits'
+        currency: 'credits',
       };
 
-      await expect(
-        prisma.creditAccount.create({ data: invalidCreditData })
-      ).rejects.toThrow();
+      await expect(prisma.creditAccount.create({ data: invalidCreditData })).rejects.toThrow();
     });
 
     it('should enforce balance cannot be negative', async () => {
       const creditData = {
         userId,
         balance: -100,
-        currency: 'credits'
+        currency: 'credits',
       };
 
-      await expect(
-        prisma.creditAccount.create({ data: creditData })
-      ).rejects.toThrow();
+      await expect(prisma.creditAccount.create({ data: creditData })).rejects.toThrow();
     });
   });
 });
@@ -1124,7 +1096,7 @@ export class UserFactory {
       emailVerified: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...overrides
+      ...overrides,
     };
 
     return prisma.user.create({ data: userData });
@@ -1147,7 +1119,7 @@ export class CreditAccountFactory {
       currency: 'credits',
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...overrides
+      ...overrides,
     };
 
     return prisma.creditAccount.create({ data: creditData });
@@ -1165,14 +1137,14 @@ name: Test Suite
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15
@@ -1186,7 +1158,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -1198,36 +1170,36 @@ jobs:
           - 6379:6379
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run database migrations
-      run: npx prisma migrate deploy
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
-    
-    - name: Run unit tests
-      run: npm run test:unit
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
-        REDIS_URL: redis://localhost:6379
-        JWT_SECRET: test-jwt-secret
-    
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
+
+      - name: Run unit tests
+        run: npm run test:unit
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
 
   integration-tests:
     runs-on: ubuntu-latest
     needs: unit-tests
-    
+
     services:
       postgres:
         image: postgres:15
@@ -1241,7 +1213,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -1253,67 +1225,67 @@ jobs:
           - 6379:6379
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run database migrations
-      run: npx prisma migrate deploy
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
-    
-    - name: Run integration tests
-      run: npm run test:integration
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
-        REDIS_URL: redis://localhost:6379
-        JWT_SECRET: test-jwt-secret
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartaihub_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
   e2e-tests:
     runs-on: ubuntu-latest
     needs: integration-tests
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Install Playwright
-      run: npx playwright install
-    
-    - name: Build application
-      run: npm run build
-    
-    - name: Start application
-      run: npm run start:test &
-    
-    - name: Wait for application to be ready
-      run: npx wait-on http://localhost:3000
-    
-    - name: Run E2E tests
-      run: npm run test:e2e
-    
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: playwright-report
-        path: playwright-report/
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application
+        run: npm run start:test &
+
+      - name: Wait for application to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
 ```
 
 ## Test Reporting and Metrics
@@ -1332,11 +1304,7 @@ jobs:
     "test:ci": "jest --ci --coverage --watchAll=false"
   },
   "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.d.ts",
-      "!src/index.ts"
-    ],
+    "collectCoverageFrom": ["src/**/*.ts", "!src/**/*.d.ts", "!src/index.ts"],
     "coverageThreshold": {
       "global": {
         "branches": 80,
@@ -1345,12 +1313,7 @@ jobs:
         "statements": 80
       }
     },
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html",
-      "json-summary"
-    ]
+    "coverageReporters": ["text", "lcov", "html", "json-summary"]
   }
 }
 ```
@@ -1371,12 +1334,12 @@ export class TestMetricsCollector {
       lines: 0,
       functions: 0,
       branches: 0,
-      statements: 0
+      statements: 0,
     },
     performance: {
       averageTestDuration: 0,
-      slowestTests: []
-    }
+      slowestTests: [],
+    },
   };
 
   collectTestResults(results: TestResult.AggregatedResult): void {
@@ -1384,28 +1347,28 @@ export class TestMetricsCollector {
     this.metrics.passedTests = results.numPassedTests;
     this.metrics.failedTests = results.numFailedTests;
     this.metrics.skippedTests = results.numPendingTests;
-    
+
     // Collect coverage data
     if (results.coverageMap) {
       this.collectCoverageMetrics(results.coverageMap);
     }
-    
+
     // Collect performance data
     this.collectPerformanceMetrics(results.testResults);
   }
 
   generateReport(): TestMetricsReport {
     const passRate = (this.metrics.passedTests / this.metrics.totalTests) * 100;
-    
+
     return {
       summary: {
         totalTests: this.metrics.totalTests,
         passRate,
         failRate: ((this.metrics.failedTests / this.metrics.totalTests) * 100).toFixed(2),
-        skipRate: ((this.metrics.skippedTests / this.metrics.totalTests) * 100).toFixed(2)
+        skipRate: ((this.metrics.skippedTests / this.metrics.totalTests) * 100).toFixed(2),
       },
       coverage: this.metrics.coverage,
-      performance: this.metrics.performance
+      performance: this.metrics.performance,
     };
   }
 

@@ -3,9 +3,11 @@ Create comprehensive Specification documents for Smart AI Hub's Multi-tier Hiera
 # Task: Week 1 - Complete Specification Documentation
 
 ## Objective
+
 Create and restructure all specification documents for Smart AI Hub to achieve Spec Kit Compliance ≥ 90%. This includes creating 2 new main specifications, 2 addendum documents, and restructuring 2 existing documents to meet Spec Kit standards.
 
 ## Context
+
 Smart AI Hub has implemented a Multi-tier User Hierarchy and Referral System with comprehensive security features. The backend implementation is complete, but formal specification documents are missing or non-compliant with Spec Kit standards. This task will create the missing documentation to ensure proper requirements documentation and compliance.
 
 ---
@@ -17,6 +19,7 @@ Smart AI Hub has implemented a Multi-tier User Hierarchy and Referral System wit
 Create a comprehensive specification document with all 16 Spec Kit sections covering the complete Multi-tier Hierarchy and Referral System.
 
 #### Required Sections (16 total)
+
 1. Overview
 2. Objectives
 3. User Stories (minimum 8 stories covering all tiers)
@@ -41,6 +44,7 @@ Create a comprehensive specification document with all 16 Spec Kit sections cove
 Document the complete hierarchy structure:
 
 **Tier 1: Administrator**
+
 - Highest privilege level
 - Can manage all users in the system
 - Can transfer Points/Credits to anyone
@@ -49,6 +53,7 @@ Document the complete hierarchy structure:
 - Can view all users (no visibility restrictions)
 
 **Tier 2: Agency**
+
 - Manages multiple Organizations
 - Can create and manage Organizations under them
 - Can transfer Points/Credits to their Organizations and General users
@@ -57,6 +62,7 @@ Document the complete hierarchy structure:
 - Can view: All Organizations under them + their Admins/Generals
 
 **Tier 3: Organization**
+
 - Manages Admins and General users within the organization
 - Can transfer Points/Credits to Admins and Generals in their org
 - Can block/unblock Admins and Generals in their org
@@ -64,6 +70,7 @@ Document the complete hierarchy structure:
 - Can view: All Admins and Generals in their organization only
 
 **Tier 4: Admin**
+
 - Manages General users within the same organization
 - Can transfer Points/Credits to Generals in same org only
 - Can block/unblock Generals in same org only
@@ -71,6 +78,7 @@ Document the complete hierarchy structure:
 - Can view: Only Generals in the same organization
 
 **Tier 5: General**
+
 - Regular user with basic privileges
 - Cannot transfer Points/Credits to others
 - Cannot block users
@@ -83,11 +91,13 @@ Document the complete hierarchy structure:
 Document the complete transfer functionality:
 
 **Transfer Types:**
+
 - Points transfer
 - Credits transfer
 - Combined transfer (both Points and Credits)
 
 **Authorization Rules:**
+
 - Administrator → Can transfer to anyone
 - Agency → Can transfer to their Organizations and any General
 - Organization → Can transfer to Admins and Generals in their org
@@ -95,6 +105,7 @@ Document the complete transfer functionality:
 - General → Cannot transfer (no permission)
 
 **Transfer Validation:**
+
 - Check sufficient balance (Points/Credits)
 - Check authorization (can sender transfer to recipient?)
 - Check visibility (can sender see recipient?)
@@ -102,6 +113,7 @@ Document the complete transfer functionality:
 - Check recipient account status (not blocked)
 
 **Transfer Process:**
+
 - Atomic database transaction
 - Deduct from sender
 - Add to recipient
@@ -114,17 +126,20 @@ Document the complete transfer functionality:
 Document the complete referral functionality:
 
 **Invite Code Generation:**
+
 - Unique code per user
 - Format: 8 characters alphanumeric
 - Never expires
 - Can be regenerated
 
 **Invite Link:**
+
 - Format: `https://smartaihub.com/register?invite={code}`
 - Shareable via social media, email, QR code
 - Tracks referrer automatically
 
 **Referral Rewards:**
+
 - **Agency-configured rewards:**
   - Organization signup reward (Points)
   - Admin signup reward (Points)
@@ -134,6 +149,7 @@ Document the complete referral functionality:
 - **Reward tracking:** Recorded in ReferralReward table
 
 **Referral Statistics:**
+
 - Total referrals count
 - Active referrals count
 - Total rewards earned
@@ -144,6 +160,7 @@ Document the complete referral functionality:
 Document the complete block functionality:
 
 **Block Authorization:**
+
 - Administrator → Can block anyone
 - Agency → Can block their Organizations, Admins, Generals
 - Organization → Can block their Admins and Generals
@@ -151,6 +168,7 @@ Document the complete block functionality:
 - General → Cannot block anyone
 
 **Block Effects:**
+
 - User cannot login
 - User cannot use API
 - User cannot receive transfers
@@ -158,11 +176,13 @@ Document the complete block functionality:
 - User's active sessions terminated
 
 **Unblock:**
+
 - Same authorization rules as block
 - Restores all access
 - Logged in BlockLog table
 
 **Block Logging:**
+
 - Who blocked whom
 - When blocked
 - Reason for block
@@ -174,15 +194,16 @@ Document the complete visibility system:
 
 **Visibility Matrix:**
 
-| User Tier | Can View |
-|-----------|----------|
-| Administrator | All users in system |
-| Agency | Organizations under them + their Admins/Generals |
-| Organization | Admins and Generals in their organization |
-| Admin | Generals in same organization |
-| General | Only themselves |
+| User Tier     | Can View                                         |
+| ------------- | ------------------------------------------------ |
+| Administrator | All users in system                              |
+| Agency        | Organizations under them + their Admins/Generals |
+| Organization  | Admins and Generals in their organization        |
+| Admin         | Generals in same organization                    |
+| General       | Only themselves                                  |
 
 **Visibility Enforcement:**
+
 - Middleware: `visibilityCheckRaw.ts`
 - Applied to ALL relevant API endpoints
 - Filters query results based on user tier
@@ -190,6 +211,7 @@ Document the complete visibility system:
 - Prevents data leakage
 
 **Critical Security Requirements:**
+
 - Agency A CANNOT see Agency B's data
 - Organization A CANNOT see Organization B's data
 - Admin CANNOT see users outside their org
@@ -203,39 +225,40 @@ Create comprehensive authorization tables:
 
 **Transfer Authorization:**
 
-| From Tier | To Administrator | To Agency | To Organization | To Admin | To General |
-|-----------|------------------|-----------|-----------------|----------|------------|
-| Administrator | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Agency | ❌ | ❌ | ✅ (own) | ❌ | ✅ |
-| Organization | ❌ | ❌ | ❌ | ✅ (own) | ✅ (own) |
-| Admin | ❌ | ❌ | ❌ | ❌ | ✅ (own org) |
-| General | ❌ | ❌ | ❌ | ❌ | ❌ |
+| From Tier     | To Administrator | To Agency | To Organization | To Admin | To General   |
+| ------------- | ---------------- | --------- | --------------- | -------- | ------------ |
+| Administrator | ✅               | ✅        | ✅              | ✅       | ✅           |
+| Agency        | ❌               | ❌        | ✅ (own)        | ❌       | ✅           |
+| Organization  | ❌               | ❌        | ❌              | ✅ (own) | ✅ (own)     |
+| Admin         | ❌               | ❌        | ❌              | ❌       | ✅ (own org) |
+| General       | ❌               | ❌        | ❌              | ❌       | ❌           |
 
 **Block Authorization:**
 
-| Blocker Tier | Can Block |
-|--------------|-----------|
-| Administrator | All users |
-| Agency | Organizations (own), Admins (under own orgs), Generals (under own orgs) |
-| Organization | Admins (own org), Generals (own org) |
-| Admin | Generals (own org) |
-| General | None |
+| Blocker Tier  | Can Block                                                               |
+| ------------- | ----------------------------------------------------------------------- |
+| Administrator | All users                                                               |
+| Agency        | Organizations (own), Admins (under own orgs), Generals (under own orgs) |
+| Organization  | Admins (own org), Generals (own org)                                    |
+| Admin         | Generals (own org)                                                      |
+| General       | None                                                                    |
 
 **API Access Authorization:**
 
-| Endpoint | Administrator | Agency | Organization | Admin | General |
-|----------|---------------|--------|--------------|-------|---------|
-| GET /api/v1/hierarchy/members | ✅ | ✅ | ✅ | ✅ | ❌ |
-| POST /api/v1/transfer | ✅ | ✅ | ✅ | ✅ | ❌ |
-| POST /api/v1/block | ✅ | ✅ | ✅ | ✅ | ❌ |
-| GET /api/v1/referral/stats | ✅ | ✅ | ✅ | ✅ | ✅ |
-| POST /api/v1/referral/invite | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Endpoint                      | Administrator | Agency | Organization | Admin | General |
+| ----------------------------- | ------------- | ------ | ------------ | ----- | ------- |
+| GET /api/v1/hierarchy/members | ✅            | ✅     | ✅           | ✅    | ❌      |
+| POST /api/v1/transfer         | ✅            | ✅     | ✅           | ✅    | ❌      |
+| POST /api/v1/block            | ✅            | ✅     | ✅           | ✅    | ❌      |
+| GET /api/v1/referral/stats    | ✅            | ✅     | ✅           | ✅    | ✅      |
+| POST /api/v1/referral/invite  | ✅            | ✅     | ✅           | ✅    | ✅      |
 
 #### Database Schema
 
 Document the following tables:
 
 **User Fields:**
+
 - `tier` (enum: administrator, agency, organization, admin, general)
 - `agencyId` (reference to parent Agency)
 - `organizationId` (reference to parent Organization)
@@ -244,25 +267,31 @@ Document the following tables:
 - `referrerId` (reference to referrer User)
 
 **Transfer Table:**
+
 - id, fromUserId, toUserId, type (points/credits), amount, status, createdAt
 
 **ReferralReward Table:**
+
 - id, referrerId, referredUserId, rewardType, rewardAmount, createdAt
 
 **AgencyReferralConfig Table:**
+
 - id, agencyId, organizationSignupReward, adminSignupReward, generalSignupReward
 
 **BlockLog Table:**
+
 - id, blockedUserId, blockedByUserId, reason, blockedAt, unblockedAt
 
 #### API Specifications
 
 Document all endpoints from:
+
 - `hierarchy.controller.ts`
 - `referral.controller.ts`
 - `transfer.controller.ts`
 
 Include:
+
 - Endpoint path and method
 - Request parameters
 - Request body schema
@@ -274,6 +303,7 @@ Include:
 #### Security Considerations
 
 Must include:
+
 - Visibility middleware implementation
 - Authorization checks at every endpoint
 - Input validation and sanitization
@@ -287,6 +317,7 @@ Must include:
 #### Reference Files
 
 Use these existing files as reference:
+
 - `/home/ubuntu/smart-ai-hub-latest/packages/core-service/src/controllers/hierarchy.controller.ts`
 - `/home/ubuntu/smart-ai-hub-latest/packages/core-service/src/controllers/referral.controller.ts`
 - `/home/ubuntu/smart-ai-hub-latest/packages/core-service/src/controllers/transfer.controller.ts`
@@ -299,6 +330,7 @@ Use these existing files as reference:
 **File:** `spec_multi_tier_hierarchy_referral.md`
 
 **Requirements:**
+
 - ✅ All 16 Spec Kit sections
 - ✅ Comprehensive coverage of all 6 features
 - ✅ Authorization Matrix tables
@@ -323,32 +355,31 @@ Create a focused addendum document specifically for User Visibility Rules.
 
 Comprehensive table showing what each tier can see:
 
-| Viewer Tier | Can View | Cannot View | Conditions |
-|-------------|----------|-------------|------------|
-| Administrator | All users | None | No restrictions |
-| Agency | Own Organizations + their members | Other Agencies, Other Organizations | Must be under same Agency |
-| Organization | Own Admins + Generals | Other Organizations, Other Agencies | Must be in same Organization |
-| Admin | Generals in same org | Users outside org | Must be in same Organization |
-| General | Self only | All other users | No access to member lists |
+| Viewer Tier   | Can View                          | Cannot View                         | Conditions                   |
+| ------------- | --------------------------------- | ----------------------------------- | ---------------------------- |
+| Administrator | All users                         | None                                | No restrictions              |
+| Agency        | Own Organizations + their members | Other Agencies, Other Organizations | Must be under same Agency    |
+| Organization  | Own Admins + Generals             | Other Organizations, Other Agencies | Must be in same Organization |
+| Admin         | Generals in same org              | Users outside org                   | Must be in same Organization |
+| General       | Self only                         | All other users                     | No access to member lists    |
 
 ##### 2. Authorization Checks
 
 Document the `checkUserVisibility()` function:
 
 ```typescript
-async function checkUserVisibility(
-  viewerId: string,
-  targetUserId: string
-): Promise<boolean>
+async function checkUserVisibility(viewerId: string, targetUserId: string): Promise<boolean>;
 ```
 
 **Logic:**
+
 - Get viewer's tier and hierarchy info
 - Get target's tier and hierarchy info
 - Apply visibility rules based on tier
 - Return true if viewer can see target, false otherwise
 
 **Implementation Details:**
+
 - Used as middleware in API routes
 - Applied before database queries
 - Filters results in list endpoints
@@ -357,6 +388,7 @@ async function checkUserVisibility(
 ##### 3. Security Considerations
 
 **Critical Security Requirements:**
+
 - All visibility checks MUST be server-side
 - Never trust client-side filtering
 - Apply visibility to ALL user-related endpoints
@@ -365,6 +397,7 @@ async function checkUserVisibility(
 - Rate limit failed visibility checks
 
 **Threat Scenarios:**
+
 - Agency A trying to view Agency B's data
 - Organization trying to view users outside their org
 - Admin trying to access other organizations
@@ -372,6 +405,7 @@ async function checkUserVisibility(
 - API manipulation to bypass visibility
 
 **Mitigations:**
+
 - Middleware on every endpoint
 - Database-level filtering
 - Response sanitization
@@ -384,18 +418,21 @@ async function checkUserVisibility(
 Provide comprehensive test scenarios:
 
 **Positive Tests:**
+
 - Administrator can view any user
 - Agency can view their Organizations
 - Organization can view their Admins
 - Admin can view Generals in same org
 
 **Negative Tests:**
+
 - Agency CANNOT view other Agencies
 - Organization CANNOT view other Organizations
 - Admin CANNOT view users outside org
 - General CANNOT view member lists
 
 **Edge Cases:**
+
 - User changes tier (visibility updates)
 - User moves to different org (visibility updates)
 - User gets blocked (visibility maintained)
@@ -406,6 +443,7 @@ Provide comprehensive test scenarios:
 **File:** `user_visibility_rules_addendum.md`
 
 **Requirements:**
+
 - ✅ Comprehensive Visibility Matrix
 - ✅ Detailed authorization logic
 - ✅ Security threat analysis
@@ -424,6 +462,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ##### 1. Auto Top-up Logic
 
 **Trigger Condition:**
+
 - Check Points balance after every Points deduction
 - If Points ≤ threshold (default: 10), trigger auto top-up
 - Configurable threshold per user or system-wide
@@ -444,6 +483,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ```
 
 **Exchange Rate:**
+
 - Default: 1 Credit = 1,000 Points
 - Configurable via ExchangeRate table
 - Admin can update exchange rate
@@ -452,17 +492,20 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ##### 2. Configuration Options
 
 **System-wide Configuration:**
+
 - `AUTO_TOPUP_ENABLED` (boolean, default: true)
 - `AUTO_TOPUP_THRESHOLD` (number, default: 10)
 - `AUTO_TOPUP_AMOUNT_CREDITS` (number, default: 1)
 - `AUTO_TOPUP_EXCHANGE_RATE` (number, default: 1000)
 
 **User-level Configuration:**
+
 - User can enable/disable auto top-up
 - User can set custom threshold (if allowed)
 - User preferences stored in UserSettings table
 
 **Admin Configuration:**
+
 - Admin can enable/disable system-wide
 - Admin can set default threshold
 - Admin can set exchange rate
@@ -471,12 +514,14 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ##### 3. Edge Cases
 
 **Scenario 1: Insufficient Credits**
+
 - User has Points ≤ 10
 - User has 0 Credits
 - **Result:** Auto top-up does NOT trigger
 - **Action:** User notified to purchase Credits
 
 **Scenario 2: Disabled Auto Top-up**
+
 - User has Points ≤ 10
 - User has Credits ≥ 1
 - Auto top-up is disabled
@@ -484,6 +529,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 - **Action:** User continues with low Points
 
 **Scenario 3: Multiple Rapid Deductions**
+
 - User makes 3 rapid service calls
 - Each deducts 5 Points
 - Points drop from 20 → 15 → 10 → 5
@@ -491,6 +537,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 - **Prevention:** Use database locks to prevent race conditions
 
 **Scenario 4: Exchange Rate Changes**
+
 - User triggers auto top-up
 - Exchange rate is 1:1000
 - Admin changes rate to 1:1500 during transaction
@@ -498,6 +545,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 - **Prevention:** Use transaction isolation
 
 **Scenario 5: Concurrent Auto Top-ups**
+
 - Two service calls happen simultaneously
 - Both check Points ≤ 10
 - Both try to trigger auto top-up
@@ -507,18 +555,21 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ##### 4. Test Scenarios
 
 **Unit Tests:**
+
 - Test auto top-up trigger logic
 - Test exchange rate application
 - Test transaction atomicity
 - Test notification sending
 
 **Integration Tests:**
+
 - Test auto top-up with real database
 - Test concurrent auto top-up prevention
 - Test exchange rate changes during transaction
 - Test insufficient Credits scenario
 
 **E2E Tests:**
+
 - User uses service → Points drop → Auto top-up triggers
 - User disables auto top-up → Points drop → No auto top-up
 - User has no Credits → Points drop → No auto top-up
@@ -529,6 +580,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 **File:** `auto_topup_feature_addition.md`
 
 **Requirements:**
+
 - ✅ Detailed auto top-up logic
 - ✅ Configuration options documented
 - ✅ All edge cases covered
@@ -543,11 +595,13 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ### Task 3.1: Restructure HIERARCHY_SYSTEM_IMPLEMENTATION.md
 
 **Current State:**
+
 - Implementation-focused document
 - Missing many Spec Kit sections
 - ~35% Spec Kit compliance
 
 **Required Changes:**
+
 1. Add missing sections to reach 16 total
 2. Reorganize content to match Spec Kit structure
 3. Add User Stories section
@@ -558,6 +612,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 8. Improve writing style (paragraphs, not bullets)
 
 **Deliverable:**
+
 - ✅ Updated `HIERARCHY_SYSTEM_IMPLEMENTATION.md`
 - ✅ All 16 Spec Kit sections present
 - ✅ Spec Kit compliance ≥ 90%
@@ -567,11 +622,13 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ### Task 3.2: Restructure kilocode_hierarchy_referral_prompt_v2_secure.md
 
 **Current State:**
+
 - Prompt-style document
 - Missing many Spec Kit sections
 - ~40% Spec Kit compliance
 
 **Required Changes:**
+
 1. Convert from prompt format to specification format
 2. Add missing sections to reach 16 total
 3. Add User Stories section
@@ -582,6 +639,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 8. Improve writing style (paragraphs, not bullets)
 
 **Deliverable:**
+
 - ✅ Updated `kilocode_hierarchy_referral_prompt_v2_secure.md`
 - ✅ All 16 Spec Kit sections present
 - ✅ Spec Kit compliance ≥ 90%
@@ -591,6 +649,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 ## Quality Standards
 
 ### Writing Style
+
 - Use professional, academic writing style
 - Write in complete paragraphs, not bullet points (except for lists and tables)
 - Use tables to organize and compare information
@@ -600,6 +659,7 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 - Use Mermaid diagrams where appropriate
 
 ### Completeness
+
 - Each section must be comprehensive and detailed
 - Include specific numbers, thresholds, and limits
 - Provide concrete examples for each feature
@@ -607,12 +667,14 @@ Create a focused addendum document specifically for Auto Top-up Feature.
 - Cover all user tiers and their permissions
 
 ### Accuracy
+
 - Align with existing implementation in the codebase
 - Reference actual database tables and API endpoints
 - Use correct technical terminology
 - Ensure consistency across all documents
 
 ### Spec Kit Compliance
+
 - All documents must have 16 sections
 - Each section must be substantial (not just placeholders)
 - Follow Spec Kit format and structure
@@ -639,21 +701,25 @@ The Week 1 task is considered complete when:
 ## Instructions for Kilo Code
 
 ### Step 1: Read Reference Materials
+
 1. Read all existing implementation files
 2. Read existing documentation files
 3. Read Spec Kit example (`spec_example_good.md`)
 4. Understand the current system architecture
 
 ### Step 2: Create New Specifications
+
 1. Create `spec_multi_tier_hierarchy_referral.md` with all 16 sections
 2. Create `user_visibility_rules_addendum.md` with focused content
 3. Create `auto_topup_feature_addition.md` with focused content
 
 ### Step 3: Restructure Existing Documents
+
 1. Update `HIERARCHY_SYSTEM_IMPLEMENTATION.md` to Spec Kit format
 2. Update `kilocode_hierarchy_referral_prompt_v2_secure.md` to Spec Kit format
 
 ### Step 4: Validate
+
 1. Ensure all documents have 16 sections
 2. Check writing style and formatting
 3. Verify technical accuracy
@@ -661,6 +727,7 @@ The Week 1 task is considered complete when:
 5. Confirm compliance ≥ 90%
 
 ### Step 5: Save Files
+
 1. Save all files in the project root directory
 2. Use exact file names as specified
 3. Use Markdown format (.md extension)
@@ -709,4 +776,3 @@ At the end of Week 1, the following files should be ready:
 ## Output
 
 Please create all specification documents and confirm when complete. The documents should be ready for review and approval by the product team.
-

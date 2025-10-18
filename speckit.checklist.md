@@ -4,7 +4,7 @@
 **Date**: October 14, 2025  
 **Purpose**: Comprehensive checklist for Phase 1 completion  
 **Current Progress**: 48.1% (13/27 tasks completed)  
-**Target MVP Launch**: November 3, 2025  
+**Target MVP Launch**: November 3, 2025
 
 ---
 
@@ -19,6 +19,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ### P0 - Critical Tasks (Must Complete for MVP)
 
 #### 1. Credit Top-up System (Stripe)
+
 **Status**: 📋 Not Started  
 **Priority**: P0 (Critical)  
 **Timeline**: 5-7 days  
@@ -26,6 +27,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Credit Account System ✅
 
 **Implementation Steps**:
+
 - [ ] Install Stripe SDK: `npm install stripe`
 - [ ] Create payment service (`packages/core-service/src/services/payment.service.ts`)
 - [ ] Define credit packages (Starter: 100 credits/$10, Pro: 1000 credits/$80, Business: 10000 credits/$600)
@@ -36,12 +38,14 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Test payment flow in Stripe test mode
 
 **Acceptance Criteria**:
+
 - Users can purchase credits via Stripe checkout
 - Credits are added atomically after successful payment
 - Webhook events are processed securely with signature verification
 - Payment history is tracked and retrievable
 
 **Files to Create/Modify**:
+
 - `packages/core-service/src/services/payment.service.ts`
 - `packages/core-service/src/routes/payment.routes.ts`
 - `packages/core-service/src/index.ts`
@@ -49,6 +53,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 2. Production Deployment Setup
+
 **Status**: 📋 Not Started  
 **Priority**: P0 (Critical)  
 **Timeline**: 3-5 days  
@@ -56,6 +61,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: All core services
 
 **Implementation Steps**:
+
 - [ ] Create production Docker Compose file (`docker-compose.prod.yml`)
 - [ ] Configure Nginx for production (`nginx/nginx.conf`)
 - [ ] Set up SSL certificate automation with Let's Encrypt
@@ -66,6 +72,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Test deployment to staging environment
 
 **Acceptance Criteria**:
+
 - SSL certificates auto-renew
 - Services run in cluster mode with PM2
 - Automated deployment pipeline works
@@ -73,6 +80,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Zero-downtime deployment possible
 
 **Files to Create/Modify**:
+
 - `docker-compose.prod.yml`
 - `nginx/nginx.conf`
 - `scripts/deploy-production.sh`
@@ -81,6 +89,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 3. SSL Certificate Configuration
+
 **Status**: 📋 Not Started  
 **Priority**: P0 (Critical)  
 **Timeline**: 1 day  
@@ -88,6 +97,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Production domain
 
 **Implementation Steps**:
+
 - [ ] Install Certbot: `sudo apt install certbot python3-certbot-nginx`
 - [ ] Obtain SSL certificate: `sudo certbot --nginx -d smartaihub.com`
 - [ ] Set up auto-renewal cron job
@@ -95,6 +105,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Configure Nginx to use SSL certificates
 
 **Acceptance Criteria**:
+
 - SSL certificate installed and valid
 - HTTPS redirects working properly
 - Auto-renewal configured
@@ -105,6 +116,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ### P1 - High Priority Tasks (Core MVP Features)
 
 #### 4. Claude Integration (Anthropic SDK)
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 2-3 days  
@@ -112,6 +124,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: MCP Server Foundation ✅
 
 **Implementation Steps**:
+
 - [ ] Install Anthropic SDK: `npm install @anthropic-ai/sdk`
 - [ ] Create Claude provider (`packages/mcp-server/src/providers/claude.provider.ts`)
 - [ ] Implement message conversion between formats
@@ -121,12 +134,14 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Add error handling and rate limiting
 
 **Acceptance Criteria**:
+
 - Claude API integration working for all models
 - Streaming responses functional
 - Credits are deducted correctly based on usage
 - Fallback to other providers on failure
 
 **Files to Create/Modify**:
+
 - `packages/mcp-server/src/providers/claude.provider.ts`
 - `packages/mcp-server/src/services/provider.manager.ts`
 - `packages/mcp-server/src/config/config.ts`
@@ -134,6 +149,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 5. MCP Authentication & Authorization
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 2-3 days  
@@ -141,6 +157,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Authentication System ✅
 
 **Implementation Steps**:
+
 - [ ] Create MCP auth middleware (`packages/mcp-server/src/middleware/auth.middleware.ts`)
 - [ ] Implement WebSocket authentication
 - [ ] Add permission checks for AI services
@@ -149,12 +166,14 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Test authorization with different user roles
 
 **Acceptance Criteria**:
+
 - All MCP endpoints require authentication
 - Role-based access control enforced
 - Credit validation prevents negative balances
 - Usage is tracked for billing
 
 **Files to Create/Modify**:
+
 - `packages/mcp-server/src/middleware/auth.middleware.ts`
 - `packages/mcp-server/src/websocket/server.ts`
 - `packages/mcp-server/src/utils/usage.tracker.ts`
@@ -162,6 +181,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 6. Authentication UI (Login/Register)
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 3-4 days  
@@ -169,6 +189,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: React App Setup 🔄
 
 **Implementation Steps**:
+
 - [ ] Create auth store with Redux Toolkit (`packages/frontend/src/store/authSlice.ts`)
 - [ ] Build login page component (`packages/frontend/src/pages/LoginPage.tsx`)
 - [ ] Build registration page component (`packages/frontend/src/pages/RegisterPage.tsx`)
@@ -179,6 +200,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Add loading states and error handling
 
 **Acceptance Criteria**:
+
 - Complete authentication flow (register → verify → login)
 - Google OAuth integration working
 - Form validation prevents invalid submissions
@@ -186,6 +208,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Accessibility features implemented
 
 **Files to Create/Modify**:
+
 - `packages/frontend/src/store/authSlice.ts`
 - `packages/frontend/src/pages/LoginPage.tsx`
 - `packages/frontend/src/pages/RegisterPage.tsx`
@@ -195,6 +218,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 7. Dashboard UI (Credits/Usage)
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 4-5 days  
@@ -202,6 +226,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Authentication UI
 
 **Implementation Steps**:
+
 - [ ] Create dashboard layout component (`packages/frontend/src/components/DashboardLayout.tsx`)
 - [ ] Build credit balance widget
 - [ ] Create transaction history interface
@@ -212,6 +237,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Implement responsive design
 
 **Acceptance Criteria**:
+
 - Dashboard displays current credit balance
 - Transaction history with pagination
 - Usage statistics with charts
@@ -219,6 +245,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Mobile-responsive design
 
 **Files to Create/Modify**:
+
 - `packages/frontend/src/components/DashboardLayout.tsx`
 - `packages/frontend/src/pages/DashboardPage.tsx`
 - `packages/frontend/src/components/CreditBalance.tsx`
@@ -228,6 +255,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 8. CI/CD Pipeline Setup
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 2-3 days  
@@ -235,6 +263,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Testing Implementation
 
 **Implementation Steps**:
+
 - [ ] Create GitHub Actions workflow (`.github/workflows/ci-cd.yml`)
 - [ ] Set up automated testing on push/PR
 - [ ] Configure Docker image building
@@ -244,6 +273,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Configure notifications for build status
 
 **Acceptance Criteria**:
+
 - All tests run automatically on code changes
 - Docker images built and pushed to registry
 - Staging environment updated automatically
@@ -251,6 +281,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Failed deployments trigger automatic rollback
 
 **Files to Create/Modify**:
+
 - `.github/workflows/ci-cd.yml`
 - `scripts/build.sh`
 - `scripts/deploy-staging.sh`
@@ -258,6 +289,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 9. Logging Infrastructure
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 2 days  
@@ -265,6 +297,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: None
 
 **Implementation Steps**:
+
 - [ ] Install Winston logger: `npm install winston`
 - [ ] Create logger configuration (`packages/shared/src/logger.ts`)
 - [ ] Add structured logging to all services
@@ -274,6 +307,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Configure error tracking
 
 **Acceptance Criteria**:
+
 - All services use structured logging
 - Logs include correlation IDs for request tracing
 - Log levels appropriate for environment
@@ -281,6 +315,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Log rotation prevents disk space issues
 
 **Files to Create/Modify**:
+
 - `packages/shared/src/logger.ts`
 - `packages/*/src/middleware/logging.middleware.ts`
 - `packages/*/src/utils/logger.ts`
@@ -288,6 +323,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 10. Testing Implementation
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 4-5 days  
@@ -295,6 +331,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: All services
 
 **Implementation Steps**:
+
 - [ ] Install testing dependencies: `npm install --save-dev jest @types/jest ts-jest supertest @types/supertest`
 - [ ] Create Jest configuration (`jest.config.js`)
 - [ ] Set up test database configuration
@@ -305,6 +342,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Add tests to CI/CD pipeline
 
 **Acceptance Criteria**:
+
 - 80%+ code coverage across all services
 - All critical user flows tested
 - Tests run in CI/CD pipeline
@@ -312,6 +350,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Test results reported and tracked
 
 **Files to Create/Modify**:
+
 - `jest.config.js`
 - `test-setup.ts`
 - `packages/*/src/__tests__/**/*.test.ts`
@@ -320,6 +359,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 11. Usage Analytics (FR-5)
+
 **Status**: 📋 Not Started  
 **Priority**: P1 (High)  
 **Timeline**: 3 days  
@@ -327,6 +367,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: MCP Authentication & Authorization
 
 **Implementation Steps**:
+
 - [ ] Create usage log service (`packages/core-service/src/services/usage.service.ts`)
 - [ ] Implement usage tracking middleware
 - [ ] Add analytics endpoints for admins
@@ -336,6 +377,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Implement usage alerts
 
 **Acceptance Criteria**:
+
 - All API usage tracked and logged
 - Usage data aggregated for reporting
 - Admin can view user usage statistics
@@ -343,6 +385,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - Usage alerts configured
 
 **Files to Create/Modify**:
+
 - `packages/core-service/src/services/usage.service.ts`
 - `packages/core-service/src/routes/usage.routes.ts`
 - `packages/frontend/src/components/UsageAnalytics.tsx`
@@ -352,6 +395,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ### P2 - Medium Priority Tasks (Enhancement Features)
 
 #### 12. Admin Credit Management
+
 **Status**: 📋 Not Started  
 **Priority**: P2 (Medium)  
 **Timeline**: 2-3 days  
@@ -359,6 +403,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Credit Top-up System
 
 **Implementation Steps**:
+
 - [ ] Create admin credit adjustment API
 - [ ] Implement bulk credit operations
 - [ ] Add credit adjustment approval workflow
@@ -366,6 +411,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Build admin interface for credit management
 
 **Acceptance Criteria**:
+
 - Admins can adjust user credits
 - Bulk operations supported
 - All changes audited and logged
@@ -374,6 +420,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 13. Admin Interface
+
 **Status**: 📋 Not Started  
 **Priority**: P2 (Medium)  
 **Timeline**: 4-5 days  
@@ -381,6 +428,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Dashboard UI
 
 **Implementation Steps**:
+
 - [ ] Create admin layout component
 - [ ] Build user management interface
 - [ ] Add system monitoring dashboard
@@ -388,6 +436,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Create admin settings page
 
 **Acceptance Criteria**:
+
 - Admin can manage users
 - System metrics displayed
 - Admin-only routes protected
@@ -396,6 +445,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 #### 14. React App Setup Completion
+
 **Status**: 🔄 In Progress  
 **Priority**: P2 (Medium)  
 **Timeline**: 1-2 days  
@@ -403,6 +453,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: None
 
 **Implementation Steps**:
+
 - [ ] Complete dependencies installation
 - [ ] Configure routing with React Router
 - [ ] Set up Redux store
@@ -411,6 +462,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Verify development server
 
 **Acceptance Criteria**:
+
 - All dependencies installed
 - Development server running
 - Basic routing configured
@@ -422,6 +474,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ### P3 - Low Priority Tasks (Future Features)
 
 #### 15. Webhook System (Phase 2)
+
 **Status**: 📋 Not Started  
 **Priority**: P3 (Low)  
 **Timeline**: 3-4 days  
@@ -429,6 +482,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 **Dependencies**: Production Deployment
 
 **Implementation Steps**:
+
 - [ ] Design webhook event system
 - [ ] Create webhook management API
 - [ ] Implement webhook delivery mechanism
@@ -436,6 +490,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 - [ ] Build webhook testing interface
 
 **Acceptance Criteria**:
+
 - Webhooks can be configured per event
 - Reliable delivery with retries
 - Webhook logs and monitoring
@@ -446,15 +501,18 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ## Sprint Planning
 
 ### Sprint 4 (Current - Oct 14-20)
+
 **Focus**: Complete Core Backend Integrations
 
 **This Week's Goals**:
+
 - [ ] Complete Claude Integration (P1)
 - [ ] Finish React App Setup (P2)
 - [ ] Start MCP Authentication (P1)
 - [ ] Begin Payment System Design (P0)
 
 **Daily Tasks**:
+
 - **Day 1**: Claude SDK integration and basic provider
 - **Day 2**: Provider switching logic and testing
 - **Day 3**: MCP authentication middleware
@@ -465,14 +523,17 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 ### Sprint 5 (Oct 21 - Nov 3)
+
 **Focus**: Frontend UI and Production Readiness
 
 **Week 1 Goals**:
+
 - [ ] Complete Authentication UI (P1)
 - [ ] Start Dashboard UI (P1)
 - [ ] Implement CI/CD Pipeline (P1)
 
 **Week 2 Goals**:
+
 - [ ] Finish Dashboard UI (P1)
 - [ ] Complete Production Deployment (P0)
 - [ ] Implement Testing Framework (P1)
@@ -480,9 +541,11 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ---
 
 ### MVP Launch Week (Nov 3-10)
+
 **Focus**: Deployment and Stabilization
 
 **Launch Checklist**:
+
 - [ ] Production deployment verified
 - [ ] All services healthy and monitored
 - [ ] User acceptance testing completed
@@ -495,6 +558,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ## Risk Mitigation
 
 ### High-Risk Items
+
 1. **Stripe Integration Complexity**
    - Mitigation: Use test mode extensively, implement idempotency keys
    - Contingency: Manual credit addition for early users
@@ -508,6 +572,7 @@ This checklist provides a detailed breakdown of all tasks required to complete P
    - Contingency: Temporary service limitations
 
 ### Medium-Risk Items
+
 1. **Frontend Development Timeline**
    - Mitigation: Use component library, keep design simple
    - Contingency: Launch with minimal UI, enhance later
@@ -521,12 +586,14 @@ This checklist provides a detailed breakdown of all tasks required to complete P
 ## Success Metrics
 
 ### Technical Metrics
+
 - System uptime: > 99.5%
 - API response time: < 200ms (p95)
 - Error rate: < 0.1%
 - Test coverage: > 80%
 
 ### Business Metrics
+
 - User registration: 100+ users in first week
 - Credit purchases: 30%+ conversion rate
 - API usage: 500+ calls/day

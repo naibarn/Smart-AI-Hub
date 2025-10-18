@@ -1,5 +1,4 @@
 import Bull from 'bull';
-import { redis } from './redis';
 import logger from './logger';
 import { WebhookQueueJob } from '../types/webhook.types';
 
@@ -88,20 +87,22 @@ export const getQueueStats = async (): Promise<{
   delayed: number;
   paused: number;
 }> => {
-  const waiting = await webhookQueue.getWaiting();
-  const active = await webhookQueue.getActive();
-  const completed = await webhookQueue.getCompleted();
-  const failed = await webhookQueue.getFailed();
-  const delayed = await webhookQueue.getDelayed();
-  const paused = await webhookQueue.getPaused();
+  const counts = await webhookQueue.getJobCounts();
+
+  let paused = 0;
+  try {
+    paused = (await webhookQueue.isPaused()) ? 1 : 0;
+  } catch (e) {
+    paused = 0;
+  }
 
   return {
-    waiting: waiting.length,
-    active: active.length,
-    completed: completed.length,
-    failed: failed.length,
-    delayed: delayed.length,
-    paused: paused.length,
+    waiting: counts.waiting || 0,
+    active: counts.active || 0,
+    completed: counts.completed || 0,
+    failed: counts.failed || 0,
+    delayed: counts.delayed || 0,
+    paused,
   };
 };
 
@@ -221,7 +222,8 @@ export const cleanQueue = async (
 ): Promise<string[]> => {
   const jobs = await webhookQueue.clean(grace, status, limit);
   logger.info(`Cleaned ${jobs.length} ${status} jobs from queue`);
-  return jobs;
+  // Normalize to string[] of job IDs to satisfy return type across Bull versions
+  return jobs.map((j: any) => String(j?.id ?? j));
 };
 
 // Close queue

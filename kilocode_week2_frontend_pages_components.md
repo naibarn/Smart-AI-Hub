@@ -3,12 +3,15 @@ Create comprehensive Frontend Pages and Components for Smart AI Hub's Multi-tier
 # Task: Week 2 - Frontend Pages and Components Development
 
 ## Objective
+
 Create 3 new pages and 8 new components for Smart AI Hub's frontend to support the Multi-tier Hierarchy and Referral System. All components must follow React best practices, use TypeScript, integrate with existing APIs, and provide excellent user experience.
 
 ## Context
+
 Smart AI Hub has a complete backend implementation for the Multi-tier Hierarchy and Referral System. The frontend currently has basic components but is missing key pages and components for users to fully utilize these features. This task will create the missing frontend elements to complete the user interface.
 
 ## Technology Stack
+
 - **Framework:** React 18+ with TypeScript
 - **UI Library:** Ant Design (antd)
 - **State Management:** React Hooks (useState, useEffect, useContext)
@@ -19,6 +22,7 @@ Smart AI Hub has a complete backend implementation for the Multi-tier Hierarchy 
 - **Icons:** @ant-design/icons
 
 ## Project Structure
+
 ```
 packages/frontend/src/
 ├── components/
@@ -69,6 +73,7 @@ packages/frontend/src/
 **File:** `packages/frontend/src/pages/Referrals.tsx`
 
 #### Features
+
 1. Display Referral Statistics (Total Referrals, Active Referrals, Total Rewards)
 2. Display list of referred users (Table with pagination)
 3. Display Rewards history
@@ -89,17 +94,20 @@ export const Referrals: React.FC = () => {
 ```
 
 **Layout:**
+
 - Top section: Statistics cards (3 cards in a row)
 - Middle section: Referrals chart
 - Bottom left: Referred users table
 - Bottom right: Rewards history
 
 **API Integration:**
+
 - `GET /api/v1/referral/stats` - Get referral statistics
 - `GET /api/v1/referral/list` - Get list of referred users
 - `GET /api/v1/referral/rewards` - Get rewards history
 
 **Deliverable:**
+
 - ✅ Fully functional Referrals page
 - ✅ Responsive design (mobile, tablet, desktop)
 - ✅ Loading states
@@ -113,6 +121,7 @@ export const Referrals: React.FC = () => {
 **File:** `packages/frontend/src/components/referral/ReferralStatistics.tsx`
 
 #### Features
+
 - Display Total Referrals count
 - Display Active Referrals count
 - Display Total Rewards earned
@@ -124,7 +133,15 @@ export const Referrals: React.FC = () => {
 import React from 'react';
 import { Card, Statistic, Row, Col } from 'antd';
 import { UserAddOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface ReferralStatisticsProps {
   totalReferrals: number;
@@ -137,19 +154,21 @@ export const ReferralStatistics: React.FC<ReferralStatisticsProps> = ({
   totalReferrals,
   activeReferrals,
   totalRewards,
-  chartData
+  chartData,
 }) => {
   // Component implementation
 };
 ```
 
 **Design:**
+
 - 3 statistic cards with icons
 - Line chart below statistics
 - Color-coded (blue, green, gold)
 - Animated numbers
 
 **Deliverable:**
+
 - ✅ ReferralStatistics component
 - ✅ Chart integration
 - ✅ Responsive design
@@ -162,6 +181,7 @@ export const ReferralStatistics: React.FC<ReferralStatisticsProps> = ({
 **File:** `packages/frontend/src/components/referral/ReferralList.tsx`
 
 #### Features
+
 - Display table of referred users
 - Columns: Name, Email, Tier, Signup Date, Status, Reward
 - Pagination (20 per page)
@@ -197,16 +217,13 @@ interface ReferralListProps {
   };
 }
 
-export const ReferralList: React.FC<ReferralListProps> = ({
-  referrals,
-  loading,
-  pagination
-}) => {
+export const ReferralList: React.FC<ReferralListProps> = ({ referrals, loading, pagination }) => {
   // Component implementation
 };
 ```
 
 **Table Columns:**
+
 1. Name (with avatar)
 2. Email
 3. Tier (using TierBadge component)
@@ -215,6 +232,7 @@ export const ReferralList: React.FC<ReferralListProps> = ({
 6. Reward (Points earned)
 
 **Deliverable:**
+
 - ✅ ReferralList component
 - ✅ Table with sorting
 - ✅ Search functionality
@@ -228,6 +246,7 @@ export const ReferralList: React.FC<ReferralListProps> = ({
 **File:** `packages/frontend/src/components/referral/ReferralRewardsHistory.tsx`
 
 #### Features
+
 - Display timeline of rewards received
 - Show reward amount, date, and referred user
 - Pagination
@@ -255,19 +274,21 @@ interface ReferralRewardsHistoryProps {
 
 export const ReferralRewardsHistory: React.FC<ReferralRewardsHistoryProps> = ({
   rewards,
-  totalRewards
+  totalRewards,
 }) => {
   // Component implementation
 };
 ```
 
 **Design:**
+
 - Timeline layout
 - Each item shows: Amount, Date, User name
 - Color-coded by tier
 - Summary card at top
 
 **Deliverable:**
+
 - ✅ ReferralRewardsHistory component
 - ✅ Timeline design
 - ✅ Summary section
@@ -280,6 +301,7 @@ export const ReferralRewardsHistory: React.FC<ReferralRewardsHistoryProps> = ({
 **File:** `packages/frontend/src/pages/Invite.tsx`
 
 #### Features
+
 1. Display Invite Code (large, prominent)
 2. Display Invite Link with Copy button
 3. Display QR Code (scannable)
@@ -332,10 +354,12 @@ export const Invite: React.FC = () => {
 ```
 
 **API Integration:**
+
 - `GET /api/v1/referral/invite-code` - Get user's invite code
 - `POST /api/v1/referral/regenerate-code` - Regenerate invite code (optional)
 
 **Deliverable:**
+
 - ✅ Fully functional Invite page
 - ✅ Responsive design
 - ✅ Copy to clipboard functionality
@@ -348,6 +372,7 @@ export const Invite: React.FC = () => {
 **File:** `packages/frontend/src/components/invite/QRCodeGenerator.tsx`
 
 #### Features
+
 - Generate QR Code from invite link
 - Download QR Code as image
 - Customizable size
@@ -403,6 +428,7 @@ export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
 ```
 
 **Deliverable:**
+
 - ✅ QRCodeGenerator component
 - ✅ Download functionality
 - ✅ High error correction
@@ -415,6 +441,7 @@ export const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
 **File:** `packages/frontend/src/components/invite/InviteCodeCard.tsx`
 
 #### Features
+
 - Display invite code (large font)
 - Display invite link
 - Copy code button
@@ -490,6 +517,7 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
 ```
 
 **Deliverable:**
+
 - ✅ InviteCodeCard component
 - ✅ Copy functionality
 - ✅ Regenerate option
@@ -502,6 +530,7 @@ export const InviteCodeCard: React.FC<InviteCodeCardProps> = ({
 **File:** `packages/frontend/src/components/invite/SocialShareButtons.tsx`
 
 #### Features
+
 - Share on Facebook
 - Share on Twitter
 - Share on Line
@@ -599,6 +628,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
 ```
 
 **Deliverable:**
+
 - ✅ SocialShareButtons component
 - ✅ 5 social platforms
 - ✅ Popup windows
@@ -613,6 +643,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
 **File:** `packages/frontend/src/pages/agency/AgencySettings.tsx`
 
 #### Features
+
 1. Configure Referral Rewards for each tier
    - Organization Signup Reward
    - Admin Signup Reward
@@ -675,16 +706,19 @@ export const AgencySettings: React.FC = () => {
 ```
 
 **Access Control:**
+
 - ✅ RouteGuard with `allowedTiers={['agency']}`
 - ✅ Redirect to /dashboard if not Agency
 - ✅ Show 403 error if unauthorized
 
 **API Integration:**
+
 - `GET /api/v1/agency/referral-config` - Get current settings
 - `POST /api/v1/agency/referral-config` - Save settings
 - `GET /api/v1/agency/reward-stats` - Get statistics
 
 **Deliverable:**
+
 - ✅ Agency Settings page
 - ✅ Access control enforced
 - ✅ Responsive design
@@ -697,6 +731,7 @@ export const AgencySettings: React.FC = () => {
 **File:** `packages/frontend/src/components/agency/AgencyRewardSettings.tsx`
 
 #### Features
+
 - Form to configure rewards for each tier
 - Input fields for Organization, Admin, General signup rewards
 - Validation (must be positive numbers)
@@ -836,11 +871,13 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
 ```
 
 **Validation:**
+
 - All fields required
 - Must be positive numbers
 - Optional: Check if total potential rewards exceed balance
 
 **Deliverable:**
+
 - ✅ AgencyRewardSettings component
 - ✅ Form validation
 - ✅ Save/Reset functionality
@@ -853,6 +890,7 @@ export const AgencyRewardSettings: React.FC<AgencyRewardSettingsProps> = ({
 **File:** `packages/frontend/src/components/agency/RewardStatistics.tsx`
 
 #### Features
+
 - Display total rewards given
 - Display rewards by tier (Organization, Admin, General)
 - Display number of signups per tier
@@ -938,6 +976,7 @@ export const RewardStatistics: React.FC<RewardStatisticsProps> = ({
 ```
 
 **Deliverable:**
+
 - ✅ RewardStatistics component
 - ✅ Statistics cards
 - ✅ Bar chart
@@ -952,6 +991,7 @@ export const RewardStatistics: React.FC<RewardStatisticsProps> = ({
 **File:** `packages/frontend/src/components/hierarchy/HierarchyTree.tsx`
 
 #### Features
+
 - Display hierarchy as expandable tree
 - Filtered by visibility rules
 - Show Tier Badge for each user
@@ -1035,14 +1075,17 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
 ```
 
 **Use Cases:**
+
 - Agency sees: Organizations + Admins + Generals under them
 - Organization sees: Admins + Generals in their org
 - Admin sees: Generals in their org
 
 **API Integration:**
+
 - `GET /api/v1/hierarchy/tree` - Get hierarchy tree (filtered by visibility)
 
 **Deliverable:**
+
 - ✅ HierarchyTree component
 - ✅ Expandable tree structure
 - ✅ Visibility filtering
@@ -1056,6 +1099,7 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
 **File:** `packages/frontend/src/components/hierarchy/TierBadge.tsx`
 
 #### Features
+
 - Display tier icon
 - Display tier name
 - Color-coded by tier
@@ -1124,7 +1168,7 @@ export const TierBadge: React.FC<TierBadgeProps> = ({
   showTooltip = true
 }) => {
   const config = tierConfig[tier];
-  
+
   const badge = (
     <Tag
       color={config.color}
@@ -1151,6 +1195,7 @@ export const TierBadge: React.FC<TierBadgeProps> = ({
 ```
 
 **Color Scheme:**
+
 - Administrator: Red (#f5222d)
 - Agency: Purple (#722ed1)
 - Organization: Blue (#1890ff)
@@ -1158,6 +1203,7 @@ export const TierBadge: React.FC<TierBadgeProps> = ({
 - General: Gray (#8c8c8c)
 
 **Deliverable:**
+
 - ✅ TierBadge component
 - ✅ 5 tier variants
 - ✅ Color-coded
@@ -1193,8 +1239,8 @@ export const useReferral = () => {
       setLoading(true);
       const response = await fetch('/api/v1/referral/stats', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       const result = await response.json();
       setData(result.data);
@@ -1237,11 +1283,11 @@ export const useHierarchy = () => {
       setLoading(true);
       const [membersRes, treeRes] = await Promise.all([
         fetch('/api/v1/hierarchy/members', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         }),
         fetch('/api/v1/hierarchy/tree', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        })
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }),
       ]);
       const members = await membersRes.json();
       const tree = await treeRes.json();
@@ -1266,6 +1312,7 @@ export const useHierarchy = () => {
 ## Quality Standards
 
 ### Code Quality
+
 - ✅ TypeScript with proper types
 - ✅ React Hooks best practices
 - ✅ Error handling
@@ -1275,6 +1322,7 @@ export const useHierarchy = () => {
 - ✅ Accessibility (a11y)
 
 ### UI/UX
+
 - ✅ Consistent with existing design
 - ✅ Ant Design components
 - ✅ Mobile-friendly
@@ -1283,6 +1331,7 @@ export const useHierarchy = () => {
 - ✅ Intuitive navigation
 
 ### Security
+
 - ✅ RouteGuard for protected pages
 - ✅ Authorization checks
 - ✅ Input validation
@@ -1310,11 +1359,13 @@ The Week 2 task is considered complete when:
 ## Deliverables Summary
 
 ### Pages (3)
+
 1. ✅ `Referrals.tsx` - Referrals page with statistics and charts
 2. ✅ `Invite.tsx` - Invite page with QR code and social sharing
 3. ✅ `AgencySettings.tsx` - Agency settings page (Agency only)
 
 ### Components (8)
+
 1. ✅ `ReferralStatistics.tsx` - Statistics cards and chart
 2. ✅ `ReferralList.tsx` - Table of referred users
 3. ✅ `ReferralRewardsHistory.tsx` - Timeline of rewards
@@ -1325,10 +1376,12 @@ The Week 2 task is considered complete when:
 8. ✅ `RewardStatistics.tsx` - Agency reward statistics
 
 ### Additional Components (2)
+
 9. ✅ `HierarchyTree.tsx` - Hierarchy tree view
 10. ✅ `TierBadge.tsx` - Tier badge component
 
 ### Hooks (2)
+
 1. ✅ `useReferral.tsx` - Referral data hook
 2. ✅ `useHierarchy.tsx` - Hierarchy data hook
 
@@ -1373,4 +1426,3 @@ The Week 2 task is considered complete when:
 ## Output
 
 Please create all pages, components, and hooks as specified. Confirm when complete and ready for testing.
-

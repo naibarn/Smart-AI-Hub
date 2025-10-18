@@ -19,12 +19,6 @@
     "emitDecoratorMetadata": true,
     "composite": true
   },
-  "include": [
-    "logger/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts"
-  ]
+  "include": ["index.ts", "logger/**/*", "monitoring/**/*", "security/**/*", "src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

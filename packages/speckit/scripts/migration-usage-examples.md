@@ -42,155 +42,195 @@ node packages/speckit/scripts/migrate-spec.js --report specs/01_requirements/fun
 ### 1. Feature Requirements Migration
 
 **Before Migration:**
+
 ```markdown
 # User Registration
 
 ## Overview
+
 Users should be able to register for an account.
 
 ## Requirements
+
 - User must provide email
 - User must provide password
 - Email verification required
 
 ## User Stories
+
 As a new user, I want to register with my email so that I can access the system.
 ```
 
 **After Migration:**
+
 ```markdown
 # User Registration
 
 ## Overview
+
 Users should be able to register for an account.
 
 ## Objectives
+
 <!-- TODO: Define clear objectives for this feature -->
 
 ## User Stories
+
 As a new user, I want to register with my email so that I can access the system.
 
 ## Requirements
+
 ### Functional Requirements
+
 - User must provide email
 - User must provide password
 - Email verification required
 
 ### Non-Functional Requirements
+
 <!-- TODO: Specify non-functional requirements -->
 
 ## Acceptance Criteria
+
 <!-- TODO: Define detailed acceptance criteria -->
 
 ## Implementation Approach
+
 <!-- TODO: Outline implementation approach -->
 
 ## Testing Strategy
+
 <!-- TODO: Define comprehensive testing strategy -->
 ```
 
 ### 2. API Specification Migration
 
 **Before Migration:**
+
 ```markdown
 # User Service API
 
 ## Endpoints
+
 - GET /api/v1/users
 - POST /api/v1/users
 - PUT /api/v1/users/:id
 
 ## Data Model
+
 User {
-  id: string
-  email: string
-  name: string
+id: string
+email: string
+name: string
 }
 ```
 
 **After Migration:**
+
 ```markdown
 # User Service API
 
 ## Overview
+
 <!-- TODO: Add overview for this api specification -->
 
 ## API Specifications
+
 ### Endpoints
+
 - GET /api/v1/users
 - POST /api/v1/users
 - PUT /api/v1/users/:id
 
 ### Request/Response Formats
+
 <!-- TODO: Define request and response formats -->
 
 ## Data Models
+
 User {
-  id: string
-  email: string
-  name: string
+id: string
+email: string
+name: string
 }
 
 ## Implementation Approach
+
 <!-- TODO: Outline implementation approach -->
 
 ## Testing Strategy
+
 <!-- TODO: Define comprehensive testing strategy -->
 
 ## Security Requirements
+
 <!-- TODO: Specify security requirements -->
 ```
 
 ### 3. UI/UX Specification Migration
 
 **Before Migration:**
+
 ```markdown
 # Dashboard Layout
 
 ## Components
+
 - Header with navigation
 - Sidebar with menu items
 - Main content area
 
 ## Design
+
 - Use Material Design principles
 - Responsive layout
 - Dark mode support
 ```
 
 **After Migration:**
+
 ```markdown
 # Dashboard Layout
 
 ## Overview
+
 <!-- TODO: Add overview for this ui-ux specification -->
 
 ## Design Considerations
+
 ### Visual Design
+
 - Use Material Design principles
 - Responsive layout
 - Dark mode support
 
 ### User Experience
+
 <!-- TODO: Define user experience considerations -->
 
 ## Component Specifications
+
 ### Header
+
 - Navigation elements
 - User profile section
 
 ### Sidebar
+
 - Menu items
 - Collapsible sections
 
 ### Main Content Area
+
 - Dynamic content loading
 - Responsive behavior
 
 ## Implementation Approach
+
 <!-- TODO: Outline implementation approach -->
 
 ## Testing Strategy
+
 <!-- TODO: Define comprehensive testing strategy -->
 ```
 
@@ -228,7 +268,7 @@ const CONFIG = {
   templatesDir: path.join(__dirname, '../templates'),
   backupDir: path.join(process.cwd(), 'spec-backups'),
   reportsDir: path.join(process.cwd(), 'migration-reports'),
-  defaultTemplate: 'feature'
+  defaultTemplate: 'feature',
 };
 ```
 
@@ -280,15 +320,19 @@ After migration, complete the TODO sections:
 ### Common Issues
 
 1. **Template Not Found**
+
    ```
    Error: Template not found: packages/speckit/templates/unknown-template.md
    ```
+
    **Solution:** Use a valid template type (feature, api, ui-ux, integration, infrastructure, bug-fix, epic, user-story)
 
 2. **Frontmatter Parse Error**
+
    ```
    Warning: Failed to parse frontmatter as YAML, treating as plain text
    ```
+
    **Solution:** Check YAML syntax in frontmatter or remove frontmatter
 
 3. **File Not Found**
@@ -326,19 +370,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-          
+
       - name: Install dependencies
         run: npm install js-yaml
-        
+
       - name: Generate migration report
         run: |
           node packages/speckit/scripts/migrate-spec.js --report specs/
-          
+
       - name: Upload migration report
         uses: actions/upload-artifact@v2
         with:

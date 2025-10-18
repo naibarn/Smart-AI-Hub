@@ -40,6 +40,7 @@ The backend has a well-structured RBAC system with the following models:
 ### Backend Services
 
 The `coreService` in the frontend provides the following RBAC-related API methods:
+
 - `getUserRoles()`: Retrieve user roles
 - `getUserPermissions()`: Retrieve user permissions
 - `hasPermission(resource, action)`: Check specific permissions
@@ -69,17 +70,20 @@ auth: {
 #### 2. Navigation Components
 
 **Sidebar.tsx**:
+
 - ❌ No role-based filtering of menu items
 - All navigation items are statically defined and visible to all authenticated users
 - Missing implementation for "Manage Users", "Adjust Credits", and "System Config" options
 
 **NavBar.tsx**:
+
 - ❌ No role-based menu options in user profile dropdown
 - Standard menu items (Profile, Credits, Settings, Logout) shown to all users
 
 #### 3. Dashboard Component
 
 **Dashboard.tsx**:
+
 - ❌ No role-based UI elements
 - All dashboard sections (stats, credit balance, team members) shown to all users
 - Missing conditional rendering for administrative functions
@@ -87,16 +91,19 @@ auth: {
 #### 4. Authentication Service
 
 **auth.service.ts**:
+
 - ❌ User model doesn't include role information
 - Login response doesn't return user roles or permissions
 
 **core.service.ts**:
+
 - ✅ API methods exist for RBAC operations
 - ❌ Not being used anywhere in the frontend
 
 #### 5. Route Protection
 
 **App.tsx**:
+
 - ❌ No role-based route protection
 - All authenticated users can access all routes
 - Missing implementation for admin-only routes
@@ -104,18 +111,22 @@ auth: {
 ## Critical Issues Identified
 
 ### 1. No Role-Based UI Visibility
+
 - Administrative functions are not hidden from non-admin users
 - All users see the same interface regardless of their role
 
 ### 2. Missing Permission Checking
+
 - Frontend doesn't validate user permissions before showing features
 - No implementation of granular permission checks
 
 ### 3. Incomplete Authentication State
+
 - User roles and permissions are not stored in application state
 - No mechanism to update UI when roles change
 
 ### 4. Static Navigation
+
 - Sidebar and navigation don't adapt to user permissions
 - Missing menu items for administrative functions
 
@@ -143,17 +154,15 @@ interface AuthState {
 // hooks/usePermissions.ts
 export const usePermissions = () => {
   const { user } = useSelector((state) => state.auth);
-  
+
   const hasPermission = (resource: string, action: string) => {
-    return user?.permissions.some(
-      p => p.resource === resource && p.action === action
-    ) || false;
+    return user?.permissions.some((p) => p.resource === resource && p.action === action) || false;
   };
-  
+
   const hasRole = (roleName: string) => {
-    return user?.roles.some(r => r.name === roleName) || false;
+    return user?.roles.some((r) => r.name === roleName) || false;
   };
-  
+
   return { hasPermission, hasRole };
 };
 ```
@@ -163,7 +172,7 @@ export const usePermissions = () => {
 Update `Sidebar.tsx` to filter menu items based on permissions:
 
 ```typescript
-const filteredSidebarItems = sidebarItems.filter(item => {
+const filteredSidebarItems = sidebarItems.filter((item) => {
   if (item.requiredRole) {
     return hasRole(item.requiredRole);
   }
@@ -206,21 +215,21 @@ const adminMenuItems = [
 
 ```typescript
 // components/ProtectedRoute.tsx
-const ProtectedRoute: React.FC<{ 
+const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   requiredRole?: string;
   requiredPermission?: { resource: string; action: string };
 }> = ({ children, requiredRole, requiredPermission }) => {
   const { hasRole, hasPermission } = usePermissions();
-  
+
   if (requiredRole && !hasRole(requiredRole)) {
     return <Navigate to="/unauthorized" />;
   }
-  
+
   if (requiredPermission && !hasPermission(requiredPermission.resource, requiredPermission.action)) {
     return <Navigate to="/unauthorized" />;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -246,6 +255,7 @@ const ProtectedRoute: React.FC<{
 ## Testing Scenarios
 
 ### Scenario 1: Admin Role Validation
+
 1. Login as Admin user
 2. Verify "Manage Users" appears in sidebar
 3. Verify "Adjust Credits" appears in sidebar
@@ -253,6 +263,7 @@ const ProtectedRoute: React.FC<{
 5. Verify admin-only dashboard sections are visible
 
 ### Scenario 2: User Role Validation
+
 1. Login as regular User
 2. Verify "Manage Users" does NOT appear in sidebar
 3. Verify "Adjust Credits" does NOT appear in sidebar
@@ -260,6 +271,7 @@ const ProtectedRoute: React.FC<{
 5. Verify admin-only dashboard sections are hidden
 
 ### Scenario 3: Manager Role Validation
+
 1. Login as Manager
 2. Verify "Manage Users" appears but is limited to team members
 3. Verify "Adjust Credits" appears but is limited to team credits
@@ -279,6 +291,7 @@ const ProtectedRoute: React.FC<{
 The frontend RBAC implementation is currently non-existent, representing a significant security and usability gap. While the backend has a proper RBAC structure, the frontend doesn't leverage it to control UI visibility. This means all authenticated users see the same interface, regardless of their actual permissions.
 
 Implementing the recommended changes will ensure that:
+
 - Users only see features they're authorized to access
 - Administrative functions are properly protected
 - The UI adapts to user roles and permissions

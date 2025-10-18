@@ -1,16 +1,20 @@
 # Kilo Code Prompt: Smart AI Hub - Verify and Implement Required Endpoints for Sora2 Integration
 
 ## Objective
+
 Analyze the Smart AI Hub project to verify if all required endpoints for Sora2 Video Generator integration exist. If any endpoints are missing, implement them according to the specifications.
 
 ## Project Context
+
 Smart AI Hub is a centralized authentication and credit management platform with the following architecture:
+
 - **API Gateway** (Port 3000) - Routes requests, handles JWT authentication, rate limiting
 - **Auth Service** (Port 3001) - User registration, login, JWT token issuance
 - **Core Service** (Port 3002) - User management, RBAC, credit management
 - **MCP Server** (Port 3003) - AI model integration via WebSocket
 
 ## Source Documents to Read
+
 - Read `architecture.md` for system architecture
 - Read `prd.md` for product requirements
 - Read `backlog.md` for development tasks
@@ -21,20 +25,24 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ## Task 1: Verify Existing Endpoints
 
 ### Priority: Critical
+
 **Action**: Analyze the codebase to check if these endpoints exist and work correctly
 
 ### Required Endpoints Checklist:
 
 #### 1.1 Session Verification Endpoint
+
 **Endpoint**: `GET /api/auth/verify-session`
 **Location**: Should be in Auth Service or API Gateway
 **Requirements**:
+
 - Accept `X-Session-Token` header
 - Verify session token validity
 - Return user information: `{ user: { id, email, name } }`
 - Handle errors: 401 (invalid/expired), 404 (not found)
 
 **Check for**:
+
 - Does this endpoint exist?
 - Does it accept the correct header?
 - Does it return the correct response format?
@@ -43,9 +51,11 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ---
 
 #### 1.2 Credit Check Endpoint
+
 **Endpoint**: `POST /api/mcp/v1/credits/check`
 **Location**: Should be in Core Service or MCP Server
 **Requirements**:
+
 - Accept `X-User-ID` header
 - Accept request body: `{ service: string, cost: number }`
 - Check if user has sufficient credits
@@ -53,6 +63,7 @@ Smart AI Hub is a centralized authentication and credit management platform with
 - Handle errors: 402 (insufficient), 404 (user not found)
 
 **Check for**:
+
 - Does this endpoint exist?
 - Does it accept user ID from header?
 - Does it check credits correctly?
@@ -61,9 +72,11 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ---
 
 #### 1.3 Credit Deduction Endpoint
+
 **Endpoint**: `POST /api/mcp/v1/credits/deduct`
 **Location**: Should be in Core Service or MCP Server
 **Requirements**:
+
 - Accept `X-User-ID` header
 - Accept request body: `{ service: string, cost: number, metadata: object }`
 - Deduct credits from user balance
@@ -72,6 +85,7 @@ Smart AI Hub is a centralized authentication and credit management platform with
 - Handle errors: 402 (insufficient), 404 (user not found)
 
 **Check for**:
+
 - Does this endpoint exist?
 - Does it deduct credits atomically?
 - Does it create transaction records?
@@ -80,9 +94,11 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ---
 
 #### 1.4 Google OAuth Login Endpoint
+
 **Endpoint**: `GET /auth/google`
 **Location**: Should be in Auth Service
 **Requirements**:
+
 - Accept `?session=xxx&return_to=chatgpt` query parameters
 - Redirect to Google OAuth
 - Handle OAuth callback
@@ -91,6 +107,7 @@ Smart AI Hub is a centralized authentication and credit management platform with
 - Verification code format: `VERIFIED-{random_string}`
 
 **Check for**:
+
 - Does Google OAuth integration exist?
 - Is session parameter handling implemented?
 - Is there a success page?
@@ -101,15 +118,18 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ## Task 2: Document Findings
 
 ### Priority: Critical
+
 **Action**: Create a report of what exists and what's missing
 
 **Create file**: `sora2-integration-status.md`
 
 **Report Structure**:
+
 ```markdown
 # Sora2 Integration Endpoints Status Report
 
 ## Summary
+
 - Total Required Endpoints: 4
 - Existing Endpoints: X
 - Missing Endpoints: Y
@@ -118,30 +138,35 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ## Detailed Status
 
 ### 1. Session Verification (GET /api/auth/verify-session)
+
 **Status**: [EXISTS / MISSING / PARTIAL]
 **Location**: [file path]
 **Issues**: [list any issues found]
 **Required Changes**: [list what needs to be added/fixed]
 
 ### 2. Credit Check (POST /api/mcp/v1/credits/check)
+
 **Status**: [EXISTS / MISSING / PARTIAL]
 **Location**: [file path]
 **Issues**: [list any issues found]
 **Required Changes**: [list what needs to be added/fixed]
 
 ### 3. Credit Deduction (POST /api/mcp/v1/credits/deduct)
+
 **Status**: [EXISTS / MISSING / PARTIAL]
 **Location**: [file path]
 **Issues**: [list any issues found]
 **Required Changes**: [list what needs to be added/fixed]
 
 ### 4. Google OAuth Login (GET /auth/google)
+
 **Status**: [EXISTS / MISSING / PARTIAL]
 **Location**: [file path]
 **Issues**: [list any issues found]
 **Required Changes**: [list what needs to be added/fixed]
 
 ## Recommendations
+
 [List priority order for implementation]
 ```
 
@@ -150,14 +175,17 @@ Smart AI Hub is a centralized authentication and credit management platform with
 ## Task 3: Implement Missing Endpoints
 
 ### Priority: Critical
+
 **Action**: Implement any missing or incomplete endpoints
 
 ### Implementation Guidelines:
 
 #### 3.1 If Session Verification is Missing
+
 **File**: Create or update in Auth Service (e.g., `services/auth/routes/session.js`)
 
 **Implementation Requirements**:
+
 - Create session storage (use Redis or database)
 - Implement session creation on OAuth success
 - Implement session verification endpoint
@@ -165,6 +193,7 @@ Smart AI Hub is a centralized authentication and credit management platform with
 - Add session cleanup/revocation
 
 **Example Structure**:
+
 ```javascript
 // Session storage schema
 {
@@ -185,15 +214,18 @@ Response: { user: { id: 123, email: "...", name: "..." } }
 ---
 
 #### 3.2 If Credit Check is Missing
+
 **File**: Create or update in Core Service (e.g., `services/core/routes/credits.js`)
 
 **Implementation Requirements**:
+
 - Ensure user credit balance is stored in database
 - Implement credit check logic
 - Support different service types
 - Return clear insufficient credit responses
 
 **Example Structure**:
+
 ```javascript
 // Credit balance schema
 {
@@ -213,9 +245,11 @@ Response: { sufficient: true, balance: 150 }
 ---
 
 #### 3.3 If Credit Deduction is Missing
+
 **File**: Create or update in Core Service (e.g., `services/core/routes/credits.js`)
 
 **Implementation Requirements**:
+
 - Implement atomic credit deduction
 - Create transaction records
 - Support metadata for audit trail
@@ -223,6 +257,7 @@ Response: { sufficient: true, balance: 150 }
 - Implement rollback on failure
 
 **Example Structure**:
+
 ```javascript
 // Transaction schema
 {
@@ -246,9 +281,11 @@ Response: { status: "ok", new_balance: 120, transaction_id: "txn-456" }
 ---
 
 #### 3.4 If Google OAuth is Missing
+
 **File**: Create or update in Auth Service (e.g., `services/auth/routes/oauth.js`)
 
 **Implementation Requirements**:
+
 - Install Google OAuth library (e.g., `passport-google-oauth20`)
 - Configure Google OAuth credentials
 - Implement OAuth flow
@@ -257,6 +294,7 @@ Response: { status: "ok", new_balance: 120, transaction_id: "txn-456" }
 - Create success page
 
 **Example Flow**:
+
 ```javascript
 // Step 1: Initiate OAuth
 GET /auth/google?session=xxx&return_to=chatgpt
@@ -275,31 +313,52 @@ Button: "คัดลอก"
 ```
 
 **Success Page HTML**:
+
 ```html
 <!DOCTYPE html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <title>Login สำเร็จ - Smart AI Hub</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    .code { font-size: 24px; font-weight: bold; color: #2563eb; padding: 20px; background: #f0f9ff; border-radius: 8px; margin: 20px 0; }
-    button { padding: 12px 24px; font-size: 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  </style>
-</head>
-<body>
-  <h1>✅ Login สำเร็จ!</h1>
-  <p>กรุณาคัดลอกรหัสนี้และส่งกลับไปที่ ChatGPT:</p>
-  <div class="code" id="verificationCode">VERIFIED-{{code}}</div>
-  <button onclick="copyCode()">📋 คัดลอกรหัส</button>
-  <script>
-    function copyCode() {
-      const code = document.getElementById('verificationCode').textContent;
-      navigator.clipboard.writeText(code);
-      alert('คัดลอกรหัสเรียบร้อย!');
-    }
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login สำเร็จ - Smart AI Hub</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+      }
+      .code {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2563eb;
+        padding: 20px;
+        background: #f0f9ff;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>✅ Login สำเร็จ!</h1>
+    <p>กรุณาคัดลอกรหัสนี้และส่งกลับไปที่ ChatGPT:</p>
+    <div class="code" id="verificationCode">VERIFIED-{{code}}</div>
+    <button onclick="copyCode()">📋 คัดลอกรหัส</button>
+    <script>
+      function copyCode() {
+        const code = document.getElementById('verificationCode').textContent;
+        navigator.clipboard.writeText(code);
+        alert('คัดลอกรหัสเรียบร้อย!');
+      }
+    </script>
+  </body>
 </html>
 ```
 
@@ -308,15 +367,18 @@ Button: "คัดลอก"
 ## Task 4: Add Tests
 
 ### Priority: High
+
 **Action**: Create tests for all new/updated endpoints
 
 **Test Files to Create**:
+
 - `tests/auth/session-verification.test.js`
 - `tests/core/credit-check.test.js`
 - `tests/core/credit-deduction.test.js`
 - `tests/auth/google-oauth.test.js`
 
 **Test Coverage**:
+
 - Success scenarios
 - Error scenarios (401, 402, 404, 500)
 - Concurrent request handling
@@ -328,15 +390,18 @@ Button: "คัดลอก"
 ## Task 5: Update Documentation
 
 ### Priority: Medium
+
 **Action**: Update project documentation
 
 **Files to Update**:
+
 - `architecture.md` - Add new endpoints to API documentation
 - `prd.md` - Add Sora2 integration features
 - `README.md` - Add setup instructions for Google OAuth
 - `.env.example` - Add required environment variables
 
 **New Environment Variables**:
+
 ```env
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID=your-client-id
@@ -356,9 +421,11 @@ REDIS_URL=redis://localhost:6379
 ## Task 6: Update API Gateway Routes
 
 ### Priority: High
+
 **Action**: Ensure API Gateway routes requests correctly
 
 **Routes to Add/Verify**:
+
 ```javascript
 // In API Gateway (port 3000)
 app.get('/api/auth/verify-session', proxy('http://localhost:3001'));
@@ -373,6 +440,7 @@ app.get('/auth/google/callback', proxy('http://localhost:3001'));
 ## Success Criteria
 
 ### Functional Requirements
+
 - [ ] All 4 required endpoints exist and work correctly
 - [ ] Session verification returns correct user information
 - [ ] Credit check accurately verifies user balance
@@ -381,6 +449,7 @@ app.get('/auth/google/callback', proxy('http://localhost:3001'));
 - [ ] Success page displays verification code correctly
 
 ### Technical Requirements
+
 - [ ] Endpoints follow RESTful conventions
 - [ ] Error handling is comprehensive
 - [ ] Response formats match specifications
@@ -389,6 +458,7 @@ app.get('/auth/google/callback', proxy('http://localhost:3001'));
 - [ ] Documentation is complete
 
 ### Security Requirements
+
 - [ ] Session tokens are securely generated and stored
 - [ ] Google OAuth uses proper credentials
 - [ ] Credit operations are atomic and prevent race conditions
@@ -410,6 +480,7 @@ app.get('/auth/google/callback', proxy('http://localhost:3001'));
 ## Output Format
 
 After execution, provide:
+
 1. **Status Report**: What exists, what's missing, what needs fixing
 2. **Implementation Summary**: What was created/updated
 3. **Test Results**: All tests passing
@@ -420,7 +491,9 @@ After execution, provide:
 ## Notes
 
 ### Google OAuth Setup
+
 To use Google OAuth, the Smart AI Hub owner needs to:
+
 1. Go to https://console.cloud.google.com
 2. Create a new project or select existing
 3. Enable Google+ API
@@ -429,17 +502,20 @@ To use Google OAuth, the Smart AI Hub owner needs to:
 6. Copy Client ID and Secret to `.env`
 
 ### Session Storage
+
 Recommended to use Redis for session storage due to:
+
 - Fast access
 - Built-in expiration
 - Easy to scale
 - Simple key-value structure
 
 ### Credit System
+
 Ensure the credit system supports:
+
 - Multiple currencies/types
 - Transaction history
 - Refunds (if needed)
 - Admin top-up interface
 - Usage analytics
-

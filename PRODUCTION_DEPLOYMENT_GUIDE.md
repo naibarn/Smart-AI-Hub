@@ -8,12 +8,12 @@ This guide provides step-by-step instructions for deploying the Smart AI Hub pla
 
 ### Infrastructure Requirements
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| CPU | 4 cores | 8 cores |
-| RAM | 8 GB | 16 GB |
-| Storage | 50 GB SSD | 100 GB SSD |
-| Network | 1 Gbps | 10 Gbps |
+| Component | Minimum   | Recommended |
+| --------- | --------- | ----------- |
+| CPU       | 4 cores   | 8 cores     |
+| RAM       | 8 GB      | 16 GB       |
+| Storage   | 50 GB SSD | 100 GB SSD  |
+| Network   | 1 Gbps    | 10 Gbps     |
 
 ### Software Requirements
 
@@ -190,11 +190,13 @@ docker-compose -f docker-compose.monitoring.yml up -d
 ### 2. Access Monitoring Dashboards
 
 #### Monitoring Stack
+
 - **Grafana**: https://yourdomain.com:3001 (admin/admin123)
 - **Prometheus**: https://yourdomain.com:9090
 - **AlertManager**: https://yourdomain.com:9093
 
 #### Frontend Monitoring Dashboard
+
 - **Main Dashboard**: https://yourdomain.com/admin/monitoring
 - **Performance Analysis**: https://yourdomain.com/admin/monitoring/performance
 - **Database Monitoring**: https://yourdomain.com/admin/monitoring/database
@@ -261,12 +263,14 @@ INSERT INTO user_roles (user_id, role_id) VALUES ('user-id', 'manager-role-id');
 ### 7. Monitor Key Metrics
 
 #### System Health Indicators
+
 - Service uptime (>99.9% target)
 - Response time (<500ms average)
 - Error rate (<1% target)
 - Resource utilization (<80% threshold)
 
 #### Alert Thresholds
+
 - **ServiceDown**: Immediate notification
 - **HighErrorRate**: >5% error rate
 - **HighResponseTime**: >1s average response time
@@ -302,12 +306,12 @@ The Smart AI Hub includes comprehensive response time tracking and SLA (Service 
 
 SLA tiers are defined in `config/sla-config.json` with the following thresholds:
 
-| SLA Tier | Threshold (P95) | Description | Example Endpoints |
-|----------|----------------|-------------|-------------------|
-| Critical | < 500ms | Mission-critical operations | auth, mcp chat |
-| High | < 1000ms | Important user-facing features | users, credits |
-| Medium | < 2000ms | Analytics and monitoring | analytics, monitoring |
-| Low | < 5000ms | Background processing | webhooks, reports |
+| SLA Tier | Threshold (P95) | Description                    | Example Endpoints     |
+| -------- | --------------- | ------------------------------ | --------------------- |
+| Critical | < 500ms         | Mission-critical operations    | auth, mcp chat        |
+| High     | < 1000ms        | Important user-facing features | users, credits        |
+| Medium   | < 2000ms        | Analytics and monitoring       | analytics, monitoring |
+| Low      | < 5000ms        | Background processing          | webhooks, reports     |
 
 ### 2. Response Time Metrics
 
@@ -342,12 +346,12 @@ The system calculates and maintains performance baselines:
 
 Comprehensive alerting rules are configured in `monitoring/sla-alert-rules.yml`:
 
-| Alert | Condition | Duration | Severity |
-|-------|-----------|----------|----------|
-| CriticalEndpointSLAViolation | Critical > 500ms | 5 min | Critical |
-| HighPriorityEndpointSLAViolation | High > 1s | 10 min | Warning |
-| FrequentSlowRequests | > 10% exceed SLA | 15 min | Warning |
-| ResponseTimeDegradation | 50% increase vs baseline | 10 min | Warning |
+| Alert                            | Condition                | Duration | Severity |
+| -------------------------------- | ------------------------ | -------- | -------- |
+| CriticalEndpointSLAViolation     | Critical > 500ms         | 5 min    | Critical |
+| HighPriorityEndpointSLAViolation | High > 1s                | 10 min   | Warning  |
+| FrequentSlowRequests             | > 10% exceed SLA         | 15 min   | Warning  |
+| ResponseTimeDegradation          | 50% increase vs baseline | 10 min   | Warning  |
 
 ### 6. Response Time Analytics UI
 
@@ -502,24 +506,25 @@ Smart AI Hub implements comprehensive security headers across all layers of the 
 
 The following security headers are configured:
 
-| Header | Purpose | Value |
-|--------|---------|-------|
-| `X-Content-Type-Options` | Prevents MIME-type sniffing | `nosniff` |
-| `X-Frame-Options` | Prevents clickjacking | `DENY` |
-| `X-XSS-Protection` | Enables XSS filtering | `1; mode=block` |
-| `Strict-Transport-Security` | Enforces HTTPS | `max-age=31536000; includeSubDomains; preload` |
-| `Referrer-Policy` | Controls referrer information | `strict-origin-when-cross-origin` |
-| `X-DNS-Prefetch-Control` | Controls DNS prefetching | `off` |
-| `X-Download-Options` | Prevents file download execution | `noopen` |
-| `X-Permitted-Cross-Domain-Policies` | Restricts cross-domain policies | `none` |
-| `Permissions-Policy` | Controls browser feature access | Restricted |
-| `Content-Security-Policy` | Controls resource loading | Environment-specific |
+| Header                              | Purpose                          | Value                                          |
+| ----------------------------------- | -------------------------------- | ---------------------------------------------- |
+| `X-Content-Type-Options`            | Prevents MIME-type sniffing      | `nosniff`                                      |
+| `X-Frame-Options`                   | Prevents clickjacking            | `DENY`                                         |
+| `X-XSS-Protection`                  | Enables XSS filtering            | `1; mode=block`                                |
+| `Strict-Transport-Security`         | Enforces HTTPS                   | `max-age=31536000; includeSubDomains; preload` |
+| `Referrer-Policy`                   | Controls referrer information    | `strict-origin-when-cross-origin`              |
+| `X-DNS-Prefetch-Control`            | Controls DNS prefetching         | `off`                                          |
+| `X-Download-Options`                | Prevents file download execution | `noopen`                                       |
+| `X-Permitted-Cross-Domain-Policies` | Restricts cross-domain policies  | `none`                                         |
+| `Permissions-Policy`                | Controls browser feature access  | Restricted                                     |
+| `Content-Security-Policy`           | Controls resource loading        | Environment-specific                           |
 
 #### Content Security Policy (CSP)
 
 The CSP is configured with environment-specific policies:
 
 **Production CSP (Strict):**
+
 ```
 default-src 'self';
 script-src 'self' 'nonce-{NONCE}';
@@ -536,6 +541,7 @@ report-uri /api/v1/security/csp-report;
 ```
 
 **Staging CSP (Relaxed):**
+
 ```
 default-src 'self' 'unsafe-inline' 'unsafe-eval';
 script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* ws://localhost:*;
@@ -546,10 +552,11 @@ report-uri /api/v1/security/csp-report;
 #### Deployment Steps for Security Headers
 
 1. **Verify NGINX Configuration**
+
    ```bash
    # Test NGINX configuration
    nginx -t -c nginx.prod.conf
-   
+
    # Reload NGINX if valid
    nginx -s reload
    ```
@@ -567,19 +574,21 @@ report-uri /api/v1/security/csp-report;
 #### Testing Security Headers
 
 1. **Run Security Test Script**
+
    ```bash
    # Linux/macOS
    ./scripts/test-security-headers.sh --base-url https://yourdomain.com --frontend-url https://yourdomain.com --verbose
-   
+
    # Windows
    scripts\test-security-headers.bat --base-url https://yourdomain.com --frontend-url https://yourdomain.com --verbose
    ```
 
 2. **Verify Headers Manually**
+
    ```bash
    # Check security headers
    curl -I https://yourdomain.com
-   
+
    # Look for all security headers in the response
    ```
 
@@ -595,6 +604,7 @@ report-uri /api/v1/security/csp-report;
    - Features: Security status, CSP violations, security score, recommendations
 
 2. **Monitor CSP Violations**
+
    ```bash
    # Check recent violations
    curl -H "Authorization: Bearer <token>" https://yourdomain.com/api/v1/security/status
@@ -625,10 +635,11 @@ report-uri /api/v1/security/csp-report;
 #### Troubleshooting Security Headers
 
 1. **CSP Violations**
+
    ```bash
    # Check violation details
    curl -H "Authorization: Bearer <token>" https://yourdomain.com/api/v1/security/violations
-   
+
    # Common solutions:
    # - Add missing domains to CSP directives
    # - Use nonces instead of unsafe-inline
@@ -636,19 +647,21 @@ report-uri /api/v1/security/csp-report;
    ```
 
 2. **Missing Headers**
+
    ```bash
    # Verify NGINX configuration
    nginx -t -c nginx.prod.conf
-   
+
    # Check service configuration
    docker-compose -f docker-compose.prod.yml logs nginx
    ```
 
 3. **HSTS Issues**
+
    ```bash
    # HSTS is only enabled in production/staging
    # Check environment variable NODE_ENV=production
-   
+
    # To temporarily disable HSTS (emergency only):
    # Remove HSTS header from nginx.prod.conf
    # Reload NGINX
@@ -657,12 +670,14 @@ report-uri /api/v1/security/csp-report;
 #### Security Score Calculation
 
 The security score is calculated based on:
+
 - **Headers Present** (60%): Each required header contributes points
 - **CSP Strictness** (25%): Stricter CSP policies score higher
 - **HSTS Configuration** (10%): Proper HSTS setup adds points
 - **Violations** (-5% each): Recent violations reduce score
 
 **Score Ratings:**
+
 - **A+**: 95-100 points
 - **A**: 90-94 points
 - **B**: 80-89 points
@@ -675,6 +690,7 @@ For comprehensive security headers documentation, refer to `docs/SECURITY_HEADER
 ### 3. Rate Limiting
 
 Rate limiting is configured in Nginx:
+
 - API endpoints: 10 requests/second
 - Auth endpoints: 5 requests/second
 
@@ -800,6 +816,7 @@ find logs/ -name "*.log" -mtime +30 -delete
 ### 3. Performance Monitoring
 
 Regularly monitor:
+
 - CPU and memory usage
 - Database performance
 - Response times
@@ -830,6 +847,7 @@ Regularly monitor:
 ## Support and Contact
 
 For additional support:
+
 - Create an issue on GitHub
 - Contact the DevOps team
 - Review the documentation at https://docs.smartaihub.com

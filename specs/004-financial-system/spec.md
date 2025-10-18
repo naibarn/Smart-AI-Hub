@@ -1,13 +1,13 @@
 ---
-spec_id: "EPIC-002"
-title: "Financial System & Credits"
-type: "Epic"
-status: "Active"
-business_domain: "Financial"
-priority: "Critical"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-version: "1.0.0"
+spec_id: 'EPIC-002'
+title: 'Financial System & Credits'
+type: 'Epic'
+status: 'Active'
+business_domain: 'Financial'
+priority: 'Critical'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+version: '1.0.0'
 ---
 
 # EPIC-002: Financial System & Credits
@@ -19,23 +19,29 @@ This specification defines the Financial System & Credits epic, which provides c
 ## User Stories
 
 ### US-011: Credit Account Creation
+
 As a new user, I want to have a credit account automatically created so that I can start accumulating and using credits for services.
 
 ### US-012: Credit Balance Management
+
 As a user, I want to view my credit balance and transaction history so that I can track my financial activities within the system.
 
 ### US-013: Credit Purchase
+
 As a user, I want to purchase credits through secure payment methods so that I can access premium services and features.
 
 ### US-014: Credit Usage
+
 As a user, I want to use my credits to pay for services so that I can access system features without manual payment processing.
 
 ### US-015: Credit Check API
+
 As a third-party service, I want to check if a user has sufficient credits for a service so that I can validate transactions before processing.
 
 ## Acceptance Criteria
 
 ### AC-011: Credit Account Creation
+
 - Users must have a credit account created automatically upon registration
 - Initial credit balance must be set to 0 or a default welcome amount
 - Credit accounts must be uniquely tied to user accounts
@@ -43,6 +49,7 @@ As a third-party service, I want to check if a user has sufficient credits for a
 - Credit account creation must be logged for audit purposes
 
 ### AC-012: Credit Balance Management
+
 - Users can view their current credit balance through the user interface
 - Users can access their complete transaction history
 - Transaction history must include date, amount, and description
@@ -50,6 +57,7 @@ As a third-party service, I want to check if a user has sufficient credits for a
 - System must maintain accurate financial records at all times
 
 ### AC-013: Credit Purchase
+
 - Users can purchase credits through multiple payment methods (credit card, PayPal, etc.)
 - Payment processing must be secure and compliant with PCI standards
 - Credit purchases must be reflected immediately in the user's balance
@@ -57,6 +65,7 @@ As a third-party service, I want to check if a user has sufficient credits for a
 - All payment attempts must be logged for security and audit purposes
 
 ### AC-014: Credit Usage
+
 - Users can use credits to pay for services within the system
 - Credit deduction must be atomic and prevent negative balances
 - System must validate sufficient credits before processing transactions
@@ -64,6 +73,7 @@ As a third-party service, I want to check if a user has sufficient credits for a
 - All credit usage must be logged with detailed transaction information
 
 ### AC-015: Credit Check API
+
 - Third-party services can check user credit balances via API
 - API must respond within 200ms as specified
 - API must return clear sufficient/insufficient status
@@ -75,6 +85,7 @@ As a third-party service, I want to check if a user has sufficient credits for a
 ### Database Schema
 
 #### CreditAccount Model
+
 ```prisma
 model CreditAccount {
   id        String   @id @default(uuid())
@@ -92,6 +103,7 @@ model CreditAccount {
 ```
 
 #### CreditTransaction Model
+
 ```prisma
 model CreditTransaction {
   id          String   @id @default(uuid())
@@ -129,7 +141,9 @@ model CreditTransaction {
 ## Data Models
 
 ### CreditAccount Entity
+
 The CreditAccount entity represents user credit accounts:
+
 - **id**: Unique identifier (UUID)
 - **userId**: Reference to the user account
 - **balance**: Current credit balance (in credits)
@@ -137,7 +151,9 @@ The CreditAccount entity represents user credit accounts:
 - **updatedAt**: Last update timestamp
 
 ### CreditTransaction Entity
+
 The CreditTransaction entity records all credit movements:
+
 - **id**: Unique identifier (UUID)
 - **accountId**: Reference to the credit account
 - **amount**: Transaction amount (positive for credits, negative for debits)
@@ -147,6 +163,7 @@ The CreditTransaction entity records all credit movements:
 - **createdAt**: Transaction timestamp
 
 ### Relationships
+
 - CreditAccount to User: One-to-one relationship
 - CreditAccount to CreditTransaction: One-to-many relationship
 
@@ -155,6 +172,7 @@ The CreditTransaction entity records all credit movements:
 ### Credit Management Endpoints
 
 #### Get Credit Balance
+
 ```
 GET /api/credits/balance
 Authorization: Bearer {token}
@@ -168,6 +186,7 @@ Response:
 ```
 
 #### Get Transaction History
+
 ```
 GET /api/credits/transactions?page=1&limit=20
 Authorization: Bearer {token}
@@ -192,6 +211,7 @@ Response:
 ```
 
 #### Purchase Credits
+
 ```
 POST /api/credits/purchase
 Content-Type: application/json
@@ -217,6 +237,7 @@ Response:
 ### Credit Check API (for Third-Party Services)
 
 #### Check User Credits
+
 ```
 POST /api/mcp/v1/credits/check
 Headers: X-User-ID: {user_id}
@@ -240,6 +261,7 @@ Error Responses:
 ```
 
 #### Use Credits
+
 ```
 POST /api/mcp/v1/credits/use
 Headers: X-User-ID: {user_id}
@@ -262,30 +284,35 @@ Response:
 ## Implementation Notes
 
 ### Credit Transaction Processing
+
 - All credit transactions must be processed atomically
 - System must use database transactions to ensure consistency
 - Credit operations must prevent negative balances
 - Concurrent credit operations must be properly synchronized
 
 ### Payment Integration
+
 - Payment processing must be handled by secure third-party providers
 - System must support multiple payment methods
 - Payment webhooks must be properly authenticated
 - Failed payments must not affect credit balances
 
 ### Credit Check API Implementation
+
 - API must use efficient database queries for balance checks
 - Concurrent requests must be handled correctly
 - API must implement proper rate limiting
 - Response times must meet the 200ms requirement
 
 ### Error Handling
+
 - All financial operations must have comprehensive error handling
 - Error messages must be user-friendly but secure
 - Failed operations must not leave system in inconsistent state
 - All errors must be logged for debugging and monitoring
 
 ### Testing Requirements
+
 - Unit tests must cover all financial operations
 - Integration tests must verify payment processing workflows
 - Performance tests must validate response time requirements

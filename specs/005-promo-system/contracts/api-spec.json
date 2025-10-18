@@ -34,7 +34,7 @@
         "summary": "Create a new promotional code",
         "description": "Creates a new promotional code with specified attributes",
         "operationId": "createPromoCode",
-        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "security": [{ "bearerAuth": [], "adminAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -94,7 +94,7 @@
         "summary": "List promotional codes",
         "description": "Retrieves a list of promotional codes with optional filtering",
         "operationId": "listPromoCodes",
-        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "security": [{ "bearerAuth": [], "adminAuth": [] }],
         "parameters": [
           {
             "name": "active",
@@ -171,7 +171,7 @@
         "summary": "Get promo code details",
         "description": "Retrieves detailed information about a specific promo code",
         "operationId": "getPromoCode",
-        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "security": [{ "bearerAuth": [], "adminAuth": [] }],
         "parameters": [
           {
             "name": "code",
@@ -207,7 +207,7 @@
         "summary": "Update promo code",
         "description": "Updates an existing promo code",
         "operationId": "updatePromoCode",
-        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "security": [{ "bearerAuth": [], "adminAuth": [] }],
         "parameters": [
           {
             "name": "code",
@@ -259,7 +259,7 @@
         "summary": "Delete promo code",
         "description": "Soft deletes a promo code (marks as inactive)",
         "operationId": "deletePromoCode",
-        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "security": [{ "bearerAuth": [], "adminAuth": [] }],
         "parameters": [
           {
             "name": "code",
@@ -293,7 +293,7 @@
         "summary": "Validate promo code",
         "description": "Validates if a promo code is available for use",
         "operationId": "validatePromoCode",
-        "security": [{"bearerAuth": []}],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "code",
@@ -331,7 +331,7 @@
         "summary": "Redeem promo code",
         "description": "Redeems a promo code for the authenticated user",
         "operationId": "redeemPromoCode",
-        "security": [{"bearerAuth": []}],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "code",
@@ -378,7 +378,7 @@
         "summary": "Get user redemption history",
         "description": "Retrieves redemption history for the authenticated user",
         "operationId": "getUserRedemptions",
-        "security": [{"bearerAuth": []}],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "page",
@@ -436,7 +436,7 @@
         "summary": "Get promo code analytics",
         "description": "Retrieves analytics data for promo codes",
         "operationId": "getPromoCodeAnalytics",
-        "security": [{"bearerAuth": [], "adminAuth": []}],
+        "security": [{ "bearerAuth": [], "adminAuth": [] }],
         "parameters": [
           {
             "name": "startDate",

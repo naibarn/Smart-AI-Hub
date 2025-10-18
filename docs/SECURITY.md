@@ -47,11 +47,11 @@ The system uses JSON Web Tokens (JWT) for authentication:
 ```typescript
 // Token generation with security best practices
 const token = jwt.sign(
-  { 
-    userId: user.id, 
+  {
+    userId: user.id,
     tier: user.tier,
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
+    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
   },
   process.env.JWT_SECRET,
   { algorithm: 'HS256' }
@@ -76,7 +76,7 @@ const verifyMFA = (token: string, secret: string): boolean => {
     secret,
     encoding: 'base32',
     token,
-    window: 2 // Allow 2 steps before/after for clock drift
+    window: 2, // Allow 2 steps before/after for clock drift
   });
 };
 ```
@@ -89,11 +89,11 @@ The system implements a tier-based access control model:
 
 ```typescript
 const tierHierarchy = {
-  'general': 0,
-  'admin': 1,
-  'organization': 2,
-  'agency': 3,
-  'administrator': 4
+  general: 0,
+  admin: 1,
+  organization: 2,
+  agency: 3,
+  administrator: 4,
 };
 
 function hasRequiredTier(userTier: string, requiredTier: string): boolean {
@@ -110,11 +110,11 @@ export const requirePermission = (permission: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user?.id;
     const hasPermission = await permissionService.hasPermission(userId, permission);
-    
+
     if (!hasPermission) {
       return res.status(403).json({ message: 'Insufficient permissions' });
     }
-    
+
     next();
   };
 };
@@ -134,15 +134,15 @@ export const encryptSensitiveField = (data: string): string => {
   const algorithm = 'aes-256-gcm';
   const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);
   const iv = crypto.randomBytes(16);
-  
+
   const cipher = crypto.createCipher(algorithm, key);
   cipher.setAAD(Buffer.from('additional-data'));
-  
+
   let encrypted = cipher.update(data, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   const authTag = cipher.getAuthTag();
-  
+
   return iv.toString('hex') + ':' + authTag.toString('hex') + ':' + encrypted;
 };
 ```
@@ -162,17 +162,17 @@ export const maskSensitiveData = (data: any): any => {
   if (typeof data === 'string' && isEmail(data)) {
     return maskEmail(data);
   }
-  
+
   if (typeof data === 'object' && data !== null) {
     const masked = { ...data };
-    
+
     // Mask sensitive fields
     if (masked.password) masked.password = '***';
     if (masked.creditCard) masked.creditCard = maskCreditCard(masked.creditCard);
-    
+
     return masked;
   }
-  
+
   return data;
 };
 ```
@@ -189,9 +189,9 @@ export const validateTransferInput = (input: TransferInput): ValidationResult =>
     recipientId: Joi.string().uuid().required(),
     amount: Joi.number().positive().max(1000000).required(),
     type: Joi.string().valid('points', 'credits').required(),
-    message: Joi.string().max(500).optional()
+    message: Joi.string().max(500).optional(),
   });
-  
+
   return schema.validate(input);
 };
 ```
@@ -207,15 +207,15 @@ export const createRateLimit = (windowMs: number, max: number) => {
     max,
     message: {
       error: 'Too many requests',
-      message: `Please try again later`
+      message: `Please try again later`,
     },
     standardHeaders: true,
     legacyHeaders: false,
     // Use Redis for distributed rate limiting
     store: new RedisStore({
       client: redisClient,
-      prefix: 'rl:'
-    })
+      prefix: 'rl:',
+    }),
   });
 };
 ```
@@ -231,22 +231,22 @@ export const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
-    }
+      frameSrc: ["'none'"],
+    },
   },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
   noSniff: true,
   frameguard: { action: 'deny' },
-  xssFilter: true
+  xssFilter: true,
 });
 ```
 
@@ -305,15 +305,15 @@ export const loadConfig = (): Config => {
   return {
     database: {
       url: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production'
+      ssl: process.env.NODE_ENV === 'production',
     },
     jwt: {
       secret: process.env.JWT_SECRET,
-      expiresIn: '24h'
+      expiresIn: '24h',
     },
     encryption: {
-      key: process.env.ENCRYPTION_KEY
-    }
+      key: process.env.ENCRYPTION_KEY,
+    },
   };
 };
 ```
@@ -328,12 +328,12 @@ Security tests are integrated into the CI/CD pipeline:
 // Security test example
 test('should prevent SQL injection', async () => {
   const maliciousInput = "'; DROP TABLE users; --";
-  
+
   const response = await request(app)
     .post('/api/v1/users/search')
     .send({ query: maliciousInput })
     .expect(400);
-  
+
   expect(response.body.message).toContain('Invalid input');
 });
 ```
@@ -372,9 +372,9 @@ export const logSecurityEvent = (event: SecurityEvent): void => {
     ip: event.ip,
     userAgent: event.userAgent,
     timestamp: new Date().toISOString(),
-    details: event.details
+    details: event.details,
   });
-  
+
   // Send alert to security team
   if (event.severity === 'high') {
     alertSecurityTeam(event);
@@ -430,12 +430,12 @@ export const logSecurityEvent = (event: SecurityEvent): void => {
 export const checkForVulnerabilities = async (): Promise<void> => {
   const auditResult = await execPromise('npm audit --json');
   const vulnerabilities = JSON.parse(auditResult.stdout);
-  
+
   if (vulnerabilities.metadata.vulnerabilities.high > 0) {
     await alertSecurityTeam({
       type: 'vulnerability',
       severity: 'high',
-      details: vulnerabilities
+      details: vulnerabilities,
     });
   }
 };
@@ -509,7 +509,7 @@ export const checkForVulnerabilities = async (): Promise<void> => {
 
 ---
 
-*This security documentation is regularly updated to reflect the latest security measures and best practices. Last updated: October 2023*
+_This security documentation is regularly updated to reflect the latest security measures and best practices. Last updated: October 2023_
 
 ## Contact Information
 

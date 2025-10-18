@@ -1,12 +1,12 @@
 ---
-title: "User Login and Authentication System"
-author: "Development Team"
-created_date: "2025-10-15"
-last_updated: "2025-10-15"
-version: "1.0"
-status: "Approved"
-priority: "P0 - Critical"
-related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
+title: 'User Login and Authentication System'
+author: 'Development Team'
+created_date: '2025-10-15'
+last_updated: '2025-10-15'
+version: '1.0'
+status: 'Approved'
+priority: 'P0 - Critical'
+related_specs: ['FR-002-Registration', 'FR-003-PasswordReset']
 ---
 
 # User Login and Authentication System
@@ -18,6 +18,7 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 ## 2. วัตถุประสงค์ (Objectives)
 
 ระบบนี้ถูกออกแบบมาเพื่อ:
+
 - ให้ผู้ใช้สามารถเข้าสู่ระบบได้อย่างปลอดภัยและสะดวก
 - ป้องกันการเข้าถึงโดยไม่ได้รับอนุญาต
 - รองรับการล็อกอินหลายช่องทาง (Email/Password และ Google OAuth)
@@ -32,6 +33,7 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 **เพื่อที่จะ** เข้าถึงหน้า Dashboard และใช้งานบริการต่างๆ ของ Smart AI Hub
 
 **Acceptance Criteria:**
+
 - [ ] หน้าล็อกอินต้องมีช่องกรอกอีเมลและรหัสผ่าน
 - [ ] ต้องมีปุ่ม "เข้าสู่ระบบ" (Login)
 - [ ] เมื่อกรอกข้อมูลถูกต้องและกดปุ่ม ระบบต้องตรวจสอบข้อมูลกับฐานข้อมูล
@@ -47,6 +49,7 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 **เพื่อที่จะ** เข้าถึงระบบได้อย่างรวดเร็วโดยไม่ต้องจำรหัสผ่านเพิ่มเติม
 
 **Acceptance Criteria:**
+
 - [ ] หน้าล็อกอินต้องมีปุ่ม "เข้าสู่ระบบด้วย Google"
 - [ ] เมื่อคลิกปุ่ม ต้องเปิดหน้าต่างยืนยันตัวตนของ Google
 - [ ] หลังจากยืนยันตัวตนสำเร็จ ระบบต้องรับ Token จาก Google
@@ -57,6 +60,7 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 ## 4. ขอบเขตงาน (Scope)
 
 ### 4.1 ในขอบเขตงาน (In Scope)
+
 - การล็อกอินด้วยอีเมลและรหัสผ่าน
 - การล็อกอินด้วย Google OAuth
 - การจัดการ Session และ JWT Token
@@ -65,6 +69,7 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 - การ Rate Limiting เพื่อป้องกัน Brute Force Attack
 
 ### 4.2 นอกขอบเขตงาน (Out of Scope)
+
 - การล็อกอินผ่าน Social Media อื่นๆ (Facebook, Twitter)
 - ฟังก์ชัน "จดจำฉันไว้ในระบบ (Remember Me)"
 - การยืนยันตัวตนสองปัจจัย (2FA) - จะพัฒนาใน Phase 2
@@ -74,14 +79,15 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 
 ### 5.1 Backend API Endpoints
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| POST | `/api/auth/login` | ล็อกอินด้วยอีเมล/รหัสผ่าน | `{ email, password }` | `{ token, user }` |
-| POST | `/api/auth/google` | ล็อกอินด้วย Google OAuth | `{ googleToken }` | `{ token, user }` |
-| POST | `/api/auth/logout` | ออกจากระบบ | `{ token }` | `{ success: true }` |
-| GET | `/api/auth/me` | ดึงข้อมูลผู้ใช้ปัจจุบัน | Header: `Authorization: Bearer {token}` | `{ user }` |
+| Method | Endpoint           | Description               | Request Body                            | Response            |
+| ------ | ------------------ | ------------------------- | --------------------------------------- | ------------------- |
+| POST   | `/api/auth/login`  | ล็อกอินด้วยอีเมล/รหัสผ่าน | `{ email, password }`                   | `{ token, user }`   |
+| POST   | `/api/auth/google` | ล็อกอินด้วย Google OAuth  | `{ googleToken }`                       | `{ token, user }`   |
+| POST   | `/api/auth/logout` | ออกจากระบบ                | `{ token }`                             | `{ success: true }` |
+| GET    | `/api/auth/me`     | ดึงข้อมูลผู้ใช้ปัจจุบัน   | Header: `Authorization: Bearer {token}` | `{ user }`          |
 
 ### 5.2 Security Requirements
+
 - รหัสผ่านต้องถูกเข้ารหัสด้วย **bcrypt** (salt rounds: 10)
 - JWT Token ต้องมีอายุ **24 ชั่วโมง**
 - ต้องมี **Refresh Token** สำหรับการต่ออายุ Session
@@ -89,6 +95,7 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 - ต้องมี **CSRF Protection** สำหรับ OAuth Flow
 
 ### 5.3 Frontend Requirements
+
 - ใช้ **React Hook Form** สำหรับจัดการฟอร์ม
 - ใช้ **Zod** สำหรับ Validation
 - ใช้ **Material-UI** สำหรับ UI Components
@@ -98,16 +105,19 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 ## 6. การทดสอบ (Testing Criteria)
 
 ### 6.1 Unit Tests
+
 - [ ] ทดสอบการเข้ารหัสรหัสผ่านด้วย bcrypt
 - [ ] ทดสอบการสร้างและตรวจสอบ JWT Token
 - [ ] ทดสอบการ Validate ข้อมูล Input
 
 ### 6.2 Integration Tests
+
 - [ ] ทดสอบ API `/api/auth/login` กับกรณีต่างๆ (สำเร็จ, ผิดพลาด)
 - [ ] ทดสอบ OAuth Flow กับ Google
 - [ ] ทดสอบการทำงานของ Rate Limiting
 
 ### 6.3 E2E Tests
+
 - [ ] ทดสอบการล็อกอินผ่าน UI จนถึงหน้า Dashboard
 - [ ] ทดสอบการแสดงข้อความแจ้งเตือนเมื่อล็อกอินผิดพลาด
 - [ ] ทดสอบการล็อกอินด้วย Google OAuth ผ่าน UI
@@ -115,51 +125,56 @@ related_specs: ["FR-002-Registration", "FR-003-PasswordReset"]
 ## 7. Dependencies และ Assumptions
 
 ### 7.1 Dependencies
+
 - ระบบต้องการ **PostgreSQL Database** สำหรับจัดเก็บข้อมูลผู้ใช้
 - ต้องมี **Google OAuth Client ID และ Secret** ที่ถูกต้อง
 - ต้องมี **Redis** สำหรับจัดเก็บ Session (Optional แต่แนะนำ)
 
 ### 7.2 Assumptions
+
 - ผู้ใช้ต้องยืนยันอีเมลก่อนที่จะสามารถล็อกอินได้ (ตาม Spec FR-002)
 - ระบบจะทำงานบน HTTPS ในสภาพแวดล้อม Production
 
 ## 8. Non-Functional Requirements
 
 ### 8.1 Performance
+
 - API Response Time ต้องไม่เกิน **200ms** (P95)
 - หน้าล็อกอินต้องโหลดเสร็จภายใน **2 วินาที**
 
 ### 8.2 Availability
+
 - ระบบต้องมี Uptime อย่างน้อย **99.5%**
 
 ### 8.3 Usability
+
 - หน้าล็อกอินต้องใช้งานได้บนอุปกรณ์มือถือ (Responsive Design)
 - ต้องรองรับ Screen Reader สำหรับผู้พิการทางสายตา (WCAG 2.1 Level AA)
 
 ## 9. Risks และ Mitigation
 
-| Risk | Impact | Probability | Mitigation Strategy |
-|------|--------|-------------|---------------------|
-| Google OAuth Service Down | High | Low | ให้ผู้ใช้สามารถล็อกอินด้วยอีเมล/รหัสผ่านได้เสมอ |
-| Brute Force Attack | High | Medium | ใช้ Rate Limiting และ CAPTCHA หลังจากพยายาม 3 ครั้ง |
-| Token Leakage | Critical | Low | ใช้ HTTPS, HttpOnly Cookies, และ Short-lived Tokens |
+| Risk                      | Impact   | Probability | Mitigation Strategy                                 |
+| ------------------------- | -------- | ----------- | --------------------------------------------------- |
+| Google OAuth Service Down | High     | Low         | ให้ผู้ใช้สามารถล็อกอินด้วยอีเมล/รหัสผ่านได้เสมอ     |
+| Brute Force Attack        | High     | Medium      | ใช้ Rate Limiting และ CAPTCHA หลังจากพยายาม 3 ครั้ง |
+| Token Leakage             | Critical | Low         | ใช้ HTTPS, HttpOnly Cookies, และ Short-lived Tokens |
 
 ## 10. Timeline และ Milestones
 
-| Milestone | Target Date | Status |
-|-----------|-------------|--------|
-| API Development | 2025-10-18 | In Progress |
-| Frontend UI | 2025-10-20 | Not Started |
-| Testing | 2025-10-22 | Not Started |
-| Production Deployment | 2025-10-25 | Not Started |
+| Milestone             | Target Date | Status      |
+| --------------------- | ----------- | ----------- |
+| API Development       | 2025-10-18  | In Progress |
+| Frontend UI           | 2025-10-20  | Not Started |
+| Testing               | 2025-10-22  | Not Started |
+| Production Deployment | 2025-10-25  | Not Started |
 
 ## 11. Sign-off
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| Product Owner | - | - | Pending |
-| Tech Lead | - | - | Pending |
-| QA Lead | - | - | Pending |
+| Role          | Name | Date | Signature |
+| ------------- | ---- | ---- | --------- |
+| Product Owner | -    | -    | Pending   |
+| Tech Lead     | -    | -    | Pending   |
+| QA Lead       | -    | -    | Pending   |
 
 ---
 

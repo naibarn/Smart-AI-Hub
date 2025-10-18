@@ -1,69 +1,79 @@
 ---
-title: "User"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-10-15"
-updated_at: "2025-10-15"
-type: "specification"
-description: "Comprehensive specification for user"
+title: 'User'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-10-15'
+updated_at: '2025-10-15'
+type: 'specification'
+description: 'Comprehensive specification for user'
 ---
+
 # User
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  passwordHash  String?
-  verified      Boolean  @default(false)
-  googleId      String?  @unique
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+id String @id @default(uuid())
+email String @unique
+passwordHash String?
+verified Boolean @default(false)
+googleId String? @unique
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 
-  roles         UserRole[]
-  creditAccount CreditAccount?
-  usageLogs     UsageLog[]
+roles UserRole[]
+creditAccount CreditAccount?
+usageLogs UsageLog[]
 
-  @@index([email])
-  @@map("users")
+@@index([email])
+@@map("users")
 }
+
 ## Fields
+
 - id: Primary key (UUID)
 - created_at: Timestamp of creation
 - updated_at: Timestamp of last update
 
 ## Relationships
+
 - This model shall maintain proper relationships with other models
 - Foreign key constraints must be properly defined
 - Cascade operations should be carefully considered
 
 ## Constraints
+
 - All required fields must be validated
 - Unique constraints must be enforced where applicable
 - Data integrity shall be maintained at all times
 
 ## Validation Rules
+
 - Input data must be properly sanitized
 - Business rules shall be enforced at the application level
 - Database constraints must be properly defined
 
 ## Overview
+
 This data model represents a core entity in the system architecture.
 It shall maintain data integrity and support business requirements efficiently.
 
 ## Indexes
+
 - Primary key index on id field for fast lookups
 - Index on frequently queried fields for performance optimization
 - Composite indexes on common query combinations
 - Regular index maintenance and monitoring required
 
 ## Security Considerations
+
 - Sensitive data shall be encrypted at rest
 - Access controls must be properly implemented
 - Data retention policies shall be enforced
 - Audit trails must be maintained for compliance
 
 ## Audit Requirements
+
 - All data modifications shall be logged
 - Change tracking must include user and timestamp
 - Historical data shall be preserved according to retention policies

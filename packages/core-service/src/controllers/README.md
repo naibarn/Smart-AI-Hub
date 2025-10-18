@@ -15,12 +15,14 @@ The Credit Controller provides endpoints for managing user credits in the Smart 
 ### User Endpoints
 
 #### GET /api/credits/balance
+
 Get the current user's credit balance.
 
 **Authentication:** Required (JWT)
 **Permissions:** `credits:read`
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -35,16 +37,19 @@ Get the current user's credit balance.
 ```
 
 #### GET /api/credits/history
+
 Get the current user's credit transaction history.
 
 **Authentication:** Required (JWT)
 **Permissions:** `credits:read`
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Number of items per page (default: 20, max: 100)
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -70,12 +75,14 @@ Get the current user's credit transaction history.
 ```
 
 #### POST /api/credits/redeem
+
 Redeem a promo code for credits.
 
 **Authentication:** Required (JWT)
 **Permissions:** `credits:write`
 
 **Request Body:**
+
 ```json
 {
   "code": "WELCOME10"
@@ -83,6 +90,7 @@ Redeem a promo code for credits.
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -98,15 +106,18 @@ Redeem a promo code for credits.
 ### Admin Endpoints
 
 #### POST /api/admin/credits/adjust
+
 Adjust user credits (admin only).
 
 **Authentication:** Required (JWT)
 **Permissions:** Admin or Superadmin role
 
 **Request Parameters:**
+
 - `userId` (path): User ID to adjust credits for
 
 **Request Body:**
+
 ```json
 {
   "amount": 100,
@@ -115,6 +126,7 @@ Adjust user credits (admin only).
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -127,15 +139,18 @@ Adjust user credits (admin only).
 ```
 
 #### GET /api/admin/credits/:userId
+
 Get user credit information (admin only).
 
 **Authentication:** Required (JWT)
 **Permissions:** `credits:read`
 
 **Request Parameters:**
+
 - `userId` (path): User ID to get credit information for
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -175,6 +190,7 @@ All endpoints return errors in the following format:
 ```
 
 Common error codes:
+
 - `400`: Bad Request (invalid input)
 - `401`: Unauthorized (authentication required)
 - `403`: Forbidden (insufficient permissions)
@@ -184,6 +200,7 @@ Common error codes:
 ## Caching
 
 Credit balance responses are cached in Redis for 60 seconds to improve performance. The cache is automatically invalidated when:
+
 - A user redeems a promo code
 - An admin adjusts user credits
 

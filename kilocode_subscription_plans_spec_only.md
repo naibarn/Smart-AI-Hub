@@ -2,6 +2,7 @@ TASK: Create Comprehensive Spec Kit Documentation for Subscription Plans System
 
 OBJECTIVE:
 Create complete Spec Kit documentation (16 sections) for the Subscription Plans System including:
+
 1. Subscription Plans with customizable pricing (Administrator UI)
 2. Free Credits for new users (with UI management)
 3. Promo Code System (with UI management, expiration, usage limits)
@@ -31,14 +32,14 @@ REFERENCE: Follow the exact format from spec_example_good.md (16 sections)
 
 ```yaml
 ---
-title: "Subscription Plans and Monetization System"
-author: "Development Team"
-created_date: "2025-10-17"
-last_updated: "2025-10-17"
-version: "1.0"
-status: "Draft - Pending Development"
-priority: "P1 - High"
-related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM_SPEC"]
+title: 'Subscription Plans and Monetization System'
+author: 'Development Team'
+created_date: '2025-10-17'
+last_updated: '2025-10-17'
+version: '1.0'
+status: 'Draft - Pending Development'
+priority: 'P1 - High'
+related_specs: ['POINTS_SYSTEM_SPEC', 'HIERARCHY_REFERRAL_SPEC', 'PAYMENT_SYSTEM_SPEC']
 ---
 ```
 
@@ -51,6 +52,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 ระบบ Subscription Plans เป็นระบบการจัดการแผนการใช้งานและการเก็บเงินของ Smart AI Hub ที่ช่วยให้ผู้ใช้สามารถเลือกแผนที่เหมาะสมกับความต้องการและงบประมาณของตนเอง ระบบนี้รองรับ 5 แผนหลัก (Free, Basic, Pro, Enterprise, Enterprise Plus) พร้อมฟีเจอร์ที่แตกต่างกันตามระดับของแผน
 
 **คุณสมบัติหลัก:**
+
 - **5 Subscription Plans** ตั้งแต่ Free ถึง Enterprise Plus
 - **Administrator UI** สำหรับจัดการ Plans และราคา
 - **Free Credits System** สำหรับผู้ใช้ใหม่
@@ -60,6 +62,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 - **Flexible Pricing** ที่ Administrator ปรับได้
 
 **ความสำคัญ:**
+
 - เพิ่มรายได้ประจำ (Recurring Revenue)
 - ลด Barrier to Entry ด้วย Free Tier
 - เพิ่ม User Engagement ด้วย Daily Rewards
@@ -108,6 +111,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** เริ่มใช้งาน Smart AI Hub ได้อย่างเหมาะสม
 
 **Acceptance Criteria:**
+
 - [ ] หน้า Pricing ต้องแสดง Plans ทั้ง 5 แผนอย่างชัดเจน
 - [ ] แต่ละ Plan ต้องแสดง: ราคา, Credits/เดือน, Daily Rewards, Features
 - [ ] มีปุ่ม "เลือกแผนนี้" (Select Plan) สำหรับแต่ละ Plan
@@ -123,6 +127,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ทดลองใช้งานโดยไม่ต้องจ่ายเงิน
 
 **Acceptance Criteria:**
+
 - [ ] เมื่อสมัครสมาชิกสำเร็จ ต้องได้รับ 100 Credits ฟรีทันที
 - [ ] เมื่อ Verify Email ต้องได้รับ 500 Points ฟรี
 - [ ] เมื่อ Complete Profile ต้องได้รับ 1,000 Points ฟรี
@@ -137,6 +142,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ประหยัดค่าใช้จ่าย
 
 **Acceptance Criteria:**
+
 - [ ] หน้า Checkout ต้องมีช่องกรอก Promo Code
 - [ ] เมื่อกรอก Code ถูกต้อง ต้องแสดงส่วนลดที่ได้รับ
 - [ ] เมื่อกรอก Code ผิด ต้องแสดงข้อความ "Promo Code ไม่ถูกต้องหรือหมดอายุ"
@@ -152,6 +158,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ปรับ pricing strategy ตามสถานการณ์ตลาด
 
 **Acceptance Criteria:**
+
 - [ ] มีหน้า Admin UI สำหรับจัดการ Plans (/admin/plans)
 - [ ] สามารถ Create, Edit, Delete Plans ได้
 - [ ] สามารถกำหนด: Plan Name, Price, Credits/month, Daily Rewards, Features
@@ -168,6 +175,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ทำ marketing campaigns และเพิ่ม conversions
 
 **Acceptance Criteria:**
+
 - [ ] มีหน้า Admin UI สำหรับจัดการ Promo Codes (/admin/promo-codes)
 - [ ] สามารถ Create, Edit, Delete, Disable Promo Codes ได้
 - [ ] สามารถกำหนด: Code, Discount (%), Valid From, Valid To, Usage Limit
@@ -183,6 +191,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ปรับ acquisition strategy
 
 **Acceptance Criteria:**
+
 - [ ] มีหน้า Admin UI สำหรับจัดการ Free Credits (/admin/free-credits)
 - [ ] สามารถกำหนด: Signup Credits, Email Verification Credits, Profile Completion Credits
 - [ ] สามารถ Enable/Disable แต่ละ milestone
@@ -197,6 +206,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** สร้างรายได้จากการบริหารจัดการ users
 
 **Acceptance Criteria:**
+
 - [ ] Agency ได้รับ 10% commission เป็น Credits เมื่อ users ภายใต้ตนซื้อ subscription
 - [ ] แสดง Commission Balance ใน Agency Dashboard
 - [ ] แสดง Commission History (รายการ commission ที่ได้รับ)
@@ -213,6 +223,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ปรับแผนให้เหมาะกับความต้องการที่เปลี่ยนไป
 
 **Acceptance Criteria:**
+
 - [ ] มีปุ่ม "Upgrade Plan" / "Downgrade Plan" ใน Dashboard
 - [ ] แสดงตารางเปรียบเทียบ Current Plan vs New Plan
 - [ ] แสดงราคาที่ต้องจ่ายเพิ่ม (Prorated) สำหรับ Upgrade
@@ -228,6 +239,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** ทราบว่าใช้ไปเท่าไหร่และเหลืออีกเท่าไหร่
 
 **Acceptance Criteria:**
+
 - [ ] Dashboard แสดง Current Plan และ Renewal Date
 - [ ] แสดง Credits Usage (Used / Total)
 - [ ] แสดง API Requests (Used / Limit)
@@ -242,6 +254,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **เพื่อที่จะ** หยุดการเรียกเก็บเงินรายเดือน
 
 **Acceptance Criteria:**
+
 - [ ] มีปุ่ม "Cancel Subscription" ใน Settings
 - [ ] แสดง Confirmation Dialog พร้อมเหตุผลในการ Cancel
 - [ ] แสดงว่า Subscription จะหมดอายุเมื่อไหร่
@@ -257,6 +270,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 #### 4.1 ในขอบเขตงาน (In Scope)
 
 **4.1.1 Subscription Plans Management**
+
 - 5 Plans: Free, Basic ($9.99), Pro ($49.99), Enterprise ($299.99), Enterprise Plus ($499.99)
 - Administrator UI สำหรับจัดการ Plans และราคา
 - Plan-based Credits allocation (monthly)
@@ -266,6 +280,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 - Plan assignment ตาม User Tier (General, Organization, Agency)
 
 **4.1.2 Free Credits System**
+
 - 100 Credits ฟรีเมื่อสมัครสมาชิก
 - 500 Points ฟรีเมื่อ Verify Email
 - 1,000 Points ฟรีเมื่อ Complete Profile
@@ -273,6 +288,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 - Milestone tracking และ notifications
 
 **4.1.3 Promo Code System**
+
 - Promo Code creation และ management
 - Discount percentage (เช่น 20% off)
 - Expiration date (Valid From - Valid To)
@@ -284,6 +300,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 - Bulk creation สำหรับ campaigns
 
 **4.1.4 Agency Revenue Sharing**
+
 - 10% commission จาก subscriptions ของ users ภายใต้ Agency
 - Commission paid เป็น Credits
 - PayPal withdrawal (ขั้นต่ำ $100)
@@ -294,6 +311,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 - Withdrawal request และ processing
 
 **4.1.5 Plan-based Features**
+
 - API Rate Limits ตาม Plan
 - Usage Quotas ตาม Plan
 - Support Tiers (Email, Priority Email, Dedicated)
@@ -301,6 +319,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 - SLA Guarantee สำหรับ Enterprise+
 
 **4.1.6 Subscription Management**
+
 - Subscribe to Plan
 - Upgrade Plan (prorated billing)
 - Downgrade Plan (effective next billing cycle)
@@ -329,13 +348,13 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 
 **FR-1.1: Plan Definitions**
 
-| Plan | Price | User Tier | Credits/Month | Daily Rewards | API Rate Limit | Features |
-|------|-------|-----------|---------------|---------------|----------------|----------|
-| **Free** | $0 | General | 100 (signup) | 50 Points/day | 10 req/min | Basic |
-| **Basic** | $9.99 | General | 1,000 | 100 Points/day | 60 req/min | + Email Support |
-| **Pro** | $49.99 | Organization | 10,000 | 500 Points/day | 300 req/min | + Priority Support, Analytics |
-| **Enterprise** | $299.99 | Organization | 100,000 | 2,000 Points/day | Unlimited | + Dedicated Support, Custom Integrations, SLA |
-| **Enterprise Plus** | $499.99 | Agency | 200,000 | 4,000 Points/day | Unlimited | + Revenue Sharing (10%) |
+| Plan                | Price   | User Tier    | Credits/Month | Daily Rewards    | API Rate Limit | Features                                      |
+| ------------------- | ------- | ------------ | ------------- | ---------------- | -------------- | --------------------------------------------- |
+| **Free**            | $0      | General      | 100 (signup)  | 50 Points/day    | 10 req/min     | Basic                                         |
+| **Basic**           | $9.99   | General      | 1,000         | 100 Points/day   | 60 req/min     | + Email Support                               |
+| **Pro**             | $49.99  | Organization | 10,000        | 500 Points/day   | 300 req/min    | + Priority Support, Analytics                 |
+| **Enterprise**      | $299.99 | Organization | 100,000       | 2,000 Points/day | Unlimited      | + Dedicated Support, Custom Integrations, SLA |
+| **Enterprise Plus** | $499.99 | Agency       | 200,000       | 4,000 Points/day | Unlimited      | + Revenue Sharing (10%)                       |
 
 **FR-1.2: Plan Management (Administrator)**
 
@@ -363,11 +382,11 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 
 **FR-2.1: Free Credits Allocation**
 
-| Milestone | Credits | Points | Condition |
-|-----------|---------|--------|-----------|
-| Signup | 100 | 0 | เมื่อสมัครสมาชิกสำเร็จ |
-| Email Verification | 0 | 500 | เมื่อ verify email สำเร็จ |
-| Profile Completion | 0 | 1,000 | เมื่อกรอกข้อมูลครบ: Name, Phone, Avatar, Bio |
+| Milestone          | Credits | Points | Condition                                    |
+| ------------------ | ------- | ------ | -------------------------------------------- |
+| Signup             | 100     | 0      | เมื่อสมัครสมาชิกสำเร็จ                       |
+| Email Verification | 0       | 500    | เมื่อ verify email สำเร็จ                    |
+| Profile Completion | 0       | 1,000  | เมื่อกรอกข้อมูลครบ: Name, Phone, Avatar, Bio |
 
 **FR-2.2: Free Credits Management (Administrator)**
 
@@ -428,6 +447,7 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 **FR-4.2: Credits to USD Conversion**
 
 ใช้ตารางแปลงเดียวกับการซื้อ Credits:
+
 - 100 Credits = $10 → 1 Credit = $0.10
 - 1,000 Credits = $80 → 1 Credit = $0.08
 - 10,000 Credits = $600 → 1 Credit = $0.06
@@ -465,78 +485,84 @@ related_specs: ["POINTS_SYSTEM_SPEC", "HIERARCHY_REFERRAL_SPEC", "PAYMENT_SYSTEM
 
 **FR-5.1: API Rate Limits**
 
-| Plan | Rate Limit | Implementation |
-|------|------------|----------------|
-| Free | 10 req/min | Express rate limiter |
-| Basic | 60 req/min | Express rate limiter |
-| Pro | 300 req/min | Express rate limiter |
-| Enterprise | Unlimited | No rate limit |
-| Enterprise Plus | Unlimited | No rate limit |
+| Plan            | Rate Limit  | Implementation       |
+| --------------- | ----------- | -------------------- |
+| Free            | 10 req/min  | Express rate limiter |
+| Basic           | 60 req/min  | Express rate limiter |
+| Pro             | 300 req/min | Express rate limiter |
+| Enterprise      | Unlimited   | No rate limit        |
+| Enterprise Plus | Unlimited   | No rate limit        |
 
 **FR-5.2: Usage Quotas**
 
-| Plan | Credits/Month | Daily Rewards | Rollover |
-|------|---------------|---------------|----------|
-| Free | 100 (one-time) | 50 Points | No |
-| Basic | 1,000 | 100 Points | No |
-| Pro | 10,000 | 500 Points | Yes (up to 2x) |
-| Enterprise | 100,000 | 2,000 Points | Yes (up to 2x) |
-| Enterprise Plus | 200,000 | 4,000 Points | Yes (up to 2x) |
+| Plan            | Credits/Month  | Daily Rewards | Rollover       |
+| --------------- | -------------- | ------------- | -------------- |
+| Free            | 100 (one-time) | 50 Points     | No             |
+| Basic           | 1,000          | 100 Points    | No             |
+| Pro             | 10,000         | 500 Points    | Yes (up to 2x) |
+| Enterprise      | 100,000        | 2,000 Points  | Yes (up to 2x) |
+| Enterprise Plus | 200,000        | 4,000 Points  | Yes (up to 2x) |
 
 **FR-5.3: Support Tiers**
 
-| Plan | Support Type | Response Time | Channels |
-|------|--------------|---------------|----------|
-| Free | Community | Best effort | Forum |
-| Basic | Email | 48 hours | Email |
-| Pro | Priority Email | 24 hours | Email, Chat |
-| Enterprise | Dedicated | 4 hours | Email, Chat, Phone |
-| Enterprise Plus | Dedicated | 2 hours | Email, Chat, Phone, Slack |
+| Plan            | Support Type   | Response Time | Channels                  |
+| --------------- | -------------- | ------------- | ------------------------- |
+| Free            | Community      | Best effort   | Forum                     |
+| Basic           | Email          | 48 hours      | Email                     |
+| Pro             | Priority Email | 24 hours      | Email, Chat               |
+| Enterprise      | Dedicated      | 4 hours       | Email, Chat, Phone        |
+| Enterprise Plus | Dedicated      | 2 hours       | Email, Chat, Phone, Slack |
 
 **FR-5.4: Advanced Features**
 
-| Feature | Free | Basic | Pro | Enterprise | Enterprise Plus |
-|---------|------|-------|-----|------------|-----------------|
-| Basic AI Models | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Advanced Analytics | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Custom Models | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Custom Integrations | ❌ | ❌ | ❌ | ✅ | ✅ |
-| SLA Guarantee | ❌ | ❌ | ❌ | 99.9% | 99.95% |
-| Revenue Sharing | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Feature             | Free | Basic | Pro | Enterprise | Enterprise Plus |
+| ------------------- | ---- | ----- | --- | ---------- | --------------- |
+| Basic AI Models     | ✅   | ✅    | ✅  | ✅         | ✅              |
+| Advanced Analytics  | ❌   | ❌    | ✅  | ✅         | ✅              |
+| Custom Models       | ❌   | ❌    | ❌  | ✅         | ✅              |
+| Custom Integrations | ❌   | ❌    | ❌  | ✅         | ✅              |
+| SLA Guarantee       | ❌   | ❌    | ❌  | 99.9%      | 99.95%          |
+| Revenue Sharing     | ❌   | ❌    | ❌  | ❌         | ✅              |
 
 ---
 
 ### 6. ข้อกำหนดด้านไม่ใช่ฟังก์ชัน (Non-Functional Requirements)
 
 **NFR-1: Performance**
+
 - Pricing Page ต้องโหลดเสร็จภายใน 2 วินาที
 - Subscription API ต้อง respond ภายใน 500ms
 - Promo Code validation ต้องเสร็จภายใน 200ms
 - Commission calculation ต้องเสร็จภายใน 1 วินาที
 
 **NFR-2: Scalability**
+
 - รองรับ 10,000+ concurrent users
 - รองรับ 1,000+ subscriptions/day
 - รองรับ 10,000+ promo code validations/day
 
 **NFR-3: Reliability**
+
 - Subscription system uptime ≥ 99.9%
 - Payment processing success rate ≥ 99%
 - Commission calculation accuracy 100%
 
 **NFR-4: Security**
+
 - Payment information ต้องเข้ารหัส (PCI DSS compliant)
 - Promo Codes ต้องป้องกัน brute force
 - Agency withdrawal ต้องมี 2FA verification
 - Administrator actions ต้องมี audit log
 
 **NFR-5: Usability**
+
 - Pricing Page ต้อง responsive (mobile-friendly)
 - Plan comparison ต้องชัดเจนและเข้าใจง่าย
 - Checkout flow ต้องไม่เกิน 3 steps
 - Error messages ต้องชัดเจนและเป็นมิตร
 
 **NFR-6: Maintainability**
+
 - Administrator UI ต้องใช้งานง่าย (no technical knowledge required)
 - Plans และ Promo Codes ต้องแก้ไขได้โดยไม่ต้อง deploy code
 - Commission rates ต้อง configurable
@@ -554,22 +580,22 @@ interface SubscriptionPlan {
   slug: string; // "free", "basic", "pro", "enterprise", "enterprise-plus"
   price: number; // Monthly price in USD
   currency: string; // "USD"
-  
+
   // Allocations
   creditsPerMonth: number; // 0 for Free (one-time 100)
   dailyRewardsPoints: number;
-  
+
   // Limits
   apiRateLimit: number; // requests per minute, 0 = unlimited
-  
+
   // Features
   features: string[]; // ["Email Support", "Analytics", "Custom Models", etc.]
-  supportTier: "Community" | "Email" | "Priority" | "Dedicated";
+  supportTier: 'Community' | 'Email' | 'Priority' | 'Dedicated';
   slaUptime: number | null; // 99.9, 99.95, or null
-  
+
   // Eligibility
-  userTiers: ("General" | "Organization" | "Admin" | "Agency" | "Administrator")[];
-  
+  userTiers: ('General' | 'Organization' | 'Admin' | 'Agency' | 'Administrator')[];
+
   // Metadata
   isActive: boolean;
   isPublic: boolean;
@@ -586,23 +612,23 @@ interface UserSubscription {
   id: string;
   userId: string;
   planId: string;
-  
+
   // Billing
-  status: "active" | "canceled" | "past_due" | "paused";
+  status: 'active' | 'canceled' | 'past_due' | 'paused';
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
   cancelAt: Date | null; // scheduled cancellation
   canceledAt: Date | null;
-  
+
   // Payment
   stripeSubscriptionId: string;
   stripeCustomerId: string;
   paymentMethodId: string;
-  
+
   // Usage
   creditsUsed: number;
   apiRequestsUsed: number;
-  
+
   // Metadata
   createdAt: Date;
   updatedAt: Date;
@@ -615,23 +641,23 @@ interface UserSubscription {
 interface PromoCode {
   id: string;
   code: string; // unique, uppercase
-  
+
   // Discount
-  discountType: "percentage";
+  discountType: 'percentage';
   discountValue: number; // 0-100 for percentage
-  
+
   // Validity
   validFrom: Date;
   validTo: Date;
-  
+
   // Usage
   usageLimit: number; // 0 = unlimited
   usageCount: number;
-  
+
   // Restrictions
   firstTimeUserOnly: boolean;
   applicablePlans: string[]; // Plan IDs, empty = all plans
-  
+
   // Metadata
   isActive: boolean;
   createdBy: string; // Admin user ID
@@ -648,12 +674,12 @@ interface PromoCodeUsage {
   promoCodeId: string;
   userId: string;
   subscriptionId: string;
-  
+
   // Discount Applied
   originalPrice: number;
   discountAmount: number;
   finalPrice: number;
-  
+
   // Metadata
   usedAt: Date;
 }
@@ -664,12 +690,12 @@ interface PromoCodeUsage {
 ```typescript
 interface FreeCreditsConfig {
   id: string;
-  
+
   // Milestones
   signupCredits: number;
   emailVerificationPoints: number;
   profileCompletionPoints: number;
-  
+
   // Profile Completion Requirements
   profileRequirements: {
     name: boolean;
@@ -677,10 +703,10 @@ interface FreeCreditsConfig {
     avatar: boolean;
     bio: boolean;
   };
-  
+
   // Status
   isActive: boolean;
-  
+
   // Metadata
   updatedBy: string; // Admin user ID
   updatedAt: Date;
@@ -695,18 +721,18 @@ interface AgencyCommission {
   agencyUserId: string;
   sourceUserId: string; // User who subscribed
   subscriptionId: string;
-  
+
   // Commission
   subscriptionPrice: number; // USD
   commissionRate: number; // 0.10 (10%)
   commissionUSD: number;
   commissionCredits: number;
   creditsToUSDRate: number; // Conversion rate used
-  
+
   // Status
-  status: "pending" | "paid";
+  status: 'pending' | 'paid';
   paidAt: Date | null;
-  
+
   // Metadata
   createdAt: Date;
 }
@@ -718,28 +744,28 @@ interface AgencyCommission {
 interface AgencyWithdrawal {
   id: string;
   agencyUserId: string;
-  
+
   // Amount
   creditsAmount: number;
   usdAmount: number;
   conversionRate: number; // Credits to USD rate
-  
+
   // PayPal
   paypalEmail: string;
   paypalTransactionId: string | null;
-  
+
   // Status
-  status: "pending" | "approved" | "processing" | "completed" | "rejected";
+  status: 'pending' | 'approved' | 'processing' | 'completed' | 'rejected';
   rejectionReason: string | null;
-  
+
   // Approval
   approvedBy: string | null; // Admin user ID
   approvedAt: Date | null;
-  
+
   // Processing
   processedAt: Date | null;
   completedAt: Date | null;
-  
+
   // Metadata
   createdAt: Date;
   updatedAt: Date;
@@ -753,40 +779,47 @@ interface AgencyWithdrawal {
 #### 8.1 Subscription Plans APIs
 
 **GET /api/v1/plans**
+
 - Description: Get all active subscription plans
 - Auth: Public
 - Response: `{ plans: SubscriptionPlan[] }`
 
 **GET /api/v1/plans/:planId**
+
 - Description: Get plan details
 - Auth: Public
 - Response: `{ plan: SubscriptionPlan }`
 
 **POST /api/v1/subscriptions/subscribe** (User)
+
 - Description: Subscribe to a plan
 - Auth: Required (JWT)
 - Request: `{ planId, paymentMethodId, promoCode? }`
 - Response: `{ subscription: UserSubscription, clientSecret }`
 
 **POST /api/v1/subscriptions/upgrade** (User)
+
 - Description: Upgrade to higher plan
 - Auth: Required (JWT)
 - Request: `{ newPlanId }`
 - Response: `{ subscription: UserSubscription, proratedAmount }`
 
 **POST /api/v1/subscriptions/downgrade** (User)
+
 - Description: Downgrade to lower plan
 - Auth: Required (JWT)
 - Request: `{ newPlanId }`
 - Response: `{ subscription: UserSubscription, effectiveDate }`
 
 **POST /api/v1/subscriptions/cancel** (User)
+
 - Description: Cancel subscription
 - Auth: Required (JWT)
 - Request: `{ reason?, feedback? }`
 - Response: `{ subscription: UserSubscription, cancelAt }`
 
 **GET /api/v1/subscriptions/me** (User)
+
 - Description: Get current subscription
 - Auth: Required (JWT)
 - Response: `{ subscription: UserSubscription, plan: SubscriptionPlan, usage: {...} }`
@@ -794,12 +827,14 @@ interface AgencyWithdrawal {
 #### 8.2 Promo Code APIs
 
 **POST /api/v1/promo-codes/validate** (User)
+
 - Description: Validate promo code
 - Auth: Required (JWT)
 - Request: `{ code, planId }`
 - Response: `{ valid: boolean, discount: number, message? }`
 
 **POST /api/v1/promo-codes/apply** (User)
+
 - Description: Apply promo code at checkout
 - Auth: Required (JWT)
 - Request: `{ code, planId }`
@@ -808,16 +843,19 @@ interface AgencyWithdrawal {
 #### 8.3 Free Credits APIs
 
 **GET /api/v1/free-credits/status** (User)
+
 - Description: Get free credits status
 - Auth: Required (JWT)
 - Response: `{ signupClaimed, emailVerified, profileCompleted, totalCredits, totalPoints }`
 
 **POST /api/v1/free-credits/claim-email-verification** (User)
+
 - Description: Claim email verification reward
 - Auth: Required (JWT)
 - Response: `{ points: 500, message }`
 
 **POST /api/v1/free-credits/claim-profile-completion** (User)
+
 - Description: Claim profile completion reward
 - Auth: Required (JWT)
 - Response: `{ points: 1000, message }`
@@ -825,23 +863,27 @@ interface AgencyWithdrawal {
 #### 8.4 Agency Commission APIs
 
 **GET /api/v1/agency/commissions** (Agency)
+
 - Description: Get commission history
 - Auth: Required (JWT, Agency only)
 - Query: `?page=1&limit=20`
 - Response: `{ commissions: AgencyCommission[], total, balance }`
 
 **GET /api/v1/agency/balance** (Agency)
+
 - Description: Get commission balance
 - Auth: Required (JWT, Agency only)
 - Response: `{ creditsBalance, usdBalance, withdrawableCredits, withdrawableUSD }`
 
 **POST /api/v1/agency/withdrawals/request** (Agency)
+
 - Description: Request withdrawal
 - Auth: Required (JWT, Agency only, 2FA)
 - Request: `{ usdAmount, paypalEmail }`
 - Response: `{ withdrawal: AgencyWithdrawal }`
 
 **GET /api/v1/agency/withdrawals** (Agency)
+
 - Description: Get withdrawal history
 - Auth: Required (JWT, Agency only)
 - Query: `?page=1&limit=20`
@@ -850,72 +892,85 @@ interface AgencyWithdrawal {
 #### 8.5 Administrator APIs
 
 **POST /api/v1/admin/plans** (Admin)
+
 - Description: Create plan
 - Auth: Required (JWT, Administrator only)
 - Request: `{ name, price, creditsPerMonth, ... }`
 - Response: `{ plan: SubscriptionPlan }`
 
 **PUT /api/v1/admin/plans/:planId** (Admin)
+
 - Description: Update plan
 - Auth: Required (JWT, Administrator only)
 - Request: `{ price?, creditsPerMonth?, ... }`
 - Response: `{ plan: SubscriptionPlan }`
 
 **DELETE /api/v1/admin/plans/:planId** (Admin)
+
 - Description: Delete plan
 - Auth: Required (JWT, Administrator only)
 - Response: `{ success: true }`
 
 **POST /api/v1/admin/promo-codes** (Admin)
+
 - Description: Create promo code
 - Auth: Required (JWT, Administrator only)
 - Request: `{ code, discountValue, validFrom, validTo, ... }`
 - Response: `{ promoCode: PromoCode }`
 
 **POST /api/v1/admin/promo-codes/bulk** (Admin)
+
 - Description: Bulk create promo codes
 - Auth: Required (JWT, Administrator only)
 - Request: `{ pattern, count, discountValue, ... }`
 - Response: `{ promoCodes: PromoCode[] }`
 
 **PUT /api/v1/admin/promo-codes/:codeId** (Admin)
+
 - Description: Update promo code
 - Auth: Required (JWT, Administrator only)
 - Request: `{ discountValue?, validTo?, ... }`
 - Response: `{ promoCode: PromoCode }`
 
 **DELETE /api/v1/admin/promo-codes/:codeId** (Admin)
+
 - Description: Delete promo code
 - Auth: Required (JWT, Administrator only)
 - Response: `{ success: true }`
 
 **GET /api/v1/admin/promo-codes/:codeId/usage** (Admin)
+
 - Description: Get promo code usage statistics
 - Auth: Required (JWT, Administrator only)
 - Response: `{ usageCount, users: [...], revenue: ... }`
 
 **PUT /api/v1/admin/free-credits** (Admin)
+
 - Description: Update free credits config
 - Auth: Required (JWT, Administrator only)
 - Request: `{ signupCredits, emailVerificationPoints, ... }`
 - Response: `{ config: FreeCreditsConfig }`
 
 **GET /api/v1/admin/free-credits/stats** (Admin)
+
 - Description: Get free credits statistics
 - Auth: Required (JWT, Administrator only)
 - Response: `{ totalUsers, totalCreditsGiven, totalPointsGiven, ... }`
 
 **GET /api/v1/admin/agency/withdrawals/pending** (Admin)
+
 - Description: Get pending withdrawals
 - Auth: Required (JWT, Administrator only)
 - Response: `{ withdrawals: AgencyWithdrawal[] }`
 
 **POST /api/v1/admin/agency/withdrawals/:withdrawalId/approve** (Admin)
+
 - Description: Approve withdrawal
 - Auth: Required (JWT, Administrator only)
 - Response: `{ withdrawal: AgencyWithdrawal }`
 
 **POST /api/v1/admin/agency/withdrawals/:withdrawalId/reject** (Admin)
+
 - Description: Reject withdrawal
 - Auth: Required (JWT, Administrator only)
 - Request: `{ reason }`
@@ -928,9 +983,9 @@ interface AgencyWithdrawal {
 #### 9.1 Subscription Flow
 
 ```
-User selects Plan → Enters Payment Info → Applies Promo Code (optional) 
-→ Validates Promo Code → Calculates Final Price → Processes Payment 
-→ Creates Subscription → Allocates Credits → Sends Confirmation Email 
+User selects Plan → Enters Payment Info → Applies Promo Code (optional)
+→ Validates Promo Code → Calculates Final Price → Processes Payment
+→ Creates Subscription → Allocates Credits → Sends Confirmation Email
 → Calculates Agency Commission (if applicable) → Credits Commission to Agency
 ```
 
@@ -940,41 +995,41 @@ User selects Plan → Enters Payment Info → Applies Promo Code (optional)
 function validatePromoCode(code, userId, planId) {
   // 1. Find promo code
   const promo = findPromoCode(code);
-  if (!promo) return { valid: false, message: "Promo code not found" };
-  
+  if (!promo) return { valid: false, message: 'Promo code not found' };
+
   // 2. Check active status
-  if (!promo.isActive) return { valid: false, message: "Promo code is inactive" };
-  
+  if (!promo.isActive) return { valid: false, message: 'Promo code is inactive' };
+
   // 3. Check expiration
   const now = new Date();
   if (now < promo.validFrom || now > promo.validTo) {
-    return { valid: false, message: "Promo code has expired" };
+    return { valid: false, message: 'Promo code has expired' };
   }
-  
+
   // 4. Check usage limit
   if (promo.usageLimit > 0 && promo.usageCount >= promo.usageLimit) {
-    return { valid: false, message: "Promo code usage limit reached" };
+    return { valid: false, message: 'Promo code usage limit reached' };
   }
-  
+
   // 5. Check first-time user only
   if (promo.firstTimeUserOnly) {
     const hasSubscribed = checkUserHasSubscribed(userId);
     if (hasSubscribed) {
-      return { valid: false, message: "Promo code is for first-time users only" };
+      return { valid: false, message: 'Promo code is for first-time users only' };
     }
   }
-  
+
   // 6. Check applicable plans
   if (promo.applicablePlans.length > 0 && !promo.applicablePlans.includes(planId)) {
-    return { valid: false, message: "Promo code not applicable to this plan" };
+    return { valid: false, message: 'Promo code not applicable to this plan' };
   }
-  
+
   // 7. Check if user already used this code
   const alreadyUsed = checkPromoCodeUsage(userId, promo.id);
   if (alreadyUsed) {
-    return { valid: false, message: "You have already used this promo code" };
+    return { valid: false, message: 'You have already used this promo code' };
   }
-  
+
   // Valid
   return { valid: true, discount: promo.discountValue };
 }
@@ -987,19 +1042,19 @@ function calculateAgencyCommission(subscription) {
   // 1. Get user's agency
   const user = getUser(subscription.userId);
   if (!user.agencyId) return null; // User not under any agency
-  
+
   // 2. Get plan price
   const plan = getPlan(subscription.planId);
   const subscriptionPrice = plan.price; // USD
-  
+
   // 3. Calculate commission (10%)
-  const commissionRate = 0.10;
+  const commissionRate = 0.1;
   const commissionUSD = subscriptionPrice * commissionRate;
-  
+
   // 4. Convert USD to Credits
   const creditsToUSDRate = 0.08; // 1 Credit = $0.08
   const commissionCredits = Math.floor(commissionUSD / creditsToUSDRate);
-  
+
   // 5. Create commission record
   const commission = {
     agencyUserId: user.agencyId,
@@ -1010,16 +1065,16 @@ function calculateAgencyCommission(subscription) {
     commissionUSD,
     commissionCredits,
     creditsToUSDRate,
-    status: "pending"
+    status: 'pending',
   };
-  
+
   // 6. Credit to agency account
   creditAgencyAccount(user.agencyId, commissionCredits);
-  
+
   // 7. Mark as paid
-  commission.status = "paid";
+  commission.status = 'paid';
   commission.paidAt = new Date();
-  
+
   return commission;
 }
 ```
@@ -1030,27 +1085,27 @@ function calculateAgencyCommission(subscription) {
 function processWithdrawal(agencyUserId, usdAmount, paypalEmail) {
   // 1. Get agency balance
   const balance = getAgencyBalance(agencyUserId);
-  
+
   // 2. Validate minimum amount
   if (usdAmount < 100) {
-    throw new Error("Minimum withdrawal amount is $100");
+    throw new Error('Minimum withdrawal amount is $100');
   }
-  
+
   // 3. Convert USD to Credits
   const creditsToUSDRate = 0.08;
   const creditsAmount = Math.ceil(usdAmount / creditsToUSDRate);
-  
+
   // 4. Validate balance
   if (balance.credits < creditsAmount) {
-    throw new Error("Insufficient balance");
+    throw new Error('Insufficient balance');
   }
-  
+
   // 5. Validate remaining balance
   const remainingCredits = balance.credits - creditsAmount;
   if (remainingCredits < 10000) {
-    throw new Error("Must maintain minimum balance of 10,000 Credits");
+    throw new Error('Must maintain minimum balance of 10,000 Credits');
   }
-  
+
   // 6. Create withdrawal request
   const withdrawal = {
     agencyUserId,
@@ -1058,12 +1113,12 @@ function processWithdrawal(agencyUserId, usdAmount, paypalEmail) {
     usdAmount,
     conversionRate: creditsToUSDRate,
     paypalEmail,
-    status: "pending"
+    status: 'pending',
   };
-  
+
   // 7. Wait for admin approval
   // (Admin will approve/reject via UI)
-  
+
   return withdrawal;
 }
 ```
@@ -1073,35 +1128,41 @@ function processWithdrawal(agencyUserId, usdAmount, paypalEmail) {
 ```javascript
 function allocateFreeCredits(userId, milestone) {
   const config = getFreeCreditsConfig();
-  
+
   switch (milestone) {
-    case "signup":
+    case 'signup':
       if (config.signupCredits > 0) {
         creditUserAccount(userId, config.signupCredits, 0);
         notify(userId, `Welcome! You received ${config.signupCredits} free Credits`);
       }
       break;
-      
-    case "email_verification":
+
+    case 'email_verification':
       if (config.emailVerificationPoints > 0) {
-        const alreadyClaimed = checkMilestoneClaimed(userId, "email_verification");
+        const alreadyClaimed = checkMilestoneClaimed(userId, 'email_verification');
         if (!alreadyClaimed) {
           creditUserAccount(userId, 0, config.emailVerificationPoints);
-          markMilestoneClaimed(userId, "email_verification");
-          notify(userId, `Email verified! You received ${config.emailVerificationPoints} free Points`);
+          markMilestoneClaimed(userId, 'email_verification');
+          notify(
+            userId,
+            `Email verified! You received ${config.emailVerificationPoints} free Points`
+          );
         }
       }
       break;
-      
-    case "profile_completion":
+
+    case 'profile_completion':
       if (config.profileCompletionPoints > 0) {
         const profileComplete = checkProfileComplete(userId, config.profileRequirements);
         if (profileComplete) {
-          const alreadyClaimed = checkMilestoneClaimed(userId, "profile_completion");
+          const alreadyClaimed = checkMilestoneClaimed(userId, 'profile_completion');
           if (!alreadyClaimed) {
             creditUserAccount(userId, 0, config.profileCompletionPoints);
-            markMilestoneClaimed(userId, "profile_completion");
-            notify(userId, `Profile completed! You received ${config.profileCompletionPoints} free Points`);
+            markMilestoneClaimed(userId, 'profile_completion');
+            notify(
+              userId,
+              `Profile completed! You received ${config.profileCompletionPoints} free Points`
+            );
           }
         }
       }
@@ -1115,30 +1176,35 @@ function allocateFreeCredits(userId, milestone) {
 ### 10. Security Considerations
 
 **SC-1: Payment Security**
+
 - ใช้ Stripe สำหรับ payment processing (PCI DSS compliant)
 - ไม่เก็บ credit card information ใน database
 - ใช้ Stripe Customer Portal สำหรับ payment method management
 - ใช้ HTTPS สำหรับทุก payment-related requests
 
 **SC-2: Promo Code Security**
+
 - Promo codes ต้อง case-insensitive แต่เก็บเป็น uppercase
 - Rate limit promo code validation (10 attempts per minute per IP)
 - Log ทุกการใช้ promo code
 - Prevent brute force attacks
 
 **SC-3: Agency Withdrawal Security**
+
 - ต้องมี 2FA verification สำหรับ withdrawal requests
 - Administrator ต้อง approve ทุก withdrawal
 - Log ทุก withdrawal request และ approval
 - Verify PayPal email ownership
 
 **SC-4: Administrator Actions**
+
 - ทุก admin action ต้องมี audit log
 - Plan changes ต้องมี approval workflow (ถ้าเป็น production)
 - Promo code creation ต้องมี rate limit
 - Sensitive actions ต้องมี 2FA
 
 **SC-5: Subscription Security**
+
 - Validate user tier eligibility สำหรับแต่ละ plan
 - Prevent subscription fraud (multiple free trials)
 - Detect และ block suspicious payment patterns
@@ -1148,41 +1214,45 @@ function allocateFreeCredits(userId, milestone) {
 
 ### 11. Error Handling
 
-| Error Scenario | HTTP Code | Error Message | User Action |
-|----------------|-----------|---------------|-------------|
-| Invalid promo code | 400 | "Promo code not found or expired" | Try another code |
-| Promo code usage limit reached | 400 | "This promo code has reached its usage limit" | Try another code |
-| Already used promo code | 400 | "You have already used this promo code" | Try another code |
-| Payment failed | 402 | "Payment failed. Please check your payment method." | Update payment method |
-| Insufficient balance (withdrawal) | 400 | "Insufficient balance for withdrawal" | Request smaller amount |
-| Below minimum withdrawal | 400 | "Minimum withdrawal amount is $100" | Request larger amount |
-| Below minimum balance after withdrawal | 400 | "Must maintain minimum balance of 10,000 Credits" | Request smaller amount |
-| Plan not available for user tier | 403 | "This plan is not available for your account type" | Choose another plan |
-| Subscription already active | 409 | "You already have an active subscription" | Upgrade/downgrade instead |
-| Downgrade not allowed (contractual) | 403 | "Downgrade not allowed during contract period" | Wait until contract ends |
+| Error Scenario                         | HTTP Code | Error Message                                       | User Action               |
+| -------------------------------------- | --------- | --------------------------------------------------- | ------------------------- |
+| Invalid promo code                     | 400       | "Promo code not found or expired"                   | Try another code          |
+| Promo code usage limit reached         | 400       | "This promo code has reached its usage limit"       | Try another code          |
+| Already used promo code                | 400       | "You have already used this promo code"             | Try another code          |
+| Payment failed                         | 402       | "Payment failed. Please check your payment method." | Update payment method     |
+| Insufficient balance (withdrawal)      | 400       | "Insufficient balance for withdrawal"               | Request smaller amount    |
+| Below minimum withdrawal               | 400       | "Minimum withdrawal amount is $100"                 | Request larger amount     |
+| Below minimum balance after withdrawal | 400       | "Must maintain minimum balance of 10,000 Credits"   | Request smaller amount    |
+| Plan not available for user tier       | 403       | "This plan is not available for your account type"  | Choose another plan       |
+| Subscription already active            | 409       | "You already have an active subscription"           | Upgrade/downgrade instead |
+| Downgrade not allowed (contractual)    | 403       | "Downgrade not allowed during contract period"      | Wait until contract ends  |
 
 ---
 
 ### 12. Performance Requirements
 
 **PR-1: Page Load Times**
+
 - Pricing Page: < 2 seconds
 - Checkout Page: < 1.5 seconds
 - Admin Plans UI: < 2 seconds
 - Admin Promo Codes UI: < 2 seconds
 
 **PR-2: API Response Times**
+
 - GET /api/v1/plans: < 200ms
 - POST /api/v1/subscriptions/subscribe: < 1 second
 - POST /api/v1/promo-codes/validate: < 200ms
 - GET /api/v1/agency/balance: < 300ms
 
 **PR-3: Database Performance**
+
 - Subscription queries: < 100ms
 - Promo code lookups: < 50ms (indexed)
 - Commission calculations: < 500ms
 
 **PR-4: Scalability**
+
 - Support 10,000+ active subscriptions
 - Support 1,000+ promo code validations per minute
 - Support 100+ concurrent admin users
@@ -1355,6 +1425,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 **DS-3: Rollback Plan**
 
 ถ้าเกิดปัญหาร้ายแรง:
+
 1. Disable new subscriptions (feature flag)
 2. Revert backend deployment
 3. Revert frontend deployment
@@ -1419,6 +1490,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 **File:** `docs/SUBSCRIPTION_PLANS_USER_GUIDE.md`
 
 **Contents:**
+
 - How to choose a plan
 - How to subscribe
 - How to use promo codes
@@ -1432,6 +1504,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 **File:** `docs/AGENCY_REVENUE_SHARING_GUIDE.md`
 
 **Contents:**
+
 - How revenue sharing works
 - How to view commission balance
 - How to request withdrawal
@@ -1444,6 +1517,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 **File:** `docs/ADMIN_SUBSCRIPTION_MANAGEMENT_GUIDE.md`
 
 **Contents:**
+
 - How to create/edit plans
 - How to create/manage promo codes
 - How to configure free credits
@@ -1456,6 +1530,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 **File:** `docs/SUBSCRIPTION_SYSTEM_DEVELOPMENT.md`
 
 **Contents:**
+
 - Architecture overview
 - Database schema
 - API specifications
@@ -1471,6 +1546,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 #### Example 1: User Subscribes to Pro Plan with Promo Code
 
 **Timeline:**
+
 ```
 1. User visits Pricing Page
 2. User clicks "Select Plan" on Pro Plan ($49.99)
@@ -1487,6 +1563,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 ```
 
 **Result:**
+
 - ✅ User subscribed to Pro Plan
 - ✅ Paid $39.99 (saved $10)
 - ✅ Received 10,000 Credits
@@ -1497,6 +1574,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 #### Example 2: New User Claims All Free Credits
 
 **Timeline:**
+
 ```
 1. User signs up → Receives 100 Credits immediately
 2. User verifies email → Receives 500 Points
@@ -1504,6 +1582,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 ```
 
 **Result:**
+
 - ✅ Total: 100 Credits + 1,500 Points
 - ✅ Ready to use Smart AI Hub services
 
@@ -1512,6 +1591,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 #### Example 3: Agency Requests Withdrawal
 
 **Timeline:**
+
 ```
 1. Agency has 25,000 Credits commission balance
 2. Agency requests withdrawal: $1,200 (= 15,000 Credits)
@@ -1529,6 +1609,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 ```
 
 **Result:**
+
 - ✅ Agency received $1,200 via PayPal
 - ✅ Agency balance: 10,000 Credits remaining
 
@@ -1537,6 +1618,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 #### Example 4: Administrator Creates Seasonal Promo Code
 
 **Timeline:**
+
 ```
 1. Administrator goes to /admin/promo-codes
 2. Administrator clicks "Create Promo Code"
@@ -1554,6 +1636,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 ```
 
 **Result:**
+
 - ✅ Promo code "NEWYEAR2025" created
 - ✅ 30% off for first-time users
 - ✅ Valid for January 2025
@@ -1564,6 +1647,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 #### Example 5: User Upgrades from Basic to Pro
 
 **Timeline:**
+
 ```
 1. User currently on Basic Plan ($9.99/month)
 2. User has used 10 days of current billing cycle (20 days remaining)
@@ -1580,6 +1664,7 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 ```
 
 **Result:**
+
 - ✅ User upgraded to Pro Plan
 - ✅ Paid $43.33 (prorated)
 - ✅ Received 10,000 Credits immediately
@@ -1631,4 +1716,3 @@ CREATE INDEX idx_agency_withdrawals_status ON agency_withdrawals(status);
 REPOSITORY: https://github.com/naibarn/Smart-AI-Hub
 
 START WITH: Creating the complete Spec Kit document with all 16 sections.
-

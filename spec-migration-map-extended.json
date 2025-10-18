@@ -555,7 +555,7 @@
         ]
       }
     },
-    
+
     "phase_2": {
       "name": "System-Level Specifications",
       "source": "specs/ (root level)",
@@ -766,7 +766,7 @@
       "total_effort": "4.75 hours",
       "estimated_duration": "1 day"
     },
-    
+
     "phase_3": {
       "name": "Other Folders Evaluation",
       "folders": [
@@ -781,12 +781,35 @@
           "recommendation": "Analyze content first",
           "details": {
             "functional": {
-              "files": ["fr_1.md", "fr_2.md", "fr_3.md", "fr_4.md", "fr_5.md", "fr_6.md", "fr_auth_05.md", "fr_auth_06.md", "fr_credit_03.md", "fr_credit_04.md"],
+              "files": [
+                "fr_1.md",
+                "fr_2.md",
+                "fr_3.md",
+                "fr_4.md",
+                "fr_5.md",
+                "fr_6.md",
+                "fr_auth_05.md",
+                "fr_auth_06.md",
+                "fr_credit_03.md",
+                "fr_credit_04.md"
+              ],
               "action": "Review and potentially merge with existing specs",
               "notes": "Some files may be duplicates of backend folder content"
             },
             "user_stories": {
-              "files": ["us_1.md", "us_2.md", "us_3.md", "us_4.md", "us_5.md", "us_6.md", "us_7.md", "us_8.md", "us_9.md", "us_10.md", "us_11.md"],
+              "files": [
+                "us_1.md",
+                "us_2.md",
+                "us_3.md",
+                "us_4.md",
+                "us_5.md",
+                "us_6.md",
+                "us_7.md",
+                "us_8.md",
+                "us_9.md",
+                "us_10.md",
+                "us_11.md"
+              ],
               "action": "Extract and incorporate into relevant feature specs",
               "notes": "User stories should be part of feature specifications"
             },
@@ -805,7 +828,18 @@
           "suggested_location": "specs/_architecture/",
           "details": {
             "data_models": {
-              "files": ["user.md", "permission.md", "role.md", "user_role.md", "role_permission.md", "credit_account.md", "credit_transaction.md", "promo_code.md", "promo_redemption.md", "usage_log.md"],
+              "files": [
+                "user.md",
+                "permission.md",
+                "role.md",
+                "user_role.md",
+                "role_permission.md",
+                "credit_account.md",
+                "credit_transaction.md",
+                "promo_code.md",
+                "promo_redemption.md",
+                "usage_log.md"
+              ],
               "action": "Move to _architecture/data_models/",
               "notes": "These are architecture artifacts, not feature specs"
             },
@@ -823,7 +857,16 @@
           "reason": "Frontend specs may need their own Spec-Driven structure",
           "details": {
             "components": {
-              "subfolders": ["admin/", "auth/", "common/", "error/", "forms/", "layout/", "notifications/", "profile/"],
+              "subfolders": [
+                "admin/",
+                "auth/",
+                "common/",
+                "error/",
+                "forms/",
+                "layout/",
+                "notifications/",
+                "profile/"
+              ],
               "action": "Consider separate frontend spec structure",
               "notes": "May follow different template for UI/UX specs"
             },
@@ -865,7 +908,14 @@
           "reason": "May contain future features not yet specified",
           "details": {
             "epics": {
-              "files": ["epic_1.md", "epic_2.md", "epic_3.md", "epic_4.md", "epic_5.md", "epic_6.md"],
+              "files": [
+                "epic_1.md",
+                "epic_2.md",
+                "epic_3.md",
+                "epic_4.md",
+                "epic_5.md",
+                "epic_6.md"
+              ],
               "action": "Review and either incorporate or archive",
               "notes": "Check if already covered by migrated specs"
             },
@@ -882,7 +932,7 @@
       "estimated_duration": "2 days"
     }
   },
-  
+
   "final_structure_preview": {
     "specs/": {
       "feature_specs": [
@@ -897,19 +947,11 @@
         "011-automated-backup/",
         "012-subscription-plans/"
       ],
-      "meta_folders": [
-        "_architecture/",
-        "_decisions/",
-        "_glossary/",
-        "_meta/"
-      ],
-      "registry_files": [
-        "specs-registry.yaml",
-        "specs-registry.json"
-      ]
+      "meta_folders": ["_architecture/", "_decisions/", "_glossary/", "_meta/"],
+      "registry_files": ["specs-registry.yaml", "specs-registry.json"]
     }
   },
-  
+
   "revised_timeline": {
     "phase_1_backend": "9 days (existing plan)",
     "phase_2_system_specs": "1 day",
@@ -940,7 +982,7 @@
       }
     ]
   },
-  
+
   "critical_path": [
     "Resolve duplicate files before migration",
     "Complete backend migration (Phase 1)",
@@ -948,7 +990,7 @@
     "Evaluate and organize other folders (Phase 3)",
     "Final validation and cleanup"
   ],
-  
+
   "success_criteria": [
     "All duplicate files resolved",
     "Backend folder successfully migrated",

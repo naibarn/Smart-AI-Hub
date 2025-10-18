@@ -1,14 +1,14 @@
 ---
-title: "Analytics and Usage Tracking"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "high"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-type: "specification"
-description: "Comprehensive specification for analytics and usage tracking system"
-spec_id: "FEAT-005"
+title: 'Analytics and Usage Tracking'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'high'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+type: 'specification'
+description: 'Comprehensive specification for analytics and usage tracking system'
+spec_id: 'FEAT-005'
 ---
 
 # Analytics and Usage Tracking

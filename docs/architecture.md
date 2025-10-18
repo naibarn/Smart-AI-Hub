@@ -1,8 +1,9 @@
 ---
-title: "architecture"
-author: "Development Team"
-version: "1.0.0"
+title: 'architecture'
+author: 'Development Team'
+version: '1.0.0'
 ---
+
 # Smart AI Hub Architecture
 
 ## Document Information
@@ -476,20 +477,20 @@ const proxyConfig = {
 **Endpoints**:
 
 ```typescript
-POST /register; // User registration
-POST /login; // User login
-POST /logout; // User logout (blacklist token)
-POST /refresh; // Refresh access token
-POST /verify-email; // Email verification
-POST /forgot-password; // Request password reset
-POST /reset-password; // Reset password
-GET /me; // Current user info
-GET /oauth/google; // Google OAuth initiate
-GET /oauth/google/callback; // Google OAuth callback
-GET /oauth/sora2; // Sora2 OAuth initiate
-GET /oauth/sora2/callback; // Sora2 OAuth callback
-POST /oauth/session/verify; // Verify session code
-POST /oauth/session/confirm; // Confirm session with parameters
+POST / register; // User registration
+POST / login; // User login
+POST / logout; // User logout (blacklist token)
+POST / refresh; // Refresh access token
+POST / verify - email; // Email verification
+POST / forgot - password; // Request password reset
+POST / reset - password; // Reset password
+GET / me; // Current user info
+GET / oauth / google; // Google OAuth initiate
+GET / oauth / google / callback; // Google OAuth callback
+GET / oauth / sora2; // Sora2 OAuth initiate
+GET / oauth / sora2 / callback; // Sora2 OAuth callback
+POST / oauth / session / verify; // Verify session code
+POST / oauth / session / confirm; // Confirm session with parameters
 ```
 
 **JWT Configuration**:
@@ -915,15 +916,15 @@ app.post('/api/mcp/sora2/generate', authenticate, checkCredits, async (req, res)
   const { prompt, duration, resolution, style, aspectRatio } = req.body;
   const userId = req.user.id;
   const sessionId = req.session.id;
-  
+
   // Check credits before generation
   const creditsRequired = calculateCreditsRequired(duration, resolution);
   const hasCredits = await creditService.checkBalance(userId, creditsRequired);
-  
+
   if (!hasCredits) {
     return res.status(402).json({ error: 'Insufficient credits' });
   }
-  
+
   // Create video generation request
   const videoRequest = await sora2Service.createVideoRequest({
     prompt,
@@ -932,41 +933,41 @@ app.post('/api/mcp/sora2/generate', authenticate, checkCredits, async (req, res)
     style,
     aspectRatio,
     userId,
-    sessionId
+    sessionId,
   });
-  
+
   // Deduct credits (atomic transaction)
   await creditService.deductCredits(userId, creditsRequired, 'sora2_video_generation', {
     videoId: videoRequest.id,
     duration,
-    resolution
+    resolution,
   });
-  
+
   res.json({
     videoId: videoRequest.id,
     status: 'processing',
     creditsUsed: creditsRequired,
-    estimatedTime: estimateProcessingTime(duration, resolution)
+    estimatedTime: estimateProcessingTime(duration, resolution),
   });
 });
 
 app.get('/api/mcp/sora2/status/:videoId', authenticate, async (req, res) => {
   const { videoId } = req.params;
   const userId = req.user.id;
-  
+
   // Check if user owns this video
   const video = await sora2Service.getVideo(videoId);
   if (video.userId !== userId) {
     return res.status(403).json({ error: 'Access denied' });
   }
-  
+
   res.json({
     videoId: video.id,
     status: video.status,
     url: video.url,
     thumbnailUrl: video.thumbnailUrl,
     progress: video.progress,
-    createdAt: video.createdAt
+    createdAt: video.createdAt,
   });
 });
 ```
@@ -994,15 +995,15 @@ interface VideoWorkflowRequest {
 // Custom GPT-assisted video generation
 app.post('/api/mcp/gpt/video-workflow', authenticate, async (req, res) => {
   const { workflow, input, parameters, sessionId } = req.body;
-  
+
   // Step 1: Use Custom GPT to analyze and enhance the request
   const enhancedPrompt = await gptService.enhanceVideoPrompt({
     originalPrompt: input.text,
     workflow,
     parameters,
-    sessionId
+    sessionId,
   });
-  
+
   // Step 2: Generate video with Sora2 using enhanced prompt
   const videoRequest = await sora2Service.createVideoRequest({
     prompt: enhancedPrompt,
@@ -1010,14 +1011,14 @@ app.post('/api/mcp/gpt/video-workflow', authenticate, async (req, res) => {
     resolution: parameters.resolution || '1080p',
     style: parameters.style,
     userId: req.user.id,
-    sessionId
+    sessionId,
   });
-  
+
   res.json({
     workflowId: generateId(),
     videoId: videoRequest.id,
     enhancedPrompt,
-    status: 'processing'
+    status: 'processing',
   });
 });
 ```
@@ -1259,14 +1260,10 @@ class SessionService {
     const sessionData: SessionData = {
       ...data,
       sessionId,
-      expiresAt: new Date(Date.now() + this.SESSION_TTL * 1000)
+      expiresAt: new Date(Date.now() + this.SESSION_TTL * 1000),
     };
 
-    await this.redis.setex(
-      `session:${sessionId}`,
-      this.SESSION_TTL,
-      JSON.stringify(sessionData)
-    );
+    await this.redis.setex(`session:${sessionId}`, this.SESSION_TTL, JSON.stringify(sessionData));
 
     return sessionId;
   }
@@ -1276,7 +1273,7 @@ class SessionService {
     if (!data) return null;
 
     const session = JSON.parse(data) as SessionData;
-    
+
     // Check if expired
     if (new Date(session.expiresAt) < new Date()) {
       await this.deleteSession(sessionId);
@@ -1296,11 +1293,7 @@ class SessionService {
 
     // Mark session as verified
     session.verifiedAt = new Date();
-    await this.redis.setex(
-      `session:${sessionId}`,
-      this.SESSION_TTL,
-      JSON.stringify(session)
-    );
+    await this.redis.setex(`session:${sessionId}`, this.SESSION_TTL, JSON.stringify(session));
 
     return true;
   }
@@ -1441,12 +1434,12 @@ async function checkPermission(
         some: {
           users: {
             some: {
-              userId
-            }
-          }
-        }
-      }
-    }
+              userId,
+            },
+          },
+        },
+      },
+    },
   });
 
   return !!permission;
@@ -1466,6 +1459,7 @@ The RBAC system uses two junction tables to implement many-to-many relationships
 2. **RolePermission**: Links roles to permissions with granted timestamps
 
 These tables allow for flexible permission management where:
+
 - Users can have multiple roles
 - Roles can have multiple permissions
 - The same permission can be assigned to multiple roles

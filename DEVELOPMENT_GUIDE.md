@@ -279,13 +279,13 @@ docker-compose up -d
 
 ### Service URLs in Development
 
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| API Gateway | http://localhost:3001 |
-| Auth Service | http://localhost:3002 |
-| Core Service | http://localhost:3003 |
-| MCP Server | http://localhost:3004 |
+| Service              | URL                   |
+| -------------------- | --------------------- |
+| Frontend             | http://localhost:3000 |
+| API Gateway          | http://localhost:3001 |
+| Auth Service         | http://localhost:3002 |
+| Core Service         | http://localhost:3003 |
+| MCP Server           | http://localhost:3004 |
 | Notification Service | http://localhost:3005 |
 
 ## Testing
@@ -341,7 +341,7 @@ describe('UserService', () => {
       const userData = {
         email: 'test@example.com',
         firstName: 'Test',
-        lastName: 'User'
+        lastName: 'User',
       };
 
       const user = await userService.createUser(userData);
@@ -363,12 +363,10 @@ import { app } from '../../src/app';
 describe('Authentication', () => {
   describe('POST /api/auth/login', () => {
     it('should authenticate with valid credentials', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -576,25 +574,25 @@ export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     try {
       const { email, password, firstName, lastName } = req.body;
-      
+
       const user = await this.authService.register({
         email,
         password,
         firstName,
-        lastName
+        lastName,
       });
 
       res.status(201).json({
         success: true,
-        data: user
+        data: user,
       });
     } catch (error) {
       res.status(400).json({
         success: false,
         error: {
           code: 'REGISTRATION_FAILED',
-          message: error.message
-        }
+          message: error.message,
+        },
       });
     }
   }
@@ -616,10 +614,10 @@ export class AuthService {
     lastName: string;
   }): Promise<User> {
     const hashedPassword = await hashPassword(userData.password);
-    
+
     return User.create({
       ...userData,
-      password: hashedPassword
+      password: hashedPassword,
     });
   }
 }

@@ -17,6 +17,7 @@ import {
 } from '../types/webhook.types';
 import { createWebhookSecret, addSignatureHeaders } from '../utils/signature';
 import { addWebhookJob } from '../config/queue';
+import type { Prisma } from '@prisma/client';
 
 export class WebhookService {
   /**
@@ -221,7 +222,7 @@ export class WebhookService {
         data: {
           webhookId,
           eventType: data.eventType,
-          payload,
+          payload: payload as unknown as Prisma.InputJsonValue,
           status: WebhookStatus.PENDING,
           attempt: 1,
           maxAttempts: 1, // Test webhooks only try once
@@ -413,7 +414,7 @@ export class WebhookService {
         data: {
           webhookId: webhook.id,
           eventType: payload.eventType,
-          payload,
+          payload: payload as unknown as Prisma.InputJsonValue,
           status: WebhookStatus.PENDING,
           attempt: 1,
           maxAttempts: 3,

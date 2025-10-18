@@ -282,20 +282,20 @@ code:{code}:session               # Code to session mapping
 
 ### Common Error Codes
 
-| Error Code | HTTP Status | Description |
-|------------|-------------|-------------|
-| INVALID_CREDENTIALS | 401 | Email or password is incorrect |
-| UNAUTHORIZED | 401 | No authentication provided |
-| FORBIDDEN | 403 | Access denied to resource |
-| NOT_FOUND | 404 | Resource not found |
-| VALIDATION_ERROR | 400 | Request validation failed |
-| RATE_LIMIT_EXCEEDED | 429 | Too many requests |
-| INTERNAL_SERVER_ERROR | 500 | Unexpected server error |
-| EMAIL_ALREADY_EXISTS | 409 | Email address already registered |
-| INVALID_TOKEN | 401 | Token is invalid or expired |
-| SESSION_NOT_FOUND | 404 | Session not found or expired |
-| VERIFICATION_CODE_INVALID | 400 | Verification code is invalid |
-| VERIFICATION_CODE_EXPIRED | 400 | Verification code has expired |
+| Error Code                | HTTP Status | Description                      |
+| ------------------------- | ----------- | -------------------------------- |
+| INVALID_CREDENTIALS       | 401         | Email or password is incorrect   |
+| UNAUTHORIZED              | 401         | No authentication provided       |
+| FORBIDDEN                 | 403         | Access denied to resource        |
+| NOT_FOUND                 | 404         | Resource not found               |
+| VALIDATION_ERROR          | 400         | Request validation failed        |
+| RATE_LIMIT_EXCEEDED       | 429         | Too many requests                |
+| INTERNAL_SERVER_ERROR     | 500         | Unexpected server error          |
+| EMAIL_ALREADY_EXISTS      | 409         | Email address already registered |
+| INVALID_TOKEN             | 401         | Token is invalid or expired      |
+| SESSION_NOT_FOUND         | 404         | Session not found or expired     |
+| VERIFICATION_CODE_INVALID | 400         | Verification code is invalid     |
+| VERIFICATION_CODE_EXPIRED | 400         | Verification code has expired    |
 
 ## Data Migration
 
@@ -378,13 +378,13 @@ CREATE INDEX idx_oauth_providers_provider ON oauth_providers(provider);
 
 ### Retention Policies
 
-| Data Type | Retention Period | Cleanup Method |
-|-----------|------------------|----------------|
-| Verification Tokens | 24 hours | Automatic TTL expiration |
-| Password Reset Tokens | 1 hour | Automatic TTL expiration |
-| Session Tokens | 7 days (configurable) | Automatic TTL expiration |
-| Refresh Tokens | 7 days | Manual cleanup job |
-| Audit Logs | 90 days | Manual cleanup job |
+| Data Type             | Retention Period      | Cleanup Method           |
+| --------------------- | --------------------- | ------------------------ |
+| Verification Tokens   | 24 hours              | Automatic TTL expiration |
+| Password Reset Tokens | 1 hour                | Automatic TTL expiration |
+| Session Tokens        | 7 days (configurable) | Automatic TTL expiration |
+| Refresh Tokens        | 7 days                | Manual cleanup job       |
+| Audit Logs            | 90 days               | Manual cleanup job       |
 
 ### Cleanup Jobs
 

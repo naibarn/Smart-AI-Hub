@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-ui-{{feature-name}}-{{sequence-number}}"
-title: "{{Feature Name}} UI/UX Specification"
-type: "ui_spec"
-category: "requirements"
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft"
-priority: "{{priority-level}}"
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}}
-actualEffort: {{hours}}
+id: 'spec-ui-{{feature-name}}-{{sequence-number}}'
+title: '{{Feature Name}} UI/UX Specification'
+type: 'ui_spec'
+category: 'requirements'
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft'
+priority: '{{priority-level}}'
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } }
+actualEffort: { { hours } }
 reviewers: []
 approvers: []
-tags: ["ui", "ux", "{{feature-category}}", "{{platform}}"]
+tags: ['ui', 'ux', '{{feature-category}}', '{{platform}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{parent-spec-id}}"
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"]
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
+parent: '{{parent-spec-id}}'
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}']
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}']
 ---
 
 # {{Feature Name}} UI/UX Specification
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the UI/UX feature and its purpose
-  TIPS: 
+  TIPS:
   - Explain the user problem this UI/UX solution addresses
   - Describe the business value and user benefits
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Design Goals and Success Metrics
 
-<!-- 
+<!--
   PURPOSE: Define the design goals and success metrics
   TIPS:
   - Include both qualitative and quantitative goals
@@ -48,11 +48,13 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 -->
 
 ### Primary Design Goals
+
 1. **{{Goal 1}}**: {{Description and success criteria}}
 2. **{{Goal 2}}**: {{Description and success criteria}}
 3. **{{Goal 3}}**: {{Description and success criteria}}
 
 ### Success Metrics
+
 - **User Satisfaction**: {{Target satisfaction score or rating}}
 - **Task Completion Rate**: {{Target completion percentage}}
 - **Time on Task**: {{Target time for key tasks}}
@@ -61,7 +63,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## User Research and Insights
 
-<!-- 
+<!--
   PURPOSE: Document user research findings and insights
   TIPS:
   - Include user personas and scenarios
@@ -97,7 +99,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## User Stories
 
-<!-- 
+<!--
   PURPOSE: Define user needs from a UI/UX perspective
   TIPS:
   - Focus on interaction and experience needs
@@ -139,7 +141,7 @@ Scenario: {{Scenario description}}
 
 ## Design Requirements
 
-<!-- 
+<!--
   PURPOSE: Define specific design requirements
   TIPS:
   - Include visual design, interaction design, and usability requirements
@@ -179,7 +181,7 @@ Scenario: {{Scenario description}}
 
 ## User Journey and Flow
 
-<!-- 
+<!--
   PURPOSE: Define the user journey and interaction flow
   TIPS:
   - Include key touchpoints and decision points
@@ -205,7 +207,7 @@ Scenario: {{Scenario description}}
 
 ## Screen and Component Designs
 
-<!-- 
+<!--
   PURPOSE: Define screen layouts and component specifications
   TIPS:
   - Include wireframes, mockups, and prototypes
@@ -222,10 +224,12 @@ Scenario: {{Scenario description}}
 **User Actions**: {{Primary user actions on this screen}}
 
 **Layout Requirements**:
+
 - {{Layout requirement 1}}
 - {{Layout requirement 2}}
 
 **Behavioral Requirements**:
+
 - {{Behavioral requirement 1}}
 - {{Behavioral requirement 2}}
 
@@ -247,16 +251,19 @@ Scenario: {{Scenario description}}
 **Variations**: {{Component variations and when to use each}}
 
 **Design Specifications**:
+
 - **Dimensions**: {{Component dimensions}}
 - **Colors**: {{Color usage}}
 - **Typography**: {{Typography specifications}}
 - **Spacing**: {{Spacing requirements}}
 
 **Behavioral Specifications**:
+
 - {{Behavior 1}}
 - {{Behavior 2}}
 
 **Accessibility Requirements**:
+
 - {{Accessibility requirement 1}}
 - {{Accessibility requirement 2}}
 
@@ -268,7 +275,7 @@ Scenario: {{Scenario description}}
 
 ## Design Assets and References
 
-<!-- 
+<!--
   PURPOSE: Reference all design assets and resources
   TIPS:
   - Include links to design files and prototypes
@@ -301,7 +308,7 @@ Scenario: {{Scenario description}}
 
 ## Usability Testing
 
-<!-- 
+<!--
   PURPOSE: Define usability testing approach and requirements
   TIPS:
   - Include testing scenarios and success criteria
@@ -326,7 +333,7 @@ Scenario: {{Scenario description}}
 
 ## Technical Requirements
 
-<!-- 
+<!--
   PURPOSE: Define technical requirements for implementation
   TIPS:
   - Include performance and compatibility requirements
@@ -354,7 +361,7 @@ Scenario: {{Scenario description}}
 
 ## Content Requirements
 
-<!-- 
+<!--
   PURPOSE: Define content requirements and guidelines
   TIPS:
   - Include copy and content guidelines
@@ -395,20 +402,20 @@ Scenario: {{Scenario description}}
 
 ### Design Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

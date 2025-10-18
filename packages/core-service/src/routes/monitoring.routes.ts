@@ -503,7 +503,7 @@ router.get('/response-time/endpoints', async (req: Request, res: Response) => {
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
     // Build query filters
-    let filters = [];
+    const filters = [];
     if (service) filters.push(`service="${service}"`);
     if (sla_tier) filters.push(`sla_tier="${sla_tier}"`);
 
@@ -622,7 +622,7 @@ router.get('/response-time/trends', async (req: Request, res: Response) => {
     }
 
     // Build query filters
-    let filters = [];
+    const filters = [];
     if (service) filters.push(`service="${service}"`);
     if (route) filters.push(`route="${route}"`);
 
@@ -711,7 +711,7 @@ router.get('/response-time/violations', async (req: Request, res: Response) => {
     }
 
     // Build query filters
-    let filters = [];
+    const filters = [];
     if (sla_tier) filters.push(`sla_tier="${sla_tier}"`);
     if (service) filters.push(`service="${service}"`);
 

@@ -39,6 +39,7 @@ The platform is built as a microservices architecture with modern web technologi
 ## Features
 
 ### Core Features
+
 - ✅ User authentication and authorization
 - ✅ Credit-based billing system
 - ✅ Multi-AI provider integration
@@ -50,6 +51,7 @@ The platform is built as a microservices architecture with modern web technologi
 - ✅ Junction tables for flexible permission management
 
 ### Technical Features
+
 - ✅ Microservices architecture
 - ✅ TypeScript throughout
 - ✅ PostgreSQL with Prisma ORM
@@ -87,19 +89,19 @@ For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Core Services
 
-| Service | Description | Technology | Status |
-|---------|-------------|-------------|--------|
-| **auth-service** | Authentication, authorization, user management | Express, Prisma, JWT | ✅ Active |
-| **core-service** | Core business logic, credit management | Express, Prisma | ✅ Active |
-| **api-gateway** | API routing, load balancing, rate limiting | Express, Nginx | ✅ Active |
-| **mcp-server** | Model Context Protocol server for AI providers | Node.js, WebSocket | ✅ Active |
-| **notification-service** | Email, push, and in-app notifications | Node.js | ✅ Active |
-| **frontend** | React-based web application | React, TypeScript, Vite | ✅ Active |
+| Service                  | Description                                    | Technology              | Status    |
+| ------------------------ | ---------------------------------------------- | ----------------------- | --------- |
+| **auth-service**         | Authentication, authorization, user management | Express, Prisma, JWT    | ✅ Active |
+| **core-service**         | Core business logic, credit management         | Express, Prisma         | ✅ Active |
+| **api-gateway**          | API routing, load balancing, rate limiting     | Express, Nginx          | ✅ Active |
+| **mcp-server**           | Model Context Protocol server for AI providers | Node.js, WebSocket      | ✅ Active |
+| **notification-service** | Email, push, and in-app notifications          | Node.js                 | ✅ Active |
+| **frontend**             | React-based web application                    | React, TypeScript, Vite | ✅ Active |
 
 ### Shared Services
 
-| Service | Description | Technology |
-|---------|-------------|-------------|
+| Service    | Description                                  | Technology |
+| ---------- | -------------------------------------------- | ---------- |
 | **shared** | TypeScript utilities, types, and shared code | TypeScript |
 
 ## Getting Started
@@ -115,43 +117,48 @@ For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
 ### Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/Smart-AI-Hub.git
    cd Smart-AI-Hub
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm run install:all
    ```
 
 3. **Set up environment variables**
+
    ```bash
    # Copy environment templates
    cp packages/auth-service/.env.example packages/auth-service/.env
    cp packages/core-service/.env.example packages/core-service/.env
    # ... for other services
-   
+
    # Edit the .env files with your configuration
    ```
 
 4. **Set up databases**
+
    ```bash
    # Start PostgreSQL and Redis (using Docker)
    docker-compose up -d postgres redis
-   
+
    # Run database migrations
    npm run db:migrate
-   
+
    # Seed databases with initial data
    npm run db:seed
    ```
 
 5. **Start the development environment**
+
    ```bash
    # Start all services
    npm run dev
-   
+
    # Or start individual services
    npm run dev:auth
    npm run dev:core
@@ -173,6 +180,7 @@ For detailed setup instructions, see [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md
 ### Development Workflow
 
 1. **Create a feature branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -183,18 +191,20 @@ For detailed setup instructions, see [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md
    - Update documentation as needed
 
 3. **Run tests**
+
    ```bash
    # Run all tests
    npm test
-   
+
    # Run tests with coverage
    npm run test:coverage
-   
+
    # Run linting
    npm run lint
    ```
 
 4. **Commit your changes**
+
    ```bash
    git add .
    git commit -m "feat: add your feature description"
@@ -207,16 +217,16 @@ For detailed setup instructions, see [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start all services in development mode |
-| `npm run build` | Build all packages |
-| `npm run test` | Run all tests |
-| `npm run lint` | Run linting |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run db:migrate` | Run database migrations |
-| `npm run db:seed` | Seed databases |
-| `npm run docker:dev` | Start development environment with Docker |
+| Script                  | Description                               |
+| ----------------------- | ----------------------------------------- |
+| `npm run dev`           | Start all services in development mode    |
+| `npm run build`         | Build all packages                        |
+| `npm run test`          | Run all tests                             |
+| `npm run lint`          | Run linting                               |
+| `npm run test:coverage` | Run tests with coverage report            |
+| `npm run db:migrate`    | Run database migrations                   |
+| `npm run db:seed`       | Seed databases                            |
+| `npm run docker:dev`    | Start development environment with Docker |
 
 ## API Documentation
 
@@ -241,14 +251,14 @@ curl -X GET "http://localhost:3001/api/users/me" \
 
 ### Key Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/login` | User login |
-| `POST` | `/api/auth/register` | User registration |
-| `GET` | `/api/users/me` | Get current user |
-| `GET` | `/api/credits/balance` | Get credit balance |
-| `POST` | `/api/mcp/chat` | Send chat message |
-| `GET` | `/api/admin/users` | List users (admin) |
+| Method | Endpoint               | Description        |
+| ------ | ---------------------- | ------------------ |
+| `POST` | `/api/auth/login`      | User login         |
+| `POST` | `/api/auth/register`   | User registration  |
+| `GET`  | `/api/users/me`        | Get current user   |
+| `GET`  | `/api/credits/balance` | Get credit balance |
+| `POST` | `/api/mcp/chat`        | Send chat message  |
+| `GET`  | `/api/admin/users`     | List users (admin) |
 
 For complete API documentation, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
 
@@ -265,16 +275,18 @@ The application supports multiple deployment environments:
 ### Deployment Options
 
 1. **Docker Deployment**
+
    ```bash
    # Build and deploy with Docker Compose
    docker-compose -f docker-compose.prod.yml up -d
    ```
 
 2. **Manual Deployment**
+
    ```bash
    # Build applications
    npm run build
-   
+
    # Deploy to servers
    npm run deploy:staging
    npm run deploy:production

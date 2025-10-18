@@ -1,17 +1,17 @@
 ---
-spec_id: "FEAT-003"
-title: "Promo System & Discounts"
-author: "Development Team"
-version: "1.0.0"
-status: "active"
-priority: "medium"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-type: "feature"
-category: "business"
-description: "Comprehensive system for managing promotional codes, discounts, and redemption tracking"
-tags: ["promo", "discounts", "marketing", "credits"]
-related_specs: ["EPIC-002: Financial System & Credits", "FEAT-001: User Management & Profiles"]
+spec_id: 'FEAT-003'
+title: 'Promo System & Discounts'
+author: 'Development Team'
+version: '1.0.0'
+status: 'active'
+priority: 'medium'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+type: 'feature'
+category: 'business'
+description: 'Comprehensive system for managing promotional codes, discounts, and redemption tracking'
+tags: ['promo', 'discounts', 'marketing', 'credits']
+related_specs: ['EPIC-002: Financial System & Credits', 'FEAT-001: User Management & Profiles']
 ---
 
 # Promo System & Discounts
@@ -37,6 +37,7 @@ The Promo System & Discounts feature provides a comprehensive solution for creat
 ## Acceptance Criteria
 
 ### Promo Code Management
+
 - [ ] Administrators can create promo codes with customizable attributes
 - [ ] Promo codes support configurable credit amounts
 - [ ] Usage limits can be set (unlimited or specific number)
@@ -46,6 +47,7 @@ The Promo System & Discounts feature provides a comprehensive solution for creat
 - [ ] Admin interface provides search and filtering capabilities
 
 ### Redemption Process
+
 - [ ] Users can redeem promo codes through the application
 - [ ] System validates code existence and active status
 - [ ] System checks usage limits before redemption
@@ -55,6 +57,7 @@ The Promo System & Discounts feature provides a comprehensive solution for creat
 - [ ] Redemption transactions are recorded with timestamps
 
 ### Tracking and Analytics
+
 - [ ] System tracks total redemption count for each promo code
 - [ ] System maintains redemption history by user
 - [ ] Admin dashboard shows redemption statistics
@@ -62,6 +65,7 @@ The Promo System & Discounts feature provides a comprehensive solution for creat
 - [ ] System can identify most effective promo codes
 
 ### Security and Validation
+
 - [ ] All inputs are properly sanitized and validated
 - [ ] Redemption operations are atomic and consistent
 - [ ] Audit trails are maintained for all redemption activities
@@ -72,6 +76,7 @@ The Promo System & Discounts feature provides a comprehensive solution for creat
 ### Data Models
 
 #### PromoCode
+
 ```prisma
 model PromoCode {
   id          String   @id @default(uuid())
@@ -91,6 +96,7 @@ model PromoCode {
 ```
 
 #### PromoRedemption
+
 ```prisma
 model PromoRedemption {
   id        String   @id @default(uuid())
@@ -110,6 +116,7 @@ model PromoRedemption {
 ### API Endpoints
 
 #### Create Promo Code
+
 - **Endpoint**: `POST /api/promo-codes`
 - **Description**: Creates a new promotional code
 - **Authentication**: Admin required
@@ -125,6 +132,7 @@ model PromoRedemption {
 - **Response**: Created promo code object
 
 #### Validate Promo Code
+
 - **Endpoint**: `GET /api/promo-codes/{code}/validate`
 - **Description**: Validates if a promo code is available for use
 - **Authentication**: User required
@@ -138,6 +146,7 @@ model PromoRedemption {
   ```
 
 #### Redeem Promo Code
+
 - **Endpoint**: `POST /api/promo-codes/{code}/redeem`
 - **Description**: Redeems a promo code for the authenticated user
 - **Authentication**: User required
@@ -151,12 +160,14 @@ model PromoRedemption {
   ```
 
 #### Get User Redemption History
+
 - **Endpoint**: `GET /api/users/redemptions`
 - **Description**: Retrieves redemption history for the authenticated user
 - **Authentication**: User required
 - **Response**: Array of redemption objects
 
 #### Get Promo Code Analytics
+
 - **Endpoint**: `GET /api/promo-codes/analytics`
 - **Description**: Retrieves analytics data for promo codes
 - **Authentication**: Admin required
@@ -165,6 +176,7 @@ model PromoRedemption {
 ### Business Rules
 
 #### Promo Code Validation
+
 - Codes must be unique across the system
 - Codes are case-insensitive for user input but stored consistently
 - Codes can contain alphanumeric characters and hyphens
@@ -172,6 +184,7 @@ model PromoRedemption {
 - Maximum code length: 50 characters
 
 #### Redemption Rules
+
 - Each user can only redeem a specific promo code once
 - Redemption attempts are rate-limited to prevent abuse
 - Expired codes cannot be redeemed
@@ -179,6 +192,7 @@ model PromoRedemption {
 - Codes that have reached max uses cannot be redeemed
 
 #### Credit Allocation
+
 - Credits are added to the user's account immediately upon successful redemption
 - Credit transactions are recorded for audit purposes
 - Credit allocation is atomic - either fully succeeds or fails
@@ -205,12 +219,14 @@ model PromoRedemption {
 ### Database Schema
 
 #### Indexes
+
 - Unique index on promo code field for fast lookups
 - Index on userId for efficient user redemption queries
 - Composite index on (userId, codeId) for duplicate prevention
 - Index on expiresAt for efficient cleanup of expired codes
 
 #### Constraints
+
 - Unique constraint on promo code
 - Unique constraint on (userId, codeId) for redemption table
 - Check constraint for positive credit amounts
@@ -219,6 +235,7 @@ model PromoRedemption {
 ### Error Handling
 
 #### Validation Errors
+
 - Invalid code format: Return 400 with descriptive message
 - Code not found: Return 404
 - Code expired: Return 410 with expiration date
@@ -227,6 +244,7 @@ model PromoRedemption {
 - Already redeemed: Return 409 with redemption info
 
 #### System Errors
+
 - Database errors: Return 500 with generic error message
 - Concurrent modification: Return 409 with retry suggestion
 - Rate limit exceeded: Return 429 with retry-after header
@@ -234,16 +252,19 @@ model PromoRedemption {
 ### Integration Points
 
 #### User Management System
+
 - Validates user existence during redemption
 - Updates user credit balance
 - Provides user profile data for analytics
 
 #### Financial System
+
 - Records credit transactions
 - Provides transaction history
 - Handles credit balance calculations
 
 #### Notification System
+
 - Sends confirmation notifications for successful redemptions
 - Alerts administrators for important events
 - Provides promotional notifications to users
@@ -251,23 +272,27 @@ model PromoRedemption {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Promo code creation validation
 - Redemption logic validation
 - Business rule enforcement
 - Error condition handling
 
 ### Integration Tests
+
 - End-to-end redemption flow
 - Database transaction consistency
 - API endpoint functionality
 - Cross-system integration
 
 ### Performance Tests
+
 - Load testing for high-volume redemption scenarios
 - Stress testing for concurrent operations
 - Database query optimization validation
 
 ### Security Tests
+
 - Input validation testing
 - Authentication and authorization testing
 - Rate limiting validation
@@ -276,16 +301,19 @@ model PromoRedemption {
 ## Deployment Considerations
 
 ### Database Migration
+
 - Create PromoCode and PromoRedemption tables
 - Add necessary indexes and constraints
 - Backfill data if migrating from existing system
 
 ### Feature Flags
+
 - Enable/disable promo code functionality
 - Control redemption rate limits
 - Configure validation rules
 
 ### Monitoring
+
 - Track redemption success/failure rates
 - Monitor system performance during campaigns
 - Alert on unusual redemption patterns
@@ -293,18 +321,21 @@ model PromoRedemption {
 ## Future Enhancements
 
 ### Advanced Promo Types
+
 - Percentage discounts
 - Tiered rewards
 - Conditional promotions
 - Time-limited flash sales
 
 ### Targeted Campaigns
+
 - User segment targeting
 - Geographic targeting
 - Behavioral targeting
 - Personalized offers
 
 ### Analytics Improvements
+
 - Real-time redemption tracking
 - Campaign ROI analysis
 - A/B testing capabilities

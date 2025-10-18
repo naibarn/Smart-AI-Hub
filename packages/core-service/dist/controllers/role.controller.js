@@ -138,14 +138,16 @@ const getAllRolesHandler = async (req, res) => {
         const roles = await (0, permission_service_1.getAllRoles)();
         // For now, implement simple pagination on the client side
         // In a real implementation, you would modify getAllRoles to support pagination
-        const startIndex = (pagination.page - 1) * pagination.per_page;
-        const endIndex = startIndex + pagination.per_page;
+        const page = pagination.page ?? 1;
+        const perPage = pagination.per_page ?? 20;
+        const startIndex = (page - 1) * perPage;
+        const endIndex = startIndex + perPage;
         const paginatedRoles = roles.slice(startIndex, endIndex);
         (0, response_1.paginatedResponse)(paginatedRoles, {
-            page: pagination.page,
-            per_page: pagination.per_page,
+            page: page,
+            per_page: perPage,
             total: roles.length,
-            total_pages: Math.ceil(roles.length / pagination.per_page),
+            total_pages: Math.ceil(roles.length / perPage),
         }, res, 200, req.requestId);
         return;
     }
@@ -178,14 +180,16 @@ const getAllPermissionsHandler = async (req, res) => {
         const permissions = await (0, permission_service_1.getAllPermissions)();
         // For now, implement simple pagination on the client side
         // In a real implementation, you would modify getAllPermissions to support pagination
-        const startIndex = (pagination.page - 1) * pagination.per_page;
-        const endIndex = startIndex + pagination.per_page;
+        const page = pagination.page ?? 1;
+        const perPage = pagination.per_page ?? 20;
+        const startIndex = (page - 1) * perPage;
+        const endIndex = startIndex + perPage;
         const paginatedPermissions = permissions.slice(startIndex, endIndex);
         (0, response_1.paginatedResponse)(paginatedPermissions, {
-            page: pagination.page,
-            per_page: pagination.per_page,
+            page: page,
+            per_page: perPage,
             total: permissions.length,
-            total_pages: Math.ceil(permissions.length / pagination.per_page),
+            total_pages: Math.ceil(permissions.length / perPage),
         }, res, 200, req.requestId);
         return;
     }

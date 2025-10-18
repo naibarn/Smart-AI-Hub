@@ -18,7 +18,9 @@
 ### Functional Requirements
 
 {{#each functionalRequirements}}
+
 #### FR-{{@index}}: {{this.title}}
+
 {{this.description}}
 
 **Priority:** {{this.priority}}
@@ -29,7 +31,9 @@
 ### Non-Functional Requirements
 
 {{#each nonFunctionalRequirements}}
+
 #### NFR-{{@index}}: {{this.title}}
+
 {{this.description}}
 
 **Priority:** {{this.priority}}
@@ -40,8 +44,9 @@
 ## Acceptance Criteria
 
 {{#each acceptanceCriteria}}
+
 - [ ] {{this}}
-{{/each}}
+      {{/each}}
 
 ## Design Considerations
 
@@ -70,25 +75,28 @@
 ### Internal Dependencies
 
 {{#each internalDependencies}}
+
 - **{{this.name}}:** {{this.description}}
   - **Status:** {{this.status}}
   - **Impact:** {{this.impact}}
-{{/each}}
+    {{/each}}
 
 ### External Dependencies
 
 {{#each externalDependencies}}
+
 - **{{this.name}}:** {{this.description}}
   - **Version:** {{this.version}}
   - **Purpose:** {{this.purpose}}
-{{/each}}
+    {{/each}}
 
 ### Blockers
 
 {{#each blockers}}
+
 - **{{this.title}}:** {{this.description}}
   - **Resolution:** {{this.resolution}}
-{{/each}}
+    {{/each}}
 
 ## Implementation Notes
 
@@ -99,15 +107,19 @@
 ### API Endpoints
 
 {{#each apiEndpoints}}
+
 #### {{this.method}} {{this.path}}
+
 {{this.description}}
 
 **Request:**
+
 ```json
 {{this.requestExample}}
 ```
 
 **Response:**
+
 ```json
 {{this.responseExample}}
 ```
@@ -131,59 +143,64 @@
 ### Unit Tests
 
 {{#each unitTests}}
+
 - **Test:** {{this.name}}
   - **Description:** {{this.description}}
   - **Priority:** {{this.priority}}
-{{/each}}
+    {{/each}}
 
 ### Integration Tests
 
 {{#each integrationTests}}
+
 - **Test:** {{this.name}}
   - **Description:** {{this.description}}
   - **Priority:** {{this.priority}}
-{{/each}}
+    {{/each}}
 
 ### End-to-End Tests
 
 {{#each e2eTests}}
+
 - **Test:** {{this.name}}
   - **Description:** {{this.description}}
   - **Priority:** {{this.priority}}
-{{/each}}
+    {{/each}}
 
 ### Performance Tests
 
 {{#each performanceTests}}
+
 - **Test:** {{this.name}}
   - **Description:** {{this.description}}
   - **Metric:** {{this.metric}}
   - **Target:** {{this.target}}
-{{/each}}
+    {{/each}}
 
 ## Metadata
 
-| Field | Value |
-|-------|-------|
-| **Specification ID** | {{specId}} |
-| **Created Date** | {{createdDate}} |
-| **Last Updated** | {{lastUpdated}} |
-| **Author** | {{author}} |
-| **Reviewers** | {{reviewers}} |
-| **Status** | {{status}} |
-| **Priority** | {{priority}} |
-| **Complexity** | {{complexity}} |
+| Field                | Value               |
+| -------------------- | ------------------- |
+| **Specification ID** | {{specId}}          |
+| **Created Date**     | {{createdDate}}     |
+| **Last Updated**     | {{lastUpdated}}     |
+| **Author**           | {{author}}          |
+| **Reviewers**        | {{reviewers}}       |
+| **Status**           | {{status}}          |
+| **Priority**         | {{priority}}        |
+| **Complexity**       | {{complexity}}      |
 | **Estimated Effort** | {{estimatedEffort}} |
-| **Target Release** | {{targetRelease}} |
-| **Related Issues** | {{relatedIssues}} |
-| **Tags** | {{tags}} |
+| **Target Release**   | {{targetRelease}}   |
+| **Related Issues**   | {{relatedIssues}}   |
+| **Tags**             | {{tags}}            |
 
 ## Change Log
 
 ### Version History
 
 | Version | Date | Author | Changes |
-|---------|------|--------|---------|
+| ------- | ---- | ------ | ------- |
+
 {{#each versionHistory}}
 | {{this.version}} | {{this.date}} | {{this.author}} | {{this.changes}} |
 {{/each}}
@@ -219,11 +236,12 @@
 ## Approval
 
 | Role | Name | Date | Signature |
-|------|------|------|-----------|
+| ---- | ---- | ---- | --------- |
+
 {{#each approvals}}
 | {{this.role}} | {{this.name}} | {{this.date}} | {{this.signature}} |
 {{/each}}
 
 ---
 
-*This specification follows the Smart AI Hub specification template and standards.*
+_This specification follows the Smart AI Hub specification template and standards._

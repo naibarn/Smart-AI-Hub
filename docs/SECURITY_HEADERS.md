@@ -37,21 +37,21 @@ The security headers are implemented at multiple layers:
 
 ### Core Security Headers
 
-| Header | Purpose | Value | Implementation |
-|--------|---------|-------|----------------|
-| `X-Content-Type-Options` | Prevents MIME-type sniffing | `nosniff` | NGINX + Helmet |
-| `X-Frame-Options` | Prevents clickjacking | `DENY` | NGINX + Helmet |
-| `X-XSS-Protection` | Enables XSS filtering | `1; mode=block` | NGINX + Helmet |
-| `Referrer-Policy` | Controls referrer information | `strict-origin-when-cross-origin` | NGINX + Helmet |
-| `X-DNS-Prefetch-Control` | Controls DNS prefetching | `off` | NGINX + Helmet |
-| `X-Download-Options` | Prevents file download execution | `noopen` | NGINX + Helmet |
-| `X-Permitted-Cross-Domain-Policies` | Restricts cross-domain policies | `none` | NGINX + Helmet |
-| `Permissions-Policy` | Controls browser feature access | Restricted | NGINX + Helmet |
+| Header                              | Purpose                          | Value                             | Implementation |
+| ----------------------------------- | -------------------------------- | --------------------------------- | -------------- |
+| `X-Content-Type-Options`            | Prevents MIME-type sniffing      | `nosniff`                         | NGINX + Helmet |
+| `X-Frame-Options`                   | Prevents clickjacking            | `DENY`                            | NGINX + Helmet |
+| `X-XSS-Protection`                  | Enables XSS filtering            | `1; mode=block`                   | NGINX + Helmet |
+| `Referrer-Policy`                   | Controls referrer information    | `strict-origin-when-cross-origin` | NGINX + Helmet |
+| `X-DNS-Prefetch-Control`            | Controls DNS prefetching         | `off`                             | NGINX + Helmet |
+| `X-Download-Options`                | Prevents file download execution | `noopen`                          | NGINX + Helmet |
+| `X-Permitted-Cross-Domain-Policies` | Restricts cross-domain policies  | `none`                            | NGINX + Helmet |
+| `Permissions-Policy`                | Controls browser feature access  | Restricted                        | NGINX + Helmet |
 
 ### HTTPS-Only Headers
 
-| Header | Purpose | Value | Environment |
-|--------|---------|-------|-------------|
+| Header                             | Purpose        | Value                                          | Environment          |
+| ---------------------------------- | -------------- | ---------------------------------------------- | -------------------- |
 | `Strict-Transport-Security` (HSTS) | Enforces HTTPS | `max-age=31536000; includeSubDomains; preload` | Production + Staging |
 
 ### Content Security Policy (CSP)
@@ -59,35 +59,38 @@ The security headers are implemented at multiple layers:
 Environment-specific CSP policies are implemented:
 
 #### Production CSP (Strict)
+
 ```
-default-src 'self'; 
-script-src 'self' 'nonce-{NONCE}'; 
-style-src 'self' 'nonce-{NONCE}'; 
-img-src 'self' data: https:; 
-connect-src 'self' https://api.smart-ai-hub.com; 
-font-src 'self'; 
-object-src 'none'; 
-frame-ancestors 'none'; 
-base-uri 'self'; 
-form-action 'self'; 
+default-src 'self';
+script-src 'self' 'nonce-{NONCE}';
+style-src 'self' 'nonce-{NONCE}';
+img-src 'self' data: https:;
+connect-src 'self' https://api.smart-ai-hub.com;
+font-src 'self';
+object-src 'none';
+frame-ancestors 'none';
+base-uri 'self';
+form-action 'self';
 upgrade-insecure-requests;
 report-uri /api/v1/security/csp-report;
 report-to default;
 ```
 
 #### Staging CSP (Relaxed)
+
 ```
-default-src 'self' 'unsafe-inline' 'unsafe-eval'; 
-script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* ws://localhost:*; 
-connect-src 'self' localhost:* ws://localhost:*; 
+default-src 'self' 'unsafe-inline' 'unsafe-eval';
+script-src 'self' 'unsafe-inline' 'unsafe-eval' localhost:* ws://localhost:*;
+connect-src 'self' localhost:* ws://localhost:*;
 report-uri /api/v1/security/csp-report;
 ```
 
 #### Development CSP (Permissive)
+
 ```
-default-src 'self' 'unsafe-inline' 'unsafe-eval' *; 
-script-src 'self' 'unsafe-inline' 'unsafe-eval' *; 
-connect-src 'self' *; 
+default-src 'self' 'unsafe-inline' 'unsafe-eval' *;
+script-src 'self' 'unsafe-inline' 'unsafe-eval' *;
+connect-src 'self' *;
 report-uri /api/v1/security/csp-report;
 ```
 
@@ -99,7 +102,7 @@ report-uri /api/v1/security/csp-report;
 server {
     listen 443 ssl http2;
     server_name smart-ai-hub.com www.smart-ai-hub.com;
-    
+
     # SSL Configuration
     ssl_certificate /etc/ssl/certs/smart-ai-hub.com.crt;
     ssl_certificate_key /etc/ssl/private/smart-ai-hub.com.key;
@@ -108,7 +111,7 @@ server {
     ssl_prefer_server_ciphers off;
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
-    
+
     # Security Headers
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
@@ -119,7 +122,7 @@ server {
     add_header X-Download-Options "noopen" always;
     add_header X-Permitted-Cross-Domain-Policies "none" always;
     add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()" always;
-    
+
     # Content Security Policy
     set $csp "";
     set $csp "${csp}default-src 'self'; ";
@@ -135,7 +138,7 @@ server {
     set $csp "${csp}upgrade-insecure-requests; ";
     set $csp "${csp}report-uri /api/v1/security/csp-report; ";
     add_header Content-Security-Policy $csp always;
-    
+
     # Existing configuration...
 }
 ```
@@ -172,7 +175,7 @@ const getCspConfig = () => {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
         fontSrc: ["'self'"],
         objectSrc: ["'none'"],
@@ -191,11 +194,13 @@ const getCspConfig = () => {
 export const securityHeaders = helmet({
   contentSecurityPolicy: getCspConfig(),
   crossOriginEmbedderPolicy: false,
-  hsts: isProduction ? {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  } : false,
+  hsts: isProduction
+    ? {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      }
+    : false,
 });
 ```
 
@@ -229,28 +234,33 @@ app.use((req, res, next) => {
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-  <meta http-equiv="X-DNS-Prefetch-Control" content="off">
-  <meta http-equiv="X-Download-Options" content="noopen">
-  <meta http-equiv="X-Permitted-Cross-Domain-Policies" content="none">
-  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
-  
-  <!-- CSP Meta Tag (fallback) -->
-  <meta http-equiv="Content-Security-Policy" 
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
-  
-  <title>Smart AI Hub</title>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-DNS-Prefetch-Control" content="off" />
+    <meta http-equiv="X-Download-Options" content="noopen" />
+    <meta http-equiv="X-Permitted-Cross-Domain-Policies" content="none" />
+    <meta
+      http-equiv="Permissions-Policy"
+      content="geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+    />
+
+    <!-- CSP Meta Tag (fallback) -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+    />
+
+    <title>Smart AI Hub</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
 ```
 
@@ -285,13 +295,13 @@ CSP violations are automatically reported to the monitoring endpoint:
 // CSP violation report endpoint
 app.post('/api/v1/security/csp-report', (req, res) => {
   const violation = req.body;
-  
+
   // Log violation
   console.warn('CSP Violation:', violation);
-  
+
   // Store for monitoring
   securityMonitor.recordViolation(violation);
-  
+
   // Respond with success
   res.status(204).send();
 });
@@ -304,6 +314,7 @@ app.post('/api/v1/security/csp-report', (req, res) => {
 Access the security monitoring dashboard at: `/admin/security/headers`
 
 Features:
+
 - Real-time security headers status
 - CSP violation tracking
 - Security score calculation
@@ -317,6 +328,7 @@ GET /api/v1/security/status
 ```
 
 Response:
+
 ```json
 {
   "status": "success",
@@ -357,12 +369,14 @@ Response:
 Use the provided test scripts to verify security headers:
 
 #### Linux/macOS
+
 ```bash
 ./scripts/test-security-headers.sh --help
 ./scripts/test-security-headers.sh --base-url https://api.smart-ai-hub.com --frontend-url https://smart-ai-hub.com --verbose
 ```
 
 #### Windows
+
 ```cmd
 scripts\test-security-headers.bat --help
 scripts\test-security-headers.bat --base-url https://api.smart-ai-hub.com --frontend-url https://smart-ai-hub.com --verbose
@@ -399,7 +413,8 @@ Expected headers should include all security headers listed in the implementatio
 #### 1. CSP Violations
 
 **Problem**: Console shows CSP violation errors
-**Solution**: 
+**Solution**:
+
 1. Check the violation details in the security dashboard
 2. Update CSP policy to allow the blocked resource
 3. Use nonces instead of unsafe-inline where possible
@@ -412,14 +427,16 @@ Expected headers should include all security headers listed in the implementatio
 #### 3. Mixed Content Errors
 
 **Problem**: HTTPS site trying to load HTTP resources
-**Solution**: 
+**Solution**:
+
 1. Update all resource URLs to use HTTPS
 2. Ensure `upgrade-insecure-requests` is in CSP
 
 #### 4. Inline Scripts Blocked
 
 **Problem**: Inline scripts not executing
-**Solution**: 
+**Solution**:
+
 1. Add CSP nonce to inline scripts: `<script nonce="{{nonce}}">`
 2. Or move scripts to external files
 3. Avoid `unsafe-inline` in production
@@ -427,7 +444,8 @@ Expected headers should include all security headers listed in the implementatio
 #### 5. Font Loading Issues
 
 **Problem**: Custom fonts not loading
-**Solution**: 
+**Solution**:
+
 1. Add font source to CSP: `font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com`
 2. Check for mixed content issues
 

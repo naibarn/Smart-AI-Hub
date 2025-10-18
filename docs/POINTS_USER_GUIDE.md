@@ -10,13 +10,13 @@ Points are a virtual currency that you can use to access AI services on Smart AI
 
 ### Key Differences Between Points and Credits
 
-| Feature | Credits | Points |
-|---------|---------|--------|
-| Primary Use | Premium services | All AI services |
-| Purchase Method | Direct purchase | Purchase or earn |
-| Exchange | One-way (Credits → Points) | Not convertible to Credits |
-| Auto Top-up | Not available | Available when balance is low |
-| Daily Rewards | Not available | Available |
+| Feature         | Credits                    | Points                        |
+| --------------- | -------------------------- | ----------------------------- |
+| Primary Use     | Premium services           | All AI services               |
+| Purchase Method | Direct purchase            | Purchase or earn              |
+| Exchange        | One-way (Credits → Points) | Not convertible to Credits    |
+| Auto Top-up     | Not available              | Available when balance is low |
+| Daily Rewards   | Not available              | Available                     |
 
 ## Earning Points
 
@@ -30,6 +30,7 @@ Get rewarded for being active! Simply log in to your account once per day to ear
 - **Bonus**: Consecutive days may increase your reward
 
 **How to Claim:**
+
 1. Log in to your Smart AI Hub account
 2. You'll see a notification if you're eligible for the daily reward
 3. Click "Claim Daily Reward" to receive your points
@@ -45,6 +46,7 @@ Convert your existing Credits to Points at a favorable exchange rate.
 - **Processing**: Instant
 
 **How to Exchange:**
+
 1. Go to the Points page in your dashboard
 2. Click on the "Exchange" tab
 3. Enter the amount of Credits you want to exchange
@@ -62,6 +64,7 @@ Buy Points directly using our secure payment system.
 - **Packages**: Multiple package sizes available
 
 **How to Purchase:**
+
 1. Go to the Points page in your dashboard
 2. Click on the "Purchase" tab
 3. Select a package that fits your needs
@@ -92,6 +95,7 @@ When using any service, you'll see payment options:
 ### Checking Your Balance
 
 Your Points balance is displayed in:
+
 - Main dashboard (next to Credits balance)
 - Points page (detailed view)
 - Service checkout pages
@@ -127,6 +131,7 @@ You try to use a service that costs 100 Points:
 ### Managing Auto Top-up
 
 You can control auto top-up behavior in your settings:
+
 - **Enable/Disable**: Turn the feature on or off
 - **Threshold**: Set when auto top-up triggers (default: 10 Points)
 - **Amount**: Set how many Credits to convert (default: 1 Credit)
@@ -149,21 +154,22 @@ Keep track of all your Points activity in the transaction history.
 
 ### Transaction Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `purchase` | Points purchased with money | +10,000 Points |
-| `usage` | Points spent on services | -500 Points |
-| `exchange_from_credit` | Manual conversion from Credits | +1,000 Points |
-| `auto_topup_from_credit` | Automatic conversion from Credits | +1,000 Points |
-| `daily_reward` | Daily login reward | +50 Points |
-| `admin_adjustment` | Manual adjustment by support | ±Points |
-| `refund` | Points refunded | +Points |
+| Type                     | Description                       | Example        |
+| ------------------------ | --------------------------------- | -------------- |
+| `purchase`               | Points purchased with money       | +10,000 Points |
+| `usage`                  | Points spent on services          | -500 Points    |
+| `exchange_from_credit`   | Manual conversion from Credits    | +1,000 Points  |
+| `auto_topup_from_credit` | Automatic conversion from Credits | +1,000 Points  |
+| `daily_reward`           | Daily login reward                | +50 Points     |
+| `admin_adjustment`       | Manual adjustment by support      | ±Points        |
+| `refund`                 | Points refunded                   | +Points        |
 
 ## Points Balance Management
 
 ### Checking Your Balance
 
 Your Points balance is always visible in:
+
 - Dashboard header
 - Points page
 - Service checkout pages
@@ -178,6 +184,7 @@ Your Points balance is always visible in:
 ### Low Balance Alerts
 
 We'll notify you when:
+
 - Your Points balance is low (≤ 10)
 - Auto top-up has been triggered
 - You have insufficient Points for a service
@@ -186,15 +193,15 @@ We'll notify you when:
 
 We offer several Points packages to fit your needs:
 
-| Package | Points | Price | Bonus |
-|---------|--------|-------|-------|
-| Starter | 1,000 | $0.10 | - |
-| Standard | 10,000 | $1.00 | - |
-| Value | 50,000 | $4.50 | 5,000 bonus |
-| Premium | 100,000 | $8.00 | 20,000 bonus |
+| Package    | Points  | Price  | Bonus         |
+| ---------- | ------- | ------ | ------------- |
+| Starter    | 1,000   | $0.10  | -             |
+| Standard   | 10,000  | $1.00  | -             |
+| Value      | 50,000  | $4.50  | 5,000 bonus   |
+| Premium    | 100,000 | $8.00  | 20,000 bonus  |
 | Enterprise | 500,000 | $35.00 | 150,000 bonus |
 
-*Prices are in USD and may vary by region.*
+_Prices are in USD and may vary by region._
 
 ## Security and Privacy
 
@@ -275,6 +282,7 @@ We're constantly improving the Points System! Recent updates include:
 - Mobile app support
 
 **Coming Soon:**
+
 - Points sharing with family
 - Loyalty rewards program
 - Points for referrals

@@ -5,6 +5,7 @@ This document summarizes the implementation of unified API standards across all 
 ## Overview
 
 The API standards implementation ensures consistency across all services with:
+
 - API versioning with `/api/v1/` prefix
 - Standardized response formats for success, error, and pagination
 - Role-based rate limiting
@@ -18,20 +19,24 @@ The API standards implementation ensures consistency across all services with:
 All endpoints now use the `/api/v1/` prefix for versioning:
 
 #### Auth Service
+
 - Old: `/auth/*` → New: `/api/v1/auth/*`
 - Old: `/api/auth/*` → New: `/api/v1/auth/*` (with backward compatibility)
 
 #### Core Service
+
 - Old: `/users/*` → New: `/api/v1/users/*`
 - Old: `/credits/*` → New: `/api/v1/credits/*`
 - Old: `/payments/*` → New: `/api/v1/payments/*`
 
 #### MCP Server
+
 - Old: `/v1/*` → New: `/api/v1/*`
 
 ### 2. Standard Response Formats
 
 #### Success Response
+
 ```json
 {
   "data": { ... },
@@ -44,6 +49,7 @@ All endpoints now use the `/api/v1/` prefix for versioning:
 ```
 
 #### Error Response
+
 ```json
 {
   "error": {
@@ -57,6 +63,7 @@ All endpoints now use the `/api/v1/` prefix for versioning:
 ```
 
 #### Paginated Response
+
 ```json
 {
   "data": [ ... ],
@@ -76,12 +83,14 @@ All endpoints now use the `/api/v1/` prefix for versioning:
 ### 3. Role-Based Rate Limiting
 
 Rate limiting is implemented per role with the following limits:
+
 - Guest: 10 requests per minute
 - User: 60 requests per minute
 - Manager: 120 requests per minute
 - Admin: Unlimited requests
 
 Rate limiting headers are included in responses:
+
 - `X-RateLimit-Limit`: Request limit per window
 - `X-RateLimit-Remaining`: Remaining requests in current window
 - `X-RateLimit-Reset`: Time when the rate limit window resets (UTC timestamp)
@@ -89,6 +98,7 @@ Rate limiting headers are included in responses:
 ### 4. Request ID Tracking
 
 All requests receive a unique request ID that is:
+
 - Generated automatically if not provided
 - Included in response headers as `X-Request-ID`
 - Included in response body metadata
@@ -97,6 +107,7 @@ All requests receive a unique request ID that is:
 ### 5. Backward Compatibility
 
 Legacy endpoints are maintained with deprecation warnings:
+
 - `Deprecation: true` header
 - `Sunset` header with deprecation date (3 months)
 - `Link` header pointing to new endpoint
@@ -104,6 +115,7 @@ Legacy endpoints are maintained with deprecation warnings:
 ## Files Created/Updated
 
 ### Auth Service
+
 - `src/utils/response.js` (CREATED) - Response utility functions
 - `src/middleware/requestId.js` (CREATED) - Request ID middleware
 - `src/middleware/rateLimiter.js` (UPDATED) - Role-based rate limiting
@@ -112,6 +124,7 @@ Legacy endpoints are maintained with deprecation warnings:
 - `src/controllers/*.js` (UPDATED) - All controllers updated to use response utilities
 
 ### Core Service
+
 - `src/utils/response.ts` (CREATED) - TypeScript response utilities
 - `src/utils/pagination.ts` (CREATED) - Pagination helper functions
 - `src/middlewares/requestId.ts` (CREATED) - Request ID middleware
@@ -121,12 +134,14 @@ Legacy endpoints are maintained with deprecation warnings:
 - `src/controllers/*.ts` (UPDATED) - All controllers updated to use response utilities
 
 ### MCP Server
+
 - `src/index.ts` (UPDATED) - API versioning and response format
 - `src/types/mcp.types.ts` (UPDATED) - Error details interface
 
 ## Testing
 
 A test script (`test-api-standards.js`) is provided to validate the implementation:
+
 - API versioning compliance
 - Response format standards
 - Request ID tracking
@@ -134,6 +149,7 @@ A test script (`test-api-standards.js`) is provided to validate the implementati
 - Backward compatibility
 
 Run tests with:
+
 ```bash
 node test-api-standards.js
 ```
@@ -143,23 +159,25 @@ node test-api-standards.js
 ### For Frontend Developers
 
 1. **Update Base URLs**
+
    ```javascript
    // Old
    const AUTH_BASE_URL = 'http://localhost:3001/api/auth';
    const CORE_BASE_URL = 'http://localhost:3002/users';
-   
+
    // New
    const AUTH_BASE_URL = 'http://localhost:3001/api/v1/auth';
    const CORE_BASE_URL = 'http://localhost:3002/api/v1/users';
    ```
 
 2. **Handle Response Format Changes**
+
    ```javascript
    // Old response handling
    if (response.data.success) {
      const data = response.data.data;
    }
-   
+
    // New response handling
    if (response.data.data) {
      const data = response.data.data;
@@ -168,12 +186,13 @@ node test-api-standards.js
    ```
 
 3. **Error Handling**
+
    ```javascript
    // Old error handling
    if (response.data.error) {
      console.error(response.data.error.message);
    }
-   
+
    // New error handling
    if (response.data.error) {
      console.error(response.data.error.code, response.data.error.message);
@@ -182,20 +201,22 @@ node test-api-standards.js
    ```
 
 4. **Pagination**
+
    ```javascript
    // Old pagination
    const { users, pagination } = response.data.data;
-   
+
    // New pagination
    const users = response.data.data;
    const { page, per_page, total, total_pages } = response.data.pagination;
    ```
 
 5. **Request ID Tracking**
+
    ```javascript
    // Extract request ID from response
    const requestId = response.headers['x-request-id'] || response.data.meta.request_id;
-   
+
    // Include request ID in support requests
    console.log(`Request failed. ID: ${requestId}`);
    ```

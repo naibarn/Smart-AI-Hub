@@ -219,7 +219,7 @@ export class AgentFlowExecutor {
     });
 
     const executeSteps = async () => {
-      let currentSteps = [flowDefinition.steps[0]]; // Start with first step
+      const currentSteps = [flowDefinition.steps[0]]; // Start with first step
       const executedSteps = new Set<string>();
 
       while (currentSteps.length > 0) {

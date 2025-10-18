@@ -1,34 +1,34 @@
 ---
 # Required metadata for SpeckIt validation
-id: "spec-bugfix-{{bug-id}}-{{sequence-number}}"
-title: "Bug Fix Specification: {{Bug Title}}"
-type: "functional_requirement"
-category: "backlog"
-author: "{{author-name}}"
-version: "1.0.0"
-status: "draft"
-priority: "{{priority-level}}"
-createdAt: "{{YYYY-MM-DD}}"
-updatedAt: "{{YYYY-MM-DD}}"
-estimatedEffort: {{hours}}
-actualEffort: {{hours}}
+id: 'spec-bugfix-{{bug-id}}-{{sequence-number}}'
+title: 'Bug Fix Specification: {{Bug Title}}'
+type: 'functional_requirement'
+category: 'backlog'
+author: '{{author-name}}'
+version: '1.0.0'
+status: 'draft'
+priority: '{{priority-level}}'
+createdAt: '{{YYYY-MM-DD}}'
+updatedAt: '{{YYYY-MM-DD}}'
+estimatedEffort: { { hours } }
+actualEffort: { { hours } }
 reviewers: []
 approvers: []
-tags: ["bug-fix", "{{component}}", "{{severity}}"]
+tags: ['bug-fix', '{{component}}', '{{severity}}']
 
 # Traceability links for SpeckIt validation
-parent: "{{parent-spec-id}}"
-dependencies: ["{{dependency-spec-id-1}}", "{{dependency-spec-id-2}}"]
-related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
+parent: '{{parent-spec-id}}'
+dependencies: ['{{dependency-spec-id-1}}', '{{dependency-spec-id-2}}']
+related: ['{{related-spec-id-1}}', '{{related-spec-id-2}}']
 ---
 
 # Bug Fix Specification: {{Bug Title}}
 
 ## Overview and Context
 
-<!-- 
+<!--
   PURPOSE: Provide a high-level overview of the bug and its impact
-  TIPS: 
+  TIPS:
   - Explain what the bug is and why it needs to be fixed
   - Describe the impact on users and the business
   - Mention any relevant background information
@@ -39,7 +39,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Bug Information
 
-<!-- 
+<!--
   PURPOSE: Document detailed bug information
   TIPS:
   - Include all relevant bug details
@@ -73,7 +73,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Bug Description
 
-<!-- 
+<!--
   PURPOSE: Provide detailed description of the bug
   TIPS:
   - Be specific about what is happening vs. what should happen
@@ -101,7 +101,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Reproduction Steps
 
-<!-- 
+<!--
   PURPOSE: Provide clear steps to reproduce the bug
   TIPS:
   - Be as specific as possible
@@ -131,7 +131,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Root Cause Analysis
 
-<!-- 
+<!--
   PURPOSE: Document the root cause of the bug
   TIPS:
   - Include technical details about the cause
@@ -153,7 +153,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Fix Requirements
 
-<!-- 
+<!--
   PURPOSE: Define what needs to be fixed
   TIPS:
   - Be specific about the fix requirements
@@ -175,7 +175,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Testing Requirements
 
-<!-- 
+<!--
   PURPOSE: Define testing requirements for the fix
   TIPS:
   - Include unit tests, integration tests, and regression tests
@@ -205,7 +205,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## Implementation Plan
 
-<!-- 
+<!--
   PURPOSE: Define the implementation approach
   TIPS:
   - Include technical approach and design
@@ -230,7 +230,7 @@ related: ["{{related-spec-id-1}}", "{{related-spec-id-2}}"]
 
 ## User Stories
 
-<!-- 
+<!--
   PURPOSE: Define user stories for the fix (if applicable)
   TIPS:
   - Focus on user-visible changes
@@ -273,7 +273,7 @@ Scenario: {{Regression test scenario 1}}
 
 ## Non-Functional Requirements
 
-<!-- 
+<!--
   PURPOSE: Define non-functional requirements for the fix
   TIPS:
   - Consider performance, security, and reliability impacts
@@ -301,7 +301,7 @@ Scenario: {{Regression test scenario 1}}
 
 ## Deployment and Release
 
-<!-- 
+<!--
   PURPOSE: Define deployment and release requirements
   TIPS:
   - Consider deployment strategy and timing
@@ -327,7 +327,7 @@ Scenario: {{Regression test scenario 1}}
 
 ## Documentation Updates
 
-<!-- 
+<!--
   PURPOSE: Define documentation requirements
   TIPS:
   - Include user documentation updates
@@ -349,7 +349,7 @@ Scenario: {{Regression test scenario 1}}
 
 ## Communication Plan
 
-<!-- 
+<!--
   PURPOSE: Define communication requirements
   TIPS:
   - Include internal and external communication
@@ -375,7 +375,7 @@ Scenario: {{Regression test scenario 1}}
 
 ## Risks and Mitigation
 
-<!-- 
+<!--
   PURPOSE: Identify risks and mitigation strategies
   TIPS:
   - Consider technical, business, and operational risks
@@ -385,8 +385,8 @@ Scenario: {{Regression test scenario 1}}
 
 ### Risk Assessment
 
-| Risk | Probability | Impact | Mitigation Strategy | Owner |
-|------|-------------|--------|-------------------|-------|
+| Risk                 | Probability         | Impact              | Mitigation Strategy     | Owner          |
+| -------------------- | ------------------- | ------------------- | ----------------------- | -------------- |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 | {{risk description}} | {{high/medium/low}} | {{high/medium/low}} | {{mitigation approach}} | {{risk owner}} |
 
@@ -405,20 +405,20 @@ Scenario: {{Regression test scenario 1}}
 
 ### Review History
 
-| Date | Reviewer | Comments | Status |
-|------|----------|----------|--------|
+| Date           | Reviewer          | Comments            | Status     |
+| -------------- | ----------------- | ------------------- | ---------- |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 | {{YYYY-MM-DD}} | {{reviewer-name}} | {{review comments}} | {{status}} |
 
 ### Approval
 
-| Date | Approver | Role | Decision | Comments |
-|------|----------|------|----------|----------|
+| Date           | Approver          | Role     | Decision              | Comments     |
+| -------------- | ----------------- | -------- | --------------------- | ------------ |
 | {{YYYY-MM-DD}} | {{approver-name}} | {{role}} | {{approved/rejected}} | {{comments}} |
 
 ## Change History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | {{YYYY-MM-DD}} | {{author-name}} | Initial version |
-| 1.0.1 | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |
+| Version | Date           | Author          | Changes                    |
+| ------- | -------------- | --------------- | -------------------------- |
+| 1.0.0   | {{YYYY-MM-DD}} | {{author-name}} | Initial version            |
+| 1.0.1   | {{YYYY-MM-DD}} | {{author-name}} | {{description of changes}} |

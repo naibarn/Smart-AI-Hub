@@ -1,3 +1,5 @@
+import type { WebhookStatus as PrismaWebhookStatus } from '@prisma/client';
+
 export interface WebhookEndpoint {
   id: string;
   userId: string;
@@ -5,7 +7,7 @@ export interface WebhookEndpoint {
   secret: string;
   events: string[];
   isActive: boolean;
-  description?: string;
+  description?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,14 +17,14 @@ export interface WebhookLog {
   webhookId: string;
   eventType: string;
   payload: any;
-  status: WebhookStatus;
-  statusCode?: number;
-  response?: string;
-  error?: string;
+  status: PrismaWebhookStatus;
+  statusCode?: number | null;
+  response?: string | null;
+  error?: string | null;
   attempt: number;
   maxAttempts: number;
-  deliveredAt?: Date;
-  nextRetryAt?: Date;
+  deliveredAt?: Date | null;
+  nextRetryAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

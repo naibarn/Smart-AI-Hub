@@ -4,6 +4,7 @@ TASK: {{task_id}} - {{task_name}}
 {{task_description}}
 
 เมื่อทำเสร็จ:
+
 1. บันทึกผลลงไฟล์ {{output_file}}
 2. แสดง "✅ {{task_id}} COMPLETE"
 3. แสดงสรุปสั้นๆ ว่าทำอะไรไปบ้าง

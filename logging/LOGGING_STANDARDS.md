@@ -5,6 +5,7 @@ This document defines the logging standards and best practices for all Smart AI 
 ## Log Levels
 
 ### Standard Log Levels
+
 - **error**: Error conditions that prevent normal operation
 - **warn**: Warning conditions that should be investigated but don't stop operation
 - **info**: Informational messages about normal operation
@@ -13,6 +14,7 @@ This document defines the logging standards and best practices for all Smart AI 
 ### When to Use Each Level
 
 #### error
+
 - Database connection failures
 - Authentication/authorization failures
 - Critical business logic failures
@@ -20,6 +22,7 @@ This document defines the logging standards and best practices for all Smart AI 
 - Service unavailable errors
 
 #### warn
+
 - Failed login attempts
 - Slow database queries (>1s)
 - Rate limiting applied
@@ -27,6 +30,7 @@ This document defines the logging standards and best practices for all Smart AI 
 - Configuration issues
 
 #### info
+
 - User actions (login, logout, etc.)
 - Service startup/shutdown
 - Successful operations
@@ -34,6 +38,7 @@ This document defines the logging standards and best practices for all Smart AI 
 - Health checks
 
 #### debug
+
 - Detailed request/response information
 - Variable values
 - Function entry/exit
@@ -43,6 +48,7 @@ This document defines the logging standards and best practices for all Smart AI 
 ## Log Format
 
 ### Standard Log Structure
+
 All logs must be structured as JSON with the following fields:
 
 ```json
@@ -59,12 +65,14 @@ All logs must be structured as JSON with the following fields:
 ```
 
 ### Required Fields
+
 - **timestamp**: ISO 8601 format (UTC)
 - **level**: Log level (error, warn, info, debug)
 - **service**: Service name (e.g., auth-service, core-service)
 - **message**: Human-readable log message
 
 ### Optional Fields
+
 - **userId**: ID of the authenticated user (if applicable)
 - **requestId**: Unique request identifier for correlation
 - **duration**: Operation duration in milliseconds
@@ -79,6 +87,7 @@ All logs must be structured as JSON with the following fields:
 ## Service Naming
 
 ### Standard Service Names
+
 - auth-service
 - core-service
 - mcp-server
@@ -87,6 +96,7 @@ All logs must be structured as JSON with the following fields:
 - api-gateway
 
 ### Consistency Rules
+
 - Use lowercase with hyphens
 - End with "-service" for microservices
 - End with "-server" for server components
@@ -95,6 +105,7 @@ All logs must be structured as JSON with the following fields:
 ## Message Formatting
 
 ### Best Practices
+
 - Use clear, concise messages
 - Include relevant context
 - Use present tense for actions
@@ -103,6 +114,7 @@ All logs must be structured as JSON with the following fields:
 - Avoid technical jargon in user-facing messages
 
 ### Examples
+
 ```
 "User login successful."
 "Database connection failed."
@@ -113,6 +125,7 @@ All logs must be structured as JSON with the following fields:
 ## Request Logging
 
 ### HTTP Request Logs
+
 All HTTP requests should be logged with the following structure:
 
 ```json
@@ -133,6 +146,7 @@ All HTTP requests should be logged with the following structure:
 ```
 
 ### Request ID Generation
+
 - Generate unique request IDs for all incoming requests
 - Include request ID in all related logs
 - Pass request ID to downstream services
@@ -141,6 +155,7 @@ All HTTP requests should be logged with the following structure:
 ## Error Logging
 
 ### Error Log Structure
+
 ```json
 {
   "timestamp": "2023-10-15T09:30:00.000Z",
@@ -156,6 +171,7 @@ All HTTP requests should be logged with the following structure:
 ```
 
 ### Error Handling Guidelines
+
 - Always include error message and stack trace
 - Include relevant context (user, request, operation)
 - Don't log sensitive information (passwords, tokens)
@@ -165,6 +181,7 @@ All HTTP requests should be logged with the following structure:
 ## Performance Logging
 
 ### Performance Metrics
+
 ```json
 {
   "timestamp": "2023-10-15T09:30:00.000Z",
@@ -180,6 +197,7 @@ All HTTP requests should be logged with the following structure:
 ```
 
 ### Performance Thresholds
+
 - Log slow operations (>1s) as warnings
 - Log very slow operations (>5s) as errors
 - Include operation name and duration
@@ -188,6 +206,7 @@ All HTTP requests should be logged with the following structure:
 ## Security Logging
 
 ### Security Events
+
 ```json
 {
   "timestamp": "2023-10-15T09:30:00.000Z",
@@ -204,6 +223,7 @@ All HTTP requests should be logged with the following structure:
 ```
 
 ### Security Event Types
+
 - failed_login
 - successful_login
 - logout
@@ -215,6 +235,7 @@ All HTTP requests should be logged with the following structure:
 ## Business Event Logging
 
 ### Business Events
+
 ```json
 {
   "timestamp": "2023-10-15T09:30:00.000Z",
@@ -233,6 +254,7 @@ All HTTP requests should be logged with the following structure:
 ```
 
 ### Business Event Types
+
 - user_registered
 - payment_processed
 - subscription_created
@@ -243,12 +265,14 @@ All HTTP requests should be logged with the following structure:
 ## Log Rotation and Retention
 
 ### File Rotation
+
 - Rotate logs daily
 - Keep 14 days of logs
 - Maximum file size: 20MB
 - Compress old log files
 
 ### Retention Policy
+
 - Development: 7 days
 - Staging: 14 days
 - Production: 30 days
@@ -257,6 +281,7 @@ All HTTP requests should be logged with the following structure:
 ## Sensitive Data Handling
 
 ### Never Log
+
 - Passwords
 - API keys
 - Access tokens
@@ -265,6 +290,7 @@ All HTTP requests should be logged with the following structure:
 - Health information
 
 ### Data Masking
+
 - Mask email addresses: `u***@example.com`
 - Mask phone numbers: `***-***-1234`
 - Mask IP addresses: `192.168.1.***`
@@ -273,12 +299,14 @@ All HTTP requests should be logged with the following structure:
 ## Structured Logging Guidelines
 
 ### Use Structured Formats
+
 - JSON for all application logs
 - Key-value pairs for additional context
 - Consistent field naming
 - Proper data types
 
 ### Field Naming Conventions
+
 - camelCase for field names
 - Descriptive but concise names
 - Consistent naming across services
@@ -287,6 +315,7 @@ All HTTP requests should be logged with the following structure:
 ## Performance Considerations
 
 ### Logging Best Practices
+
 - Use async logging in production
 - Buffer log writes
 - Avoid logging in tight loops
@@ -294,6 +323,7 @@ All HTTP requests should be logged with the following structure:
 - Monitor logging performance
 
 ### Log Volume Management
+
 - Target: < 1MB/minute per service
 - Limit debug logging in production
 - Use sampling for high-volume events
@@ -302,6 +332,7 @@ All HTTP requests should be logged with the following structure:
 ## Monitoring and Alerting
 
 ### Key Metrics
+
 - Error rate (>5% triggers alert)
 - Log volume anomalies
 - Missing log streams
@@ -309,6 +340,7 @@ All HTTP requests should be logged with the following structure:
 - Security events
 
 ### Alert Thresholds
+
 - Error rate: >5% for 2 minutes
 - No logs: 5 minutes without logs
 - Critical errors: Any critical error
@@ -317,12 +349,14 @@ All HTTP requests should be logged with the following structure:
 ## Implementation Guidelines
 
 ### Library Usage
+
 - Use the shared logger library
 - Configure service-specific settings
 - Implement proper error handling
 - Use middleware for request logging
 
 ### Configuration
+
 - Environment-specific log levels
 - Configurable log destinations
 - Dynamic log level changes
@@ -331,6 +365,7 @@ All HTTP requests should be logged with the following structure:
 ## Testing
 
 ### Log Testing
+
 - Verify log format compliance
 - Test error logging
 - Validate field completeness
@@ -338,6 +373,7 @@ All HTTP requests should be logged with the following structure:
 - Performance testing
 
 ### Log Analysis
+
 - Validate query performance
 - Test alerting rules
 - Verify dashboard functionality
@@ -346,12 +382,14 @@ All HTTP requests should be logged with the following structure:
 ## Compliance
 
 ### Regulatory Requirements
+
 - GDPR compliance for EU users
 - SOC 2 compliance
 - HIPAA compliance for health data
 - Industry-specific requirements
 
 ### Audit Requirements
+
 - Immutable log storage
 - Chain of custody
 - Access logging
@@ -360,6 +398,7 @@ All HTTP requests should be logged with the following structure:
 ## Troubleshooting
 
 ### Common Issues
+
 - Missing required fields
 - Incorrect log levels
 - Sensitive data exposure
@@ -367,6 +406,7 @@ All HTTP requests should be logged with the following structure:
 - Log aggregation failures
 
 ### Debugging Steps
+
 1. Check log format compliance
 2. Verify field completeness
 3. Validate log levels

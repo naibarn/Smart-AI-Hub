@@ -51,16 +51,16 @@ model PromoCode {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| code | String | Unique promo code string | 3-50 chars, alphanumeric + hyphens, Required |
-| credits | Int | Number of credits awarded | Positive integer, Required |
-| maxUses | Int? | Maximum redemption limit | Positive integer or null, Optional |
-| usedCount | Int | Current redemption count | Non-negative integer, Default: 0 |
-| expiresAt | DateTime? | Expiration date | Future date or null, Optional |
-| active | Boolean | Activation status | Boolean, Default: true |
-| createdAt | DateTime | Creation timestamp | Auto-generated, Required |
+| Field     | Type      | Description               | Constraints                                  |
+| --------- | --------- | ------------------------- | -------------------------------------------- |
+| id        | String    | Primary key identifier    | UUID, Required                               |
+| code      | String    | Unique promo code string  | 3-50 chars, alphanumeric + hyphens, Required |
+| credits   | Int       | Number of credits awarded | Positive integer, Required                   |
+| maxUses   | Int?      | Maximum redemption limit  | Positive integer or null, Optional           |
+| usedCount | Int       | Current redemption count  | Non-negative integer, Default: 0             |
+| expiresAt | DateTime? | Expiration date           | Future date or null, Optional                |
+| active    | Boolean   | Activation status         | Boolean, Default: true                       |
+| createdAt | DateTime  | Creation timestamp        | Auto-generated, Required                     |
 
 #### Validation Rules
 
@@ -71,24 +71,24 @@ const promoCodeValidation = {
     minLength: 3,
     maxLength: 50,
     pattern: /^[A-Za-z0-9-]+$/,
-    unique: true
+    unique: true,
   },
   credits: {
     required: true,
     min: 1,
     max: 10000,
-    integer: true
+    integer: true,
   },
   maxUses: {
     min: 1,
     max: 1000000,
     integer: true,
-    optional: true
+    optional: true,
   },
   expiresAt: {
     after: new Date(),
-    optional: true
-  }
+    optional: true,
+  },
 };
 ```
 
@@ -118,13 +118,13 @@ model PromoRedemption {
 
 #### Field Descriptions
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| id | String | Primary key identifier | UUID, Required |
-| userId | String | User who redeemed the code | UUID, Required |
-| codeId | String | Reference to the promo code | UUID, Required |
-| credits | Int | Credits awarded | Positive integer, Required |
-| redeemedAt | DateTime | Redemption timestamp | Auto-generated, Required |
+| Field      | Type     | Description                 | Constraints                |
+| ---------- | -------- | --------------------------- | -------------------------- |
+| id         | String   | Primary key identifier      | UUID, Required             |
+| userId     | String   | User who redeemed the code  | UUID, Required             |
+| codeId     | String   | Reference to the promo code | UUID, Required             |
+| credits    | Int      | Credits awarded             | Positive integer, Required |
+| redeemedAt | DateTime | Redemption timestamp        | Auto-generated, Required   |
 
 #### Validation Rules
 
@@ -132,18 +132,18 @@ model PromoRedemption {
 const promoRedemptionValidation = {
   userId: {
     required: true,
-    format: 'uuid'
+    format: 'uuid',
   },
   codeId: {
     required: true,
-    format: 'uuid'
+    format: 'uuid',
   },
   credits: {
     required: true,
     min: 1,
     max: 10000,
-    integer: true
-  }
+    integer: true,
+  },
 };
 ```
 
@@ -176,11 +176,11 @@ CREATE TABLE promo_redemptions (
     code_id UUID NOT NULL,
     credits INTEGER NOT NULL CHECK (credits > 0),
     redeemed_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    
-    CONSTRAINT fk_redemptions_code 
+
+    CONSTRAINT fk_redemptions_code
         FOREIGN KEY (code_id) REFERENCES promo_codes(id) ON DELETE CASCADE,
-    
-    CONSTRAINT unique_user_code 
+
+    CONSTRAINT unique_user_code
         UNIQUE (user_id, code_id)
 );
 
@@ -229,7 +229,7 @@ CREATE INDEX idx_promo_redemptions_redeemed_at ON promo_redemptions(redeemed_at)
 -- Efficient promo code validation
 SELECT id, credits, expires_at, active, max_uses, used_count
 FROM promo_codes
-WHERE code = $1 AND active = true 
+WHERE code = $1 AND active = true
   AND (expires_at IS NULL OR expires_at > NOW())
   AND (max_uses IS NULL OR used_count < max_uses);
 
@@ -292,7 +292,7 @@ SELECT id, code, credits, ... FROM old_promo_system;
 // Example migration script
 async function migratePromoCodes() {
   const oldCodes = await db.oldPromoCodes.findMany();
-  
+
   for (const oldCode of oldCodes) {
     await db.promoCode.create({
       data: {
@@ -302,8 +302,8 @@ async function migratePromoCodes() {
         maxUses: oldCode.usageLimit,
         expiresAt: oldCode.expiryDate,
         active: oldCode.isActive,
-        createdAt: oldCode.createdAt
-      }
+        createdAt: oldCode.createdAt,
+      },
     });
   }
 }
@@ -322,7 +322,7 @@ async function migratePromoCodes() {
 
 ```sql
 -- Top performing promo codes
-SELECT 
+SELECT
     pc.code,
     COUNT(pr.id) as redemption_count,
     SUM(pr.credits) as total_credits,
@@ -335,7 +335,7 @@ ORDER BY redemption_count DESC
 LIMIT 10;
 
 -- Redemption trends over time
-SELECT 
+SELECT
     DATE_TRUNC('week', redeemed_at) as week,
     COUNT(*) as redemptions,
     SUM(credits) as credits_issued,
@@ -386,20 +386,18 @@ describe('PromoCode Model', () => {
     const promoCode = await PromoCode.create({
       code: 'TEST123',
       credits: 100,
-      maxUses: 1000
+      maxUses: 1000,
     });
-    
+
     expect(promoCode.code).toBe('TEST123');
     expect(promoCode.credits).toBe(100);
     expect(promoCode.active).toBe(true);
   });
-  
+
   test('should prevent duplicate codes', async () => {
     await PromoCode.create({ code: 'DUPLICATE', credits: 50 });
-    
-    await expect(
-      PromoCode.create({ code: 'DUPLICATE', credits: 75 })
-    ).rejects.toThrow();
+
+    await expect(PromoCode.create({ code: 'DUPLICATE', credits: 75 })).rejects.toThrow();
   });
 });
 ```
@@ -411,12 +409,12 @@ describe('Promo Redemption Flow', () => {
   test('should complete full redemption flow', async () => {
     const user = await createTestUser();
     const promoCode = await createTestPromoCode();
-    
+
     const redemption = await redeemPromoCode(user.id, promoCode.code);
-    
+
     expect(redemption.success).toBe(true);
     expect(redemption.creditsAdded).toBe(promoCode.credits);
-    
+
     const userBalance = await getUserBalance(user.id);
     expect(userBalance).toBe(promoCode.credits);
   });
@@ -430,16 +428,16 @@ describe('Promo Redemption Flow', () => {
 ```prisma
 model AdvancedPromoCode {
   // ... existing fields
-  
+
   type        PromoType @default(STANDARD)
   discountType DiscountType?
   discountValue Decimal?
   minPurchase   Decimal?
-  
+
   // Targeting criteria
   userSegments  String[]
   regions       String[]
-  
+
   // Conditional logic
   conditions    Json?
 }
@@ -470,9 +468,9 @@ model PromoCampaign {
   budget      Decimal?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
-  
+
   promoCodes  PromoCode[]
-  
+
   @@map("promo_campaigns")
 }
 ```

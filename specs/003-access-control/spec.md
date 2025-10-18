@@ -1,14 +1,14 @@
 ---
-spec_id: "FEAT-002"
-title: "Access Control & Permissions"
-type: "Feature"
-status: "Active"
-business_domain: "Access Control"
-priority: "High"
-parent_epic: "EPIC-001"
-created_at: "2025-01-15"
-updated_at: "2025-01-15"
-version: "1.0.0"
+spec_id: 'FEAT-002'
+title: 'Access Control & Permissions'
+type: 'Feature'
+status: 'Active'
+business_domain: 'Access Control'
+priority: 'High'
+parent_epic: 'EPIC-001'
+created_at: '2025-01-15'
+updated_at: '2025-01-15'
+version: '1.0.0'
 ---
 
 # FEAT-002: Access Control & Permissions
@@ -20,23 +20,29 @@ This specification defines the Access Control & Permissions feature, which imple
 ## User Stories
 
 ### US-006: Permission Management
+
 As an administrator, I want to define and manage system permissions so that I can control access to different resources and actions.
 
 ### US-007: Role Definition
+
 As an administrator, I want to create and manage roles so that I can group related permissions and assign them to users efficiently.
 
 ### US-008: Role-Permission Assignment
+
 As an administrator, I want to assign permissions to roles so that I can define what actions each role can perform.
 
 ### US-009: Access Control Enforcement
+
 As a system, I want to enforce access control rules so that users can only access resources they are authorized to use.
 
 ### US-010: Permission Inheritance
+
 As an administrator, I want to define permission inheritance so that I can create hierarchical permission structures.
 
 ## Acceptance Criteria
 
 ### AC-006: Permission Management
+
 - Administrators can create, read, update, and delete permissions
 - Each permission must be defined with a resource and action
 - Permission names must be unique within the system
@@ -44,6 +50,7 @@ As an administrator, I want to define permission inheritance so that I can creat
 - All permission changes must be logged for audit purposes
 
 ### AC-007: Role Definition
+
 - Administrators can create, read, update, and delete roles
 - Each role must have a unique name and description
 - Roles can be assigned to multiple users
@@ -51,6 +58,7 @@ As an administrator, I want to define permission inheritance so that I can creat
 - All role changes must be logged for audit purposes
 
 ### AC-008: Role-Permission Assignment
+
 - Administrators can assign multiple permissions to a role
 - Administrators can remove permissions from a role
 - System must prevent duplicate permission assignments to the same role
@@ -58,6 +66,7 @@ As an administrator, I want to define permission inheritance so that I can creat
 - All role-permission changes must be logged for audit purposes
 
 ### AC-009: Access Control Enforcement
+
 - System must check user permissions before allowing access to resources
 - Access must be denied if user lacks required permissions
 - System must provide clear error messages for unauthorized access attempts
@@ -65,6 +74,7 @@ As an administrator, I want to define permission inheritance so that I can creat
 - All access attempts must be logged for security monitoring
 
 ### AC-010: Permission Inheritance
+
 - System must support hierarchical role structures
 - Child roles must inherit permissions from parent roles
 - Inheritance must be transitive through multiple levels
@@ -76,6 +86,7 @@ As an administrator, I want to define permission inheritance so that I can creat
 ### Database Schema
 
 #### Permission Model
+
 ```prisma
 model Permission {
   id          String   @id @default(uuid())
@@ -91,6 +102,7 @@ model Permission {
 ```
 
 #### RolePermission Model
+
 ```prisma
 model RolePermission {
   roleId       String
@@ -105,6 +117,7 @@ model RolePermission {
 ```
 
 #### Role Model (Extended)
+
 ```prisma
 model Role {
   id          String   @id @default(uuid())
@@ -142,19 +155,25 @@ model Role {
 ## Data Models
 
 ### Permission Entity
+
 The Permission entity represents individual permissions in the system:
+
 - **id**: Unique identifier (UUID)
 - **name**: Human-readable permission name
 - **resource**: Resource type (users, credits, services, etc.)
 - **action**: Action type (create, read, update, delete, etc.)
 
 ### RolePermission Entity
+
 The RolePermission entity manages the many-to-many relationship between roles and permissions:
+
 - **roleId**: Reference to the role
 - **permissionId**: Reference to the permission
 
 ### Role Entity
+
 The Role entity represents user roles with hierarchical structure:
+
 - **id**: Unique identifier (UUID)
 - **name**: Unique role name
 - **description**: Role description
@@ -163,6 +182,7 @@ The Role entity represents user roles with hierarchical structure:
 - **updatedAt**: Last update timestamp
 
 ### Relationships
+
 - Permission to RolePermission: One-to-many relationship
 - Role to RolePermission: One-to-many relationship
 - Role to Role: Self-referencing hierarchy (parent-child)
@@ -174,6 +194,7 @@ The Role entity represents user roles with hierarchical structure:
 ### Permission Management Endpoints
 
 #### Create Permission
+
 ```
 POST /api/permissions
 Content-Type: application/json
@@ -195,6 +216,7 @@ Response:
 ```
 
 #### Get Permissions
+
 ```
 GET /api/permissions
 Authorization: Bearer {admin_token}
@@ -215,6 +237,7 @@ Response:
 ### Role Management Endpoints
 
 #### Create Role
+
 ```
 POST /api/roles
 Content-Type: application/json
@@ -237,6 +260,7 @@ Response:
 ```
 
 #### Assign Permission to Role
+
 ```
 POST /api/roles/{roleId}/permissions
 Content-Type: application/json
@@ -254,6 +278,7 @@ Response:
 ```
 
 #### Get Role Permissions
+
 ```
 GET /api/roles/{roleId}/permissions
 Authorization: Bearer {admin_token}
@@ -274,6 +299,7 @@ Response:
 ### Access Control Endpoints
 
 #### Check Permission
+
 ```
 POST /api/access/check
 Content-Type: application/json
@@ -293,6 +319,7 @@ Response:
 ```
 
 #### Get User Permissions
+
 ```
 GET /api/users/{userId}/permissions
 Authorization: Bearer {admin_token}
@@ -314,6 +341,7 @@ Response:
 ## Implementation Notes
 
 ### Permission Resolution Algorithm
+
 1. Get all roles assigned to the user
 2. For each role, get all directly assigned permissions
 3. For each role, recursively get inherited permissions from parent roles
@@ -321,24 +349,28 @@ Response:
 5. Cache the result for subsequent access checks
 
 ### Access Control Middleware
+
 - Implement middleware for API endpoint protection
 - Middleware should extract user identity from authentication token
 - Check permissions before allowing access to protected resources
 - Return appropriate HTTP status codes for unauthorized access
 
 ### Permission Caching Strategy
+
 - Cache user permissions in Redis with TTL of 15 minutes
 - Invalidate cache when user roles or permissions change
 - Implement cache warming for frequently accessed users
 - Monitor cache hit rates and optimize accordingly
 
 ### Error Handling
+
 - Return 403 Forbidden for insufficient permissions
 - Return 401 Unauthorized for missing or invalid authentication
 - Log all access denied events for security monitoring
 - Provide generic error messages to avoid information leakage
 
 ### Testing Requirements
+
 - Unit tests for permission resolution algorithm
 - Integration tests for role-permission assignment workflows
 - Security tests for access control bypass attempts

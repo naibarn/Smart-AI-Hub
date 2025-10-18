@@ -40,9 +40,11 @@ A robust webhook service for Smart AI Hub that provides real-time event notifica
 All endpoints require authentication via JWT token.
 
 #### GET /api/v1/webhooks
+
 List all webhooks for the authenticated user.
 
 **Response:**
+
 ```json
 [
   {
@@ -59,9 +61,11 @@ List all webhooks for the authenticated user.
 ```
 
 #### POST /api/v1/webhooks
+
 Create a new webhook.
 
 **Request Body:**
+
 ```json
 {
   "url": "https://example.com/webhook",
@@ -71,12 +75,15 @@ Create a new webhook.
 ```
 
 #### GET /api/v1/webhooks/:id
+
 Get a specific webhook by ID.
 
 #### PUT /api/v1/webhooks/:id
+
 Update an existing webhook.
 
 **Request Body:**
+
 ```json
 {
   "url": "https://updated.example.com/webhook",
@@ -87,15 +94,19 @@ Update an existing webhook.
 ```
 
 #### DELETE /api/v1/webhooks/:id
+
 Delete a webhook.
 
 #### POST /api/v1/webhooks/:id/toggle
+
 Enable or disable a webhook.
 
 #### POST /api/v1/webhooks/:id/test
+
 Send a test event to a webhook.
 
 **Request Body:**
+
 ```json
 {
   "eventType": "user.created",
@@ -108,13 +119,16 @@ Send a test event to a webhook.
 ```
 
 #### GET /api/v1/webhooks/:id/logs
+
 Get delivery logs for a webhook.
 
 **Query Parameters:**
+
 - `page` (optional): Page number for pagination (default: 1)
 - `limit` (optional): Number of logs per page (default: 20)
 
 **Response:**
+
 ```json
 {
   "logs": [
@@ -139,9 +153,11 @@ Get delivery logs for a webhook.
 ```
 
 #### GET /api/v1/webhooks/event-types
+
 Get available event types and their descriptions.
 
 #### POST /api/v1/webhooks/:id/regenerate-secret
+
 Generate a new secret for a webhook.
 
 ### Internal Endpoints
@@ -149,13 +165,16 @@ Generate a new secret for a webhook.
 These endpoints are for internal service communication only.
 
 #### POST /api/internal/webhooks/trigger
+
 Trigger webhook events for a specific event type.
 
 **Headers:**
+
 - `X-Internal-Service`: Service name (e.g., "auth-service")
 - `X-Internal-Secret`: Internal service secret
 
 **Request Body:**
+
 ```json
 {
   "eventType": "user.created",
@@ -191,15 +210,13 @@ All webhook payloads follow this consistent format:
 Webhooks are signed using HMAC-SHA256. The signature is included in the `X-Webhook-Signature` header.
 
 **Example verification in Node.js:**
+
 ```javascript
 const crypto = require('crypto');
 
 function verifySignature(payload, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
-  
+  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
   return `sha256=${expectedSignature}` === signature;
 }
 
@@ -212,6 +229,7 @@ const isValid = verifySignature(payload, signature, secret);
 ```
 
 **Example verification in Python:**
+
 ```python
 import hmac
 import hashlib
@@ -222,7 +240,7 @@ def verify_signature(payload, signature, secret):
         payload,
         hashlib.sha256
     ).hexdigest()
-    
+
     return f"sha256={expected_signature}" == signature
 
 # Usage
@@ -234,6 +252,7 @@ is_valid = verify_signature(payload, signature, secret)
 ```
 
 **Example verification in PHP:**
+
 ```php
 function verifySignature($payload, $signature, $secret) {
     $expectedSignature = hash_hmac('sha256', $payload, $secret);

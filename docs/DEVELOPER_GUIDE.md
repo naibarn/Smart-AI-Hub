@@ -1,4 +1,3 @@
-
 # Smart AI Hub - Developer Guide
 
 ## Table of Contents
@@ -67,12 +66,14 @@ The Smart AI Hub Points System is built with a microservices architecture:
 ### Local Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/smart-ai-hub/points-system.git
    cd points-system
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    cd packages/frontend && npm install
@@ -83,33 +84,36 @@ The Smart AI Hub Points System is built with a microservices architecture:
    ```
 
 3. **Set up the database**
+
    ```bash
    # Create database
    createdb smart_ai_hub
-   
+
    # Run migrations
    cd packages/core-service
    npm run migrate
-   
+
    # Seed test data
    npm run seed
    ```
 
 4. **Configure environment variables**
+
    ```bash
    # Copy environment templates
    cp packages/core-service/.env.example packages/core-service/.env
    cp packages/auth-service/.env.example packages/auth-service/.env
    cp packages/frontend/.env.example packages/frontend/.env
-   
+
    # Edit environment files with your configuration
    ```
 
 5. **Start development servers**
+
    ```bash
    # Start all services
    npm run dev
-   
+
    # Or start services individually
    npm run dev:frontend
    npm run dev:api-gateway
@@ -121,11 +125,13 @@ The Smart AI Hub Points System is built with a microservices architecture:
 ### Docker Setup
 
 1. **Build and start containers**
+
    ```bash
    docker-compose up -d
    ```
 
 2. **Run database migrations**
+
    ```bash
    docker-compose exec core-service npm run migrate
    ```
@@ -192,6 +198,7 @@ smart-ai-hub/
 ### Key Tables
 
 #### Users
+
 ```sql
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -207,6 +214,7 @@ CREATE TABLE users (
 ```
 
 #### Credit Accounts
+
 ```sql
 CREATE TABLE credit_accounts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -219,6 +227,7 @@ CREATE TABLE credit_accounts (
 ```
 
 #### Transfers
+
 ```sql
 CREATE TABLE transfers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -233,6 +242,7 @@ CREATE TABLE transfers (
 ```
 
 #### Referral Codes
+
 ```sql
 CREATE TABLE referral_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -244,6 +254,7 @@ CREATE TABLE referral_codes (
 ```
 
 #### Blocks
+
 ```sql
 CREATE TABLE blocks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -267,6 +278,7 @@ CREATE TABLE blocks (
 ### Authentication Endpoints
 
 #### POST /api/v1/auth/login
+
 ```json
 {
   "email": "user@example.com",
@@ -275,6 +287,7 @@ CREATE TABLE blocks (
 ```
 
 Response:
+
 ```json
 {
   "token": "jwt-token",
@@ -287,6 +300,7 @@ Response:
 ```
 
 #### POST /api/v1/auth/register
+
 ```json
 {
   "email": "newuser@example.com",
@@ -298,9 +312,11 @@ Response:
 ### User Endpoints
 
 #### GET /api/v1/users/profile
+
 Authorization: Bearer token
 
 Response:
+
 ```json
 {
   "id": "user-id",
@@ -314,15 +330,18 @@ Response:
 ```
 
 #### GET /api/v1/users
+
 Authorization: Bearer token
 
 Query parameters:
+
 - `search`: Search term
 - `tier`: Filter by tier
 - `page`: Page number
 - `limit`: Results per page
 
 Response:
+
 ```json
 {
   "users": [
@@ -343,6 +362,7 @@ Response:
 ### Transfer Endpoints
 
 #### POST /api/v1/transfer
+
 Authorization: Bearer token
 
 ```json
@@ -355,6 +375,7 @@ Authorization: Bearer token
 ```
 
 Response:
+
 ```json
 {
   "id": "transfer-id",
@@ -368,9 +389,11 @@ Response:
 ```
 
 #### GET /api/v1/transfers
+
 Authorization: Bearer token
 
 Query parameters:
+
 - `type`: Filter by type ('points' or 'credits')
 - `status`: Filter by status
 - `page`: Page number
@@ -379,9 +402,11 @@ Query parameters:
 ### Points System Endpoints
 
 #### GET /api/v1/points/balance
+
 Authorization: Bearer token
 
 Response:
+
 ```json
 {
   "points": 10000,
@@ -390,9 +415,11 @@ Response:
 ```
 
 #### POST /api/v1/points/daily-reward
+
 Authorization: Bearer token
 
 Response:
+
 ```json
 {
   "rewardAmount": 100,
@@ -401,6 +428,7 @@ Response:
 ```
 
 #### POST /api/v1/points/exchange
+
 Authorization: Bearer token
 
 ```json
@@ -410,6 +438,7 @@ Authorization: Bearer token
 ```
 
 Response:
+
 ```json
 {
   "pointsExchanged": 1000,
@@ -421,9 +450,11 @@ Response:
 ### Referral Endpoints
 
 #### GET /api/v1/referral/code
+
 Authorization: Bearer token
 
 Response:
+
 ```json
 {
   "code": "REF123",
@@ -433,9 +464,11 @@ Response:
 ```
 
 #### POST /api/v1/referral/code
+
 Authorization: Bearer token
 
 Response:
+
 ```json
 {
   "code": "NEW456",
@@ -447,6 +480,7 @@ Response:
 ### Block Endpoints
 
 #### POST /api/v1/block
+
 Authorization: Bearer token
 
 ```json
@@ -457,6 +491,7 @@ Authorization: Bearer token
 ```
 
 #### DELETE /api/v1/block/:userId
+
 Authorization: Bearer token
 
 ## Authentication & Authorization
@@ -467,11 +502,9 @@ The system uses JWT (JSON Web Tokens) for authentication:
 
 ```typescript
 // Generate token
-const token = jwt.sign(
-  { userId: user.id, tier: user.tier },
-  process.env.JWT_SECRET,
-  { expiresIn: '24h' }
-);
+const token = jwt.sign({ userId: user.id, tier: user.tier }, process.env.JWT_SECRET, {
+  expiresIn: '24h',
+});
 
 // Verify token
 const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -485,11 +518,11 @@ Authorization is handled by middleware that checks user permissions:
 export const requireTier = (minimumTier: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const userTier = req.user?.tier;
-    
+
     if (!hasRequiredTier(userTier, minimumTier)) {
       return res.status(403).json({ message: 'Insufficient permissions' });
     }
-    
+
     next();
   };
 };
@@ -501,11 +534,11 @@ The system enforces a tier hierarchy for authorization:
 
 ```typescript
 const tierHierarchy = {
-  'general': 0,
-  'admin': 1,
-  'organization': 2,
-  'agency': 3,
-  'administrator': 4
+  general: 0,
+  admin: 1,
+  organization: 2,
+  agency: 3,
+  administrator: 4,
 };
 
 function hasRequiredTier(userTier: string, requiredTier: string): boolean {
@@ -521,26 +554,22 @@ function hasRequiredTier(userTier: string, requiredTier: string): boolean {
 export class CreditAccountService {
   async getBalance(userId: string): Promise<{ points: number; credits: number }> {
     const account = await prisma.creditAccount.findUnique({
-      where: { userId }
+      where: { userId },
     });
-    
+
     return {
       points: account.points,
-      credits: account.credits
+      credits: account.credits,
     };
   }
-  
-  async updateBalance(
-    userId: string, 
-    pointsChange: number, 
-    creditsChange: number
-  ): Promise<void> {
+
+  async updateBalance(userId: string, pointsChange: number, creditsChange: number): Promise<void> {
     await prisma.creditAccount.update({
       where: { userId },
       data: {
         points: { increment: pointsChange },
-        credits: { increment: creditsChange }
-      }
+        credits: { increment: creditsChange },
+      },
     });
   }
 }
@@ -559,7 +588,7 @@ export class TransferService {
   ): Promise<Transfer> {
     // Validate transfer
     await this.validateTransfer(senderId, recipientId, amount, type);
-    
+
     // Create transfer record
     const transfer = await prisma.transfer.create({
       data: {
@@ -567,19 +596,19 @@ export class TransferService {
         recipientId,
         amount,
         type,
-        message
-      }
+        message,
+      },
     });
-    
+
     // Update balances
     await this.updateBalances(senderId, recipientId, amount, type);
-    
+
     // Send notification
     await this.sendTransferNotification(transfer);
-    
+
     return transfer;
   }
-  
+
   private async validateTransfer(
     senderId: string,
     recipientId: string,
@@ -589,17 +618,17 @@ export class TransferService {
     // Check sender has sufficient balance
     const senderBalance = await this.creditAccountService.getBalance(senderId);
     const balanceType = type === 'points' ? senderBalance.points : senderBalance.credits;
-    
+
     if (balanceType < amount) {
       throw new Error('Insufficient balance');
     }
-    
+
     // Check recipient is visible to sender
     const isVisible = await this.visibilityService.canSeeUser(senderId, recipientId);
     if (!isVisible) {
       throw new Error('Recipient not found');
     }
-    
+
     // Check recipient is not blocked
     const isBlocked = await this.blockService.isBlocked(senderId, recipientId);
     if (isBlocked) {
@@ -618,25 +647,25 @@ export class VisibilityService {
   async canSeeUser(viewerId: string, targetUserId: string): Promise<boolean> {
     const viewer = await prisma.user.findUnique({ where: { id: viewerId } });
     const targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
-    
+
     if (!viewer || !targetUser) {
       return false;
     }
-    
+
     // Users can always see themselves
     if (viewerId === targetUserId) {
       return true;
     }
-    
+
     // Administrators can see everyone
     if (viewer.tier === 'administrator') {
       return true;
     }
-    
+
     // Check hierarchy visibility
     return this.isInHierarchy(viewer, targetUser);
   }
-  
+
   private isInHierarchy(viewer: User, targetUser: User): boolean {
     // Implement hierarchy visibility logic based on tier
     switch (viewer.tier) {
@@ -661,11 +690,11 @@ export class VisibilityService {
 export class UserHierarchyService {
   async getUsersVisibleToUser(userId: string): Promise<User[]> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    
+
     if (!user) {
       return [];
     }
-    
+
     switch (user.tier) {
       case 'administrator':
         return this.getAllUsers();
@@ -681,7 +710,7 @@ export class UserHierarchyService {
         return [];
     }
   }
-  
+
   private async getAgencyUsers(agencyId: string): Promise<User[]> {
     // Get all organizations under this agency and their users
     return prisma.user.findMany({
@@ -689,9 +718,9 @@ export class UserHierarchyService {
         OR: [
           { parentId: agencyId },
           { parent: { parentId: agencyId } },
-          { parent: { parent: { parentId: agencyId } } }
-        ]
-      }
+          { parent: { parent: { parentId: agencyId } } },
+        ],
+      },
     });
   }
 }
@@ -704,22 +733,22 @@ export class UserHierarchyService {
 ```typescript
 export const validateTransfer = (req: Request, res: Response, next: NextFunction) => {
   const { recipientId, amount, type } = req.body;
-  
+
   // Validate recipient ID
   if (!recipientId || !isValidUUID(recipientId)) {
     return res.status(400).json({ message: 'Invalid recipient ID' });
   }
-  
+
   // Validate amount
   if (!amount || amount <= 0 || amount > 1000000) {
     return res.status(400).json({ message: 'Invalid amount' });
   }
-  
+
   // Validate type
   if (!type || !['points', 'credits'].includes(type)) {
     return res.status(400).json({ message: 'Invalid transfer type' });
   }
-  
+
   next();
 };
 ```
@@ -735,10 +764,10 @@ export const createRateLimit = (windowMs: number, max: number) => {
     max,
     message: {
       error: 'Too many requests',
-      message: `Please try again later`
+      message: `Please try again later`,
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
   });
 };
 
@@ -758,14 +787,14 @@ export const securityMiddleware = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
+      imgSrc: ["'self'", 'data:', 'https:'],
+    },
   },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
-  }
+    preload: true,
+  },
 });
 ```
 
@@ -787,11 +816,11 @@ export const encryptSensitiveData = (data: string): string => {
   const algorithm = 'aes-256-cbc';
   const key = process.env.ENCRYPTION_KEY;
   const iv = crypto.randomBytes(16);
-  
+
   const cipher = crypto.createCipher(algorithm, key);
   let encrypted = cipher.update(data, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   return iv.toString('hex') + ':' + encrypted;
 };
 ```
@@ -806,42 +835,40 @@ import { CreditAccountService } from '../services/creditAccountService';
 
 describe('CreditAccountService', () => {
   let service: CreditAccountService;
-  
+
   beforeEach(() => {
     service = new CreditAccountService();
   });
-  
+
   describe('getBalance', () => {
     it('should return the correct balance for a user', async () => {
       const userId = 'user-id';
       const expectedBalance = { points: 10000, credits: 1000 };
-      
-      jest.spyOn(prisma.creditAccount, 'findUnique')
-        .mockResolvedValue(expectedBalance as any);
-      
+
+      jest.spyOn(prisma.creditAccount, 'findUnique').mockResolvedValue(expectedBalance as any);
+
       const result = await service.getBalance(userId);
-      
+
       expect(result).toEqual(expectedBalance);
     });
   });
-  
+
   describe('updateBalance', () => {
     it('should update the balance correctly', async () => {
       const userId = 'user-id';
       const pointsChange = 1000;
       const creditsChange = 50;
-      
-      jest.spyOn(prisma.creditAccount, 'update')
-        .mockResolvedValue({} as any);
-      
+
+      jest.spyOn(prisma.creditAccount, 'update').mockResolvedValue({} as any);
+
       await service.updateBalance(userId, pointsChange, creditsChange);
-      
+
       expect(prisma.creditAccount.update).toHaveBeenCalledWith({
         where: { userId },
         data: {
           points: { increment: pointsChange },
-          credits: { increment: creditsChange }
-        }
+          credits: { increment: creditsChange },
+        },
       });
     });
   });
@@ -860,49 +887,49 @@ describe('Transfer API', () => {
   beforeAll(async () => {
     await setupTestDatabase();
   });
-  
+
   afterAll(async () => {
     await cleanupTestDatabase();
   });
-  
+
   describe('POST /api/v1/transfer', () => {
     it('should transfer points successfully', async () => {
       const senderToken = await getAuthToken('sender@example.com');
       const recipientId = 'recipient-id';
-      
+
       const response = await request(app)
         .post('/api/v1/transfer')
         .set('Authorization', `Bearer ${senderToken}`)
         .send({
           recipientId,
           amount: 1000,
-          type: 'points'
+          type: 'points',
         });
-      
+
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('completed');
-      
+
       // Verify balances were updated
       const senderBalance = await getUserBalance('sender-id');
-getUserBalance(recipientId);
-      
+      getUserBalance(recipientId);
+
       expect(senderBalance.points).toBe(9000); // 10000 - 1000
       expect(recipientBalance.points).toBe(11000); // 10000 + 1000
     });
-    
+
     it('should reject transfer with insufficient balance', async () => {
       const senderToken = await getAuthToken('sender@example.com');
       const recipientId = 'recipient-id';
-      
+
       const response = await request(app)
         .post('/api/v1/transfer')
         .set('Authorization', `Bearer ${senderToken}`)
         .send({
           recipientId,
           amount: 999999, // More than balance
-          type: 'points'
+          type: 'points',
         });
-      
+
       expect(response.status).toBe(400);
       expect(response.body.message).toContain('Insufficient balance');
     });
@@ -923,22 +950,22 @@ test.describe('Transfer Flow', () => {
     await page.fill('[data-testid="email"]', 'test@example.com');
     await page.fill('[data-testid="password"]', 'password123');
     await page.click('[data-testid="login-button"]');
-    
+
     // Navigate to transfer
     await page.click('[data-testid="transfer-nav"]');
-    
+
     // Fill transfer form
     await page.selectOption('[data-testid="transfer-type"]', 'points');
     await page.selectOption('[data-testid="recipient"]', 'recipient-user-id');
     await page.fill('[data-testid="amount"]', '1000');
     await page.fill('[data-testid="message"]', 'Test transfer');
-    
+
     // Submit transfer
     await page.click('[data-testid="transfer-button"]');
-    
+
     // Verify success message
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-    
+
     // Verify balance updated
     const balanceElement = await page.locator('[data-testid="points-balance"]');
     const balance = await balanceElement.textContent();
@@ -952,49 +979,52 @@ test.describe('Transfer Flow', () => {
 ### Production Environment Setup
 
 1. **Environment Variables**
+
    ```bash
    # Database
    DATABASE_URL=postgresql://user:password@host:port/database
-   
+
    # JWT
    JWT_SECRET=your-super-secret-jwt-key
-   
+
    # Encryption
    ENCRYPTION_KEY=your-32-character-encryption-key
-   
+
    # External Services
    SMTP_HOST=smtp.example.com
    SMTP_PORT=587
    SMTP_USER=noreply@smarthub.com
    SMTP_PASS=smtp-password
-   
+
    # Monitoring
    SENTRY_DSN=https://your-sentry-dsn
    ```
-   
+
 2. **Docker Configuration**
+
    ```dockerfile
    # Dockerfile.prod
    FROM node:18-alpine AS builder
-   
+
    WORKDIR /app
    COPY package*.json ./
    RUN npm ci --only=production
-   
+
    FROM node:18-alpine AS runner
-   
+
    WORKDIR /app
    COPY --from=builder /app/node_modules ./node_modules
    COPY . .
-   
+
    EXPOSE 3001
    CMD ["npm", "start"]
    ```
 
 3. **Docker Compose for Production**
+
    ```yaml
    version: '3.8'
-   
+
    services:
      core-service:
        build:
@@ -1004,10 +1034,10 @@ test.describe('Transfer Flow', () => {
          - NODE_ENV=production
          - DATABASE_URL=${DATABASE_URL}
        ports:
-         - "3001:3001"
+         - '3001:3001'
        depends_on:
          - postgres
-       
+
      postgres:
        image: postgres:14
        environment:
@@ -1016,7 +1046,7 @@ test.describe('Transfer Flow', () => {
          - POSTGRES_PASSWORD=${DB_PASSWORD}
        volumes:
          - postgres_data:/var/lib/postgresql/data
-       
+
    volumes:
      postgres_data:
    ```
@@ -1072,14 +1102,16 @@ export const logger = winston.createLogger({
   defaultMeta: { service: 'core-service' },
   transports: [
     new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' })
-  ]
+    new winston.transports.File({ filename: 'logs/combined.log' }),
+  ],
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple()
-  }));
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    })
+  );
 }
 ```
 
@@ -1093,27 +1125,22 @@ import { register, Counter, Histogram, Gauge } from 'prom-client';
 const httpRequestsTotal = new Counter({
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 const httpRequestDuration = new Histogram({
   name: 'http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route']
+  labelNames: ['method', 'route'],
 });
 
 const activeUsers = new Gauge({
   name: 'active_users_total',
-  help: 'Number of active users'
+  help: 'Number of active users',
 });
 
 // Export metrics
-export {
-  httpRequestsTotal,
-  httpRequestDuration,
-  activeUsers,
-  register
-};
+export { httpRequestsTotal, httpRequestDuration, activeUsers, register };
 ```
 
 ### Error Tracking
@@ -1126,13 +1153,13 @@ export const initSentry = () => {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV,
-    tracesSampleRate: 1.0
+    tracesSampleRate: 1.0,
   });
 };
 
 export const captureException = (error: Error, context?: any) => {
   Sentry.captureException(error, {
-    extra: context
+    extra: context,
   });
 };
 ```
@@ -1145,6 +1172,7 @@ export const captureException = (error: Error, context?: any) => {
 
 **Problem**: Application can't connect to database
 **Solution**:
+
 1. Check DATABASE_URL environment variable
 2. Verify database is running
 3. Check network connectivity
@@ -1154,6 +1182,7 @@ export const captureException = (error: Error, context?: any) => {
 
 **Problem**: JWT token verification fails
 **Solution**:
+
 1. Check JWT_SECRET environment variable
 2. Verify token is not expired
 3. Check token format
@@ -1163,6 +1192,7 @@ export const captureException = (error: Error, context?: any) => {
 
 **Problem**: Transfers are failing
 **Solution**:
+
 1. Check user balances
 2. Verify visibility rules
 3. Check for blocks
@@ -1172,6 +1202,7 @@ export const captureException = (error: Error, context?: any) => {
 
 **Problem**: Slow API responses
 **Solution**:
+
 1. Check database query performance
 2. Add database indexes
 3. Implement caching
@@ -1180,11 +1211,13 @@ export const captureException = (error: Error, context?: any) => {
 ### Debugging Tips
 
 1. **Enable Debug Logging**
+
    ```bash
    LOG_LEVEL=debug npm start
    ```
 
 2. **Use Database Query Logging**
+
    ```typescript
    // In development
    prisma.$on('query', (e) => {
@@ -1195,17 +1228,18 @@ export const captureException = (error: Error, context?: any) => {
    ```
 
 3. **Profile API Endpoints**
+
    ```typescript
    import { performance } from 'perf_hooks';
-   
+
    app.use((req, res, next) => {
      const start = performance.now();
-     
+
      res.on('finish', () => {
        const duration = performance.now() - start;
        console.log(`${req.method} ${req.path} - ${res.statusCode} - ${duration.toFixed(2)}ms`);
      });
-     
+
      next();
    });
    ```
@@ -1244,5 +1278,5 @@ export const captureException = (error: Error, context?: any) => {
 
 ---
 
-*This developer guide is regularly updated to reflect the latest implementation details. Last updated: October 2023*
-      const recipientBalance = await
+_This developer guide is regularly updated to reflect the latest implementation details. Last updated: October 2023_
+const recipientBalance = await

@@ -122,36 +122,41 @@ model UserRole {
 ## Entity Relationships
 
 ### User Entity
+
 - **Primary Key**: id (UUID)
 - **Unique Fields**: email, googleId
 - **Indexes**: email, googleId
-- **Relations**: 
+- **Relations**:
   - One-to-one with UserProfile
   - One-to-many with UserRole
   - One-to-one with CreditAccount (optional)
   - One-to-many with UsageLog
 
 ### UserProfile Entity
+
 - **Primary Key**: userId (UUID, foreign key to User)
-- **Relations**: 
+- **Relations**:
   - Belongs to User (one-to-one)
 
 ### UserRole Entity
+
 - **Composite Primary Key**: userId + roleId
 - **Foreign Keys**: userId (references User), roleId (references Role)
-- **Relations**: 
+- **Relations**:
   - Belongs to User (many-to-one)
   - Belongs to Role (many-to-one)
 
 ## Data Validation Rules
 
 ### User Entity Validation
+
 - **email**: Must be a valid email format, unique across all users
 - **passwordHash**: Must be hashed using bcrypt or argon2 algorithm
 - **verified**: Boolean flag for email verification status
 - **googleId**: Optional, must be unique if present
 
 ### UserProfile Entity Validation
+
 - **firstName**: Maximum 100 characters, optional
 - **lastName**: Maximum 100 characters, optional
 - **phone**: Must match international phone format if provided
@@ -161,6 +166,7 @@ model UserRole {
 - **language**: Must be a valid ISO 639-1 language code
 
 ### UserRole Entity Validation
+
 - **userId**: Must reference an existing user
 - **roleId**: Must reference an existing role
 - **assignedAt**: Automatically set to current timestamp
@@ -168,16 +174,19 @@ model UserRole {
 ## Security Considerations
 
 ### Password Security
+
 - Passwords must be hashed using industry-standard algorithms
 - Salt must be unique for each password hash
 - Password hashes must be stored securely in the database
 
 ### Data Privacy
+
 - Personal information must be encrypted at rest
 - Access to user data must be controlled by role-based permissions
 - Audit logs must track all access to personal information
 
 ### Data Integrity
+
 - Foreign key constraints must be enforced
 - Cascade operations must be carefully considered
 - Data validation must occur at both application and database levels
@@ -185,12 +194,14 @@ model UserRole {
 ## Performance Optimization
 
 ### Indexing Strategy
+
 - Primary key indexes on all tables
 - Unique indexes on email and googleId fields
 - Composite indexes on frequently queried field combinations
 - Regular index maintenance and monitoring
 
 ### Query Optimization
+
 - Use appropriate join types for complex queries
 - Implement query result caching where appropriate
 - Optimize frequently accessed user profile data
@@ -199,6 +210,7 @@ model UserRole {
 ## Migration Strategy
 
 ### Initial Migration
+
 ```sql
 -- Create users table
 CREATE TABLE users (
@@ -238,6 +250,7 @@ CREATE TABLE user_roles (
 ```
 
 ### Future Schema Changes
+
 - All schema changes must be backward compatible
 - Use database migrations for all structural changes
 - Test migrations thoroughly before production deployment

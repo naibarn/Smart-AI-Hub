@@ -1,8 +1,9 @@
 ---
-title: "branch-protection"
-author: "Development Team"
-version: "1.0.0"
+title: 'branch-protection'
+author: 'Development Team'
+version: '1.0.0'
 ---
+
 # Branch Protection Rules Setup
 
 This document provides recommendations for setting up branch protection rules in your GitHub repository to ensure code quality and security.
@@ -16,17 +17,20 @@ Navigate to your GitHub repository settings → Branches → Branch protection r
 #### 1. Require status checks to pass before merging
 
 **Required status checks**:
+
 - `lint` (from CI workflow)
 - `test` (from CI workflow)
 - `build` (from CI workflow)
 
 **Additional options**:
+
 - ✅ Require branches to be up to date before merging
 - ✅ Require status checks to pass for new PRs
 
 #### 2. Require pull request reviews before merging
 
 **Settings**:
+
 - Number of required reviews: **1**
 - ✅ Dismiss stale PR approvals when new commits are pushed
 - ✅ Require review from Code Owners
@@ -36,12 +40,14 @@ Navigate to your GitHub repository settings → Branches → Branch protection r
 #### 3. Restrict pushes that create matching branches
 
 **Settings**:
+
 - ✅ Limit who can push to matching branches
   - Add users/teams that should have direct push access
 
 #### 4. Do not allow bypassing the above settings
 
 **Settings**:
+
 - ✅ Allow administrators to bypass branch protection rules (optional, based on your team's workflow)
 
 ### Develop Branch Protection
@@ -51,17 +57,20 @@ Create a similar rule for the `develop` branch with slightly relaxed settings:
 #### 1. Require status checks to pass before merging
 
 **Required status checks**:
+
 - `lint` (from CI workflow)
 - `test` (from CI workflow)
 - `build` (from CI workflow)
 
 **Additional options**:
+
 - ✅ Require branches to be up to date before merging
 - ✅ Require status checks to pass for new PRs
 
 #### 2. Require pull request reviews before merging
 
 **Settings**:
+
 - Number of required reviews: **1**
 - ✅ Dismiss stale PR approvals when new commits are pushed
 
@@ -95,18 +104,21 @@ To enable "Require review from Code Owners", create a `CODEOWNERS` file in your 
 ### 1. Signed Commits
 
 Consider requiring signed commits for additional security:
+
 - Go to Repository Settings → Branches → Branch protection rules
 - Enable "Require signed commits"
 
 ### 2. Linear History
 
 To maintain a clean git history:
+
 - Enable "Allow force pushes" for administrators only
 - Use squash merge or rebase merge for PRs
 
 ### 3. Stale Branch Management
 
 Set up branch automation to:
+
 - Delete merged branches after a certain period
 - Mark inactive branches as stale
 

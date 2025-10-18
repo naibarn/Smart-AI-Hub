@@ -7,17 +7,20 @@ The Smart AI Hub Backup System is an automated backup solution that protects you
 ## What's Backed Up
 
 ### Database Data
+
 - **Critical Tables**: users, user_roles, organizations, agencies, referrals, exchange_rates, system_settings, roles, permissions, role_permissions
 - **Recent Transactions**: Last 3 months of credit_transactions, point_transactions, purchases
 - **Historical Data**: Older transactions are excluded to keep backup sizes manageable
 
 ### Configuration Files
+
 - Environment configuration (`.env.production`)
 - Docker Compose configuration (`docker-compose.prod.yml`)
 - Nginx configuration (`nginx.prod.conf`)
 - SSL certificates and keys
 
 ### Backup Information
+
 - `BACKUP_INFO.txt` with restore instructions and metadata
 
 ## Backup Schedule
@@ -30,14 +33,18 @@ The Smart AI Hub Backup System is an automated backup solution that protects you
 ## Email Delivery
 
 ### Successful Backups
+
 You will receive an email with:
+
 - Backup summary (date, size, contents)
 - Backup file attached (if < 25MB)
 - Download link (if > 25MB)
 - Quick restore instructions
 
 ### Failed Backups
+
 You will receive an alert email with:
+
 - Failure details and error message
 - Recommended troubleshooting steps
 - Priority: URGENT - requires immediate attention
@@ -51,17 +58,19 @@ You will receive an alert email with:
    - Save to a secure location
 
 2. **Extract Backup**
+
    ```bash
    tar -xzf critical_backup_YYYYMMDD_HHMMSS.tar.gz
    ```
 
 3. **Restore Database**
+
    ```bash
    # Restore critical tables
    for sql_file in database/*.sql; do
      psql -U postgres smart_ai_hub < "$sql_file"
    done
-   
+
    # Restore recent transactions
    psql -U postgres smart_ai_hub -c "\COPY credit_transactions FROM 'database/credit_transactions.csv' CSV HEADER"
    psql -U postgres smart_ai_hub -c "\COPY point_transactions FROM 'database/point_transactions.csv' CSV HEADER"
@@ -69,6 +78,7 @@ You will receive an alert email with:
    ```
 
 4. **Restore Configuration**
+
    ```bash
    cp config/.env.production /path/to/project/
    cp config/docker-compose.prod.yml /path/to/project/
@@ -77,6 +87,7 @@ You will receive an alert email with:
    ```
 
 5. **Restart Services**
+
    ```bash
    docker-compose -f docker-compose.prod.yml down
    docker-compose -f docker-compose.prod.yml up -d
@@ -92,29 +103,34 @@ You will receive an alert email with:
 ### Common Issues
 
 #### Backup Not Received
+
 1. Check spam/junk folder
 2. Verify email address in configuration
 3. Check backup service status: `docker ps | grep backup-service`
 4. Review backup logs: `docker logs backup-service`
 
 #### Backup Failure Alerts
+
 1. Check database connectivity
 2. Verify disk space availability
 3. Review configuration files
 4. Trigger manual backup: `docker exec backup-service /scripts/backup-lightweight.sh`
 
 #### Cannot Extract Backup
+
 1. Verify file integrity: `gzip -t backup_file.tar.gz`
 2. Check available disk space
 3. Try using different extraction tool
 
 #### Restore Database Fails
+
 1. Verify database is running
 2. Check database credentials
 3. Ensure database exists
 4. Review SQL file syntax
 
 #### Services Won't Start After Restore
+
 1. Check configuration file syntax
 2. Verify SSL certificate paths
 3. Check port availability
@@ -123,11 +139,13 @@ You will receive an alert email with:
 ### Getting Help
 
 #### Emergency Support
+
 - **Priority 1**: Complete system failure, data loss
 - **Response Time**: Within 1 hour
 - **Contact**: System administrators immediately
 
 #### Non-Emergency Support
+
 - **Priority 2**: Backup questions, minor issues
 - **Response Time**: Within 24 hours
 - **Contact**: Development team via email
@@ -135,6 +153,7 @@ You will receive an alert email with:
 ### Diagnostic Commands
 
 #### Check Backup Status
+
 ```bash
 # Check backup service
 docker ps | grep backup-service
@@ -150,6 +169,7 @@ docker exec backup-service /scripts/backup-monitor.sh status
 ```
 
 #### Check System Health
+
 ```bash
 # Database connectivity
 docker exec backup-service pg_isready -h postgres -U postgres
@@ -164,18 +184,21 @@ docker exec backup-service /scripts/backup-monitor.sh health-check
 ## Best Practices
 
 ### Backup Management
+
 - **Save critical backups**: Keep monthly backups offline for 1 year
 - **Test restores**: Perform test restores monthly to verify integrity
 - **Monitor emails**: Respond to backup alerts promptly
 - **Documentation**: Keep this guide accessible for emergency use
 
 ### Security Considerations
+
 - **Store securely**: Keep backup files in secure locations
 - **Access control**: Limit backup access to authorized personnel
 - **Email security**: Use secure email accounts for backup delivery
 - **Password protection**: Protect backup files with strong passwords
 
 ### Maintenance
+
 - **Regular monitoring**: Check backup status weekly
 - **Configuration updates**: Update email addresses when personnel change
 - **Capacity planning**: Monitor disk space usage and plan for growth

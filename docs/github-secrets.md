@@ -1,8 +1,9 @@
 ---
-title: "github-secrets"
-author: "Development Team"
-version: "1.0.0"
+title: 'github-secrets'
+author: 'Development Team'
+version: '1.0.0'
 ---
+
 # GitHub Repository Secrets Setup
 
 This document explains how to set up the required secrets in your GitHub repository for the CI/CD pipeline to work properly.
@@ -23,7 +24,8 @@ Navigate to your GitHub repository settings → Secrets and variables → Action
 
 **Description**: Secret key for signing JWT tokens in the auth service
 
-**How to generate**: 
+**How to generate**:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
@@ -35,6 +37,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 **Description**: Secret key for signing JWT refresh tokens
 
 **How to generate**:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
@@ -48,6 +51,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 **Description**: Token for uploading test coverage to Codecov
 
 **How to get**:
+
 1. Sign up at [codecov.io](https://codecov.io)
 2. Connect your GitHub repository
 3. Get the repository token from Codecov settings

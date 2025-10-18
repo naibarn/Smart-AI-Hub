@@ -280,18 +280,20 @@ model RolePermission {
 ### Credit Operations
 
 #### Check Balance
+
 ```typescript
 async function getCreditBalance(userId: string): Promise<number> {
   const account = await prisma.creditAccount.findUnique({
     where: { userId },
-    select: { balance: true }
+    select: { balance: true },
   });
-  
+
   return account?.balance || 0;
 }
 ```
 
 #### Deduct Credits
+
 ```typescript
 async function deductCredits(
   userId: string,
@@ -335,6 +337,7 @@ async function deductCredits(
 ```
 
 #### Add Credits
+
 ```typescript
 async function addCredits(
   userId: string,
@@ -377,6 +380,7 @@ async function addCredits(
 ### User Operations
 
 #### Create User
+
 ```typescript
 async function createUser(userData: {
   email: string;
@@ -388,11 +392,11 @@ async function createUser(userData: {
     include: {
       roles: {
         include: {
-          role: true
-        }
+          role: true,
+        },
       },
-      creditAccount: true
-    }
+      creditAccount: true,
+    },
   });
 
   // Create credit account if it doesn't exist
@@ -400,8 +404,8 @@ async function createUser(userData: {
     await prisma.creditAccount.create({
       data: {
         userId: user.id,
-        balance: 0
-      }
+        balance: 0,
+      },
     });
   }
 
@@ -412,12 +416,9 @@ async function createUser(userData: {
 ### Role and Permission Operations
 
 #### Check User Permission
+
 ```typescript
-async function hasPermission(
-  userId: string,
-  resource: string,
-  action: string
-): Promise<boolean> {
+async function hasPermission(userId: string, resource: string, action: string): Promise<boolean> {
   const userRole = await prisma.userRole.findFirst({
     where: { userId },
     include: {
@@ -425,12 +426,12 @@ async function hasPermission(
         include: {
           permissions: {
             include: {
-              permission: true
-            }
-          }
-        }
-      }
-    }
+              permission: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!userRole) {
@@ -438,8 +439,7 @@ async function hasPermission(
   }
 
   return userRole.role.permissions.some(
-    rp => rp.permission.resource === resource && 
-          rp.permission.action === action
+    (rp) => rp.permission.resource === resource && rp.permission.action === action
   );
 }
 ```
@@ -447,6 +447,7 @@ async function hasPermission(
 ### Usage Tracking
 
 #### Log Usage
+
 ```typescript
 async function logUsage(data: {
   userId: string;
@@ -458,33 +459,30 @@ async function logUsage(data: {
   metadata?: any;
 }): Promise<void> {
   await prisma.usageLog.create({
-    data
+    data,
   });
 }
 ```
 
 #### Get Usage Statistics
+
 ```typescript
-async function getUsageStats(
-  userId: string,
-  startDate: Date,
-  endDate: Date
-): Promise<any> {
+async function getUsageStats(userId: string, startDate: Date, endDate: Date): Promise<any> {
   const stats = await prisma.usageLog.groupBy({
     by: ['service'],
     where: {
       userId,
       createdAt: {
         gte: startDate,
-        lte: endDate
-      }
+        lte: endDate,
+      },
     },
     _count: {
-      id: true
+      id: true,
     },
     _avg: {
-      duration: true
-    }
+      duration: true,
+    },
   });
 
   return stats;

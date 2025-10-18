@@ -5,6 +5,7 @@ This document describes the Google OAuth 2.0 authentication implementation for t
 ## Overview
 
 The Google OAuth implementation allows users to authenticate using their Google accounts. It includes:
+
 - Secure OAuth flow with CSRF protection
 - Account linking for existing users
 - Automatic account creation for new users
@@ -79,6 +80,7 @@ The implementation handles the following scenarios:
 ### Database Schema
 
 The User model already includes the necessary fields:
+
 - `googleId` - Stores Google user ID
 - `emailVerified` - Automatically set to true for OAuth users
 
@@ -95,6 +97,7 @@ Initiates Google OAuth flow.
 Handles Google OAuth callback.
 
 **Query Parameters**:
+
 - `code` - Authorization code from Google
 - `state` - State parameter for CSRF protection
 
@@ -105,6 +108,7 @@ Handles Google OAuth callback.
 Returns OAuth configuration status.
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -131,9 +135,7 @@ node test-oauth-integration.js
 Add a button that redirects to `/api/auth/google`:
 
 ```html
-<a href="/api/auth/google" class="btn-google">
-  Sign in with Google
-</a>
+<a href="/api/auth/google" class="btn-google"> Sign in with Google </a>
 ```
 
 ### Handle OAuth Callback
@@ -160,7 +162,7 @@ if (accessToken && refreshToken) {
   // Store tokens securely
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
-  
+
   // Redirect to dashboard
   window.location.href = '/dashboard';
 }

@@ -11,10 +11,10 @@
 
 ### รายการ Error ที่พบ (มีเพียง 2 ประเภท)
 
-| อันดับ | ประเภท Error | จำนวนครั้งที่เกิด | % ของ Errors ทั้งหมด | คำอธิบาย |
-|---------|--------------|----------------|-------------------|----------|
-| 1 | pattern_mismatch (Content must be at least 10 characters long) | 84 | 98.8% | เครื่องมือตรวจสอบว่าเนื้อหามีความยาวน้อยกว่า 10 ตัวอักษร แม้ว่าจริงๆ แล้วจะมีเนื้อหายาวมาก |
-| 2 | pattern_mismatch (Version must follow semantic versioning) | 1 | 1.2% | เวอร์ชันไม่ follow รูปแบบ x.y.z |
+| อันดับ | ประเภท Error                                                   | จำนวนครั้งที่เกิด | % ของ Errors ทั้งหมด | คำอธิบาย                                                                                   |
+| ------ | -------------------------------------------------------------- | ----------------- | -------------------- | ------------------------------------------------------------------------------------------ |
+| 1      | pattern_mismatch (Content must be at least 10 characters long) | 84                | 98.8%                | เครื่องมือตรวจสอบว่าเนื้อหามีความยาวน้อยกว่า 10 ตัวอักษร แม้ว่าจริงๆ แล้วจะมีเนื้อหายาวมาก |
+| 2      | pattern_mismatch (Version must follow semantic versioning)     | 1                 | 1.2%                 | เวอร์ชันไม่ follow รูปแบบ x.y.z                                                            |
 
 **หมายเหตุ**: ปัญหาหลักคือ validation logic มีข้อผิดพลาดในการตรวจสอบความยาวของเนื้อหา ทำให้ spec ทั้งหมด 84 รายการถูกระบุว่ามีเนื้อหาสั้นเกินไป
 
@@ -22,20 +22,21 @@
 
 ## 2. Specs ที่มีคะแนนต่ำสุด 10 อันดับแรก
 
-| อันดับ | Spec ID | ชื่อ Spec | คะแนน | จำนวน Errors | จำนวน Warnings | Traceability Score | เหตุผลที่คะแนนต่ำ |
-|---------|---------|------------|--------|--------------|----------------|-------------------|-------------------|
-| 1 | agents_marketplace | OpenAI Agents Marketplace & Library | 38.33% | 2 | 0 | 33.33% | มี error 2 รายการ และ traceability ต่ำ |
-| 2 | agents_marketplace_tasks | Agents Marketplace - Backlog Tasks | 51.46% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 3 | notification_system | Notification System | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 4 | layout_components | Layout Components | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 5 | credit_management | Credit Management | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 6 | user_profile | User Profile | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 7 | README (multiple) | README | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 8 | dashboard | Dashboard | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 9 | chat_interface | Chat Interface | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
-| 10 | admin_dashboard | Admin Dashboard | 54.58% | 1 | 1 | 33.33% | มี error และ warning อย่างละ 1 รายการ |
+| อันดับ | Spec ID                  | ชื่อ Spec                           | คะแนน  | จำนวน Errors | จำนวน Warnings | Traceability Score | เหตุผลที่คะแนนต่ำ                      |
+| ------ | ------------------------ | ----------------------------------- | ------ | ------------ | -------------- | ------------------ | -------------------------------------- |
+| 1      | agents_marketplace       | OpenAI Agents Marketplace & Library | 38.33% | 2            | 0              | 33.33%             | มี error 2 รายการ และ traceability ต่ำ |
+| 2      | agents_marketplace_tasks | Agents Marketplace - Backlog Tasks  | 51.46% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 3      | notification_system      | Notification System                 | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 4      | layout_components        | Layout Components                   | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 5      | credit_management        | Credit Management                   | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 6      | user_profile             | User Profile                        | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 7      | README (multiple)        | README                              | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 8      | dashboard                | Dashboard                           | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 9      | chat_interface           | Chat Interface                      | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
+| 10     | admin_dashboard          | Admin Dashboard                     | 54.58% | 1            | 1              | 33.33%             | มี error และ warning อย่างละ 1 รายการ  |
 
 **เหตุผลหลักที่คะแนนต่ำ**:
+
 1. ทุก spec มี traceability score เพียง 33.33% (เนื่องจากมี relationships น้อยเกินไป)
 2. มี pattern_mismatch error จากการตรวจสอบความยาวเนื้อหาที่ผิดพลาด
 3. บาง spec มี warning เกี่ยวกับรูปแบบ user story ที่ไม่ถูกต้อง
@@ -77,7 +78,7 @@
 
 1. **แก้ไข SpeckIt Validation Logic**
    - **ปัญหา**: Content length validation ทำงานผิดพลาด
-   - **วิธีแก้ไข**: 
+   - **วิธีแก้ไข**:
      - แก้ไข validation logic ให้ตรวจสอบความยาวเนื้อหาอย่างถูกต้อง
      - ทดสอบกับ spec ตัวอย่างก่อนใช้งานจริง
    - **ผลกระทบ**: จะแก้ไข error 84 รายการทันที
@@ -129,14 +130,17 @@
 ## 5. ลำดับความสำคัญและผลกระทบต่อคุณภาพของ Specifications
 
 ### Priority 1 (แก้ไขภายใน 1 สัปดาห์)
+
 1. **แก้ไข SpeckIt Validation Logic** - ผลกระทบ: แก้ไข errors 84 รายการ
 2. **เพิ่ม Traceability** - ผลกระทบ: เพิ่มคะแนนจาก 33.33% เป็น 80%+
 
 ### Priority 2 (แก้ไขภายใน 2-3 สัปดาห์)
+
 1. **ปรับปรุง User Story Format** - ผลกระทบ: ลด warnings 44 รายการ
 2. **標準化 Version Format** - ผลกระทบ: เพิ่ม consistency
 
 ### Priority 3 (แก้ไขภายใน 1 เดือน)
+
 1. **สมบูรณ์ Metadata** - ผลกระทบ: เพิ่ม accountability
 2. **สร้าง Review Process** - ผลกระทบ: ปรับปรุงคุณภาพในระยะยาว
 
@@ -145,16 +149,19 @@
 ## 6. สรุปผลกระทบโดยรวม
 
 ### ปัญหาหลัก
+
 - **Systemic Issue**: SpeckIt validation tool มี bug ในการตรวจสอบความยาวเนื้อหา
 - **Structural Issue**: Traceability ต่ำทั่วทั้งระบบ
 - **Content Issue**: User story format ไม่標準
 
 ### ผลกระทบต่อโปรเจค
+
 - **Risk Level**: HIGH - เนื่องจาก specs ทั้งหมดไม่ผ่าน validation
 - **Development Impact**: อาจทำให้การพัฒนาขาดคำแนะนำที่ชัดเจน
 - **Quality Risk**: การ trace requirements ถึง implementation ยาก
 
 ### คำแนะนำสำคัญ
+
 1. **แก้ไข SpeckIt validation tool ก่อนอื่น** - นี่คือ root cause หลัก
 2. **ลงทุนใน traceability** - จะเพิ่มคุณภาพ specs อย่างมีนัยสำคัญ
 3. **สร้าง standard templates** - จะช่วยให้ specs สม่ำเสมอและครบถ้วน

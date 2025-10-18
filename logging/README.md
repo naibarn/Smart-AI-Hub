@@ -5,12 +5,14 @@ This directory contains the complete centralized logging infrastructure for Smar
 ## Quick Start
 
 1. **Deploy the logging stack:**
+
    ```bash
    chmod +x deploy-logging.sh
    ./deploy-logging.sh
    ```
 
 2. **Test the deployment:**
+
    ```bash
    chmod +x test-logging.sh
    ./test-logging.sh
@@ -32,45 +34,51 @@ Services → Log Files → Promtail → Loki → Grafana
 ## Components
 
 ### Loki
+
 - **Port**: 3100
 - **Purpose**: Log aggregation and storage
 - **Retention**: 30 days
 - **Storage**: Filesystem-based
 
 ### Promtail
+
 - **Port**: 9080
 - **Purpose**: Log collection and processing
 - **Sources**: File logs, Docker containers, system logs
 
 ### Grafana
+
 - **Port**: 3000
 - **Purpose**: Log visualization and analysis
 - **Dashboards**: Pre-configured for Smart AI Hub
 
 ### Alertmanager
+
 - **Port**: 9093
 - **Purpose**: Alert routing and notification
 - **Integration**: Email and webhook notifications
 
 ## Configuration Files
 
-| File | Description |
-|------|-------------|
-| `loki-config.yml` | Loki server configuration |
-| `promtail-config.yml` | Promtail scrape configurations |
+| File                         | Description                      |
+| ---------------------------- | -------------------------------- |
+| `loki-config.yml`            | Loki server configuration        |
+| `promtail-config.yml`        | Promtail scrape configurations   |
 | `docker-compose.logging.yml` | Docker Compose for logging stack |
-| `alertmanager.yml` | Alert routing configuration |
-| `alert-rules.yml` | Loki alerting rules |
+| `alertmanager.yml`           | Alert routing configuration      |
+| `alert-rules.yml`            | Loki alerting rules              |
 
 ## Grafana Dashboards
 
 ### Logs Overview
+
 - Log volume by service
 - Error rate monitoring
 - Log distribution
 - Recent error logs
 
 ### Service Logs
+
 - Service-specific log analysis
 - Request duration metrics
 - HTTP status code distribution
@@ -79,11 +87,14 @@ Services → Log Files → Promtail → Loki → Grafana
 ## Log Sources
 
 ### Application Logs
+
 All services write structured JSON logs to:
+
 - Combined logs: `/var/log/{service}/combined-YYYY-MM-DD.log`
 - Error logs: `/var/log/{service}/error-YYYY-MM-DD.log`
 
 ### System Logs
+
 - System logs: `/var/log/syslog`
 - Docker logs: Container stdout/stderr
 - Nginx logs: `/var/log/nginx/`
@@ -91,6 +102,7 @@ All services write structured JSON logs to:
 ## Alerting
 
 Pre-configured alerts for:
+
 - High error rate (>5%)
 - No logs received (5 minutes)
 - Database errors
@@ -101,7 +113,9 @@ Pre-configured alerts for:
 ## Scripts
 
 ### deploy-logging.sh
+
 Automated deployment script that:
+
 - Creates necessary directories
 - Sets up Docker network
 - Deploys all logging services
@@ -109,7 +123,9 @@ Automated deployment script that:
 - Shows access information
 
 ### test-logging.sh
+
 Validation script that:
+
 - Tests service connectivity
 - Creates test logs
 - Validates log ingestion
@@ -125,26 +141,33 @@ Validation script that:
 ## Integration with Services
 
 ### 1. Update Service Dependencies
+
 Add the shared logger to each service:
+
 ```bash
 cd packages/{service-name}
 npm install @smart-ai-hub/shared-logger
 ```
 
 ### 2. Configure Logging
+
 ```typescript
 import { createLogger } from '@smart-ai-hub/shared-logger';
 
 const logger = createLogger({
   service: 'your-service-name',
   level: process.env.LOG_LEVEL || 'info',
-  logDir: process.env.LOG_DIR || '/var/log/your-service-name'
+  logDir: process.env.LOG_DIR || '/var/log/your-service-name',
 });
 ```
 
 ### 3. Add Middleware
+
 ```typescript
-import { createRequestLoggingMiddleware, createErrorLoggingMiddleware } from '@smart-ai-hub/shared-logger';
+import {
+  createRequestLoggingMiddleware,
+  createErrorLoggingMiddleware,
+} from '@smart-ai-hub/shared-logger';
 
 app.use(createRequestLoggingMiddleware(logger));
 app.use(createErrorLoggingMiddleware(logger));
@@ -153,6 +176,7 @@ app.use(createErrorLoggingMiddleware(logger));
 ## Log Format
 
 All application logs use structured JSON format:
+
 ```json
 {
   "timestamp": "2023-10-15T09:30:00.000Z",
@@ -176,16 +200,19 @@ All application logs use structured JSON format:
 ## Maintenance
 
 ### Daily
+
 - Monitor log volume
 - Check alert status
 - Verify service health
 
 ### Weekly
+
 - Review log retention
 - Update alert rules
 - Optimize queries
 
 ### Monthly
+
 - Capacity planning
 - Performance tuning
 - Security audit
@@ -195,6 +222,7 @@ All application logs use structured JSON format:
 ### Common Issues
 
 1. **Loki not receiving logs**
+
    ```bash
    docker logs promtail
    curl http://localhost:3100/ready
@@ -243,11 +271,13 @@ docker-compose -f docker-compose.logging.yml restart
 ## Scaling
 
 ### Horizontal Scaling
+
 - Multiple Loki instances (read/write separation)
 - Promtail clusters
 - Grafana HA setup
 
 ### Vertical Scaling
+
 - Increase memory allocation
 - Add CPU resources
 - Expand storage capacity
@@ -255,11 +285,13 @@ docker-compose -f docker-compose.logging.yml restart
 ## Backup and Recovery
 
 ### Backup Strategy
+
 - Loki data backup
 - Configuration backup
 - Grafana dashboard backup
 
 ### Recovery Procedures
+
 1. Stop all services
 2. Restore data from backup
 3. Verify configuration
@@ -269,6 +301,7 @@ docker-compose -f docker-compose.logging.yml restart
 ## Support
 
 For issues and questions:
+
 1. Check the documentation
 2. Review troubleshooting section
 3. Check service logs
