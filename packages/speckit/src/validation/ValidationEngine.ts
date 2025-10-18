@@ -67,7 +67,7 @@ export class ValidationEngine {
 
     // Deep merge for nested objects
     for (const key in override) {
-      if (override.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(override, key)) {
         const value = override[key as keyof ValidationConfig];
         if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
           merged[key as keyof ValidationConfig] = {
@@ -336,44 +336,46 @@ export class ValidationEngine {
   }
 
   /**
-   * Extract actual content from markdown by removing front matter and unnecessary whitespace
+   * Extract actual content from markdown by removing front matter and markdown syntax
    * @param content Raw content from specification
-   * @returns Cleaned content without front matter and excessive whitespace
+   * @returns Cleaned content without front matter and markdown syntax
    */
   private getActualContent(content: string): string {
     if (!content) return '';
 
-    // Remove front matter (between --- markers)
-    const frontMatterRegex = /^---\s*\n[\s\S]*?\n---\s*\n/;
-    let actualContent = content.replace(frontMatterRegex, '');
+    // 1. Remove front matter (between --- markers)
+    const frontMatterRegex = /^---[\s\S]*?---\n/;
+    let contentWithoutMeta = content.replace(frontMatterRegex, '');
 
-    // Remove markdown headers (# ## ### etc.) but keep the text
-    actualContent = actualContent.replace(/^#{1,6}\s+/gm, '');
+    // 2. Remove code blocks with improved regex
+    const codeBlockRegex = /```[\s\S]*?```/g;
+    contentWithoutMeta = contentWithoutMeta.replace(codeBlockRegex, '');
 
-    // Remove markdown list markers (-, *, 1., 2., etc.)
-    actualContent = actualContent.replace(/^[-*+]\s+/gm, '');
-    actualContent = actualContent.replace(/^\d+\.\s+/gm, '');
+    // 3. Remove inline code
+    const inlineCodeRegex = /`[^`]*`/g;
+    contentWithoutMeta = contentWithoutMeta.replace(inlineCodeRegex, '');
 
-    // Remove markdown link syntax [text](url) but keep the text
-    actualContent = actualContent.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    // 4. Remove HTML tags
+    const htmlTagRegex = /<[^>]*>/g;
+    contentWithoutMeta = contentWithoutMeta.replace(htmlTagRegex, '');
 
-    // Remove markdown code blocks
-    actualContent = actualContent.replace(/```[\s\S]*?```/g, '');
-    actualContent = actualContent.replace(/`([^`]+)`/g, '$1');
+    // 5. Remove markdown syntax but keep text
+    const plainText = contentWithoutMeta
+      .replace(/#{1,6}\s+/g, '') // Remove headers (with space after #)
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold markers but keep text
+      .replace(/__([^_]+)__/g, '$1') // Remove bold markers but keep text
+      .replace(/\*([^*]+)\*/g, '$1') // Remove italic markers but keep text
+      .replace(/_([^_]+)_/g, '$1') // Remove italic markers but keep text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Keep link text only
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '') // Remove images
+      .replace(/^\s*[-*+]\s+/gm, '') // Remove list markers (with space after)
+      .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered lists (with space after)
+      .replace(/^>\s+/gm, '') // Remove blockquote markers (with space after)
+      .replace(/\n{3,}/g, '\n\n') // Normalize whitespace
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
 
-    // Remove markdown emphasis (*, _, **, __)
-    actualContent = actualContent.replace(/\*\*([^*]+)\*\*/g, '$1');
-    actualContent = actualContent.replace(/\*([^*]+)\*/g, '$1');
-    actualContent = actualContent.replace(/__([^_]+)__/g, '$1');
-    actualContent = actualContent.replace(/_([^_]+)_/g, '$1');
-
-    // Remove blockquotes (> )
-    actualContent = actualContent.replace(/^>\s+/gm, '');
-
-    // Remove excessive whitespace but preserve single spaces between words
-    actualContent = actualContent.replace(/\s+/g, ' ').trim();
-
-    return actualContent;
+    return plainText;
   }
 
   private validateTypeSpecificRules(

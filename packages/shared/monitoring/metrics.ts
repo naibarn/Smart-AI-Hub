@@ -22,13 +22,13 @@ export class PrometheusMetrics {
       httpRequestsTotal: new Counter({
         name: `${this.config.serviceName.replace(/-/g, '_')}_http_requests_total`,
         help: 'Total number of HTTP requests',
-        labelNames: ['method', 'route', 'status_code', ...Object.keys(defaultLabels)],
+        labelNames: ['method', 'route', 'status_code', 'sla_tier', 'sla_threshold', ...Object.keys(defaultLabels)],
         registers: [register],
       }),
       httpRequestDuration: new Histogram({
         name: `${this.config.serviceName.replace(/-/g, '_')}_http_request_duration_seconds`,
         help: 'Duration of HTTP requests in seconds',
-        labelNames: ['method', 'route', 'status_code', ...Object.keys(defaultLabels)],
+        labelNames: ['method', 'route', 'status_code', 'sla_tier', 'sla_threshold', ...Object.keys(defaultLabels)],
         buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
         registers: [register],
       }),

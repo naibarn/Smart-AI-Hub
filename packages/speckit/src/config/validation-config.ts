@@ -100,9 +100,9 @@ export const defaultValidationConfig: ValidationConfig = {
   },
 
   thresholds: {
-    minContentLength: 10,
-    shortContentThreshold: 50,
-    veryShortContentThreshold: 20,
+    minContentLength: 100,
+    shortContentThreshold: 200,
+    veryShortContentThreshold: 100,
     minTitleLength: 3,
     maxTitleLength: 100,
     excellentScoreThreshold: 90,

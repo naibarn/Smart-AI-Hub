@@ -1,105 +1,26 @@
 {
   "slaTiers": {
-    "critical": {
-      "name": "Critical",
-      "thresholdMs": 500,
+    "low": {
+      "name": "Low",
+      "thresholdMs": 5000,
       "percentile": "p95",
-      "description": "Critical endpoints requiring sub-500ms response time",
-      "endpoints": [
-        "/api/v1/auth/login",
-        "/api/v1/auth/logout",
-        "/api/v1/auth/refresh",
-        "/api/v1/mcp/chat",
-        "/api/v1/mcp/stream"
-      ],
-      "services": ["auth-service", "mcp-server"]
-    },
-    "high": {
-      "name": "High",
-      "thresholdMs": 1000,
-      "percentile": "p95",
-      "description": "High priority endpoints requiring sub-1s response time",
-      "endpoints": [
-        "/api/v1/users/*",
-        "/api/v1/credits/*",
-        "/api/v1/payments/*",
-        "/api/v1/roles/*",
-        "/api/v1/permissions/*"
-      ],
-      "services": ["core-service", "auth-service"]
+      "endpoints": ["/*"],
+      "services": ["*"]
     },
     "medium": {
       "name": "Medium",
       "thresholdMs": 2000,
       "percentile": "p95",
-      "description": "Medium priority endpoints requiring sub-2s response time",
-      "endpoints": [
-        "/api/v1/analytics/*",
-        "/api/v1/monitoring/*",
-        "/api/v1/webhooks/*",
-        "/api/v1/notifications/*"
-      ],
-      "services": ["core-service", "webhook-service", "notification-service"]
-    },
-    "low": {
-      "name": "Low",
-      "thresholdMs": 5000,
-      "percentile": "p95",
-      "description": "Low priority endpoints requiring sub-5s response time",
-      "endpoints": [
-        "/api/v1/reports/*",
-        "/api/v1/admin/*",
-        "/api/v1/health",
-        "/api/v1/metrics"
-      ],
-      "services": ["core-service", "api-gateway"]
-    }
-  },
-  "percentiles": {
-    "p50": {
-      "name": "50th percentile",
-      "description": "Median response time"
-    },
-    "p90": {
-      "name": "90th percentile",
-      "description": "90% of requests complete within this time"
-    },
-    "p95": {
-      "name": "95th percentile",
-      "description": "95% of requests complete within this time"
-    },
-    "p99": {
-      "name": "99th percentile",
-      "description": "99% of requests complete within this time"
-    }
-  },
-  "alertThresholds": {
-    "critical": {
-      "duration": "5m",
-      "thresholdMultiplier": 1.0,
-      "minRequests": 10
+      "endpoints": ["/api/v1/*"],
+      "services": ["auth-service", "core-service"]
     },
     "high": {
-      "duration": "10m",
-      "thresholdMultiplier": 1.0,
-      "minRequests": 10
-    },
-    "medium": {
-      "duration": "15m",
-      "thresholdMultiplier": 1.0,
-      "minRequests": 5
-    },
-    "low": {
-      "duration": "30m",
-      "thresholdMultiplier": 1.0,
-      "minRequests": 5
+      "name": "High",
+      "thresholdMs": 1000,
+      "percentile": "p95",
+      "endpoints": ["/api/v1/auth/*", "/health", "/metrics"],
+      "services": ["auth-service"]
     }
-  },
-  "baselineCalculation": {
-    "schedule": "0 2 * * *",
-    "retentionDays": 30,
-    "minSampleSize": 100,
-    "percentiles": ["p50", "p90", "p95", "p99"]
   },
   "responseTimeHeader": {
     "enabled": true,
