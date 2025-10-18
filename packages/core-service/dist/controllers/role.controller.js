@@ -1,269 +1,392 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkPermissionHandler = exports.createRoleHandler = exports.getAllPermissionsHandler = exports.getAllRolesHandler = exports.getUserRolesHandler = exports.removeRoleFromUser = exports.assignRoleToUser = void 0;
-const permission_service_1 = require("../services/permission.service");
-const response_1 = require("../utils/response");
-const pagination_1 = require("../utils/pagination");
+exports.removePermissionFromRole = exports.assignPermissionToRole = exports.getRolePermissions = exports.getAllPermissions = exports.getUsersWithRole = exports.getUserRoles = exports.removeRoleFromUser = exports.assignRoleToUser = exports.deleteRole = exports.updateRole = exports.createRole = exports.getRoleById = exports.getAllRoles = void 0;
+const shared_1 = require("@smart-ai-hub/shared");
+const roleService = __importStar(require("../services/role.service"));
 /**
- * Assign a role to a user
- * POST /api/admin/roles/assign
- * Requires: admin role
+ * Get all roles
  */
-const assignRoleToUser = async (req, res) => {
+const getAllRoles = async (req, res, next) => {
     try {
-        const { userId, roleId } = req.body;
-        const assignedBy = req.user?.id;
-        // Validate input
-        if (!userId || !roleId) {
-            (0, response_1.errorResponse)('BAD_REQUEST', 'userId and roleId are required', res, 400, null, req.requestId);
-            return;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        // Check if the current user has permission to assign roles
-        if (req.user && !(await (0, permission_service_1.hasPermission)(req.user.id, 'roles', 'assign'))) {
-            (0, response_1.errorResponse)('FORBIDDEN', 'You do not have permission to assign roles', res, 403, null, req.requestId);
-            return;
+        const rolesResult = await roleService.getAllRoles();
+        if (!rolesResult.success || !rolesResult.data) {
+            return next(new shared_1.AppError(rolesResult.error || 'Failed to get roles', 400));
         }
-        await (0, permission_service_1.assignRole)(userId, roleId, assignedBy);
-        (0, response_1.successResponse)({ message: 'Role assigned successfully' }, res, 200, req.requestId);
-        return;
+        res.status(200).json({
+            success: true,
+            data: rolesResult.data,
+        });
     }
     catch (error) {
-        console.error('Error assigning role:', error);
-        if (error instanceof Error) {
-            if (error.message === 'Role not found') {
-                (0, response_1.errorResponse)('NOT_FOUND', 'Role not found', res, 404, null, req.requestId);
-                return;
-            }
-            if (error.message === 'User not found') {
-                (0, response_1.errorResponse)('NOT_FOUND', 'User not found', res, 404, null, req.requestId);
-                return;
-            }
-            if (error.message === 'User already has this role') {
-                (0, response_1.errorResponse)('CONFLICT', 'User already has this role', res, 409, null, req.requestId);
-                return;
-            }
+        next(error);
+    }
+};
+exports.getAllRoles = getAllRoles;
+/**
+ * Get role by ID
+ */
+const getRoleById = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to assign role', res, 500, null, req.requestId);
+        const { id } = req.params;
+        if (!id) {
+            return next(new shared_1.AppError('Role ID is required', 400));
+        }
+        const roleResult = await roleService.getRoleById(id);
+        if (!roleResult.success || !roleResult.data) {
+            return next(new shared_1.AppError(roleResult.error || 'Role not found', 404));
+        }
+        res.status(200).json({
+            success: true,
+            data: roleResult.data,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getRoleById = getRoleById;
+/**
+ * Create a new role
+ */
+const createRole = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
+        }
+        const { name, description, isSystem } = req.body;
+        if (!name) {
+            return next(new shared_1.AppError('Role name is required', 400));
+        }
+        const createResult = await roleService.createRole(name, description, isSystem);
+        if (!createResult.success || !createResult.data) {
+            return next(new shared_1.AppError(createResult.error || 'Failed to create role', 400));
+        }
+        res.status(201).json({
+            success: true,
+            data: createResult.data,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.createRole = createRole;
+/**
+ * Update a role
+ */
+const updateRole = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
+        }
+        const { id } = req.params;
+        if (!id) {
+            return next(new shared_1.AppError('Role ID is required', 400));
+        }
+        const { name, description } = req.body;
+        if (!name && !description) {
+            return next(new shared_1.AppError('At least one field must be provided for update', 400));
+        }
+        const updateResult = await roleService.updateRole(id, name, description);
+        if (!updateResult.success || !updateResult.data) {
+            return next(new shared_1.AppError(updateResult.error || 'Failed to update role', 400));
+        }
+        res.status(200).json({
+            success: true,
+            data: updateResult.data,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.updateRole = updateRole;
+/**
+ * Delete a role
+ */
+const deleteRole = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
+        }
+        const { id } = req.params;
+        if (!id) {
+            return next(new shared_1.AppError('Role ID is required', 400));
+        }
+        const deleteResult = await roleService.deleteRole(id);
+        if (!deleteResult.success) {
+            return next(new shared_1.AppError(deleteResult.error || 'Failed to delete role', 400));
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Role deleted successfully',
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.deleteRole = deleteRole;
+/**
+ * Assign role to user
+ */
+const assignRoleToUser = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
+        }
+        const { userId: targetUserId, roleId } = req.body;
+        if (!targetUserId || !roleId) {
+            return next(new shared_1.AppError('User ID and Role ID are required', 400));
+        }
+        const assignResult = await roleService.assignRoleToUser(targetUserId, roleId);
+        if (!assignResult.success || !assignResult.data) {
+            return next(new shared_1.AppError(assignResult.error || 'Failed to assign role to user', 400));
+        }
+        res.status(200).json({
+            success: true,
+            data: assignResult.data,
+        });
+    }
+    catch (error) {
+        next(error);
     }
 };
 exports.assignRoleToUser = assignRoleToUser;
 /**
- * Remove a role from a user
- * DELETE /api/admin/roles/remove
- * Requires: admin role
+ * Remove role from user
  */
-const removeRoleFromUser = async (req, res) => {
+const removeRoleFromUser = async (req, res, next) => {
     try {
-        const { userId, roleId } = req.body;
-        // Validate input
-        if (!userId || !roleId) {
-            (0, response_1.errorResponse)('BAD_REQUEST', 'userId and roleId are required', res, 400, null, req.requestId);
-            return;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        // Check if the current user has permission to assign roles
-        if (req.user && !(await (0, permission_service_1.hasPermission)(req.user.id, 'roles', 'assign'))) {
-            (0, response_1.errorResponse)('FORBIDDEN', 'You do not have permission to remove roles', res, 403, null, req.requestId);
-            return;
+        const { userId: targetUserId, roleId } = req.body;
+        if (!targetUserId || !roleId) {
+            return next(new shared_1.AppError('User ID and Role ID are required', 400));
         }
-        await (0, permission_service_1.removeRole)(userId, roleId);
-        (0, response_1.successResponse)({ message: 'Role removed successfully' }, res, 200, req.requestId);
-        return;
+        const removeResult = await roleService.removeRoleFromUser(targetUserId, roleId);
+        if (!removeResult.success) {
+            return next(new shared_1.AppError(removeResult.error || 'Failed to remove role from user', 400));
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Role removed from user successfully',
+        });
     }
     catch (error) {
-        console.error('Error removing role:', error);
-        if (error instanceof Error) {
-            if (error.message === 'User does not have this role') {
-                (0, response_1.errorResponse)('NOT_FOUND', 'User does not have this role', res, 404, null, req.requestId);
-                return;
-            }
-        }
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to remove role', res, 500, null, req.requestId);
+        next(error);
     }
 };
 exports.removeRoleFromUser = removeRoleFromUser;
 /**
- * Get roles for a specific user
- * GET /api/users/:id/roles
- * Requires: users:read permission
+ * Get user roles
  */
-const getUserRolesHandler = async (req, res) => {
+const getUserRoles = async (req, res, next) => {
     try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
+        }
         const { id } = req.params;
-        const currentUserId = req.user?.id;
-        if (!currentUserId) {
-            (0, response_1.errorResponse)('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-            return;
+        if (!id) {
+            return next(new shared_1.AppError('User ID is required', 400));
         }
-        // Check if user has permission to read user information
-        // Users can read their own roles or need admin permission
-        const isSelfAccess = currentUserId === id;
-        const hasReadPermission = await (0, permission_service_1.hasPermission)(currentUserId, 'users', 'read');
-        if (!isSelfAccess && !hasReadPermission) {
-            (0, response_1.errorResponse)('FORBIDDEN', 'You do not have permission to read user roles', res, 403, null, req.requestId);
-            return;
+        // Check if user has admin role or is accessing their own roles
+        const isAdmin = req.user?.roles.some((role) => ['admin', 'administrator'].includes(role.name));
+        const isSelfAccess = userId === id;
+        if (!isAdmin && !isSelfAccess) {
+            return next(new shared_1.AppError('Insufficient permissions', 403));
         }
-        const roles = await (0, permission_service_1.getUserRoles)(id);
-        (0, response_1.successResponse)({
-            userId: id,
-            roles,
-        }, res, 200, req.requestId);
-        return;
+        const rolesResult = await roleService.getUserRoles(id);
+        if (!rolesResult.success || !rolesResult.data) {
+            return next(new shared_1.AppError(rolesResult.error || 'Failed to get user roles', 400));
+        }
+        res.status(200).json({
+            success: true,
+            data: rolesResult.data,
+        });
     }
     catch (error) {
-        console.error('Error getting user roles:', error);
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to get user roles', res, 500, null, req.requestId);
+        next(error);
     }
 };
-exports.getUserRolesHandler = getUserRolesHandler;
+exports.getUserRoles = getUserRoles;
 /**
- * Get all available roles
- * GET /api/admin/roles
- * Requires: roles:read permission
+ * Get users with a specific role
  */
-const getAllRolesHandler = async (req, res) => {
+const getUsersWithRole = async (req, res, next) => {
     try {
-        const currentUserId = req.user?.id;
-        if (!currentUserId) {
-            (0, response_1.errorResponse)('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-            return;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        // Check if user has permission to read roles
-        if (!(await (0, permission_service_1.hasPermission)(currentUserId, 'roles', 'read'))) {
-            (0, response_1.errorResponse)('FORBIDDEN', 'You do not have permission to read roles', res, 403, null, req.requestId);
-            return;
+        const { id } = req.params;
+        if (!id) {
+            return next(new shared_1.AppError('Role ID is required', 400));
         }
-        // Parse pagination parameters
-        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
-        // Get roles with pagination
-        const roles = await (0, permission_service_1.getAllRoles)();
-        // For now, implement simple pagination on the client side
-        // In a real implementation, you would modify getAllRoles to support pagination
-        const page = pagination.page ?? 1;
-        const perPage = pagination.per_page ?? 20;
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        const paginatedRoles = roles.slice(startIndex, endIndex);
-        (0, response_1.paginatedResponse)(paginatedRoles, {
-            page: page,
-            per_page: perPage,
-            total: roles.length,
-            total_pages: Math.ceil(roles.length / perPage),
-        }, res, 200, req.requestId);
-        return;
+        const usersResult = await roleService.getUsersWithRole(id);
+        if (!usersResult.success || !usersResult.data) {
+            return next(new shared_1.AppError(usersResult.error || 'Failed to get users with role', 400));
+        }
+        res.status(200).json({
+            success: true,
+            data: usersResult.data,
+        });
     }
     catch (error) {
-        console.error('Error getting all roles:', error);
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to get roles', res, 500, null, req.requestId);
+        next(error);
     }
 };
-exports.getAllRolesHandler = getAllRolesHandler;
+exports.getUsersWithRole = getUsersWithRole;
 /**
- * Get all available permissions
- * GET /api/admin/permissions
- * Requires: roles:read permission
+ * Get all permissions
  */
-const getAllPermissionsHandler = async (req, res) => {
+const getAllPermissions = async (req, res, next) => {
     try {
-        const currentUserId = req.user?.id;
-        if (!currentUserId) {
-            (0, response_1.errorResponse)('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-            return;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        // Check if user has permission to read roles
-        if (!(await (0, permission_service_1.hasPermission)(currentUserId, 'roles', 'read'))) {
-            (0, response_1.errorResponse)('FORBIDDEN', 'You do not have permission to read permissions', res, 403, null, req.requestId);
-            return;
+        const permissionsResult = await roleService.getAllPermissions();
+        if (!permissionsResult.success || !permissionsResult.data) {
+            return next(new shared_1.AppError(permissionsResult.error || 'Failed to get permissions', 400));
         }
-        // Parse pagination parameters
-        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
-        // Get permissions with pagination
-        const permissions = await (0, permission_service_1.getAllPermissions)();
-        // For now, implement simple pagination on the client side
-        // In a real implementation, you would modify getAllPermissions to support pagination
-        const page = pagination.page ?? 1;
-        const perPage = pagination.per_page ?? 20;
-        const startIndex = (page - 1) * perPage;
-        const endIndex = startIndex + perPage;
-        const paginatedPermissions = permissions.slice(startIndex, endIndex);
-        (0, response_1.paginatedResponse)(paginatedPermissions, {
-            page: page,
-            per_page: perPage,
-            total: permissions.length,
-            total_pages: Math.ceil(permissions.length / perPage),
-        }, res, 200, req.requestId);
-        return;
+        res.status(200).json({
+            success: true,
+            data: permissionsResult.data,
+        });
     }
     catch (error) {
-        console.error('Error getting all permissions:', error);
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to get permissions', res, 500, null, req.requestId);
+        next(error);
     }
 };
-exports.getAllPermissionsHandler = getAllPermissionsHandler;
+exports.getAllPermissions = getAllPermissions;
 /**
- * Create a new role
- * POST /api/admin/roles
- * Requires: roles:assign permission
+ * Get role permissions
  */
-const createRoleHandler = async (req, res) => {
+const getRolePermissions = async (req, res, next) => {
     try {
-        const { name, description, permissionIds } = req.body;
-        const currentUserId = req.user?.id;
-        if (!currentUserId) {
-            (0, response_1.errorResponse)('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-            return;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        // Validate input
-        if (!name) {
-            (0, response_1.errorResponse)('BAD_REQUEST', 'Role name is required', res, 400, null, req.requestId);
-            return;
+        const { id } = req.params;
+        if (!id) {
+            return next(new shared_1.AppError('Role ID is required', 400));
         }
-        // Check if user has permission to assign roles
-        if (!(await (0, permission_service_1.hasPermission)(currentUserId, 'roles', 'assign'))) {
-            (0, response_1.errorResponse)('FORBIDDEN', 'You do not have permission to create roles', res, 403, null, req.requestId);
-            return;
+        const permissionsResult = await roleService.getRolePermissions(id);
+        if (!permissionsResult.success || !permissionsResult.data) {
+            return next(new shared_1.AppError(permissionsResult.error || 'Failed to get role permissions', 400));
         }
-        const role = await (0, permission_service_1.createRole)(name, description, permissionIds);
-        (0, response_1.successResponse)({
-            role,
-            message: 'Role created successfully',
-        }, res, 201, req.requestId);
-        return;
+        res.status(200).json({
+            success: true,
+            data: permissionsResult.data,
+        });
     }
     catch (error) {
-        console.error('Error creating role:', error);
-        if (error instanceof Error) {
-            if (error.message === 'Role with this name already exists') {
-                (0, response_1.errorResponse)('CONFLICT', 'Role with this name already exists', res, 409, null, req.requestId);
-                return;
-            }
-        }
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to create role', res, 500, null, req.requestId);
+        next(error);
     }
 };
-exports.createRoleHandler = createRoleHandler;
+exports.getRolePermissions = getRolePermissions;
 /**
- * Check if a user has a specific permission
- * POST /api/permissions/check
- * Internal API used by middleware
+ * Assign permission to role
  */
-const checkPermissionHandler = async (req, res) => {
+const assignPermissionToRole = async (req, res, next) => {
     try {
-        const { userId, resource, action } = req.body;
-        // Validate input
-        if (!userId || !resource || !action) {
-            (0, response_1.errorResponse)('BAD_REQUEST', 'userId, resource, and action are required', res, 400, null, req.requestId);
-            return;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
         }
-        const hasRequiredPermission = await (0, permission_service_1.hasPermission)(userId, resource, action);
-        (0, response_1.successResponse)({
-            hasPermission: hasRequiredPermission,
-        }, res, 200, req.requestId);
-        return;
+        const { roleId, permissionId } = req.body;
+        if (!roleId || !permissionId) {
+            return next(new shared_1.AppError('Role ID and Permission ID are required', 400));
+        }
+        const assignResult = await roleService.assignPermissionToRole(roleId, permissionId);
+        if (!assignResult.success || !assignResult.data) {
+            return next(new shared_1.AppError(assignResult.error || 'Failed to assign permission to role', 400));
+        }
+        res.status(200).json({
+            success: true,
+            data: assignResult.data,
+        });
     }
     catch (error) {
-        console.error('Error checking permission:', error);
-        (0, response_1.errorResponse)('INTERNAL_SERVER_ERROR', 'Failed to check permission', res, 500, null, req.requestId);
+        next(error);
     }
 };
-exports.checkPermissionHandler = checkPermissionHandler;
+exports.assignPermissionToRole = assignPermissionToRole;
+/**
+ * Remove permission from role
+ */
+const removePermissionFromRole = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new shared_1.AppError('User not authenticated', 401));
+        }
+        const { roleId, permissionId } = req.body;
+        if (!roleId || !permissionId) {
+            return next(new shared_1.AppError('Role ID and Permission ID are required', 400));
+        }
+        const removeResult = await roleService.removePermissionFromRole(roleId, permissionId);
+        if (!removeResult.success) {
+            return next(new shared_1.AppError(removeResult.error || 'Failed to remove permission from role', 400));
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Permission removed from role successfully',
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.removePermissionFromRole = removePermissionFromRole;
 //# sourceMappingURL=role.controller.js.map

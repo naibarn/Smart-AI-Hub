@@ -1,426 +1,435 @@
-import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '@smart-ai-hub/shared';
-import {
-  assignRole,
-  removeRole,
-  getUserRoles,
-  getAllRoles,
-  getAllPermissions,
-  createRole,
-  hasPermission,
-} from '../services/permission.service';
-import { successResponse, errorResponse, paginatedResponse } from '../utils/response';
-import { parsePaginationParams } from '../utils/pagination';
+import { Request, Response, NextFunction } from 'express';
+import { AppError, AuthenticatedRequest } from '@smart-ai-hub/shared';
+import * as roleService from '../services/role.service';
 
 /**
- * Assign a role to a user
- * POST /api/admin/roles/assign
- * Requires: admin role
+ * Get all roles
  */
-export const assignRoleToUser = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllRoles = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const { userId, roleId } = req.body;
-    const assignedBy = req.user?.id;
-
-    // Validate input
-    if (!userId || !roleId) {
-      errorResponse('BAD_REQUEST', 'userId and roleId are required', res, 400, null, req.requestId);
-      return;
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
     }
 
-    // Check if the current user has permission to assign roles
-    if (req.user && !(await hasPermission(req.user.id, 'roles', 'assign'))) {
-      errorResponse(
-        'FORBIDDEN',
-        'You do not have permission to assign roles',
-        res,
-        403,
-        null,
-        req.requestId
-      );
-      return;
+    const rolesResult = await roleService.getAllRoles();
+    if (!rolesResult.success || !rolesResult.data) {
+      return next(new AppError(rolesResult.error || 'Failed to get roles', 400));
     }
 
-    await assignRole(userId, roleId, assignedBy);
-
-    successResponse({ message: 'Role assigned successfully' }, res, 200, req.requestId);
-    return;
+    res.status(200).json({
+      success: true,
+      data: rolesResult.data,
+    });
   } catch (error) {
-    console.error('Error assigning role:', error);
-
-    if (error instanceof Error) {
-      if (error.message === 'Role not found') {
-        errorResponse('NOT_FOUND', 'Role not found', res, 404, null, req.requestId);
-        return;
-      }
-      if (error.message === 'User not found') {
-        errorResponse('NOT_FOUND', 'User not found', res, 404, null, req.requestId);
-        return;
-      }
-      if (error.message === 'User already has this role') {
-        errorResponse('CONFLICT', 'User already has this role', res, 409, null, req.requestId);
-        return;
-      }
-    }
-
-    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to assign role', res, 500, null, req.requestId);
+    next(error);
   }
 };
 
 /**
- * Remove a role from a user
- * DELETE /api/admin/roles/remove
- * Requires: admin role
+ * Get role by ID
  */
-export const removeRoleFromUser = async (
+export const getRoleById = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
-    const { userId, roleId } = req.body;
-
-    // Validate input
-    if (!userId || !roleId) {
-      errorResponse('BAD_REQUEST', 'userId and roleId are required', res, 400, null, req.requestId);
-      return;
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
     }
 
-    // Check if the current user has permission to assign roles
-    if (req.user && !(await hasPermission(req.user.id, 'roles', 'assign'))) {
-      errorResponse(
-        'FORBIDDEN',
-        'You do not have permission to remove roles',
-        res,
-        403,
-        null,
-        req.requestId
-      );
-      return;
-    }
-
-    await removeRole(userId, roleId);
-
-    successResponse({ message: 'Role removed successfully' }, res, 200, req.requestId);
-    return;
-  } catch (error) {
-    console.error('Error removing role:', error);
-
-    if (error instanceof Error) {
-      if (error.message === 'User does not have this role') {
-        errorResponse('NOT_FOUND', 'User does not have this role', res, 404, null, req.requestId);
-        return;
-      }
-    }
-
-    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to remove role', res, 500, null, req.requestId);
-  }
-};
-
-/**
- * Get roles for a specific user
- * GET /api/users/:id/roles
- * Requires: users:read permission
- */
-export const getUserRolesHandler = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
-  try {
     const { id } = req.params;
-    const currentUserId = req.user?.id;
-
-    if (!currentUserId) {
-      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-      return;
+    if (!id) {
+      return next(new AppError('Role ID is required', 400));
     }
 
-    // Check if user has permission to read user information
-    // Users can read their own roles or need admin permission
-    const isSelfAccess = currentUserId === id;
-    const hasReadPermission = await hasPermission(currentUserId, 'users', 'read');
-
-    if (!isSelfAccess && !hasReadPermission) {
-      errorResponse(
-        'FORBIDDEN',
-        'You do not have permission to read user roles',
-        res,
-        403,
-        null,
-        req.requestId
-      );
-      return;
+    const roleResult = await roleService.getRoleById(id);
+    if (!roleResult.success || !roleResult.data) {
+      return next(new AppError(roleResult.error || 'Role not found', 404));
     }
 
-    const roles = await getUserRoles(id);
-
-    successResponse(
-      {
-        userId: id,
-        roles,
-      },
-      res,
-      200,
-      req.requestId
-    );
-    return;
+    res.status(200).json({
+      success: true,
+      data: roleResult.data,
+    });
   } catch (error) {
-    console.error('Error getting user roles:', error);
-    errorResponse(
-      'INTERNAL_SERVER_ERROR',
-      'Failed to get user roles',
-      res,
-      500,
-      null,
-      req.requestId
-    );
-  }
-};
-
-/**
- * Get all available roles
- * GET /api/admin/roles
- * Requires: roles:read permission
- */
-export const getAllRolesHandler = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const currentUserId = req.user?.id;
-
-    if (!currentUserId) {
-      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-      return;
-    }
-
-    // Check if user has permission to read roles
-    if (!(await hasPermission(currentUserId, 'roles', 'read'))) {
-      errorResponse(
-        'FORBIDDEN',
-        'You do not have permission to read roles',
-        res,
-        403,
-        null,
-        req.requestId
-      );
-      return;
-    }
-
-    // Parse pagination parameters
-    const pagination = parsePaginationParams(req.query);
-
-    // Get roles with pagination
-    const roles = await getAllRoles();
-
-    // For now, implement simple pagination on the client side
-    // In a real implementation, you would modify getAllRoles to support pagination
-    const page = pagination.page ?? 1;
-    const perPage = pagination.per_page ?? 20;
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    const paginatedRoles = roles.slice(startIndex, endIndex);
-
-    paginatedResponse(
-      paginatedRoles,
-      {
-        page: page,
-        per_page: perPage,
-        total: roles.length,
-        total_pages: Math.ceil(roles.length / perPage),
-      },
-      res,
-      200,
-      req.requestId
-    );
-    return;
-  } catch (error) {
-    console.error('Error getting all roles:', error);
-    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to get roles', res, 500, null, req.requestId);
-  }
-};
-
-/**
- * Get all available permissions
- * GET /api/admin/permissions
- * Requires: roles:read permission
- */
-export const getAllPermissionsHandler = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const currentUserId = req.user?.id;
-
-    if (!currentUserId) {
-      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-      return;
-    }
-
-    // Check if user has permission to read roles
-    if (!(await hasPermission(currentUserId, 'roles', 'read'))) {
-      errorResponse(
-        'FORBIDDEN',
-        'You do not have permission to read permissions',
-        res,
-        403,
-        null,
-        req.requestId
-      );
-      return;
-    }
-
-    // Parse pagination parameters
-    const pagination = parsePaginationParams(req.query);
-
-    // Get permissions with pagination
-    const permissions = await getAllPermissions();
-
-    // For now, implement simple pagination on the client side
-    // In a real implementation, you would modify getAllPermissions to support pagination
-    const page = pagination.page ?? 1;
-    const perPage = pagination.per_page ?? 20;
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    const paginatedPermissions = permissions.slice(startIndex, endIndex);
-
-    paginatedResponse(
-      paginatedPermissions,
-      {
-        page: page,
-        per_page: perPage,
-        total: permissions.length,
-        total_pages: Math.ceil(permissions.length / perPage),
-      },
-      res,
-      200,
-      req.requestId
-    );
-    return;
-  } catch (error) {
-    console.error('Error getting all permissions:', error);
-    errorResponse(
-      'INTERNAL_SERVER_ERROR',
-      'Failed to get permissions',
-      res,
-      500,
-      null,
-      req.requestId
-    );
+    next(error);
   }
 };
 
 /**
  * Create a new role
- * POST /api/admin/roles
- * Requires: roles:assign permission
  */
-export const createRoleHandler = async (
+export const createRole = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
-    const { name, description, permissionIds } = req.body;
-    const currentUserId = req.user?.id;
-
-    if (!currentUserId) {
-      errorResponse('UNAUTHORIZED', 'Authentication required', res, 401, null, req.requestId);
-      return;
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
     }
 
-    // Validate input
+    const { name, description, isSystem } = req.body;
     if (!name) {
-      errorResponse('BAD_REQUEST', 'Role name is required', res, 400, null, req.requestId);
-      return;
+      return next(new AppError('Role name is required', 400));
     }
 
-    // Check if user has permission to assign roles
-    if (!(await hasPermission(currentUserId, 'roles', 'assign'))) {
-      errorResponse(
-        'FORBIDDEN',
-        'You do not have permission to create roles',
-        res,
-        403,
-        null,
-        req.requestId
-      );
-      return;
+    const createResult = await roleService.createRole(name, description, isSystem);
+    if (!createResult.success || !createResult.data) {
+      return next(new AppError(createResult.error || 'Failed to create role', 400));
     }
 
-    const role = await createRole(name, description, permissionIds);
-
-    successResponse(
-      {
-        role,
-        message: 'Role created successfully',
-      },
-      res,
-      201,
-      req.requestId
-    );
-    return;
+    res.status(201).json({
+      success: true,
+      data: createResult.data,
+    });
   } catch (error) {
-    console.error('Error creating role:', error);
-
-    if (error instanceof Error) {
-      if (error.message === 'Role with this name already exists') {
-        errorResponse(
-          'CONFLICT',
-          'Role with this name already exists',
-          res,
-          409,
-          null,
-          req.requestId
-        );
-        return;
-      }
-    }
-
-    errorResponse('INTERNAL_SERVER_ERROR', 'Failed to create role', res, 500, null, req.requestId);
+    next(error);
   }
 };
 
 /**
- * Check if a user has a specific permission
- * POST /api/permissions/check
- * Internal API used by middleware
+ * Update a role
  */
-export const checkPermissionHandler = async (req: Request, res: Response): Promise<void> => {
+export const updateRole = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const { userId, resource, action } = req.body;
-
-    // Validate input
-    if (!userId || !resource || !action) {
-      errorResponse(
-        'BAD_REQUEST',
-        'userId, resource, and action are required',
-        res,
-        400,
-        null,
-        req.requestId
-      );
-      return;
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
     }
 
-    const hasRequiredPermission = await hasPermission(userId, resource, action);
+    const { id } = req.params;
+    if (!id) {
+      return next(new AppError('Role ID is required', 400));
+    }
 
-    successResponse(
-      {
-        hasPermission: hasRequiredPermission,
-      },
-      res,
-      200,
-      req.requestId
-    );
-    return;
+    const { name, description } = req.body;
+    if (!name && !description) {
+      return next(new AppError('At least one field must be provided for update', 400));
+    }
+
+    const updateResult = await roleService.updateRole(id, name, description);
+    if (!updateResult.success || !updateResult.data) {
+      return next(new AppError(updateResult.error || 'Failed to update role', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updateResult.data,
+    });
   } catch (error) {
-    console.error('Error checking permission:', error);
-    errorResponse(
-      'INTERNAL_SERVER_ERROR',
-      'Failed to check permission',
-      res,
-      500,
-      null,
-      req.requestId
-    );
+    next(error);
+  }
+};
+
+/**
+ * Delete a role
+ */
+export const deleteRole = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { id } = req.params;
+    if (!id) {
+      return next(new AppError('Role ID is required', 400));
+    }
+
+    const deleteResult = await roleService.deleteRole(id);
+    if (!deleteResult.success) {
+      return next(new AppError(deleteResult.error || 'Failed to delete role', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Role deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Assign role to user
+ */
+export const assignRoleToUser = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { userId: targetUserId, roleId } = req.body;
+    if (!targetUserId || !roleId) {
+      return next(new AppError('User ID and Role ID are required', 400));
+    }
+
+    const assignResult = await roleService.assignRoleToUser(targetUserId, roleId);
+    if (!assignResult.success || !assignResult.data) {
+      return next(new AppError(assignResult.error || 'Failed to assign role to user', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: assignResult.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Remove role from user
+ */
+export const removeRoleFromUser = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { userId: targetUserId, roleId } = req.body;
+    if (!targetUserId || !roleId) {
+      return next(new AppError('User ID and Role ID are required', 400));
+    }
+
+    const removeResult = await roleService.removeRoleFromUser(targetUserId, roleId);
+    if (!removeResult.success) {
+      return next(new AppError(removeResult.error || 'Failed to remove role from user', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Role removed from user successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get user roles
+ */
+export const getUserRoles = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { id } = req.params;
+    if (!id) {
+      return next(new AppError('User ID is required', 400));
+    }
+
+    // Check if user has admin role or is accessing their own roles
+    const isAdmin = req.user?.roles.some((role) => ['admin', 'administrator'].includes(role.name));
+    const isSelfAccess = userId === id;
+
+    if (!isAdmin && !isSelfAccess) {
+      return next(new AppError('Insufficient permissions', 403));
+    }
+
+    const rolesResult = await roleService.getUserRoles(id);
+    if (!rolesResult.success || !rolesResult.data) {
+      return next(new AppError(rolesResult.error || 'Failed to get user roles', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: rolesResult.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get users with a specific role
+ */
+export const getUsersWithRole = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { id } = req.params;
+    if (!id) {
+      return next(new AppError('Role ID is required', 400));
+    }
+
+    const usersResult = await roleService.getUsersWithRole(id);
+    if (!usersResult.success || !usersResult.data) {
+      return next(new AppError(usersResult.error || 'Failed to get users with role', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: usersResult.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get all permissions
+ */
+export const getAllPermissions = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const permissionsResult = await roleService.getAllPermissions();
+    if (!permissionsResult.success || !permissionsResult.data) {
+      return next(new AppError(permissionsResult.error || 'Failed to get permissions', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: permissionsResult.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get role permissions
+ */
+export const getRolePermissions = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { id } = req.params;
+    if (!id) {
+      return next(new AppError('Role ID is required', 400));
+    }
+
+    const permissionsResult = await roleService.getRolePermissions(id);
+    if (!permissionsResult.success || !permissionsResult.data) {
+      return next(new AppError(permissionsResult.error || 'Failed to get role permissions', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: permissionsResult.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Assign permission to role
+ */
+export const assignPermissionToRole = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { roleId, permissionId } = req.body;
+    if (!roleId || !permissionId) {
+      return next(new AppError('Role ID and Permission ID are required', 400));
+    }
+
+    const assignResult = await roleService.assignPermissionToRole(roleId, permissionId);
+    if (!assignResult.success || !assignResult.data) {
+      return next(new AppError(assignResult.error || 'Failed to assign permission to role', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: assignResult.data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Remove permission from role
+ */
+export const removePermissionFromRole = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    const { roleId, permissionId } = req.body;
+    if (!roleId || !permissionId) {
+      return next(new AppError('Role ID and Permission ID are required', 400));
+    }
+
+    const removeResult = await roleService.removePermissionFromRole(roleId, permissionId);
+    if (!removeResult.success) {
+      return next(new AppError(removeResult.error || 'Failed to remove permission from role', 400));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Permission removed from role successfully',
+    });
+  } catch (error) {
+    next(error);
   }
 };

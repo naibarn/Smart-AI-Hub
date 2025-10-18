@@ -8,7 +8,7 @@ describe('RAGService', () => {
       {} as any, // CloudflareR2Service
       {} as any, // CloudflareVectorizeService
       {} as any, // DocumentProcessorService
-      {} as any  // AccessControlService
+      {} as any // AccessControlService
     );
   });
 
@@ -19,10 +19,10 @@ describe('RAGService', () => {
         file: {
           buffer: Buffer.from('test content'),
           originalname: 'test.txt',
-          mimetype: 'text/plain'
+          mimetype: 'text/plain',
         } as any,
         title: 'Test Document',
-        accessLevel: 'private' as any
+        accessLevel: 'private' as any,
       };
 
       const result = await ragService.uploadDocument(userId, documentData);
@@ -36,7 +36,7 @@ describe('RAGService', () => {
       const documentData = {
         file: null,
         title: 'Test Document',
-        accessLevel: 'private' as any
+        accessLevel: 'private' as any,
       };
 
       const result = await ragService.uploadDocument(userId, documentData);
@@ -51,7 +51,7 @@ describe('RAGService', () => {
       const userId = 'user-123';
       const queryData = {
         query: 'test query',
-        topK: 5
+        topK: 5,
       };
 
       const result = await ragService.queryDocuments(userId, queryData);
@@ -64,7 +64,7 @@ describe('RAGService', () => {
       const userId = 'user-123';
       const queryData = {
         query: '',
-        topK: 5
+        topK: 5,
       };
 
       const result = await ragService.queryDocuments(userId, queryData);

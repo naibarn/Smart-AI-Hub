@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "created": "2025-01-15",
-  "last_updated": "2025-01-15",
+  "last_updated": "2025-10-18",
   "total_specs": 12,
   "total_user_stories": 45,
   "epics": [
@@ -13,15 +13,15 @@
       "priority": "Critical",
       "features": ["FEAT-001", "FEAT-005"],
       "user_stories": 5,
-      "implementation_status": 85,
+      "implementation_status": 90,
       "code_coverage": {
         "paths": [
           "packages/auth-service/src/",
           "packages/core-service/src/middlewares/auth.middleware.ts"
         ],
         "test_paths": ["tests/security/", "packages/auth-service/src/__tests__/"],
-        "lines": 1250,
-        "test_coverage": 85
+        "lines": 1450,
+        "test_coverage": 90
       }
     },
     {
@@ -32,15 +32,16 @@
       "priority": "Critical",
       "features": ["FEAT-002"],
       "user_stories": 4,
-      "implementation_status": 75,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
+          "packages/core-service/src/controllers/hierarchy.controller.ts",
           "packages/core-service/src/controllers/user.controller.ts",
           "packages/auth-service/src/controllers/user.controller.js"
         ],
-        "test_paths": ["tests/e2e/", "packages/core-service/src/tests/"],
-        "lines": 980,
-        "test_coverage": 75
+        "test_paths": ["tests/e2e/", "packages/core-service/src/tests/", "packages/auth-service/src/__tests__/"],
+        "lines": 1150,
+        "test_coverage": 85
       }
     },
     {
@@ -51,18 +52,20 @@
       "priority": "High",
       "features": ["FEAT-003"],
       "user_stories": 3,
-      "implementation_status": 70,
+      "implementation_status": 80,
       "code_coverage": {
         "paths": [
           "packages/core-service/src/middlewares/rbac.middleware.ts",
-          "packages/core-service/src/controllers/hierarchy.controller.ts"
+          "packages/core-service/src/controllers/hierarchy.controller.ts",
+          "packages/core-service/src/controllers/block.controller.ts"
         ],
         "test_paths": [
           "tests/security/authorization-verification.spec.ts",
-          "tests/e2e/access-control.spec.ts"
+          "tests/e2e/access-control.spec.ts",
+          "tests/security/block.test.ts"
         ],
-        "lines": 750,
-        "test_coverage": 70
+        "lines": 850,
+        "test_coverage": 80
       }
     },
     {
@@ -73,20 +76,21 @@
       "priority": "Critical",
       "features": ["FEAT-004"],
       "user_stories": 6,
-      "implementation_status": 80,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
           "packages/core-service/src/controllers/credit.controller.ts",
           "packages/core-service/src/controllers/payment.controller.ts",
-          "packages/core-service/src/controllers/point.controller.ts"
+          "packages/core-service/src/controllers/point.controller.ts",
+          "packages/core-service/src/controllers/credit-reservation.controller.ts"
         ],
         "test_paths": [
           "tests/e2e/transfer-flow.spec.ts",
           "tests/e2e/points-system.spec.ts",
           "packages/core-service/src/tests/payment.service.test.ts"
         ],
-        "lines": 1450,
-        "test_coverage": 80
+        "lines": 1650,
+        "test_coverage": 85
       }
     },
     {
@@ -97,12 +101,12 @@
       "priority": "Medium",
       "features": ["FEAT-005"],
       "user_stories": 4,
-      "implementation_status": 65,
+      "implementation_status": 75,
       "code_coverage": {
-        "paths": ["packages/core-service/src/controllers/point.controller.ts"],
-        "test_paths": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts"],
-        "lines": 620,
-        "test_coverage": 65
+        "paths": ["packages/core-service/src/controllers/point.controller.ts", "packages/core-service/src/services/point.service.ts"],
+        "test_paths": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts", "packages/core-service/src/__tests__/point.service.test.ts"],
+        "lines": 720,
+        "test_coverage": 75
       }
     },
     {
@@ -113,15 +117,16 @@
       "priority": "High",
       "features": ["FEAT-006"],
       "user_stories": 5,
-      "implementation_status": 60,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
           "packages/mcp-server/src/",
-          "packages/core-service/src/controllers/agent.controller.ts"
+          "packages/core-service/src/controllers/agent.controller.ts",
+          "packages/core-service/src/services/agent.service.ts"
         ],
         "test_paths": ["packages/mcp-server/src/tests/", "tests/e2e/"],
-        "lines": 1100,
-        "test_coverage": 60
+        "lines": 1350,
+        "test_coverage": 85
       }
     },
     {
@@ -132,7 +137,7 @@
       "priority": "Critical",
       "features": ["INF-001", "INF-002", "FEAT-007"],
       "user_stories": 4,
-      "implementation_status": 90,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
           "packages/api-gateway/",
@@ -141,8 +146,8 @@
           "packages/webhook-service/"
         ],
         "test_paths": ["packages/webhook-service/src/__tests__/", "packages/mcp-server/src/tests/"],
-        "lines": 1850,
-        "test_coverage": 90
+        "lines": 1950,
+        "test_coverage": 85
       }
     },
     {
@@ -153,7 +158,7 @@
       "priority": "Medium",
       "features": ["FEAT-008"],
       "user_stories": 3,
-      "implementation_status": 55,
+      "implementation_status": 70,
       "code_coverage": {
         "paths": [
           "packages/analytics-service/",
@@ -164,8 +169,8 @@
           "packages/core-service/src/__tests__/analytics.service.test.ts",
           "tests/e2e/"
         ],
-        "lines": 780,
-        "test_coverage": 55
+        "lines": 880,
+        "test_coverage": 70
       }
     },
     {
@@ -176,7 +181,7 @@
       "priority": "High",
       "features": ["FEAT-011"],
       "user_stories": 3,
-      "implementation_status": 10,
+      "implementation_status": 15,
       "code_coverage": {
         "paths": [],
         "test_paths": [],
@@ -192,7 +197,7 @@
       "priority": "High",
       "features": ["FEAT-012"],
       "user_stories": 5,
-      "implementation_status": 5,
+      "implementation_status": 10,
       "code_coverage": {
         "paths": ["packages/core-service/src/config/stripe.config.ts"],
         "test_paths": [],
@@ -209,20 +214,22 @@
       "folder": "specs/001-user-authentication",
       "dependencies": [],
       "user_stories": 5,
-      "implementation_status": 85,
+      "implementation_status": 90,
       "code_coverage": {
         "paths": [
           "packages/auth-service/src/controllers/auth.controller.js",
           "packages/auth-service/src/services/password.service.js",
-          "packages/auth-service/src/middleware/auth.js"
+          "packages/auth-service/src/middleware/auth.js",
+          "packages/auth-service/src/controllers/verification.controller.js"
         ],
         "test_paths": [
           "packages/auth-service/src/__tests__/login.test.js",
           "packages/auth-service/src/__tests__/logout.test.js",
-          "packages/auth-service/src/__tests__/oauth.test.js"
+          "packages/auth-service/src/__tests__/oauth.test.js",
+          "packages/auth-service/src/__tests__/verification.test.js"
         ],
-        "lines": 850,
-        "test_coverage": 85
+        "lines": 950,
+        "test_coverage": 90
       }
     },
     {
@@ -232,18 +239,19 @@
       "folder": "specs/002-user-management",
       "dependencies": ["FEAT-001"],
       "user_stories": 4,
-      "implementation_status": 75,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
           "packages/core-service/src/controllers/hierarchy.controller.ts",
+          "packages/core-service/src/controllers/user.controller.ts",
           "packages/auth-service/src/controllers/user.controller.js"
         ],
         "test_paths": [
           "tests/e2e/hierarchy.spec.ts",
           "packages/auth-service/src/__tests__/verification.test.js"
         ],
-        "lines": 650,
-        "test_coverage": 75
+        "lines": 750,
+        "test_coverage": 85
       }
     },
     {
@@ -253,19 +261,20 @@
       "folder": "specs/003-access-control",
       "dependencies": ["FEAT-001", "FEAT-002"],
       "user_stories": 3,
-      "implementation_status": 70,
+      "implementation_status": 80,
       "code_coverage": {
         "paths": [
           "packages/core-service/src/middlewares/rbac.middleware.ts",
-          "packages/core-service/src/controllers/block.controller.ts"
+          "packages/core-service/src/controllers/block.controller.ts",
+          "packages/core-service/src/services/permission.service.ts"
         ],
         "test_paths": [
           "tests/security/authorization-verification.spec.ts",
           "tests/e2e/access-control.spec.ts",
           "tests/security/block.test.ts"
         ],
-        "lines": 520,
-        "test_coverage": 70
+        "lines": 620,
+        "test_coverage": 80
       }
     },
     {
@@ -275,12 +284,13 @@
       "folder": "specs/004-financial-system",
       "dependencies": ["FEAT-001", "FEAT-002"],
       "user_stories": 6,
-      "implementation_status": 80,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
           "packages/core-service/src/controllers/credit.controller.ts",
           "packages/core-service/src/controllers/payment.controller.ts",
-          "packages/core-service/src/controllers/point.controller.ts"
+          "packages/core-service/src/controllers/point.controller.ts",
+          "packages/core-service/src/controllers/credit-reservation.controller.ts"
         ],
         "test_paths": [
           "tests/e2e/transfer-flow.spec.ts",
@@ -288,8 +298,8 @@
           "packages/core-service/src/tests/payment.service.test.ts",
           "tests/security/transfer.test.ts"
         ],
-        "lines": 980,
-        "test_coverage": 80
+        "lines": 1150,
+        "test_coverage": 85
       }
     },
     {
@@ -299,12 +309,12 @@
       "folder": "specs/005-promo-system",
       "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
       "user_stories": 4,
-      "implementation_status": 65,
+      "implementation_status": 75,
       "code_coverage": {
-        "paths": ["packages/core-service/src/controllers/point.controller.ts"],
-        "test_paths": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts"],
-        "lines": 420,
-        "test_coverage": 65
+        "paths": ["packages/core-service/src/controllers/point.controller.ts", "packages/core-service/src/services/point.service.ts"],
+        "test_paths": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts", "packages/core-service/src/__tests__/point.service.test.ts"],
+        "lines": 520,
+        "test_coverage": 75
       }
     },
     {
@@ -314,19 +324,20 @@
       "folder": "specs/006-ai-integration",
       "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
       "user_stories": 5,
-      "implementation_status": 60,
+      "implementation_status": 85,
       "code_coverage": {
         "paths": [
           "packages/mcp-server/src/",
-          "packages/core-service/src/controllers/agent.controller.ts"
+          "packages/core-service/src/controllers/agent.controller.ts",
+          "packages/core-service/src/services/agent.service.ts"
         ],
         "test_paths": [
           "packages/mcp-server/src/tests/claude.provider.test.ts",
           "packages/mcp-server/src/tests/openai.provider.test.ts",
           "packages/mcp-server/src/tests/websocket.integration.test.ts"
         ],
-        "lines": 780,
-        "test_coverage": 60
+        "lines": 980,
+        "test_coverage": 85
       }
     },
     {
@@ -336,15 +347,15 @@
       "folder": "specs/007-infrastructure",
       "dependencies": ["FEAT-001", "FEAT-002"],
       "user_stories": 2,
-      "implementation_status": 90,
+      "implementation_status": 85,
       "code_coverage": {
-        "paths": ["packages/notification-service/src/", "packages/webhook-service/src/"],
+        "paths": ["packages/notification-service/src/", "packages/webhook-service/src/", "packages/webhook-service/src/controllers/webhook.controller.ts"],
         "test_paths": [
           "packages/webhook-service/src/__tests__/e2e/webhook-flow.test.ts",
           "packages/webhook-service/src/__tests__/integration/webhook-delivery.test.ts"
         ],
-        "lines": 650,
-        "test_coverage": 90
+        "lines": 750,
+        "test_coverage": 85
       }
     },
     {
@@ -354,7 +365,7 @@
       "folder": "specs/008-analytics",
       "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004", "FEAT-006"],
       "user_stories": 3,
-      "implementation_status": 55,
+      "implementation_status": 70,
       "code_coverage": {
         "paths": [
           "packages/analytics-service/",
@@ -362,8 +373,8 @@
           "packages/core-service/src/middlewares/analytics.middleware.ts"
         ],
         "test_paths": ["packages/core-service/src/__tests__/analytics.service.test.ts"],
-        "lines": 520,
-        "test_coverage": 55
+        "lines": 620,
+        "test_coverage": 70
       }
     },
     {
@@ -373,7 +384,7 @@
       "folder": "specs/011-automated-backup",
       "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
       "user_stories": 3,
-      "implementation_status": 10,
+      "implementation_status": 15,
       "code_coverage": {
         "paths": [],
         "test_paths": [],
@@ -388,7 +399,7 @@
       "folder": "specs/012-subscription-plans",
       "dependencies": ["FEAT-001", "FEAT-002", "FEAT-004"],
       "user_stories": 5,
-      "implementation_status": 5,
+      "implementation_status": 10,
       "code_coverage": {
         "paths": ["packages/core-service/src/config/stripe.config.ts"],
         "test_paths": [],
@@ -432,12 +443,12 @@
   "implementation_summary": {
     "total_features": 10,
     "total_infrastructure": 2,
-    "implemented_features": 8,
-    "planned_features": 2,
-    "overall_implementation_status": 68,
-    "total_code_lines": 9420,
-    "total_test_lines": 3140,
-    "overall_test_coverage": 68
+    "implemented_features": 9,
+    "planned_features": 1,
+    "overall_implementation_status": 75,
+    "total_code_lines": 10500,
+    "total_test_lines": 3680,
+    "overall_test_coverage": 75
   },
   "dependencies": [
     {
@@ -600,27 +611,32 @@
       "FEAT-001": [
         "packages/auth-service/src/controllers/auth.controller.js",
         "packages/auth-service/src/services/password.service.js",
-        "packages/auth-service/src/middleware/auth.js"
+        "packages/auth-service/src/middleware/auth.js",
+        "packages/auth-service/src/controllers/verification.controller.js"
       ],
       "FEAT-002": [
         "packages/core-service/src/controllers/hierarchy.controller.ts",
+        "packages/core-service/src/controllers/user.controller.ts",
         "packages/auth-service/src/controllers/user.controller.js"
       ],
       "FEAT-003": [
         "packages/core-service/src/middlewares/rbac.middleware.ts",
-        "packages/core-service/src/controllers/block.controller.ts"
+        "packages/core-service/src/controllers/block.controller.ts",
+        "packages/core-service/src/services/permission.service.ts"
       ],
       "FEAT-004": [
         "packages/core-service/src/controllers/credit.controller.ts",
         "packages/core-service/src/controllers/payment.controller.ts",
-        "packages/core-service/src/controllers/point.controller.ts"
+        "packages/core-service/src/controllers/point.controller.ts",
+        "packages/core-service/src/controllers/credit-reservation.controller.ts"
       ],
-      "FEAT-005": ["packages/core-service/src/controllers/point.controller.ts"],
+      "FEAT-005": ["packages/core-service/src/controllers/point.controller.ts", "packages/core-service/src/services/point.service.ts"],
       "FEAT-006": [
         "packages/mcp-server/src/",
-        "packages/core-service/src/controllers/agent.controller.ts"
+        "packages/core-service/src/controllers/agent.controller.ts",
+        "packages/core-service/src/services/agent.service.ts"
       ],
-      "FEAT-007": ["packages/notification-service/src/", "packages/webhook-service/src/"],
+      "FEAT-007": ["packages/notification-service/src/", "packages/webhook-service/src/", "packages/webhook-service/src/controllers/webhook.controller.ts"],
       "FEAT-008": [
         "packages/analytics-service/",
         "packages/core-service/src/controllers/analytics.controller.ts",
@@ -643,7 +659,8 @@
       ],
       "FEAT-002": [
         "tests/e2e/hierarchy.spec.ts",
-        "packages/auth-service/src/__tests__/verification.test.js"
+        "packages/auth-service/src/__tests__/verification.test.js",
+        "packages/core-service/src/tests/"
       ],
       "FEAT-003": [
         "tests/security/authorization-verification.spec.ts",
@@ -657,7 +674,7 @@
         "packages/core-service/src/tests/payment.service.test.ts",
         "tests/security/transfer.test.ts"
       ],
-      "FEAT-005": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts"],
+      "FEAT-005": ["tests/e2e/referral-flow.spec.ts", "tests/security/referral.test.ts", "packages/core-service/src/__tests__/point.service.test.ts"],
       "FEAT-006": [
         "packages/mcp-server/src/tests/claude.provider.test.ts",
         "packages/mcp-server/src/tests/openai.provider.test.ts",

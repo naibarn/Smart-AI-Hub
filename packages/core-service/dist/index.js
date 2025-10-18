@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const client_1 = require("@prisma/client");
 const shared_1 = require("@smart-ai-hub/shared");
 const credit_routes_1 = __importDefault(require("./routes/credit.routes"));
+const credit_reservation_routes_1 = __importDefault(require("./routes/credit-reservation.routes"));
 const point_routes_1 = __importDefault(require("./routes/point.routes"));
 const payment_routes_1 = __importDefault(require("./routes/payment.routes"));
 const analytics_routes_1 = __importDefault(require("./routes/analytics.routes"));
@@ -61,6 +62,7 @@ app.use(requestId_1.requestIdMiddleware);
 app.use(rateLimiter_1.rateLimiter);
 // Routes - Versioned (v1)
 app.use('/api/v1', credit_routes_1.default);
+app.use('/api/v1/credits', credit_reservation_routes_1.default);
 app.use('/api/v1', point_routes_1.default);
 app.use('/api/v1/payments', payment_routes_1.default);
 app.use('/api/v1/analytics', analytics_routes_1.default);

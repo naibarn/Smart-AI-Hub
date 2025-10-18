@@ -1,89 +1,127 @@
 import { Router } from 'express';
-import { authenticateJWT, requirePermission, requireRoles } from '@smart-ai-hub/shared';
-import {
-  assignRoleToUser,
-  removeRoleFromUser,
-  getUserRolesHandler,
-  getAllRolesHandler,
-  getAllPermissionsHandler,
-  createRoleHandler,
-  checkPermissionHandler,
-} from '../controllers/role.controller';
+import { authenticateJWT, requirePermission } from '@smart-ai-hub/shared';
+import * as roleController from '../controllers/role.controller';
 
 const router = Router();
 
-/**
- * @route   POST /api/admin/roles/assign
- * @desc    Assign a role to a user
- * @access  Private (requires roles:assign permission)
- */
-router.post(
-  '/admin/roles/assign',
-  authenticateJWT,
-  requirePermission('roles', 'assign'),
-  assignRoleToUser
-);
+// Apply authentication middleware to all routes
+router.use(authenticateJWT);
+
+// Role management routes
 
 /**
- * @route   DELETE /api/admin/roles/remove
- * @desc    Remove a role from a user
- * @access  Private (requires roles:assign permission)
+ * @route   GET /roles
+ * @desc    Get all roles
+ * @access  Private (admin only)
  */
-router.delete(
-  '/admin/roles/remove',
-  authenticateJWT,
-  requirePermission('roles', 'assign'),
-  removeRoleFromUser
-);
+router.get('/roles', requirePermission('roles', 'read'), roleController.getAllRoles);
 
 /**
- * @route   GET /api/users/:id/roles
- * @desc    Get roles for a specific user
- * @access  Private (requires users:read permission or self access)
+ * @route   GET /roles/:id
+ * @desc    Get role by ID
+ * @access  Private (admin only)
  */
-router.get(
-  '/users/:id/roles',
-  authenticateJWT,
-  requirePermission('users', 'read'),
-  getUserRolesHandler
-);
+router.get('/roles/:id', requirePermission('roles', 'read'), roleController.getRoleById);
 
 /**
- * @route   GET /api/admin/roles
- * @desc    Get all available roles
- * @access  Private (requires roles:read permission)
- */
-router.get('/admin/roles', authenticateJWT, requirePermission('roles', 'read'), getAllRolesHandler);
-
-/**
- * @route   GET /api/admin/permissions
- * @desc    Get all available permissions
- * @access  Private (requires roles:read permission)
- */
-router.get(
-  '/admin/permissions',
-  authenticateJWT,
-  requirePermission('roles', 'read'),
-  getAllPermissionsHandler
-);
-
-/**
- * @route   POST /api/admin/roles
+ * @route   POST /roles
  * @desc    Create a new role
- * @access  Private (requires roles:assign permission)
+ * @access  Private (admin only)
+ */
+router.post('/roles', requirePermission('roles', 'create'), roleController.createRole);
+
+/**
+ * @route   PUT /roles/:id
+ * @desc    Update a role
+ * @access  Private (admin only)
+ */
+router.put('/roles/:id', requirePermission('roles', 'update'), roleController.updateRole);
+
+/**
+ * @route   DELETE /roles/:id
+ * @desc    Delete a role
+ * @access  Private (admin only)
+ */
+router.delete('/roles/:id', requirePermission('roles', 'delete'), roleController.deleteRole);
+
+// Role assignment routes
+
+/**
+ * @route   POST /roles/assign
+ * @desc    Assign role to user
+ * @access  Private (admin only)
+ */
+router.post('/roles/assign', requirePermission('users', 'update'), roleController.assignRoleToUser);
+
+/**
+ * @route   POST /roles/remove
+ * @desc    Remove role from user
+ * @access  Private (admin only)
  */
 router.post(
-  '/admin/roles',
-  authenticateJWT,
-  requirePermission('roles', 'assign'),
-  createRoleHandler
+  '/roles/remove',
+  requirePermission('users', 'update'),
+  roleController.removeRoleFromUser
 );
 
 /**
- * @route   POST /api/permissions/check
- * @desc    Check if a user has a specific permission (internal API)
- * @access  Private (internal use by middleware)
+ * @route   GET /roles/:id/users
+ * @desc    Get users with a specific role
+ * @access  Private (admin only)
  */
-router.post('/permissions/check', checkPermissionHandler);
+router.get('/roles/:id/users', requirePermission('roles', 'read'), roleController.getUsersWithRole);
+
+/**
+ * @route   GET /users/:id/roles
+ * @desc    Get user roles
+ * @access  Private (admin or self-access)
+ */
+router.get('/users/:id/roles', roleController.getUserRoles);
+
+// Permission management routes
+
+/**
+ * @route   GET /permissions
+ * @desc    Get all permissions
+ * @access  Private (admin only)
+ */
+router.get(
+  '/permissions',
+  requirePermission('permissions', 'read'),
+  roleController.getAllPermissions
+);
+
+/**
+ * @route   GET /roles/:id/permissions
+ * @desc    Get role permissions
+ * @access  Private (admin only)
+ */
+router.get(
+  '/roles/:id/permissions',
+  requirePermission('permissions', 'read'),
+  roleController.getRolePermissions
+);
+
+/**
+ * @route   POST /roles/permissions/assign
+ * @desc    Assign permission to role
+ * @access  Private (admin only)
+ */
+router.post(
+  '/roles/permissions/assign',
+  requirePermission('permissions', 'update'),
+  roleController.assignPermissionToRole
+);
+
+/**
+ * @route   POST /roles/permissions/remove
+ * @desc    Remove permission from role
+ * @access  Private (admin only)
+ */
+router.post(
+  '/roles/permissions/remove',
+  requirePermission('permissions', 'update'),
+  roleController.removePermissionFromRole
+);
 
 export default router;
