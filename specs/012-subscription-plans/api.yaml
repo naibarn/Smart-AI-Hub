@@ -1,0 +1,1336 @@
+openapi: 3.0.3
+info:
+  title: Subscription Plans and Monetization System API
+  description: API endpoints for the Subscription Plans and Monetization System
+  version: 1.0.0
+  contact:
+    name: Development Team
+    email: dev@smartaihub.com
+
+paths:
+  /plans:
+    get:
+      summary: Get all subscription plans
+      description: Retrieve all active subscription plans
+      operationId: getSubscriptionPlans
+      tags:
+        - Plans
+      responses:
+        '200':
+          description: Plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubscriptionPlan'
+
+  /plans/{planId}:
+    get:
+      summary: Get plan details
+      description: Retrieve details of a specific subscription plan
+      operationId: getPlanDetails
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: ID of the plan
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Plan details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plan:
+                    $ref: '#/components/schemas/SubscriptionPlan'
+        '404':
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subscriptions/subscribe:
+    post:
+      summary: Subscribe to a plan
+      description: Create a new subscription to a plan
+      operationId: subscribeToPlan
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - planId
+                - paymentMethodId
+              properties:
+                planId:
+                  type: string
+                  description: ID of the plan to subscribe to
+                paymentMethodId:
+                  type: string
+                  description: Payment method ID
+                promoCode:
+                  type: string
+                  description: Optional promo code
+      responses:
+        '200':
+          description: Subscription created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscription:
+                    $ref: '#/components/schemas/UserSubscription'
+                  clientSecret:
+                    type: string
+                    description: Stripe client secret for payment confirmation
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subscriptions/upgrade:
+    post:
+      summary: Upgrade subscription
+      description: Upgrade to a higher tier plan
+      operationId: upgradeSubscription
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newPlanId
+              properties:
+                newPlanId:
+                  type: string
+                  description: ID of the plan to upgrade to
+      responses:
+        '200':
+          description: Subscription upgraded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscription:
+                    $ref: '#/components/schemas/UserSubscription'
+                  proratedAmount:
+                    type: number
+                    format: float
+                    description: Amount to be charged for the upgrade
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subscriptions/downgrade:
+    post:
+      summary: Downgrade subscription
+      description: Downgrade to a lower tier plan
+      operationId: downgradeSubscription
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newPlanId
+              properties:
+                newPlanId:
+                  type: string
+                  description: ID of the plan to downgrade to
+      responses:
+        '200':
+          description: Subscription downgrade scheduled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscription:
+                    $ref: '#/components/schemas/UserSubscription'
+                  effectiveDate:
+                    type: string
+                    format: date-time
+                    description: Date when the downgrade will take effect
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subscriptions/cancel:
+    post:
+      summary: Cancel subscription
+      description: Cancel the current subscription
+      operationId: cancelSubscription
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Reason for cancellation
+                feedback:
+                  type: string
+                  description: Additional feedback
+      responses:
+        '200':
+          description: Subscription cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscription:
+                    $ref: '#/components/schemas/UserSubscription'
+                  cancelAt:
+                    type: string
+                    format: date-time
+                    description: Date when subscription will be cancelled
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /subscriptions/me:
+    get:
+      summary: Get current subscription
+      description: Retrieve the current user's subscription details
+      operationId: getCurrentSubscription
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Subscription details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscription:
+                    $ref: '#/components/schemas/UserSubscription'
+                  plan:
+                    $ref: '#/components/schemas/SubscriptionPlan'
+                  usage:
+                    type: object
+                    properties:
+                      creditsUsed:
+                        type: integer
+                      apiRequestsUsed:
+                        type: integer
+                      dailyRewardsClaimed:
+                        type: integer
+
+  /promo-codes/validate:
+    post:
+      summary: Validate promo code
+      description: Validate a promo code for a specific plan
+      operationId: validatePromoCode
+      tags:
+        - Promo Codes
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - planId
+              properties:
+                code:
+                  type: string
+                  description: Promo code to validate
+                planId:
+                  type: string
+                  description: ID of the plan
+      responses:
+        '200':
+          description: Promo code validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  discount:
+                    type: number
+                    format: float
+                    description: Discount percentage
+                  message:
+                    type: string
+                    description: Validation message
+
+  /promo-codes/apply:
+    post:
+      summary: Apply promo code
+      description: Apply a promo code at checkout
+      operationId: applyPromoCode
+      tags:
+        - Promo Codes
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - planId
+              properties:
+                code:
+                  type: string
+                  description: Promo code to apply
+                planId:
+                  type: string
+                  description: ID of the plan
+      responses:
+        '200':
+          description: Promo code applied successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  originalPrice:
+                    type: number
+                    format: float
+                  discountAmount:
+                    type: number
+                    format: float
+                  finalPrice:
+                    type: number
+                    format: float
+
+  /free-credits/status:
+    get:
+      summary: Get free credits status
+      description: Retrieve the user's free credits status
+      operationId: getFreeCreditsStatus
+      tags:
+        - Free Credits
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Free credits status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signupClaimed:
+                    type: boolean
+                  emailVerified:
+                    type: boolean
+                  profileCompleted:
+                    type: boolean
+                  totalCredits:
+                    type: integer
+                  totalPoints:
+                    type: integer
+
+  /free-credits/claim-email-verification:
+    post:
+      summary: Claim email verification reward
+      description: Claim free points for email verification
+      operationId: claimEmailVerificationReward
+      tags:
+        - Free Credits
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Email verification reward claimed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  points:
+                    type: integer
+                  message:
+                    type: string
+
+  /free-credits/claim-profile-completion:
+    post:
+      summary: Claim profile completion reward
+      description: Claim free points for completing profile
+      operationId: claimProfileCompletionReward
+      tags:
+        - Free Credits
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile completion reward claimed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  points:
+                    type: integer
+                  message:
+                    type: string
+
+  /agency/commissions:
+    get:
+      summary: Get commission history
+      description: Retrieve agency commission history
+      operationId: getAgencyCommissions
+      tags:
+        - Agency
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Commission history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commissions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgencyCommission'
+                  total:
+                    type: integer
+                  balance:
+                    type: object
+                    properties:
+                      creditsBalance:
+                        type: integer
+                      usdBalance:
+                        type: number
+                        format: float
+
+  /agency/balance:
+    get:
+      summary: Get commission balance
+      description: Retrieve agency commission balance
+      operationId: getAgencyBalance
+      tags:
+        - Agency
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Commission balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  creditsBalance:
+                    type: integer
+                  usdBalance:
+                    type: number
+                    format: float
+                  withdrawableCredits:
+                    type: integer
+                  withdrawableUSD:
+                    type: number
+                    format: float
+
+  /agency/withdrawals/request:
+    post:
+      summary: Request withdrawal
+      description: Request a withdrawal of commission earnings
+      operationId: requestWithdrawal
+      tags:
+        - Agency
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - usdAmount
+                - paypalEmail
+              properties:
+                usdAmount:
+                  type: number
+                  format: float
+                  description: Amount to withdraw in USD
+                paypalEmail:
+                  type: string
+                  format: email
+                  description: PayPal email address
+      responses:
+        '200':
+          description: Withdrawal request created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  withdrawal:
+                    $ref: '#/components/schemas/AgencyWithdrawal'
+
+  /agency/withdrawals:
+    get:
+      summary: Get withdrawal history
+      description: Retrieve agency withdrawal history
+      operationId: getAgencyWithdrawals
+      tags:
+        - Agency
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Withdrawal history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  withdrawals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgencyWithdrawal'
+                  total:
+                    type: integer
+
+  /admin/plans:
+    post:
+      summary: Create plan
+      description: Create a new subscription plan
+      operationId: createPlan
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - price
+                - creditsPerMonth
+                - dailyRewardsPoints
+              properties:
+                name:
+                  type: string
+                  description: Plan name
+                price:
+                  type: number
+                  format: float
+                  description: Monthly price in USD
+                creditsPerMonth:
+                  type: integer
+                  description: Credits allocated per month
+                dailyRewardsPoints:
+                  type: integer
+                  description: Daily rewards points
+                apiRateLimit:
+                  type: integer
+                  description: API rate limit (requests per minute)
+                features:
+                  type: array
+                  items:
+                    type: string
+                  description: Plan features
+                userTiers:
+                  type: array
+                  items:
+                    type: string
+                  description: Eligible user tiers
+      responses:
+        '201':
+          description: Plan created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plan:
+                    $ref: '#/components/schemas/SubscriptionPlan'
+
+  /admin/plans/{planId}:
+    put:
+      summary: Update plan
+      description: Update an existing subscription plan
+      operationId: updatePlan
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: ID of the plan
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                  format: float
+                creditsPerMonth:
+                  type: integer
+                dailyRewardsPoints:
+                  type: integer
+                apiRateLimit:
+                  type: integer
+                features:
+                  type: array
+                  items:
+                    type: string
+                userTiers:
+                  type: array
+                  items:
+                    type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Plan updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plan:
+                    $ref: '#/components/schemas/SubscriptionPlan'
+
+  /admin/promo-codes:
+    post:
+      summary: Create promo code
+      description: Create a new promo code
+      operationId: createPromoCode
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - discountValue
+                - validFrom
+                - validTo
+              properties:
+                code:
+                  type: string
+                  description: Promo code
+                discountValue:
+                  type: number
+                  format: float
+                  description: Discount percentage (0-100)
+                validFrom:
+                  type: string
+                  format: date-time
+                  description: Valid from date
+                validTo:
+                  type: string
+                  format: date-time
+                  description: Valid to date
+                usageLimit:
+                  type: integer
+                  description: Usage limit (0 = unlimited)
+                firstTimeUserOnly:
+                  type: boolean
+                  description: First-time user only
+                applicablePlans:
+                  type: array
+                  items:
+                    type: string
+                  description: Applicable plan IDs
+      responses:
+        '201':
+          description: Promo code created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  promoCode:
+                    $ref: '#/components/schemas/PromoCode'
+
+  /admin/promo-codes/bulk:
+    post:
+      summary: Bulk create promo codes
+      description: Create multiple promo codes with a pattern
+      operationId: bulkCreatePromoCodes
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pattern
+                - count
+                - discountValue
+                - validFrom
+                - validTo
+              properties:
+                pattern:
+                  type: string
+                  description: Pattern for code generation (e.g., NEWYEAR2025-{i})
+                count:
+                  type: integer
+                  description: Number of codes to create
+                discountValue:
+                  type: number
+                  format: float
+                  description: Discount percentage
+                validFrom:
+                  type: string
+                  format: date-time
+                validTo:
+                  type: string
+                  format: date-time
+                usageLimit:
+                  type: integer
+                firstTimeUserOnly:
+                  type: boolean
+                applicablePlans:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Promo codes created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  promoCodes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PromoCode'
+
+  /admin/promo-codes/{codeId}:
+    put:
+      summary: Update promo code
+      description: Update an existing promo code
+      operationId: updatePromoCode
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: codeId
+          in: path
+          required: true
+          description: ID of the promo code
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                discountValue:
+                  type: number
+                  format: float
+                validTo:
+                  type: string
+                  format: date-time
+                usageLimit:
+                  type: integer
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Promo code updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  promoCode:
+                    $ref: '#/components/schemas/PromoCode'
+
+  /admin/promo-codes/{codeId}/usage:
+    get:
+      summary: Get promo code usage statistics
+      description: Retrieve usage statistics for a promo code
+      operationId: getPromoCodeUsage
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: codeId
+          in: path
+          required: true
+          description: ID of the promo code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usage statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usageCount:
+                    type: integer
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: string
+                        email:
+                          type: string
+                        usedAt:
+                          type: string
+                          format: date-time
+                  revenue:
+                    type: object
+                    properties:
+                      totalDiscount:
+                        type: number
+                        format: float
+                      conversions:
+                        type: integer
+
+  /admin/free-credits:
+    put:
+      summary: Update free credits config
+      description: Update the free credits configuration
+      operationId: updateFreeCreditsConfig
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                signupCredits:
+                  type: integer
+                emailVerificationPoints:
+                  type: integer
+                profileCompletionPoints:
+                  type: integer
+                profileRequirements:
+                  type: object
+                  properties:
+                    name:
+                      type: boolean
+                    phone:
+                      type: boolean
+                    avatar:
+                      type: boolean
+                    bio:
+                      type: boolean
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Free credits config updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/FreeCreditsConfig'
+
+  /admin/free-credits/stats:
+    get:
+      summary: Get free credits statistics
+      description: Retrieve free credits statistics
+      operationId: getFreeCreditsStats
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Free credits statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalUsers:
+                    type: integer
+                  totalCreditsGiven:
+                    type: integer
+                  totalPointsGiven:
+                    type: integer
+                  milestoneBreakdown:
+                    type: object
+                    properties:
+                      signup:
+                        type: integer
+                      emailVerification:
+                        type: integer
+                      profileCompletion:
+                        type: integer
+
+  /admin/agency/withdrawals/pending:
+    get:
+      summary: Get pending withdrawals
+      description: Retrieve all pending withdrawal requests
+      operationId: getPendingWithdrawals
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Pending withdrawals retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  withdrawals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgencyWithdrawal'
+
+  /admin/agency/withdrawals/{withdrawalId}/approve:
+    post:
+      summary: Approve withdrawal
+      description: Approve a withdrawal request
+      operationId: approveWithdrawal
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: withdrawalId
+          in: path
+          required: true
+          description: ID of the withdrawal
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Withdrawal approved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  withdrawal:
+                    $ref: '#/components/schemas/AgencyWithdrawal'
+
+  /admin/agency/withdrawals/{withdrawalId}/reject:
+    post:
+      summary: Reject withdrawal
+      description: Reject a withdrawal request
+      operationId: rejectWithdrawal
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: withdrawalId
+          in: path
+          required: true
+          description: ID of the withdrawal
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  description: Reason for rejection
+      responses:
+        '200':
+          description: Withdrawal rejected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  withdrawal:
+                    $ref: '#/components/schemas/AgencyWithdrawal'
+
+components:
+  schemas:
+    SubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        price:
+          type: number
+          format: float
+        currency:
+          type: string
+        creditsPerMonth:
+          type: integer
+        dailyRewardsPoints:
+          type: integer
+        apiRateLimit:
+          type: integer
+        features:
+          type: array
+          items:
+            type: string
+        supportTier:
+          type: string
+        slaUptime:
+          type: number
+          format: float
+        userTiers:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        isPublic:
+          type: boolean
+        displayOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        planId:
+          type: string
+        status:
+          type: string
+          enum: [active, canceled, past_due, paused]
+        currentPeriodStart:
+          type: string
+          format: date-time
+        currentPeriodEnd:
+          type: string
+          format: date-time
+        cancelAt:
+          type: string
+          format: date-time
+        canceledAt:
+          type: string
+          format: date-time
+        stripeSubscriptionId:
+          type: string
+        stripeCustomerId:
+          type: string
+        paymentMethodId:
+          type: string
+        creditsUsed:
+          type: integer
+        apiRequestsUsed:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PromoCode:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        discountType:
+          type: string
+        discountValue:
+          type: number
+          format: float
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        usageLimit:
+          type: integer
+        usageCount:
+          type: integer
+        firstTimeUserOnly:
+          type: boolean
+        applicablePlans:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    FreeCreditsConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        signupCredits:
+          type: integer
+        emailVerificationPoints:
+          type: integer
+        profileCompletionPoints:
+          type: integer
+        profileRequirements:
+          type: object
+          properties:
+            name:
+              type: boolean
+            phone:
+              type: boolean
+            avatar:
+              type: boolean
+            bio:
+              type: boolean
+        isActive:
+          type: boolean
+        updatedBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+
+    AgencyCommission:
+      type: object
+      properties:
+        id:
+          type: string
+        agencyUserId:
+          type: string
+        sourceUserId:
+          type: string
+        subscriptionId:
+          type: string
+        subscriptionPrice:
+          type: number
+          format: float
+        commissionRate:
+          type: number
+          format: float
+        commissionUSD:
+          type: number
+          format: float
+        commissionCredits:
+          type: integer
+        creditsToUSDRate:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [pending, paid]
+        paidAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    AgencyWithdrawal:
+      type: object
+      properties:
+        id:
+          type: string
+        agencyUserId:
+          type: string
+        creditsAmount:
+          type: integer
+        usdAmount:
+          type: number
+          format: float
+        conversionRate:
+          type: number
+          format: float
+        paypalEmail:
+          type: string
+        paypalTransactionId:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, processing, completed, rejected]
+        rejectionReason:
+          type: string
+        approvedBy:
+          type: string
+        approvedAt:
+          type: string
+          format: date-time
+        processedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Plans
+    description: Subscription plan management
+  - name: Subscriptions
+    description: User subscription management
+  - name: Promo Codes
+    description: Promo code management
+  - name: Free Credits
+    description: Free credits management
+  - name: Agency
+    description: Agency commission and withdrawal management
+  - name: Admin
+    description: Administrative functions

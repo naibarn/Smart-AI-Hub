@@ -6,8 +6,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // Import monitoring and security
-const { initializeMetrics, createMetricsEndpoint, createHealthCheckEndpoint, createMetricsMiddleware } = require('@smart-ai-hub/shared/monitoring');
-const { apiSecurityHeaders } = require('@smart-ai-hub/shared/security/headers');
+const { initializeMetrics, createMetricsEndpoint, createHealthCheckEndpoint, createMetricsMiddleware, apiSecurityHeaders } = require('@smart-ai-hub/shared');
 
 // Import Redis connection
 const { connectRedis } = require('./config/redis');

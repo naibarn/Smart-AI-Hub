@@ -3,7 +3,14 @@
  */
 
 import { ValidationEngine } from '../src/validation/ValidationEngine';
-import { Specification, SpecificationType, SpecificationCategory, SpecificationStatus, Priority, WarningType } from '../src/types';
+import {
+  Specification,
+  SpecificationType,
+  SpecificationCategory,
+  SpecificationStatus,
+  Priority,
+  WarningType,
+} from '../src/types';
 
 // Example 1: Using default configuration with 'draft' preset
 console.log('=== Example 1: Using draft preset ===');
@@ -94,8 +101,13 @@ const specWithoutTraceability: Specification = {
 const traceabilityResult = customEngine.validateSpecification(specWithoutTraceability);
 console.log('Traceability warnings for spec without links:');
 traceabilityResult.warnings
-  .filter(w => w.message.includes('traceability') || w.message.includes('parent') || w.message.includes('dependencies'))
-  .forEach(w => console.log(`- ${w.message}: ${w.suggestion}`));
+  .filter(
+    (w) =>
+      w.message.includes('traceability') ||
+      w.message.includes('parent') ||
+      w.message.includes('dependencies')
+  )
+  .forEach((w) => console.log(`- ${w.message}: ${w.suggestion}`));
 
 // Example 6: Demonstrating user story format validation
 console.log('\n=== Example 6: User story format validation ===');
@@ -115,8 +127,8 @@ Users should be able to login with email and password. This is important for sec
 const storyFormatResult = customEngine.validateSpecification(badlyFormattedStory);
 console.log('User story format warnings:');
 storyFormatResult.warnings
-  .filter(w => w.message.includes('user story') || w.message.includes('format'))
-  .forEach(w => console.log(`- ${w.message}: ${w.suggestion}`));
+  .filter((w) => w.message.includes('user story') || w.message.includes('format'))
+  .forEach((w) => console.log(`- ${w.message}: ${w.suggestion}`));
 
 // Example 7: Demonstrating content length validation with actual content extraction
 console.log('\n=== Example 7: Content length validation ===');
@@ -135,8 +147,8 @@ This is too short.
 const contentLengthResult = customEngine.validateSpecification(shortSpec);
 console.log('Content length warnings:');
 contentLengthResult.warnings
-  .filter(w => w.message.includes('length') || w.message.includes('brief'))
-  .forEach(w => console.log(`- ${w.message}: ${w.suggestion}`));
+  .filter((w) => w.message.includes('length') || w.message.includes('brief'))
+  .forEach((w) => console.log(`- ${w.message}: ${w.suggestion}`));
 
 // Example 8: Generating a validation report
 console.log('\n=== Example 8: Generating validation report ===');
@@ -146,7 +158,7 @@ import { ValidationReportGenerator } from '../src/reporting/ValidationReportGene
 const reportEngine = new ValidationEngine('./validation-config.json', 'review');
 const reportGenerator = new ValidationReportGenerator(reportEngine['config']); // Access private property for example
 const specs = [sampleSpec, badlyFormattedStory, shortSpec];
-const results = specs.map(spec => customEngine.validateSpecification(spec));
+const results = specs.map((spec) => customEngine.validateSpecification(spec));
 
 const report = reportGenerator.generateReport(specs, results);
 const markdownReport = reportGenerator.generateMarkdownReport(report);
@@ -174,20 +186,24 @@ const specWithCustomRule: Specification = {
         description: 'Check if specification mentions business value',
         validator: (spec: Specification) => {
           const content = spec.content.toLowerCase();
-          const hasBusinessValue = content.includes('business value') ||
-                                 content.includes('benefit') ||
-                                 content.includes('roi');
-          
+          const hasBusinessValue =
+            content.includes('business value') ||
+            content.includes('benefit') ||
+            content.includes('roi');
+
           return {
             valid: hasBusinessValue,
             errors: [],
-            warnings: hasBusinessValue ? [] : [
-              {
-                type: WarningType.INCOMPLETE_CONTENT,
-                message: 'Specification should mention business value or benefits',
-                suggestion: 'Add information about the business value this specification provides',
-              }
-            ],
+            warnings: hasBusinessValue
+              ? []
+              : [
+                  {
+                    type: WarningType.INCOMPLETE_CONTENT,
+                    message: 'Specification should mention business value or benefits',
+                    suggestion:
+                      'Add information about the business value this specification provides',
+                  },
+                ],
             score: hasBusinessValue ? 100 : 70,
             metrics: {
               completeness: hasBusinessValue ? 100 : 70,
@@ -206,5 +222,5 @@ const specWithCustomRule: Specification = {
 const customRuleResult = customEngine.validateSpecification(specWithCustomRule);
 console.log('Custom validation rule warnings:');
 customRuleResult.warnings
-  .filter(w => w.message.includes('business value'))
-  .forEach(w => console.log(`- ${w.message}: ${w.suggestion}`));
+  .filter((w) => w.message.includes('business value'))
+  .forEach((w) => console.log(`- ${w.message}: ${w.suggestion}`));

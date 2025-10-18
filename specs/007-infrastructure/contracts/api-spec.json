@@ -1,0 +1,427 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Infrastructure Services API",
+    "description": "API specification for Infrastructure Services including API Gateway and Core Service",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Development Team",
+      "email": "dev@smartaihub.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.smartaihub.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.smartaihub.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/credits/balance": {
+      "get": {
+        "tags": ["Credits"],
+        "summary": "Get credit balance",
+        "description": "Retrieve the current credit balance for a user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditBalanceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/credits/deduct": {
+      "post": {
+        "tags": ["Credits"],
+        "summary": "Deduct credits",
+        "description": "Deduct credits from a user's account for a specific purpose",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeductCreditsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeductCreditsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/credits/transactions": {
+      "get": {
+        "tags": ["Credits"],
+        "summary": "Get credit transaction history",
+        "description": "Retrieve the transaction history for a user's credit account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User ID to filter transactions",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of transactions to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of transactions to skip",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionHistoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Check the health status of the infrastructure services",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "CreditBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User ID"
+          },
+          "balance": {
+            "type": "integer",
+            "description": "Current credit balance"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Credit currency",
+            "example": "credits"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last time the balance was updated"
+          }
+        }
+      },
+      "DeductCreditsRequest": {
+        "type": "object",
+        "required": ["userId", "amount", "reason"],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User ID"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Amount of credits to deduct"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for credit deduction",
+            "example": "sora2_video_generation"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the transaction",
+            "properties": {
+              "videoId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Video ID if applicable"
+              },
+              "duration": {
+                "type": "integer",
+                "description": "Video duration in seconds"
+              },
+              "resolution": {
+                "type": "string",
+                "description": "Video resolution",
+                "example": "1080p"
+              }
+            }
+          }
+        }
+      },
+      "DeductCreditsResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the deduction was successful"
+          },
+          "newBalance": {
+            "type": "integer",
+            "description": "New credit balance after deduction"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID"
+          }
+        }
+      },
+      "TransactionHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditTransaction"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of transactions"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more transactions"
+          }
+        }
+      },
+      "CreditTransaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Transaction amount (negative for deductions, positive for additions)"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"],
+            "description": "Transaction type"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the transaction"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Transaction timestamp"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the transaction"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "unhealthy"],
+            "description": "Overall health status"
+          },
+          "services": {
+            "type": "object",
+            "description": "Health status of individual services",
+            "properties": {
+              "apiGateway": {
+                "type": "string",
+                "enum": ["healthy", "degraded", "unhealthy"],
+                "description": "API Gateway health status"
+              },
+              "coreService": {
+                "type": "string",
+                "enum": ["healthy", "degraded", "unhealthy"],
+                "description": "Core Service health status"
+              },
+              "database": {
+                "type": "string",
+                "enum": ["healthy", "degraded", "unhealthy"],
+                "description": "Database health status"
+              },
+              "redis": {
+                "type": "string",
+                "enum": ["healthy", "degraded", "unhealthy"],
+                "description": "Redis health status"
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Health check timestamp"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized access",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Credits",
+      "description": "Credit management operations"
+    },
+    {
+      "name": "Health",
+      "description": "Health check operations"
+    }
+  ]
+}

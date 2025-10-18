@@ -3,16 +3,16 @@ export interface ValidationThresholds {
   minContentLength: number;
   shortContentThreshold: number;
   veryShortContentThreshold: number;
-  
+
   // Title length thresholds
   minTitleLength: number;
   maxTitleLength: number;
-  
+
   // Score thresholds
   excellentScoreThreshold: number;
   goodScoreThreshold: number;
   acceptableScoreThreshold: number;
-  
+
   // Warning/Error thresholds
   maxWarningsForGoodScore: number;
   maxErrorsForGoodScore: number;
@@ -38,10 +38,10 @@ export interface ValidationConfig {
     dependencies: boolean;
     traceability: boolean;
   };
-  
+
   // Thresholds for warnings vs errors
   thresholds: ValidationThresholds;
-  
+
   // Strictness levels (0-100, where 0 is most lenient, 100 is strictest)
   strictness: {
     contentLength: number;
@@ -51,7 +51,7 @@ export interface ValidationConfig {
     consistency: number;
     traceability: number;
   };
-  
+
   // Custom patterns
   customPatterns: {
     [key: string]: {
@@ -61,7 +61,7 @@ export interface ValidationConfig {
       type: 'error' | 'warning';
     };
   };
-  
+
   // Traceability settings
   traceability: {
     requireParent: boolean;
@@ -70,7 +70,7 @@ export interface ValidationConfig {
     validateLinksExist: boolean;
     allowedLinkTypes: string[];
   };
-  
+
   // User story format settings
   userStory: {
     requireExactFormat: boolean;
@@ -98,11 +98,11 @@ export const defaultValidationConfig: ValidationConfig = {
     dependencies: true,
     traceability: true,
   },
-  
+
   thresholds: {
-    minContentLength: 10,
-    shortContentThreshold: 50,
-    veryShortContentThreshold: 20,
+    minContentLength: 100,
+    shortContentThreshold: 200,
+    veryShortContentThreshold: 100,
     minTitleLength: 3,
     maxTitleLength: 100,
     excellentScoreThreshold: 90,
@@ -113,7 +113,7 @@ export const defaultValidationConfig: ValidationConfig = {
     maxWarningsForAcceptableScore: 5,
     maxErrorsForAcceptableScore: 1,
   },
-  
+
   strictness: {
     contentLength: 70, // Moderate strictness
     formatValidation: 80, // Fairly strict
@@ -122,9 +122,9 @@ export const defaultValidationConfig: ValidationConfig = {
     consistency: 90, // Strict for consistency
     traceability: 70, // Moderate
   },
-  
+
   customPatterns: {},
-  
+
   traceability: {
     requireParent: false,
     requireDependencies: false,
@@ -132,7 +132,7 @@ export const defaultValidationConfig: ValidationConfig = {
     validateLinksExist: true,
     allowedLinkTypes: ['parent', 'dependency', 'related', 'child', 'implements'],
   },
-  
+
   userStory: {
     requireExactFormat: false,
     allowVariations: true,
@@ -172,7 +172,7 @@ export const validationPresets = {
       traceability: 30,
     },
   },
-  
+
   review: {
     ...defaultValidationConfig,
     enabled: {
@@ -191,7 +191,7 @@ export const validationPresets = {
       traceability: 80,
     },
   },
-  
+
   production: {
     ...defaultValidationConfig,
     enabled: {

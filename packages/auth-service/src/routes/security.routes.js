@@ -1,8 +1,8 @@
 // src/routes/security.routes.js
 const express = require('express');
 const router = express.Router();
-const { validateCspReport } = require('@smart-ai-hub/shared/security/headers');
-const logger = require('../utils/logger');
+const { validateCspReport } = require('@smart-ai-hub/shared');
+const { logger } = require('@smart-ai-hub/shared');
 
 // In-memory storage for CSP violations (in production, use database)
 const cspViolations = [];

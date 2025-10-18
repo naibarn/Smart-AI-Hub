@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+ 
 /* eslint-disable no-undef */
 module.exports = {
   preset: 'ts-jest',

@@ -1,0 +1,783 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AI Integration & Model Context Protocol API",
+    "description": "API for integrating with various LLM providers, managing real-time communication, and handling AI workflows",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Development Team",
+      "email": "dev@smarthub.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "wss://api.smarthub.com/mcp",
+      "description": "Production WebSocket server"
+    },
+    {
+      "url": "wss://staging-api.smarthub.com/mcp",
+      "description": "Staging WebSocket server"
+    },
+    {
+      "url": "ws://localhost:3003/mcp",
+      "description": "Development WebSocket server"
+    }
+  ],
+  "paths": {
+    "/mcp/sora2/generate": {
+      "post": {
+        "tags": ["Video Generation"],
+        "summary": "Generate video from text prompt",
+        "description": "Creates a video generation request using Sora2",
+        "operationId": "generateVideo",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoGenerationRequest"
+              },
+              "examples": {
+                "standard": {
+                  "summary": "Standard video generation",
+                  "value": {
+                    "prompt": "A serene landscape with mountains and a lake at sunset",
+                    "duration": 30,
+                    "resolution": "1080p",
+                    "style": "photorealistic",
+                    "aspectRatio": "16:9"
+                  }
+                },
+                "artistic": {
+                  "summary": "Artistic style video",
+                  "value": {
+                    "prompt": "Abstract colorful shapes morphing and flowing",
+                    "duration": 15,
+                    "resolution": "720p",
+                    "style": "abstract",
+                    "aspectRatio": "1:1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Video generation request accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoGenerationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/mcp/sora2/status/{videoId}": {
+      "get": {
+        "tags": ["Video Generation"],
+        "summary": "Get video generation status",
+        "description": "Retrieves the current status of a video generation request",
+        "operationId": "getVideoStatus",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "description": "The video generation request ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video generation status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/mcp/gpt/video-workflow": {
+      "post": {
+        "tags": ["AI Workflows"],
+        "summary": "Execute GPT-assisted video workflow",
+        "description": "Processes a video generation workflow using Custom GPT enhancement",
+        "operationId": "executeVideoWorkflow",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoWorkflowRequest"
+              },
+              "examples": {
+                "textToVideo": {
+                  "summary": "Text to video workflow",
+                  "value": {
+                    "workflow": "text-to-video",
+                    "input": {
+                      "text": "A futuristic city with flying cars"
+                    },
+                    "parameters": {
+                      "duration": 30,
+                      "resolution": "1080p",
+                      "style": "cinematic"
+                    },
+                    "sessionId": "session-123"
+                  }
+                },
+                "imageToVideo": {
+                  "summary": "Image to video workflow",
+                  "value": {
+                    "workflow": "image-to-video",
+                    "input": {
+                      "imageUrl": "https://example.com/image.jpg"
+                    },
+                    "parameters": {
+                      "duration": 15,
+                      "resolution": "720p",
+                      "enhancementType": "motion"
+                    },
+                    "sessionId": "session-456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Workflow execution started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoWorkflowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          }
+        }
+      }
+    },
+    "/mcp/providers": {
+      "get": {
+        "tags": ["Provider Management"],
+        "summary": "List available AI providers",
+        "description": "Retrieves a list of available AI providers and their status",
+        "operationId": "listProviders",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of available providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AIProvider"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/mcp/models": {
+      "get": {
+        "tags": ["Model Management"],
+        "summary": "List available AI models",
+        "description": "Retrieves a list of available AI models by provider",
+        "operationId": "listModels",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "query",
+            "description": "Filter by provider",
+            "schema": {
+              "type": "string",
+              "enum": ["openai", "claude", "auto"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of available models",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AIModel"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/mcp/usage": {
+      "get": {
+        "tags": ["Usage Tracking"],
+        "summary": "Get AI usage statistics",
+        "description": "Retrieves usage statistics for the authenticated user",
+        "operationId": "getUsageStats",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date for usage period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for usage period",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "groupBy",
+            "in": "query",
+            "description": "Grouping dimension for statistics",
+            "schema": {
+              "type": "string",
+              "enum": ["day", "week", "month", "provider", "model"],
+              "default": "day"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageStats"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VideoGenerationRequest": {
+        "type": "object",
+        "required": ["prompt", "duration", "resolution"],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 1000,
+            "description": "Text description of the video to generate"
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 120,
+            "description": "Video duration in seconds"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": ["720p", "1080p", "4K"],
+            "description": "Video resolution"
+          },
+          "style": {
+            "type": "string",
+            "description": "Artistic style for the video"
+          },
+          "aspectRatio": {
+            "type": "string",
+            "pattern": "^[0-9]+:[0-9]+$",
+            "description": "Video aspect ratio (e.g., 16:9, 1:1)"
+          }
+        }
+      },
+      "VideoGenerationResponse": {
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string",
+            "description": "Unique identifier for the video generation request"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["processing", "queued", "failed"],
+            "description": "Initial status of the generation request"
+          },
+          "creditsUsed": {
+            "type": "integer",
+            "description": "Number of credits charged for this request"
+          },
+          "estimatedTime": {
+            "type": "integer",
+            "description": "Estimated processing time in seconds"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the request was created"
+          }
+        }
+      },
+      "VideoStatusResponse": {
+        "type": "object",
+        "properties": {
+          "videoId": {
+            "type": "string",
+            "description": "Unique identifier for the video generation request"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["processing", "completed", "failed"],
+            "description": "Current status of the generation request"
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Processing progress percentage"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "URL of the generated video (when completed)"
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "URL of the video thumbnail"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Video duration in seconds"
+          },
+          "creditsUsed": {
+            "type": "integer",
+            "description": "Number of credits charged for this request"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the request was created"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the request was completed"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true,
+            "description": "Error message (if failed)"
+          }
+        }
+      },
+      "VideoWorkflowRequest": {
+        "type": "object",
+        "required": ["workflow", "input", "sessionId"],
+        "properties": {
+          "workflow": {
+            "type": "string",
+            "enum": ["text-to-video", "image-to-video", "video-enhancement"],
+            "description": "Type of video workflow to execute"
+          },
+          "input": {
+            "type": "object",
+            "description": "Input data for the workflow",
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Text input for text-to-video workflow"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["imageUrl"],
+                "properties": {
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Image URL for image-to-video workflow"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["videoUrl"],
+                "properties": {
+                  "videoUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Video URL for enhancement workflow"
+                  }
+                }
+              }
+            ]
+          },
+          "parameters": {
+            "type": "object",
+            "description": "Workflow parameters",
+            "properties": {
+              "style": {
+                "type": "string",
+                "description": "Artistic style"
+              },
+              "duration": {
+                "type": "integer",
+                "minimum": 5,
+                "maximum": 120,
+                "description": "Target duration in seconds"
+              },
+              "resolution": {
+                "type": "string",
+                "enum": ["720p", "1080p", "4K"],
+                "description": "Target resolution"
+              },
+              "enhancementType": {
+                "type": "string",
+                "description": "Type of enhancement to apply"
+              }
+            }
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Session identifier for tracking"
+          }
+        }
+      },
+      "VideoWorkflowResponse": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string",
+            "description": "Unique identifier for the workflow execution"
+          },
+          "videoId": {
+            "type": "string",
+            "description": "Video generation request ID"
+          },
+          "enhancedPrompt": {
+            "type": "string",
+            "description": "GPT-enhanced prompt (if applicable)"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["processing", "queued", "failed"],
+            "description": "Initial workflow status"
+          },
+          "estimatedTime": {
+            "type": "integer",
+            "description": "Estimated processing time in seconds"
+          }
+        }
+      },
+      "AIProvider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Provider identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Provider display name"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["available", "unavailable", "degraded"],
+            "description": "Current provider status"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Supported capabilities"
+          },
+          "latency": {
+            "type": "integer",
+            "description": "Average latency in milliseconds"
+          }
+        }
+      },
+      "AIModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Model identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Model display name"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider name"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["completion", "chat", "embedding"],
+            "description": "Model type"
+          },
+          "maxTokens": {
+            "type": "integer",
+            "description": "Maximum token limit"
+          },
+          "pricing": {
+            "type": "object",
+            "properties": {
+              "inputTokens": {
+                "type": "number",
+                "description": "Price per 1K input tokens"
+              },
+              "outputTokens": {
+                "type": "number",
+                "description": "Price per 1K output tokens"
+              }
+            }
+          }
+        }
+      },
+      "UsageStats": {
+        "type": "object",
+        "properties": {
+          "totalRequests": {
+            "type": "integer",
+            "description": "Total number of requests"
+          },
+          "totalTokens": {
+            "type": "integer",
+            "description": "Total tokens used"
+          },
+          "totalCredits": {
+            "type": "integer",
+            "description": "Total credits consumed"
+          },
+          "averageLatency": {
+            "type": "integer",
+            "description": "Average latency in milliseconds"
+          },
+          "breakdown": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "period": {
+                  "type": "string"
+                },
+                "requests": {
+                  "type": "integer"
+                },
+                "tokens": {
+                  "type": "integer"
+                },
+                "credits": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PaymentRequired": {
+        "description": "Insufficient credits",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Video Generation",
+      "description": "Video generation operations using Sora2"
+    },
+    {
+      "name": "AI Workflows",
+      "description": "AI-powered workflow operations"
+    },
+    {
+      "name": "Provider Management",
+      "description": "AI provider management operations"
+    },
+    {
+      "name": "Model Management",
+      "description": "AI model management operations"
+    },
+    {
+      "name": "Usage Tracking",
+      "description": "Usage tracking and analytics operations"
+    }
+  ],
+  "webhooks": {
+    "videoStatus": {
+      "post": {
+        "summary": "Video generation status update",
+        "description": "Webhook endpoint for receiving video generation status updates",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoStatusResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

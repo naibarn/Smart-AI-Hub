@@ -85,7 +85,7 @@ export function createMetricsMiddleware(metrics: PrometheusMetrics) {
       );
 
       // Add response time header if enabled
-      if (slaConfig.responseTimeHeader.enabled) {
+      if (slaConfig.responseTimeHeader.enabled && !res.headersSent) {
         const headerValue = `${duration.toFixed(slaConfig.responseTimeHeader.precision)}${slaConfig.responseTimeHeader.unit}`;
         res.setHeader(slaConfig.responseTimeHeader.headerName, headerValue);
       }
@@ -336,7 +336,7 @@ export function createPerformanceTrackingMiddleware(metrics: PrometheusMetrics) 
 
 function loadSLAConfig(): SLAConfig {
   try {
-    const configPath = path.join(process.cwd(), '..', '..', '..', 'config', 'sla-config.json');
+    const configPath = path.join(process.cwd(), 'config', 'sla-config.json');
     const configData = fs.readFileSync(configPath, 'utf8');
     return JSON.parse(configData);
   } catch (error) {

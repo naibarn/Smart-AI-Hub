@@ -1,7 +1,7 @@
 // src/routes/security-status.routes.js
 const express = require('express');
 const router = express.Router();
-const { getSecurityHeadersStatus } = require('@smart-ai-hub/shared/security/headers');
+const { getSecurityHeadersStatus } = require('@smart-ai-hub/shared');
 
 /**
  * GET /api/v1/security/headers/status

@@ -1,0 +1,289 @@
+{
+  "proposed_groups": [
+    {
+      "group_id": "G001",
+      "group_name": "User Authentication & Authorization",
+      "business_domain": "User Management",
+      "epic_level": true,
+      "suggested_spec_id": "EPIC-001",
+      "suggested_folder": "001-user-authentication",
+      "specs_to_merge": [
+        {
+          "file": "auth_service.md",
+          "reason": "Main authentication specification with JWT and OAuth",
+          "role": "Primary spec"
+        },
+        {
+          "file": "fr_auth_05.md",
+          "reason": "Auth-specific functional requirements",
+          "role": "Merge into acceptance criteria"
+        }
+      ],
+      "related_files": ["user.md", "user_role.md", "permission.md"],
+      "estimated_user_stories": 7,
+      "priority": "Critical",
+      "complexity": "High"
+    },
+    {
+      "group_id": "G002",
+      "group_name": "User Management & Profiles",
+      "business_domain": "User Management",
+      "suggested_spec_id": "FEAT-001",
+      "suggested_folder": "002-user-management",
+      "specs_to_merge": [
+        {
+          "file": "user.md",
+          "reason": "Core user data model and profile management",
+          "role": "Primary spec"
+        },
+        {
+          "file": "user_role.md",
+          "reason": "User-role relationship management",
+          "role": "Merge as subsection"
+        }
+      ],
+      "parent_group": "G001",
+      "estimated_user_stories": 6,
+      "priority": "High",
+      "complexity": "Medium"
+    },
+    {
+      "group_id": "G003",
+      "group_name": "Access Control & Permissions",
+      "business_domain": "Access Control",
+      "suggested_spec_id": "FEAT-002",
+      "suggested_folder": "003-access-control",
+      "specs_to_merge": [
+        {
+          "file": "permission.md",
+          "reason": "Core permission system for RBAC",
+          "role": "Primary spec"
+        },
+        {
+          "file": "role_permission.md",
+          "reason": "Role-permission mapping and management",
+          "role": "Merge as subsection"
+        }
+      ],
+      "parent_group": "G001",
+      "related_files": ["user_role.md"],
+      "estimated_user_stories": 4,
+      "priority": "High",
+      "complexity": "Medium"
+    },
+    {
+      "group_id": "G004",
+      "group_name": "Financial System & Credits",
+      "business_domain": "Financial",
+      "epic_level": true,
+      "suggested_spec_id": "EPIC-002",
+      "suggested_folder": "004-financial-system",
+      "specs_to_merge": [
+        {
+          "file": "credit_account.md",
+          "reason": "Core credit account management",
+          "role": "Primary spec"
+        },
+        {
+          "file": "fr_credit_03.md",
+          "reason": "Credit-specific functional requirements",
+          "role": "Merge into acceptance criteria"
+        }
+      ],
+      "related_files": ["user.md", "promo_code.md", "promo_redemption.md"],
+      "estimated_user_stories": 5,
+      "priority": "Critical",
+      "complexity": "High"
+    },
+    {
+      "group_id": "G005",
+      "group_name": "Promo System & Discounts",
+      "business_domain": "Financial",
+      "suggested_spec_id": "FEAT-003",
+      "suggested_folder": "005-promo-system",
+      "specs_to_merge": [
+        {
+          "file": "promo_code.md",
+          "reason": "Promo code management system",
+          "role": "Primary spec"
+        },
+        {
+          "file": "promo_redemption.md",
+          "reason": "Promo redemption tracking",
+          "role": "Merge as subsection"
+        }
+      ],
+      "parent_group": "G004",
+      "related_files": ["credit_account.md"],
+      "estimated_user_stories": 4,
+      "priority": "Medium",
+      "complexity": "Medium"
+    },
+    {
+      "group_id": "G006",
+      "group_name": "AI Integration & Agents",
+      "business_domain": "AI Integration",
+      "epic_level": true,
+      "suggested_spec_id": "EPIC-003",
+      "suggested_folder": "006-ai-integration",
+      "specs_to_merge": [
+        {
+          "file": "mcp_server.md",
+          "reason": "Model Context Protocol server for AI integration",
+          "role": "Primary spec"
+        },
+        {
+          "file": "agents_marketplace.md",
+          "reason": "OpenAI Agents Marketplace & Library",
+          "role": "Merge as major subsection"
+        }
+      ],
+      "related_files": ["credit_account.md", "usage_log.md"],
+      "estimated_user_stories": 10,
+      "priority": "High",
+      "complexity": "High"
+    },
+    {
+      "group_id": "G007",
+      "group_name": "Infrastructure & Core Services",
+      "business_domain": "Infrastructure",
+      "suggested_spec_id": "FEAT-004",
+      "suggested_folder": "007-infrastructure",
+      "specs_to_merge": [
+        {
+          "file": "api_gateway.md",
+          "reason": "API Gateway for routing and security",
+          "role": "Primary spec"
+        },
+        {
+          "file": "core_service.md",
+          "reason": "Core business logic service",
+          "role": "Merge as subsection"
+        }
+      ],
+      "estimated_user_stories": 7,
+      "priority": "High",
+      "complexity": "Medium"
+    },
+    {
+      "group_id": "G008",
+      "group_name": "Analytics & Usage Tracking",
+      "business_domain": "Analytics",
+      "suggested_spec_id": "FEAT-005",
+      "suggested_folder": "008-analytics",
+      "specs_to_merge": [
+        {
+          "file": "usage_log.md",
+          "reason": "Usage logging and analytics system",
+          "role": "Primary spec"
+        }
+      ],
+      "related_files": ["credit_account.md", "mcp_server.md", "agents_marketplace.md"],
+      "estimated_user_stories": 3,
+      "priority": "Medium",
+      "complexity": "Low"
+    }
+  ],
+  "orphaned_specs": [
+    {
+      "file": "fr_1.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    },
+    {
+      "file": "fr_2.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    },
+    {
+      "file": "fr_3.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    },
+    {
+      "file": "fr_4.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    },
+    {
+      "file": "fr_5.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    },
+    {
+      "file": "fr_6.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    },
+    {
+      "file": "epic_1.md",
+      "reason": "Template file with no specific content",
+      "action": "Delete - template placeholder"
+    }
+  ],
+  "proposed_folder_structure": {
+    "specs/": {
+      "001-user-authentication/": {
+        "EPIC-001-user-authentication.md": "Merged auth_service.md + fr_auth_05.md"
+      },
+      "002-user-management/": {
+        "FEAT-001-user-management.md": "Merged user.md + user_role.md"
+      },
+      "003-access-control/": {
+        "FEAT-002-access-control.md": "Merged permission.md + role_permission.md"
+      },
+      "004-financial-system/": {
+        "EPIC-002-financial-system.md": "Merged credit_account.md + fr_credit_03.md"
+      },
+      "005-promo-system/": {
+        "FEAT-003-promo-system.md": "Merged promo_code.md + promo_redemption.md"
+      },
+      "006-ai-integration/": {
+        "EPIC-003-ai-integration.md": "Merged mcp_server.md + agents_marketplace.md"
+      },
+      "007-infrastructure/": {
+        "FEAT-004-infrastructure.md": "Merged api_gateway.md + core_service.md"
+      },
+      "008-analytics/": {
+        "FEAT-005-analytics.md": "usage_log.md (standalone)"
+      }
+    }
+  },
+  "migration_notes": [
+    "Total groups identified: 8",
+    "Specs to merge: 16 files into 8 consolidated specs",
+    "Orphaned specs to delete: 7 template files",
+    "Estimated new structure: 8 feature folders with consolidated specs",
+    "Epic-level groups: 3 (Authentication, Financial, AI Integration)",
+    "Feature-level groups: 5 (User Management, Access Control, Promo System, Infrastructure, Analytics)",
+    "Critical priority groups: 3 (Authentication, Financial System, AI Integration)",
+    "High complexity groups: 3 (Authentication, Financial System, AI Integration)"
+  ],
+  "implementation_timeline": {
+    "Phase 1 - Week 1": [
+      "Delete orphaned template files (fr_1.md through fr_6.md, epic_1.md)",
+      "Create backup of current structure",
+      "Set up new folder structure"
+    ],
+    "Phase 2 - Week 2": [
+      "Merge high-priority epic groups (G001, G004, G006)",
+      "Validate merged content and cross-references"
+    ],
+    "Phase 3 - Week 3": [
+      "Merge remaining feature groups (G002, G003, G005, G007, G008)",
+      "Update all cross-references between specs"
+    ],
+    "Phase 4 - Week 4": [
+      "Final review and validation",
+      "Create master specification index",
+      "Update documentation standards"
+    ]
+  },
+  "success_metrics": [
+    "Reduce specification count from 24 to 8 files (67% reduction)",
+    "Eliminate all template/orphaned files",
+    "Establish clear epic-feature hierarchy",
+    "Improve navigation through business domain organization",
+    "Reduce documentation maintenance overhead"
+  ]
+}

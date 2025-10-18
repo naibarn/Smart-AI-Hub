@@ -1,5 +1,11 @@
 import { ValidationEngine } from '../ValidationEngine';
-import { Specification, SpecificationType, SpecificationCategory, SpecificationStatus, Priority } from '../../types';
+import {
+  Specification,
+  SpecificationType,
+  SpecificationCategory,
+  SpecificationStatus,
+  Priority,
+} from '../../types';
 
 describe('ValidationEngine', () => {
   let validationEngine: ValidationEngine;
@@ -7,7 +13,7 @@ describe('ValidationEngine', () => {
 
   beforeEach(() => {
     validationEngine = new ValidationEngine();
-    
+
     mockSpecification = {
       id: 'test-spec',
       title: 'Test Specification',
@@ -32,7 +38,9 @@ describe('ValidationEngine', () => {
   describe('Content Length Validation', () => {
     it('should pass validation for content with more than 10 characters', () => {
       const result = validationEngine.validateSpecification(mockSpecification);
-      const contentError = result.errors.find(e => e.message.includes('Content must be at least 10 characters long'));
+      const contentError = result.errors.find((e) =>
+        e.message.includes('Content must be at least 10 characters long')
+      );
       expect(contentError).toBeUndefined();
       expect(result.valid).toBe(true);
     });
@@ -40,7 +48,9 @@ describe('ValidationEngine', () => {
     it('should fail validation for content with less than 10 characters', () => {
       mockSpecification.content = 'Short';
       const result = validationEngine.validateSpecification(mockSpecification);
-      const contentError = result.errors.find(e => e.message.includes('Content must be at least 10 characters long'));
+      const contentError = result.errors.find((e) =>
+        e.message.includes('Content must be at least 10 characters long')
+      );
       expect(contentError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -55,7 +65,9 @@ author: "Test"
 This is the actual content that should be counted.
         `;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const contentError = result.errors.find(e => e.message.includes('Content must be at least 10 characters long'));
+      const contentError = result.errors.find((e) =>
+        e.message.includes('Content must be at least 10 characters long')
+      );
       expect(contentError).toBeUndefined();
       expect(result.valid).toBe(true);
     });
@@ -85,7 +97,9 @@ code block
 
 This is actual content with markdown that should be cleaned properly.`;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const contentError = result.errors.find(e => e.message.includes('Content must be at least 10 characters long'));
+      const contentError = result.errors.find((e) =>
+        e.message.includes('Content must be at least 10 characters long')
+      );
       expect(contentError).toBeUndefined();
       expect(result.valid).toBe(true);
     });
@@ -96,7 +110,9 @@ title: "Front Matter"
 author: "Test"
 ---`;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const contentError = result.errors.find(e => e.message.includes('Content must be at least 10 characters long'));
+      const contentError = result.errors.find((e) =>
+        e.message.includes('Content must be at least 10 characters long')
+      );
       expect(contentError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -104,7 +120,9 @@ author: "Test"
     it('should handle empty content gracefully', () => {
       mockSpecification.content = '';
       const result = validationEngine.validateSpecification(mockSpecification);
-      const contentError = result.errors.find(e => e.message.includes('Content must be at least 10 characters long'));
+      const contentError = result.errors.find((e) =>
+        e.message.includes('Content must be at least 10 characters long')
+      );
       expect(contentError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -112,7 +130,7 @@ author: "Test"
     it('should handle null content gracefully', () => {
       mockSpecification.content = '';
       const result = validationEngine.validateSpecification(mockSpecification);
-      const missingFieldError = result.errors.find(e => e.type === 'missing_field');
+      const missingFieldError = result.errors.find((e) => e.type === 'missing_field');
       expect(missingFieldError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -122,14 +140,18 @@ author: "Test"
     it('should pass validation for title within length limits', () => {
       mockSpecification.title = 'Valid Title';
       const result = validationEngine.validateSpecification(mockSpecification);
-      const titleError = result.errors.find(e => e.message.includes('Title must be between 1 and 100 characters'));
+      const titleError = result.errors.find((e) =>
+        e.message.includes('Title must be between 1 and 100 characters')
+      );
       expect(titleError).toBeUndefined();
     });
 
     it('should fail validation for title exceeding 100 characters', () => {
       mockSpecification.title = 'a'.repeat(101);
       const result = validationEngine.validateSpecification(mockSpecification);
-      const titleError = result.errors.find(e => e.message.includes('Title must be between 1 and 100 characters'));
+      const titleError = result.errors.find((e) =>
+        e.message.includes('Title must be between 1 and 100 characters')
+      );
       expect(titleError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -137,7 +159,9 @@ author: "Test"
     it('should fail validation for empty title', () => {
       mockSpecification.title = '';
       const result = validationEngine.validateSpecification(mockSpecification);
-      const titleError = result.errors.find(e => e.message.includes('Title must be between 1 and 100 characters'));
+      const titleError = result.errors.find((e) =>
+        e.message.includes('Title must be between 1 and 100 characters')
+      );
       expect(titleError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -146,20 +170,24 @@ author: "Test"
   describe('ID Format Validation', () => {
     it('should pass validation for valid ID formats', () => {
       const validIds = ['test-spec', 'test_spec', 'test123', 'test-123_spec'];
-      validIds.forEach(id => {
+      validIds.forEach((id) => {
         mockSpecification.id = id;
         const result = validationEngine.validateSpecification(mockSpecification);
-        const idError = result.errors.find(e => e.message.includes('ID must contain only alphanumeric characters'));
+        const idError = result.errors.find((e) =>
+          e.message.includes('ID must contain only alphanumeric characters')
+        );
         expect(idError).toBeUndefined();
       });
     });
 
     it('should fail validation for invalid ID formats', () => {
       const invalidIds = ['test spec', 'test@spec', 'test.spec', 'test/spec'];
-      invalidIds.forEach(id => {
+      invalidIds.forEach((id) => {
         mockSpecification.id = id;
         const result = validationEngine.validateSpecification(mockSpecification);
-        const idError = result.errors.find(e => e.message.includes('ID must contain only alphanumeric characters'));
+        const idError = result.errors.find((e) =>
+          e.message.includes('ID must contain only alphanumeric characters')
+        );
         expect(idError).toBeDefined();
         expect(result.valid).toBe(false);
       });
@@ -169,20 +197,24 @@ author: "Test"
   describe('Version Format Validation', () => {
     it('should pass validation for semantic versioning', () => {
       const validVersions = ['1.0.0', '10.20.30', '1.0.0-alpha', '2.0.0-beta.1'];
-      validVersions.forEach(version => {
+      validVersions.forEach((version) => {
         mockSpecification.metadata.version = version;
         const result = validationEngine.validateSpecification(mockSpecification);
-        const versionError = result.errors.find(e => e.message.includes('Version must follow semantic versioning'));
+        const versionError = result.errors.find((e) =>
+          e.message.includes('Version must follow semantic versioning')
+        );
         expect(versionError).toBeUndefined();
       });
     });
 
     it('should fail validation for non-semantic versions', () => {
       const invalidVersions = ['1.0', 'v1.0.0', '1.0.0.0', '1.0'];
-      invalidVersions.forEach(version => {
+      invalidVersions.forEach((version) => {
         mockSpecification.metadata.version = version;
         const result = validationEngine.validateSpecification(mockSpecification);
-        const versionError = result.errors.find(e => e.message.includes('Version must follow semantic versioning'));
+        const versionError = result.errors.find((e) =>
+          e.message.includes('Version must follow semantic versioning')
+        );
         expect(versionError).toBeDefined();
         expect(result.valid).toBe(false);
       });
@@ -200,7 +232,9 @@ title: "User Story"
 ---
 As a user, I want to login with my email so that I can access my account.`;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const userStoryWarning = result.warnings.find(w => w.message.includes('User story should follow format'));
+      const userStoryWarning = result.warnings.find((w) =>
+        w.message.includes('User story should follow format')
+      );
       expect(userStoryWarning).toBeUndefined();
     });
 
@@ -210,7 +244,9 @@ title: "User Story"
 ---
 User wants to login.`;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const userStoryWarning = result.warnings.find(w => w.message.includes('User story should follow format'));
+      const userStoryWarning = result.warnings.find((w) =>
+        w.message.includes('User story should follow format')
+      );
       expect(userStoryWarning).toBeDefined();
     });
 
@@ -225,7 +261,9 @@ Acceptance Criteria:
 - When I enter valid credentials
 - Then I should be redirected to dashboard`;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const acceptanceWarning = result.warnings.find(w => w.message.includes('acceptance criteria'));
+      const acceptanceWarning = result.warnings.find((w) =>
+        w.message.includes('acceptance criteria')
+      );
       expect(acceptanceWarning).toBeUndefined();
     });
   });
@@ -280,14 +318,16 @@ Acceptance Criteria:
     it('should handle specifications with missing metadata', () => {
       delete mockSpecification.metadata.author;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const authorWarning = result.warnings.find(w => w.message.includes('author'));
+      const authorWarning = result.warnings.find((w) => w.message.includes('author'));
       expect(authorWarning).toBeDefined();
     });
 
     it('should handle specifications with invalid effort values', () => {
       mockSpecification.metadata.estimatedEffort = -1;
       const result = validationEngine.validateSpecification(mockSpecification);
-      const effortError = result.errors.find(e => e.message.includes('Estimated effort must be greater than 0'));
+      const effortError = result.errors.find((e) =>
+        e.message.includes('Estimated effort must be greater than 0')
+      );
       expect(effortError).toBeDefined();
       expect(result.valid).toBe(false);
     });
@@ -298,7 +338,9 @@ Acceptance Criteria:
         description: 'Custom validation rule',
         validator: (spec: Specification) => ({
           valid: false,
-          errors: [{ type: 'custom_error' as any, message: 'Custom error', severity: 'error' as any }],
+          errors: [
+            { type: 'custom_error' as any, message: 'Custom error', severity: 'error' as any },
+          ],
           warnings: [],
           score: 0,
           metrics: {
@@ -312,7 +354,7 @@ Acceptance Criteria:
       };
       mockSpecification.validation.customRules = [customRule];
       const result = validationEngine.validateSpecification(mockSpecification);
-      const customError = result.errors.find(e => e.message === 'Custom error');
+      const customError = result.errors.find((e) => e.message === 'Custom error');
       expect(customError).toBeDefined();
       expect(result.valid).toBe(false);
     });

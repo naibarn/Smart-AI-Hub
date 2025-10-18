@@ -1,0 +1,214 @@
+// Prisma schema for Subscription Plans and Monetization System
+// This schema defines the data structures needed for subscription management
+
+model SubscriptionPlan {
+  id                String  @id @default(cuid())
+  name              String
+  slug              String  @unique
+  price             Float
+  currency          String  @default("USD")
+  creditsPerMonth   Int     @map("credits_per_month")
+  dailyRewardsPoints Int    @map("daily_rewards_points")
+  apiRateLimit      Int     @map("api_rate_limit") @default(0)
+  features          Json?
+  supportTier       String? @map("support_tier")
+  slaUptime         Float?  @map("sla_uptime")
+  userTiers         String[] @map("user_tiers")
+  isActive          Boolean @default(true) @map("is_active")
+  isPublic          Boolean @default(true) @map("is_public")
+  displayOrder      Int     @map("display_order") @default(0)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  userSubscriptions UserSubscription[]
+  promoCodes        PromoCode[]
+  
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id                  String   @id @default(cuid())
+  userId              String   @map("user_id")
+  planId              String   @map("plan_id")
+  status              SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart  DateTime @map("current_period_start")
+  currentPeriodEnd    DateTime @map("current_period_end")
+  cancelAt            DateTime? @map("cancel_at")
+  canceledAt          DateTime? @map("canceled_at")
+  stripeSubscriptionId String? @map("stripe_subscription_id")
+  stripeCustomerId    String?  @map("stripe_customer_id")
+  paymentMethodId     String?  @map("payment_method_id")
+  creditsUsed         Int      @default(0) @map("credits_used")
+  apiRequestsUsed     Int      @default(0) @map("api_requests_used")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan           SubscriptionPlan @relation(fields: [planId], references: [id])
+  promoCodeUsages PromoCodeUsage[]
+  agencyCommissions AgencyCommission[]
+  
+  @@map("user_subscriptions")
+}
+
+model PromoCode {
+  id                String   @id @default(cuid())
+  code              String   @unique
+  discountType      String   @default("percentage") @map("discount_type")
+  discountValue     Float    @map("discount_value")
+  validFrom         DateTime @map("valid_from")
+  validTo           DateTime @map("valid_to")
+  usageLimit        Int      @default(0) @map("usage_limit")
+  usageCount        Int      @default(0) @map("usage_count")
+  firstTimeUserOnly Boolean  @default(false) @map("first_time_user_only")
+  applicablePlans   String[] @map("applicable_plans")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdBy         String?  @map("created_by")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  planId          String? @map("plan_id")
+  plan            SubscriptionPlan? @relation(fields: [planId], references: [id])
+  creator         User? @relation("PromoCodeCreator", fields: [createdBy], references: [id])
+  promoCodeUsages PromoCodeUsage[]
+  
+  @@map("promo_codes")
+}
+
+model PromoCodeUsage {
+  id            String   @id @default(cuid())
+  promoCodeId   String   @map("promo_code_id")
+  userId        String   @map("user_id")
+  subscriptionId String? @map("subscription_id")
+  originalPrice Float    @map("original_price")
+  discountAmount Float   @map("discount_amount")
+  finalPrice    Float    @map("final_price")
+  usedAt        DateTime @default(now()) @map("used_at")
+  
+  // Relations
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  user        User @relation(fields: [userId], references: [id])
+  subscription UserSubscription? @relation(fields: [subscriptionId], references: [id])
+  
+  @@map("promo_code_usages")
+}
+
+model FreeCreditsConfig {
+  id                       String @id @default(cuid())
+  signupCredits            Int    @default(100) @map("signup_credits")
+  emailVerificationPoints  Int    @default(500) @map("email_verification_points")
+  profileCompletionPoints  Int    @default(1000) @map("profile_completion_points")
+  profileRequirements      Json   @map("profile_requirements")
+  isActive                 Boolean @default(true) @map("is_active")
+  updatedBy                String? @map("updated_by")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  updater User? @relation("FreeCreditsConfigUpdater", fields: [updatedBy], references: [id])
+  
+  @@map("free_credits_config")
+}
+
+model AgencyCommission {
+  id                 String   @id @default(cuid())
+  agencyUserId       String   @map("agency_user_id")
+  sourceUserId       String   @map("source_user_id")
+  subscriptionId     String   @map("subscription_id")
+  subscriptionPrice  Float    @map("subscription_price")
+  commissionRate     Float    @default(0.10) @map("commission_rate")
+  commissionUSD      Float    @map("commission_usd")
+  commissionCredits  Int      @map("commission_credits")
+  creditsToUSDRate   Float    @map("credits_to_usd_rate")
+  status             CommissionStatus @default(PENDING)
+  paidAt             DateTime? @map("paid_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  agencyUser    User @relation("AgencyCommissions", fields: [agencyUserId], references: [id])
+  sourceUser    User @relation("SourceCommissions", fields: [sourceUserId], references: [id])
+  subscription  UserSubscription @relation(fields: [subscriptionId], references: [id])
+  
+  @@map("agency_commissions")
+}
+
+model AgencyWithdrawal {
+  id                    String   @id @default(cuid())
+  agencyUserId          String   @map("agency_user_id")
+  creditsAmount         Int      @map("credits_amount")
+  usdAmount             Float    @map("usd_amount")
+  conversionRate        Float    @map("conversion_rate")
+  paypalEmail           String   @map("paypal_email")
+  paypalTransactionId   String?  @map("paypal_transaction_id")
+  status                WithdrawalStatus @default(PENDING)
+  rejectionReason       String?  @map("rejection_reason")
+  approvedBy            String?  @map("approved_by")
+  approvedAt            DateTime? @map("approved_at")
+  processedAt           DateTime? @map("processed_at")
+  completedAt           DateTime? @map("completed_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  agencyUser User @relation("AgencyWithdrawals", fields: [agencyUserId], references: [id])
+  approver  User? @relation("WithdrawalApprover", fields: [approvedBy], references: [id])
+  
+  @@map("agency_withdrawals")
+}
+
+model UserMilestone {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  milestone   String   // "signup", "email_verification", "profile_completion"
+  isCompleted Boolean  @default(false) @map("is_completed")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, milestone])
+  @@map("user_milestones")
+}
+
+// Extend the existing User model with additional relations
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  // ... existing user fields
+  
+  // Relations for Subscription System
+  userSubscriptions     UserSubscription[]
+  agencyCommissions     AgencyCommission[] @relation("AgencyCommissions")
+  sourceCommissions     AgencyCommission[] @relation("SourceCommissions")
+  agencyWithdrawals     AgencyWithdrawal[] @relation("AgencyWithdrawals")
+  approvedWithdrawals   AgencyWithdrawal[] @relation("WithdrawalApprover")
+  createdPromoCodes     PromoCode[] @relation("PromoCodeCreator")
+  updatedFreeCredits    FreeCreditsConfig? @relation("FreeCreditsConfigUpdater")
+  userMilestones        UserMilestone[]
+  
+  // ... existing user relations
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  PAUSED
+}
+
+enum CommissionStatus {
+  PENDING
+  PAID
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+}

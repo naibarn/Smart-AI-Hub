@@ -13,29 +13,36 @@ import {
 } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ValidationConfig, defaultValidationConfig, validationPresets } from '../config/validation-config';
+import {
+  ValidationConfig,
+  defaultValidationConfig,
+  validationPresets,
+} from '../config/validation-config';
 
 export class ValidationEngine {
   private config: ValidationConfig;
   constructor(configPath?: string, preset?: 'draft' | 'review' | 'production') {
     // Load configuration
     this.config = this.loadConfiguration(configPath, preset);
-    
+
     // Initialize default patterns based on config
     this.defaultPatterns = this.buildDefaultPatterns();
   }
 
-  private loadConfiguration(configPath?: string, preset?: 'draft' | 'review' | 'production'): ValidationConfig {
+  private loadConfiguration(
+    configPath?: string,
+    preset?: 'draft' | 'review' | 'production'
+  ): ValidationConfig {
     let config: ValidationConfig;
-    
+
     // Start with default config
     config = { ...defaultValidationConfig };
-    
+
     // Apply preset if specified
     if (preset && validationPresets[preset]) {
       config = { ...config, ...validationPresets[preset] };
     }
-    
+
     // Load custom config file if provided
     if (configPath) {
       try {
@@ -48,40 +55,48 @@ export class ValidationEngine {
         console.warn(`Failed to load configuration from ${configPath}:`, error);
       }
     }
-    
+
     return config;
   }
 
-  private mergeConfigurations(base: ValidationConfig, override: Partial<ValidationConfig>): ValidationConfig {
+  private mergeConfigurations(
+    base: ValidationConfig,
+    override: Partial<ValidationConfig>
+  ): ValidationConfig {
     const merged = { ...base };
-    
+
     // Deep merge for nested objects
     for (const key in override) {
-      if (override.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(override, key)) {
         const value = override[key as keyof ValidationConfig];
         if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-          merged[key as keyof ValidationConfig] = { ...base[key as keyof ValidationConfig], ...value } as any;
+          merged[key as keyof ValidationConfig] = {
+            ...base[key as keyof ValidationConfig],
+            ...value,
+          } as any;
         } else {
           merged[key as keyof ValidationConfig] = value as any;
         }
       }
     }
-    
+
     return merged as ValidationConfig;
   }
 
   private buildDefaultPatterns(): ValidationPattern[] {
     const patterns: ValidationPattern[] = [];
-    
+
     if (this.config.enabled.titleFormat) {
       patterns.push({
         name: 'title_format',
-        pattern: new RegExp(`^.{${this.config.thresholds.minTitleLength},${this.config.thresholds.maxTitleLength}}$`),
+        pattern: new RegExp(
+          `^.{${this.config.thresholds.minTitleLength},${this.config.thresholds.maxTitleLength}}$`
+        ),
         description: `Title must be between ${this.config.thresholds.minTitleLength} and ${this.config.thresholds.maxTitleLength} characters`,
         required: true,
       });
     }
-    
+
     if (this.config.enabled.contentLength) {
       patterns.push({
         name: 'content_min_length',
@@ -90,7 +105,7 @@ export class ValidationEngine {
         required: true,
       });
     }
-    
+
     if (this.config.enabled.idFormat) {
       patterns.push({
         name: 'id_format',
@@ -99,7 +114,7 @@ export class ValidationEngine {
         required: true,
       });
     }
-    
+
     if (this.config.enabled.versionFormat) {
       patterns.push({
         name: 'version_format',
@@ -108,7 +123,7 @@ export class ValidationEngine {
         required: true,
       });
     }
-    
+
     return patterns;
   }
 
@@ -262,7 +277,7 @@ export class ValidationEngine {
 
     for (const pattern of allPatterns) {
       const testValue = this.getValueForPattern(specification, pattern.name);
-      
+
       // Handle null or undefined values
       if (testValue === null || testValue === undefined) {
         if (pattern.required) {
@@ -274,7 +289,7 @@ export class ValidationEngine {
         }
         continue;
       }
-      
+
       // Test the pattern
       if (!pattern.pattern.test(testValue)) {
         if (pattern.required) {
@@ -321,44 +336,46 @@ export class ValidationEngine {
   }
 
   /**
-   * Extract actual content from markdown by removing front matter and unnecessary whitespace
+   * Extract actual content from markdown by removing front matter and markdown syntax
    * @param content Raw content from specification
-   * @returns Cleaned content without front matter and excessive whitespace
+   * @returns Cleaned content without front matter and markdown syntax
    */
   private getActualContent(content: string): string {
     if (!content) return '';
-    
-    // Remove front matter (between --- markers)
-    const frontMatterRegex = /^---\s*\n[\s\S]*?\n---\s*\n/;
-    let actualContent = content.replace(frontMatterRegex, '');
-    
-    // Remove markdown headers (# ## ### etc.) but keep the text
-    actualContent = actualContent.replace(/^#{1,6}\s+/gm, '');
-    
-    // Remove markdown list markers (-, *, 1., 2., etc.)
-    actualContent = actualContent.replace(/^[-*+]\s+/gm, '');
-    actualContent = actualContent.replace(/^\d+\.\s+/gm, '');
-    
-    // Remove markdown link syntax [text](url) but keep the text
-    actualContent = actualContent.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-    
-    // Remove markdown code blocks
-    actualContent = actualContent.replace(/```[\s\S]*?```/g, '');
-    actualContent = actualContent.replace(/`([^`]+)`/g, '$1');
-    
-    // Remove markdown emphasis (*, _, **, __)
-    actualContent = actualContent.replace(/\*\*([^*]+)\*\*/g, '$1');
-    actualContent = actualContent.replace(/\*([^*]+)\*/g, '$1');
-    actualContent = actualContent.replace(/__([^_]+)__/g, '$1');
-    actualContent = actualContent.replace(/_([^_]+)_/g, '$1');
-    
-    // Remove blockquotes (> )
-    actualContent = actualContent.replace(/^>\s+/gm, '');
-    
-    // Remove excessive whitespace but preserve single spaces between words
-    actualContent = actualContent.replace(/\s+/g, ' ').trim();
-    
-    return actualContent;
+
+    // 1. Remove front matter (between --- markers)
+    const frontMatterRegex = /^---[\s\S]*?---\n/;
+    let contentWithoutMeta = content.replace(frontMatterRegex, '');
+
+    // 2. Remove code blocks with improved regex
+    const codeBlockRegex = /```[\s\S]*?```/g;
+    contentWithoutMeta = contentWithoutMeta.replace(codeBlockRegex, '');
+
+    // 3. Remove inline code
+    const inlineCodeRegex = /`[^`]*`/g;
+    contentWithoutMeta = contentWithoutMeta.replace(inlineCodeRegex, '');
+
+    // 4. Remove HTML tags
+    const htmlTagRegex = /<[^>]*>/g;
+    contentWithoutMeta = contentWithoutMeta.replace(htmlTagRegex, '');
+
+    // 5. Remove markdown syntax but keep text
+    const plainText = contentWithoutMeta
+      .replace(/#{1,6}\s+/g, '') // Remove headers (with space after #)
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold markers but keep text
+      .replace(/__([^_]+)__/g, '$1') // Remove bold markers but keep text
+      .replace(/\*([^*]+)\*/g, '$1') // Remove italic markers but keep text
+      .replace(/_([^_]+)_/g, '$1') // Remove italic markers but keep text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Keep link text only
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '') // Remove images
+      .replace(/^\s*[-*+]\s+/gm, '') // Remove list markers (with space after)
+      .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered lists (with space after)
+      .replace(/^>\s+/gm, '') // Remove blockquote markers (with space after)
+      .replace(/\n{3,}/g, '\n\n') // Normalize whitespace
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
+
+    return plainText;
   }
 
   private validateTypeSpecificRules(
@@ -380,7 +397,7 @@ export class ValidationEngine {
         this.validateServiceSpec(specification, errors, warnings);
         break;
     }
-    
+
     // Validate traceability if enabled
     if (this.config.enabled.traceability) {
       this.validateTraceability(specification, errors, warnings);
@@ -393,29 +410,29 @@ export class ValidationEngine {
     warnings: ValidationWarning[]
   ): void {
     if (!this.config.enabled.userStoryFormat) return;
-    
+
     const content = specification.content.toLowerCase();
     const userStoryConfig = this.config.userStory;
-    
+
     // Check user story format
     if (userStoryConfig.requireExactFormat || userStoryConfig.allowVariations) {
       let formatMatched = false;
       const patterns = userStoryConfig.allowVariations
         ? userStoryConfig.variations
         : ['as a\\s+.+\\s+i want to\\s+.+\\s+so that\\s+.+'];
-      
+
       for (const pattern of patterns) {
         if (new RegExp(pattern, 'i').test(content)) {
           formatMatched = true;
           break;
         }
       }
-      
+
       if (!formatMatched) {
         const message = userStoryConfig.requireExactFormat
           ? 'User story must follow the exact format: "As a [user], I want to [action], so that [benefit]"'
           : 'User story should follow the format: "As a [user], I want to [action], so that [benefit]"';
-        
+
         if (userStoryConfig.requireExactFormat) {
           errors.push({
             type: ErrorType.PATTERN_MISMATCH,
@@ -431,18 +448,18 @@ export class ValidationEngine {
         }
       }
     }
-    
+
     // Check acceptance criteria
     if (userStoryConfig.requireAcceptanceCriteria) {
       let hasAcceptanceCriteria = false;
-      
+
       for (const pattern of userStoryConfig.acceptanceCriteriaPatterns) {
         if (new RegExp(pattern, 'i').test(content)) {
           hasAcceptanceCriteria = true;
           break;
         }
       }
-      
+
       if (!hasAcceptanceCriteria) {
         if (userStoryConfig.requireAcceptanceCriteria) {
           errors.push({
@@ -467,7 +484,7 @@ export class ValidationEngine {
     warnings: ValidationWarning[]
   ): void {
     const traceabilityConfig = this.config.traceability;
-    
+
     // Check parent link
     if (traceabilityConfig.requireParent && !specification.parent) {
       warnings.push({
@@ -476,32 +493,38 @@ export class ValidationEngine {
         suggestion: 'Add a parent link to establish traceability',
       });
     }
-    
+
     // Check dependencies
-    if (traceabilityConfig.requireDependencies && (!specification.dependencies || specification.dependencies.length === 0)) {
+    if (
+      traceabilityConfig.requireDependencies &&
+      (!specification.dependencies || specification.dependencies.length === 0)
+    ) {
       warnings.push({
         type: WarningType.INCOMPLETE_CONTENT,
         message: 'Specification should have dependencies',
         suggestion: 'Add dependencies to related specifications',
       });
     }
-    
+
     // Check related links
-    if (traceabilityConfig.requireRelated && (!specification.related || specification.related.length === 0)) {
+    if (
+      traceabilityConfig.requireRelated &&
+      (!specification.related || specification.related.length === 0)
+    ) {
       warnings.push({
         type: WarningType.INCOMPLETE_CONTENT,
         message: 'Specification should have related links',
         suggestion: 'Add related specifications for better traceability',
       });
     }
-    
+
     // Validate link formats
     const allLinks = [
       ...(specification.dependencies || []),
       ...(specification.related || []),
-      ...(specification.parent ? [specification.parent] : [])
+      ...(specification.parent ? [specification.parent] : []),
     ];
-    
+
     for (const link of allLinks) {
       if (typeof link !== 'string' || !link.trim()) {
         errors.push({
@@ -754,14 +777,19 @@ export class ValidationEngine {
     }
 
     // Check version format consistency (only if enabled)
-    if (this.config.enabled.versionFormat && specification.metadata.version &&
-        !/^\d+\.\d+\.\d+$/.test(specification.metadata.version)) {
+    if (
+      this.config.enabled.versionFormat &&
+      specification.metadata.version &&
+      !/^\d+\.\d+\.\d+$/.test(specification.metadata.version)
+    ) {
       score -= 20;
     }
 
     // Check title length using configurable thresholds
-    if (specification.title.length > thresholds.maxTitleLength ||
-        specification.title.length < thresholds.minTitleLength) {
+    if (
+      specification.title.length > thresholds.maxTitleLength ||
+      specification.title.length < thresholds.minTitleLength
+    ) {
       score -= 15;
     }
 
@@ -807,7 +835,7 @@ export class ValidationEngine {
     // Use configurable penalty points based on score level
     let errorPenalty = 20;
     let warningPenalty = 5;
-    
+
     if (score < scoreThresholds.acceptableScoreThreshold) {
       errorPenalty = 25;
       warningPenalty = 8;

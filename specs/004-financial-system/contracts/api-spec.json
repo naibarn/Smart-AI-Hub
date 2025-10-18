@@ -1,0 +1,551 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Financial System & Credits API",
+    "description": "API for managing credit accounts, transactions, and payment processing",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Development Team",
+      "email": "dev@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.example.com/v1",
+      "description": "Staging server"
+    }
+  ],
+  "paths": {
+    "/api/credits/balance": {
+      "get": {
+        "summary": "Get Credit Balance",
+        "description": "Retrieves the current credit balance for the authenticated user",
+        "tags": ["Credit Management"],
+        "responses": {
+          "200": {
+            "description": "Credit balance retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditBalanceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credits/transactions": {
+      "get": {
+        "summary": "Get Transaction History",
+        "description": "Retrieves the transaction history for the authenticated user",
+        "tags": ["Credit Management"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["purchase", "usage", "refund", "bonus"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionHistoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credits/purchase": {
+      "post": {
+        "summary": "Purchase Credits",
+        "description": "Purchases credits using the specified payment method",
+        "tags": ["Credit Management"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseCreditsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credits purchased successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseCreditsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mcp/v1/credits/check": {
+      "post": {
+        "summary": "Check User Credits",
+        "description": "Checks if a user has sufficient credits for a service (for third-party services)",
+        "tags": ["Credit Check API"],
+        "parameters": [
+          {
+            "name": "X-User-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckCreditsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credit check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckCreditsResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient credits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mcp/v1/credits/use": {
+      "post": {
+        "summary": "Use Credits",
+        "description": "Deducts credits from a user account for a service (for third-party services)",
+        "tags": ["Credit Check API"],
+        "parameters": [
+          {
+            "name": "X-User-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UseCreditsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credits used successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UseCreditsResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Insufficient credits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PurchaseCreditsRequest": {
+        "type": "object",
+        "required": ["amount", "paymentMethod"],
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Amount of credits to purchase"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": ["credit_card", "paypal", "stripe", "apple_pay", "google_pay"],
+            "description": "Payment method to use"
+          },
+          "paymentDetails": {
+            "type": "object",
+            "description": "Payment method specific details",
+            "properties": {
+              "token": {
+                "type": "string",
+                "description": "Payment token from payment provider"
+              },
+              "savePaymentMethod": {
+                "type": "boolean",
+                "description": "Whether to save the payment method for future use"
+              }
+            }
+          }
+        }
+      },
+      "CheckCreditsRequest": {
+        "type": "object",
+        "required": ["service", "cost"],
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "Service name or identifier"
+          },
+          "cost": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Cost of the service in credits"
+          }
+        }
+      },
+      "UseCreditsRequest": {
+        "type": "object",
+        "required": ["service", "cost"],
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "Service name or identifier"
+          },
+          "cost": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Cost of the service in credits"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description of the service usage"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the transaction"
+          }
+        }
+      },
+      "CreditBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "integer",
+            "description": "Current credit balance"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency type (always 'credits')"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the balance was last updated"
+          }
+        }
+      },
+      "PurchaseCreditsResponse": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID for the purchase"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Amount of credits purchased"
+          },
+          "newBalance": {
+            "type": "integer",
+            "description": "New credit balance after purchase"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["completed", "pending", "failed"],
+            "description": "Transaction status"
+          },
+          "paymentId": {
+            "type": "string",
+            "description": "Payment processor transaction ID"
+          }
+        }
+      },
+      "CheckCreditsResponse": {
+        "type": "object",
+        "properties": {
+          "sufficient": {
+            "type": "boolean",
+            "description": "Whether user has sufficient credits"
+          },
+          "balance": {
+            "type": "integer",
+            "description": "Current credit balance"
+          },
+          "cost": {
+            "type": "integer",
+            "description": "Cost of the service"
+          }
+        }
+      },
+      "UseCreditsResponse": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID for the credit usage"
+          },
+          "deducted": {
+            "type": "integer",
+            "description": "Amount of credits deducted"
+          },
+          "newBalance": {
+            "type": "integer",
+            "description": "New credit balance after deduction"
+          }
+        }
+      },
+      "TransactionHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Transaction amount (positive for credits, negative for debits)"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["purchase", "usage", "refund", "bonus"],
+            "description": "Transaction type"
+          },
+          "description": {
+            "type": "string",
+            "description": "Transaction description"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Transaction timestamp"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional transaction metadata"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Items per page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Credit Management",
+      "description": "Operations for managing user credit accounts and transactions"
+    },
+    {
+      "name": "Credit Check API",
+      "description": "Operations for third-party services to check and use user credits"
+    }
+  ]
+}

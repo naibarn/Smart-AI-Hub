@@ -101,12 +101,12 @@ export class ValidationReportGenerator {
     for (let i = 0; i < specifications.length; i++) {
       const spec = specifications[i];
       const result = results[i];
-      
+
       const specReport = this.generateSpecificationReport(spec, result);
       specReports.push(specReport);
-      
+
       totalScore += result.score;
-      
+
       // Update score distribution
       if (result.score >= this.config.thresholds.excellentScoreThreshold) {
         scoreDistribution.excellent++;
@@ -121,8 +121,8 @@ export class ValidationReportGenerator {
 
     const summary: ReportSummary = {
       total: specifications.length,
-      valid: results.filter(r => r.valid).length,
-      invalid: results.filter(r => !r.valid).length,
+      valid: results.filter((r) => r.valid).length,
+      invalid: results.filter((r) => !r.valid).length,
       averageScore: specifications.length > 0 ? totalScore / specifications.length : 0,
       errors: results.reduce((sum, r) => sum + r.errors.length, 0),
       warnings: results.reduce((sum, r) => sum + r.warnings.length, 0),
@@ -219,25 +219,29 @@ export class ValidationReportGenerator {
     }
   }
 
-  private getIssuePriorityAndEffort(
-    issue: ValidationError | ValidationWarning
-  ): { priority: 'high' | 'medium' | 'low'; effort: 'quick' | 'moderate' | 'significant' } {
+  private getIssuePriorityAndEffort(issue: ValidationError | ValidationWarning): {
+    priority: 'high' | 'medium' | 'low';
+    effort: 'quick' | 'moderate' | 'significant';
+  } {
     // Errors have higher priority than warnings
     const isHighPriority = 'severity' in issue && issue.severity === 'error';
-    
+
     // Determine priority based on issue type
     if (issue.type === ErrorType.MISSING_FIELD || issue.type === ErrorType.DEPENDENCY_ERROR) {
       return { priority: 'high', effort: 'quick' };
     }
-    
-    if (issue.type === ErrorType.PATTERN_MISMATCH || issue.type === WarningType.UNCLEAR_REQUIREMENT) {
+
+    if (
+      issue.type === ErrorType.PATTERN_MISMATCH ||
+      issue.type === WarningType.UNCLEAR_REQUIREMENT
+    ) {
       return { priority: isHighPriority ? 'high' : 'medium', effort: 'moderate' };
     }
-    
+
     if (issue.type === WarningType.MISSING_ACCEPTANCE_CRITERIA) {
       return { priority: 'medium', effort: 'significant' };
     }
-    
+
     return { priority: 'low', effort: 'quick' };
   }
 
@@ -251,23 +255,23 @@ export class ValidationReportGenerator {
     switch (issue.type) {
       case ErrorType.MISSING_FIELD:
         return `Add the required field mentioned in the error message.`;
-      
+
       case ErrorType.INVALID_FORMAT:
       case ErrorType.PATTERN_MISMATCH:
         return `Update the content to match the required format specified in the error message.`;
-      
+
       case ErrorType.DEPENDENCY_ERROR:
         return `Check and fix the dependency references. Ensure all linked specifications exist.`;
-      
+
       case WarningType.UNCLEAR_REQUIREMENT:
         return `Rewrite the requirement to be more specific and unambiguous. Use clear language and avoid ambiguity.`;
-      
+
       case WarningType.INCOMPLETE_CONTENT:
         return `Add more detail to make the specification complete and testable.`;
-      
+
       case WarningType.MISSING_ACCEPTANCE_CRITERIA:
         return `Add acceptance criteria using the Given-When-Then format to make the user story testable.`;
-      
+
       default:
         return `Review and address the issue mentioned in the message.`;
     }
@@ -284,8 +288,8 @@ export class ValidationReportGenerator {
         description: `Multiple specifications are missing required fields. Consider creating templates to ensure consistency.`,
         impact: 'Improves specification completeness and reduces validation errors',
         affectedSpecifications: specReports
-          .filter(s => s.errors.some(e => e.type === ErrorType.MISSING_FIELD))
-          .map(s => s.id),
+          .filter((s) => s.errors.some((e) => e.type === ErrorType.MISSING_FIELD))
+          .map((s) => s.id),
         priority: 'high',
       });
     }
@@ -296,8 +300,8 @@ export class ValidationReportGenerator {
         description: `Several specifications have format issues. Review formatting guidelines and consider using linter rules.`,
         impact: 'Improves consistency and readability across specifications',
         affectedSpecifications: specReports
-          .filter(s => s.errors.some(e => e.type === ErrorType.PATTERN_MISMATCH))
-          .map(s => s.id),
+          .filter((s) => s.errors.some((e) => e.type === ErrorType.PATTERN_MISMATCH))
+          .map((s) => s.id),
         priority: 'medium',
       });
     }
@@ -308,8 +312,8 @@ export class ValidationReportGenerator {
         description: `Some specifications lack clarity. Consider conducting peer reviews and using clear language guidelines.`,
         impact: 'Reduces ambiguity and improves implementation accuracy',
         affectedSpecifications: specReports
-          .filter(s => s.warnings.some(w => w.type === WarningType.UNCLEAR_REQUIREMENT))
-          .map(s => s.id),
+          .filter((s) => s.warnings.some((w) => w.type === WarningType.UNCLEAR_REQUIREMENT))
+          .map((s) => s.id),
         priority: 'medium',
       });
     }
@@ -320,8 +324,8 @@ export class ValidationReportGenerator {
         description: `Traceability links are missing or incomplete. Establish clear traceability requirements.`,
         impact: 'Improves requirement tracking and impact analysis',
         affectedSpecifications: specReports
-          .filter(s => s.metrics.traceability < 70)
-          .map(s => s.id),
+          .filter((s) => s.metrics.traceability < 70)
+          .map((s) => s.id),
         priority: 'low',
       });
     }
@@ -334,14 +338,23 @@ export class ValidationReportGenerator {
 
   private aggregateIssues(specReports: SpecificationReport[]) {
     return {
-      missingFields: specReports.reduce((sum, s) => 
-        sum + s.errors.filter(e => e.type === ErrorType.MISSING_FIELD).length, 0),
-      formatIssues: specReports.reduce((sum, s) => 
-        sum + s.errors.filter(e => e.type === ErrorType.PATTERN_MISMATCH).length, 0),
-      clarityIssues: specReports.reduce((sum, s) => 
-        sum + s.warnings.filter(w => w.type === WarningType.UNCLEAR_REQUIREMENT).length, 0),
-      traceabilityIssues: specReports.reduce((sum, s) => 
-        sum + (s.metrics.traceability < 70 ? 1 : 0), 0),
+      missingFields: specReports.reduce(
+        (sum, s) => sum + s.errors.filter((e) => e.type === ErrorType.MISSING_FIELD).length,
+        0
+      ),
+      formatIssues: specReports.reduce(
+        (sum, s) => sum + s.errors.filter((e) => e.type === ErrorType.PATTERN_MISMATCH).length,
+        0
+      ),
+      clarityIssues: specReports.reduce(
+        (sum, s) =>
+          sum + s.warnings.filter((w) => w.type === WarningType.UNCLEAR_REQUIREMENT).length,
+        0
+      ),
+      traceabilityIssues: specReports.reduce(
+        (sum, s) => sum + (s.metrics.traceability < 70 ? 1 : 0),
+        0
+      ),
     };
   }
 
@@ -360,7 +373,7 @@ export class ValidationReportGenerator {
 
   generateMarkdownReport(report: ValidationReport): string {
     const md = [];
-    
+
     // Header
     md.push('# SpeckIt Validation Report');
     md.push(`Generated on: ${report.timestamp.toISOString()}`);
@@ -394,16 +407,18 @@ export class ValidationReportGenerator {
     md.push('');
 
     // Specifications with issues
-    const problemSpecs = report.specifications.filter(s => !s.valid || s.warnings.length > 0);
+    const problemSpecs = report.specifications.filter((s) => !s.valid || s.warnings.length > 0);
     if (problemSpecs.length > 0) {
       md.push('## Specifications Requiring Attention');
       md.push('');
-      
+
       for (const spec of problemSpecs) {
         md.push(`### ${spec.title} (${spec.id})`);
-        md.push(`**Score**: ${spec.score}% | **Type**: ${spec.type} | **Valid**: ${spec.valid ? '✅' : '❌'}`);
+        md.push(
+          `**Score**: ${spec.score}% | **Type**: ${spec.type} | **Valid**: ${spec.valid ? '✅' : '❌'}`
+        );
         md.push('');
-        
+
         if (spec.errors.length > 0) {
           md.push('#### Errors:');
           for (const error of spec.errors) {
@@ -411,7 +426,7 @@ export class ValidationReportGenerator {
           }
           md.push('');
         }
-        
+
         if (spec.warnings.length > 0) {
           md.push('#### Warnings:');
           for (const warning of spec.warnings) {
@@ -419,10 +434,11 @@ export class ValidationReportGenerator {
           }
           md.push('');
         }
-        
+
         if (spec.fixSuggestions.length > 0) {
           md.push('#### Suggested Fixes:');
-          for (const fix of spec.fixSuggestions.slice(0, 5)) { // Show top 5
+          for (const fix of spec.fixSuggestions.slice(0, 5)) {
+            // Show top 5
             md.push(`- [${fix.priority.toUpperCase()}] ${fix.suggestion}`);
           }
           md.push('');
@@ -434,7 +450,7 @@ export class ValidationReportGenerator {
     if (report.recommendations.length > 0) {
       md.push('## Recommendations');
       md.push('');
-      
+
       for (const rec of report.recommendations) {
         md.push(`### ${rec.category} [${rec.priority.toUpperCase()}]`);
         md.push(rec.description);
