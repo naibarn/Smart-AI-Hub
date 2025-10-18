@@ -22,7 +22,7 @@ class RAGService {
    */
   async uploadDocument(request: UploadDocumentRequest): Promise<Document> {
     const formData = new FormData();
-    
+
     if (request.file instanceof File) {
       formData.append('file', request.file);
     } else {
@@ -30,14 +30,14 @@ class RAGService {
       const blob = new Blob([request.file as any]);
       formData.append('file', blob);
     }
-    
+
     formData.append('title', request.title);
     formData.append('accessLevel', request.accessLevel);
-    
+
     if (request.sharedWithAgentIds) {
       formData.append('sharedWithAgentIds', JSON.stringify(request.sharedWithAgentIds));
     }
-    
+
     if (request.agentId) {
       formData.append('agentId', request.agentId);
     }
@@ -71,7 +71,7 @@ class RAGService {
     search?: string;
   }): Promise<{ data: Document[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -124,7 +124,7 @@ class RAGService {
     params?: { page?: number; limit?: number }
   ): Promise<{ data: DocumentChunk[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -158,7 +158,7 @@ class RAGService {
     params?: { page?: number; limit?: number }
   ): Promise<{ data: DocumentAccessLog[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {

@@ -82,7 +82,9 @@ const RAGSystem: React.FC = () => {
   const [queryDialogOpen, setQueryDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentTitle, setDocumentTitle] = useState('');
-  const [documentAccessLevel, setDocumentAccessLevel] = useState<DocumentAccessLevel>(DocumentAccessLevel.PRIVATE);
+  const [documentAccessLevel, setDocumentAccessLevel] = useState<DocumentAccessLevel>(
+    DocumentAccessLevel.PRIVATE
+  );
   const [queryText, setQueryText] = useState('');
   const [queryResults, setQueryResults] = useState<RAGQueryResponse | null>(null);
   const [stats, setStats] = useState({
@@ -108,7 +110,7 @@ const RAGSystem: React.FC = () => {
       const params: any = { page, limit: 10 };
       if (searchQuery) params.search = searchQuery;
       if (accessFilter) params.accessLevel = accessFilter;
-      
+
       const response = await ragService.getDocuments(params);
       setDocuments(response.data);
       setTotalPages(Math.ceil(response.total / 10));
@@ -150,7 +152,7 @@ const RAGSystem: React.FC = () => {
         title: documentTitle,
         accessLevel: documentAccessLevel,
       });
-      
+
       setSnackbar({
         open: true,
         message: 'Document uploaded successfully',
@@ -261,9 +263,7 @@ const RAGSystem: React.FC = () => {
               <Typography color="textSecondary" gutterBottom>
                 Total Documents
               </Typography>
-              <Typography variant="h5">
-                {stats.totalDocuments}
-              </Typography>
+              <Typography variant="h5">{stats.totalDocuments}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -273,9 +273,7 @@ const RAGSystem: React.FC = () => {
               <Typography color="textSecondary" gutterBottom>
                 Total Chunks
               </Typography>
-              <Typography variant="h5">
-                {stats.totalChunks}
-              </Typography>
+              <Typography variant="h5">{stats.totalChunks}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -285,9 +283,7 @@ const RAGSystem: React.FC = () => {
               <Typography color="textSecondary" gutterBottom>
                 Total Queries
               </Typography>
-              <Typography variant="h5">
-                {stats.totalQueries}
-              </Typography>
+              <Typography variant="h5">{stats.totalQueries}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -297,9 +293,7 @@ const RAGSystem: React.FC = () => {
               <Typography color="textSecondary" gutterBottom>
                 Avg Query Time
               </Typography>
-              <Typography variant="h5">
-                {stats.averageQueryTime.toFixed(2)}ms
-              </Typography>
+              <Typography variant="h5">{stats.averageQueryTime.toFixed(2)}ms</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -337,18 +331,10 @@ const RAGSystem: React.FC = () => {
               <MenuItem value={DocumentAccessLevel.PUBLIC}>Public</MenuItem>
             </Select>
           </FormControl>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setUploadDialogOpen(true)}
-          >
+          <Button variant="contained" startIcon={<Add />} onClick={() => setUploadDialogOpen(true)}>
             Upload Document
           </Button>
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={fetchDocuments}
-          >
+          <Button variant="outlined" startIcon={<Refresh />} onClick={fetchDocuments}>
             Refresh
           </Button>
         </Box>
@@ -388,9 +374,7 @@ const RAGSystem: React.FC = () => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>
-                    {new Date(doc.createdAt).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell>{new Date(doc.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <IconButton size="small">
                       <Visibility />
@@ -410,11 +394,7 @@ const RAGSystem: React.FC = () => {
 
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(e, value) => setPage(value)}
-            />
+            <Pagination count={totalPages} page={page} onChange={(e, value) => setPage(value)} />
           </Box>
         )}
       </TabPanel>
@@ -481,7 +461,12 @@ const RAGSystem: React.FC = () => {
       </TabPanel>
 
       {/* Upload Dialog */}
-      <Dialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={uploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Upload Document</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>

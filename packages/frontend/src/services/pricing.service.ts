@@ -29,7 +29,7 @@ class PricingService {
   async getPricingRules(platformId: string, modelId?: string): Promise<PricingRule[]> {
     const params = new URLSearchParams();
     params.append('platformId', platformId);
-    
+
     if (modelId) {
       params.append('modelId', modelId);
     }
@@ -49,7 +49,7 @@ class PricingService {
     modelId?: string;
   }): Promise<{ data: PricingRule[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -68,7 +68,9 @@ class PricingService {
    * @param request - Pricing rule creation request
    * @returns Created pricing rule
    */
-  async createPricingRule(request: Omit<PricingRule, 'id' | 'createdAt' | 'updatedAt'>): Promise<PricingRule> {
+  async createPricingRule(
+    request: Omit<PricingRule, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<PricingRule> {
     return apiService.post<PricingRule>('/api/pricing/rules', request);
   }
 
@@ -112,7 +114,10 @@ class PricingService {
     amount: number;
     sessionId?: string;
   }): Promise<{ success: boolean; reservationId: string }> {
-    return apiService.post<{ success: boolean; reservationId: string }>('/api/pricing/reserve', request);
+    return apiService.post<{ success: boolean; reservationId: string }>(
+      '/api/pricing/reserve',
+      request
+    );
   }
 
   /**
@@ -165,7 +170,7 @@ class PricingService {
     modelId?: string;
   }): Promise<UsageHistoryResponse> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -174,7 +179,9 @@ class PricingService {
       });
     }
 
-    return apiService.get<UsageHistoryResponse>(`/api/pricing/usage-history?${queryParams.toString()}`);
+    return apiService.get<UsageHistoryResponse>(
+      `/api/pricing/usage-history?${queryParams.toString()}`
+    );
   }
 
   /**

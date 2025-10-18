@@ -14,7 +14,7 @@ import {
   User,
   ApiResponse,
   ErrorCode,
-  HttpStatus
+  HttpStatus,
 } from '@/types';
 import { CloudflareR2Service } from './CloudflareR2Service';
 import { CloudflareVectorizeService } from './CloudflareVectorizeService';
@@ -46,20 +46,26 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.FILE_TOO_LARGE,
-            message: 'File size exceeds 10MB limit'
-          }
+            message: 'File size exceeds 10MB limit',
+          },
         };
       }
 
       // Validate file type
-      const supportedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain', 'text/markdown'];
+      const supportedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'text/markdown',
+      ];
       if (!supportedTypes.includes(request.file.mimetype)) {
         return {
           success: false,
           error: {
             code: ErrorCode.INVALID_FILE_TYPE,
-            message: 'Unsupported file type'
-          }
+            message: 'Unsupported file type',
+          },
         };
       }
 
@@ -85,7 +91,7 @@ export class RAGService {
         allowCopy: true,
         status: DocumentStatus.PENDING,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       // Upload file to R2
@@ -98,7 +104,7 @@ export class RAGService {
       if (!uploadResult.success) {
         return {
           success: false,
-          error: uploadResult.error
+          error: uploadResult.error,
         };
       }
 
@@ -112,7 +118,7 @@ export class RAGService {
 
       return {
         success: true,
-        data: document
+        data: document,
       };
     } catch (error) {
       logger.error('Error uploading document:', error);
@@ -120,8 +126,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to upload document'
-        }
+          message: 'Failed to upload document',
+        },
       };
     }
   }
@@ -144,7 +150,7 @@ export class RAGService {
       if (!queryEmbedding.success) {
         return {
           success: false,
-          error: queryEmbedding.error
+          error: queryEmbedding.error,
         };
       }
 
@@ -162,7 +168,7 @@ export class RAGService {
       if (!searchResult.success) {
         return {
           success: false,
-          error: searchResult.error
+          error: searchResult.error,
         };
       }
 
@@ -184,7 +190,7 @@ export class RAGService {
           chunkId: match.id,
           chunkText: match.text,
           score: match.score,
-          metadata: match.metadata
+          metadata: match.metadata,
         });
       }
 
@@ -197,8 +203,8 @@ export class RAGService {
         data: {
           results,
           totalResults: results.length,
-          queryTime
-        }
+          queryTime,
+        },
       };
     } catch (error) {
       logger.error('Error querying documents:', error);
@@ -206,8 +212,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to query documents'
-        }
+          message: 'Failed to query documents',
+        },
       };
     }
   }
@@ -224,7 +230,7 @@ export class RAGService {
       const documents = await this.getDocumentsByUserId(userId, agentId, accessLevel);
       return {
         success: true,
-        data: documents
+        data: documents,
       };
     } catch (error) {
       logger.error('Error getting user documents:', error);
@@ -232,8 +238,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get documents'
-        }
+          message: 'Failed to get documents',
+        },
       };
     }
   }
@@ -241,10 +247,7 @@ export class RAGService {
   /**
    * Get document by ID
    */
-  async getDocument(
-    userId: string,
-    documentId: string
-  ): Promise<ApiResponse<Document>> {
+  async getDocument(userId: string, documentId: string): Promise<ApiResponse<Document>> {
     try {
       const document = await this.getDocumentById(documentId);
       if (!document) {
@@ -252,8 +255,8 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.DOCUMENT_NOT_FOUND,
-            message: 'Document not found'
-          }
+            message: 'Document not found',
+          },
         };
       }
 
@@ -264,8 +267,8 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Access denied'
-          }
+            message: 'Access denied',
+          },
         };
       }
 
@@ -273,7 +276,7 @@ export class RAGService {
 
       return {
         success: true,
-        data: document
+        data: document,
       };
     } catch (error) {
       logger.error('Error getting document:', error);
@@ -281,8 +284,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get document'
-        }
+          message: 'Failed to get document',
+        },
       };
     }
   }
@@ -302,8 +305,8 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.DOCUMENT_NOT_FOUND,
-            message: 'Document not found'
-          }
+            message: 'Document not found',
+          },
         };
       }
 
@@ -313,8 +316,8 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Only document owner can update access level'
-          }
+            message: 'Only document owner can update access level',
+          },
         };
       }
 
@@ -332,7 +335,7 @@ export class RAGService {
 
       return {
         success: true,
-        data: document
+        data: document,
       };
     } catch (error) {
       logger.error('Error updating document access:', error);
@@ -340,8 +343,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to update document access'
-        }
+          message: 'Failed to update document access',
+        },
       };
     }
   }
@@ -349,10 +352,7 @@ export class RAGService {
   /**
    * Delete document
    */
-  async deleteDocument(
-    userId: string,
-    documentId: string
-  ): Promise<ApiResponse<void>> {
+  async deleteDocument(userId: string, documentId: string): Promise<ApiResponse<void>> {
     try {
       const document = await this.getDocumentById(documentId);
       if (!document) {
@@ -360,8 +360,8 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.DOCUMENT_NOT_FOUND,
-            message: 'Document not found'
-          }
+            message: 'Document not found',
+          },
         };
       }
 
@@ -371,8 +371,8 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Only document owner can delete document'
-          }
+            message: 'Only document owner can delete document',
+          },
         };
       }
 
@@ -391,7 +391,7 @@ export class RAGService {
       logger.info(`Document deleted: ${documentId}`);
 
       return {
-        success: true
+        success: true,
       };
     } catch (error) {
       logger.error('Error deleting document:', error);
@@ -399,8 +399,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to delete document'
-        }
+          message: 'Failed to delete document',
+        },
       };
     }
   }
@@ -419,32 +419,36 @@ export class RAGService {
           success: false,
           error: {
             code: ErrorCode.DOCUMENT_NOT_FOUND,
-            message: 'Document not found'
-          }
+            message: 'Document not found',
+          },
         };
       }
 
       const hasAccess = await this.accessControl.checkDocumentAccess(userId, document);
       if (!hasAccess || !document.allowDownload) {
-        await this.logDocumentAccess(documentId, userId, undefined, 'download', false, 'Access denied');
+        await this.logDocumentAccess(
+          documentId,
+          userId,
+          undefined,
+          'download',
+          false,
+          'Access denied'
+        );
         return {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Download not allowed'
-          }
+            message: 'Download not allowed',
+          },
         };
       }
 
-      const downloadResult = await this.r2Service.downloadFile(
-        document.r2Bucket,
-        document.r2Key
-      );
+      const downloadResult = await this.r2Service.downloadFile(document.r2Bucket, document.r2Key);
 
       if (!downloadResult.success) {
         return {
           success: false,
-          error: downloadResult.error
+          error: downloadResult.error,
         };
       }
 
@@ -454,8 +458,8 @@ export class RAGService {
         success: true,
         data: {
           stream: downloadResult.data!,
-          filename: document.filename || document.title
-        }
+          filename: document.filename || document.title,
+        },
       };
     } catch (error) {
       logger.error('Error downloading document:', error);
@@ -463,8 +467,8 @@ export class RAGService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to download document'
-        }
+          message: 'Failed to download document',
+        },
       };
     }
   }
@@ -480,10 +484,7 @@ export class RAGService {
       await this.updateDocument(document);
 
       // Download file from R2
-      const downloadResult = await this.r2Service.downloadFile(
-        document.r2Bucket,
-        document.r2Key
-      );
+      const downloadResult = await this.r2Service.downloadFile(document.r2Bucket, document.r2Key);
 
       if (!downloadResult.success) {
         throw new Error(`Failed to download file: ${downloadResult.error?.message}`);
@@ -508,7 +509,7 @@ export class RAGService {
       logger.info(`Document processed successfully: ${document.id}`);
     } catch (error) {
       logger.error(`Error processing document ${document.id}:`, error);
-      
+
       // Update status to failed
       document.status = DocumentStatus.FAILED;
       document.errorMessage = error instanceof Error ? error.message : 'Unknown error';

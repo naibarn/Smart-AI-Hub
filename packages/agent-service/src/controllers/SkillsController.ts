@@ -12,11 +12,11 @@ export class SkillsController {
   async getCategories(req: Request, res: Response): Promise<void> {
     try {
       const categories = await this.skillsService.getCategories();
-      
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: categories,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getCategories controller:', error);
@@ -24,9 +24,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get categories'
+          message: 'Failed to get categories',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -44,9 +44,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Category ID is required'
+            message: 'Category ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -58,11 +58,11 @@ export class SkillsController {
         sortBy as string,
         sortOrder as 'asc' | 'desc'
       );
-      
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getSkillsByCategory controller:', error);
@@ -70,9 +70,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get skills'
+          message: 'Failed to get skills',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -89,27 +89,24 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Search query is required'
+            message: 'Search query is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
 
-      const result = await this.skillsService.searchSkills(
-        q as string,
-        {
-          category: category as string,
-          platform: platform as string,
-          limit: limit ? parseInt(limit as string) : undefined,
-          offset: offset ? parseInt(offset as string) : undefined
-        }
-      );
-      
+      const result = await this.skillsService.searchSkills(q as string, {
+        category: category as string,
+        platform: platform as string,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      });
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in searchSkills controller:', error);
@@ -117,9 +114,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to search skills'
+          message: 'Failed to search skills',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -136,31 +133,31 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
 
       const skill = await this.skillsService.getSkillDetails(skillId);
-      
+
       if (!skill) {
         res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
-      
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getSkillDetails controller:', error);
@@ -168,9 +165,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get skill details'
+          message: 'Failed to get skill details',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -186,9 +183,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -200,12 +197,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.CREATED).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -214,9 +211,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to create skill'
+          message: 'Failed to create skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -232,9 +229,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -247,9 +244,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -259,12 +256,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -273,9 +270,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to update skill'
+          message: 'Failed to update skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -291,9 +288,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -305,9 +302,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -317,12 +314,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -331,9 +328,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to submit skill for review'
+          message: 'Failed to submit skill for review',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -349,9 +346,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -362,9 +359,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Admin access required'
+            message: 'Admin access required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -376,9 +373,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -388,12 +385,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -402,9 +399,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to approve skill'
+          message: 'Failed to approve skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -420,9 +417,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -433,9 +430,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Admin access required'
+            message: 'Admin access required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -448,9 +445,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -460,12 +457,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -474,9 +471,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to reject skill'
+          message: 'Failed to reject skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -492,9 +489,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -507,9 +504,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -519,9 +516,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Rating must be between 1 and 5'
+            message: 'Rating must be between 1 and 5',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -531,12 +528,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -545,9 +542,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to rate skill'
+          message: 'Failed to rate skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -563,9 +560,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -578,9 +575,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill ID is required'
+            message: 'Skill ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -590,12 +587,12 @@ export class SkillsController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -604,9 +601,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to purchase skill'
+          message: 'Failed to purchase skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -622,9 +619,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -636,11 +633,11 @@ export class SkillsController {
         limit ? parseInt(limit as string) : undefined,
         offset ? parseInt(offset as string) : undefined
       );
-      
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getUserSkills controller:', error);
@@ -648,9 +645,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get user skills'
+          message: 'Failed to get user skills',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -666,9 +663,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -679,9 +676,9 @@ export class SkillsController {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Admin access required'
+            message: 'Admin access required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -692,11 +689,11 @@ export class SkillsController {
         limit ? parseInt(limit as string) : undefined,
         offset ? parseInt(offset as string) : undefined
       );
-      
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getSkillsPendingReview controller:', error);
@@ -704,9 +701,9 @@ export class SkillsController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get skills pending review'
+          message: 'Failed to get skills pending review',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }

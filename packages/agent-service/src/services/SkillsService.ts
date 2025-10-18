@@ -23,20 +23,15 @@ import {
   SkillAnalytics,
   User,
   ApiResponse,
-  ErrorCode
+  ErrorCode,
 } from '@/types';
 
 export class SkillsService {
   /**
    * Create a new skill
    */
-  async createSkill(
-    userId: string,
-    data: CreateSkillInput
-  ): Promise<ApiResponse<AgentSkill>> {
+  async createSkill(userId: string, data: CreateSkillInput): Promise<ApiResponse<AgentSkill>> {
     try {
-      console.log(`Creating skill: ${data.name} by user: ${userId}`);
-
       // Check if user can create skills
       const canCreate = await this.canUserCreateSkill(userId);
       if (!canCreate) {
@@ -44,9 +39,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.FORBIDDEN,
-            message: 'User does not have permission to create skills'
+            message: 'User does not have permission to create skills',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -74,7 +69,7 @@ export class SkillsService {
         tags: data.tags,
         metadata: {},
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       // Save to database
@@ -83,7 +78,7 @@ export class SkillsService {
       return {
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error creating skill:', error);
@@ -91,9 +86,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to create skill'
+          message: 'Failed to create skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -107,29 +102,27 @@ export class SkillsService {
     data: UpdateSkillInput
   ): Promise<ApiResponse<AgentSkill>> {
     try {
-      console.log(`Updating skill: ${skillId} by user: ${userId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.SKILL_NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
       // Check if user is the owner or has permission
-      if (skill.creatorId !== userId && !await this.canUserEditSkill(userId, skillId)) {
+      if (skill.creatorId !== userId && !(await this.canUserEditSkill(userId, skillId))) {
         return {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Only skill owner can update skill'
+            message: 'Only skill owner can update skill',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -154,7 +147,7 @@ export class SkillsService {
       return {
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error updating skill:', error);
@@ -162,9 +155,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to update skill'
+          message: 'Failed to update skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -180,29 +173,27 @@ export class SkillsService {
     file?: Buffer
   ): Promise<ApiResponse<SkillVersion>> {
     try {
-      console.log(`Uploading version ${version} for skill: ${skillId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.SKILL_NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
       // Check if user is the owner or has permission
-      if (skill.creatorId !== userId && !await this.canUserEditSkill(userId, skillId)) {
+      if (skill.creatorId !== userId && !(await this.canUserEditSkill(userId, skillId))) {
         return {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Only skill owner can upload new versions'
+            message: 'Only skill owner can upload new versions',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -213,9 +204,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.CONFLICT,
-            message: 'Version already exists'
+            message: 'Version already exists',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -230,7 +221,7 @@ export class SkillsService {
         fileHash: file ? this.generateFileHash(file) : '',
         isLatest: true,
         downloadCount: 0,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       // Upload file to storage if provided
@@ -242,7 +233,7 @@ export class SkillsService {
           return {
             success: false,
             error: uploadResult.error,
-            timestamp: new Date()
+            timestamp: new Date(),
           };
         }
       }
@@ -256,7 +247,7 @@ export class SkillsService {
       return {
         success: true,
         data: skillVersion,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error uploading skill version:', error);
@@ -264,9 +255,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to upload skill version'
+          message: 'Failed to upload skill version',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -274,22 +265,17 @@ export class SkillsService {
   /**
    * Publish skill (submit for approval)
    */
-  async publishSkill(
-    userId: string,
-    skillId: string
-  ): Promise<ApiResponse<AgentSkill>> {
+  async publishSkill(userId: string, skillId: string): Promise<ApiResponse<AgentSkill>> {
     try {
-      console.log(`Publishing skill: ${skillId} by user: ${userId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.SKILL_NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -299,9 +285,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Only skill owner can publish skill'
+            message: 'Only skill owner can publish skill',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -312,9 +298,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill must have at least one version before publishing'
+            message: 'Skill must have at least one version before publishing',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -330,7 +316,7 @@ export class SkillsService {
       return {
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error publishing skill:', error);
@@ -338,9 +324,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to publish skill'
+          message: 'Failed to publish skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -360,14 +346,12 @@ export class SkillsService {
     }
   ): Promise<ApiResponse<SearchResult<AgentSkill>>> {
     try {
-      console.log('Searching skills with query:', query, 'filters:', filters);
-
       const searchFilters: SkillSearchFilters = {
         q: query,
         limit: filters?.limit || 20,
         offset: filters?.offset || 0,
         category: filters?.category,
-        platform: filters?.platform
+        platform: filters?.platform,
       };
 
       const skills = await this.searchSkillsInDatabase(searchFilters);
@@ -379,9 +363,9 @@ export class SkillsService {
           items: skills,
           total,
           page: Math.floor((searchFilters.offset || 0) / (searchFilters.limit || 20)) + 1,
-          pageSize: searchFilters.limit || 20
+          pageSize: searchFilters.limit || 20,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error searching skills:', error);
@@ -389,9 +373,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to search skills'
+          message: 'Failed to search skills',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -407,13 +391,11 @@ export class SkillsService {
     sortOrder?: 'asc' | 'desc'
   ): Promise<ApiResponse<SearchResult<AgentSkill>>> {
     try {
-      console.log(`Getting skills for category: ${categoryId}`);
-
       const filters: SkillSearchFilters = {
         category: categoryId,
         limit,
         offset,
-        sort: sortBy as any
+        sort: sortBy as any,
       };
 
       const skills = await this.searchSkillsInDatabase(filters);
@@ -425,9 +407,9 @@ export class SkillsService {
           items: skills,
           total,
           page: Math.floor((offset || 0) / (limit || 20)) + 1,
-          pageSize: limit || 20
+          pageSize: limit || 20,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting skills by category:', error);
@@ -435,9 +417,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get skills by category'
+          message: 'Failed to get skills by category',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -450,17 +432,15 @@ export class SkillsService {
     userId?: string
   ): Promise<ApiResponse<SkillDetailResponse>> {
     try {
-      console.log(`Getting skill details: ${skillId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -472,9 +452,9 @@ export class SkillsService {
             success: false,
             error: {
               code: ErrorCode.ACCESS_DENIED,
-              message: 'Access denied'
+              message: 'Access denied',
             },
-            timestamp: new Date()
+            timestamp: new Date(),
           };
         }
       }
@@ -496,9 +476,9 @@ export class SkillsService {
           reviews,
           isInstalled,
           installCount: skill.installCount,
-          averageRating: skill.averageRating
+          averageRating: skill.averageRating,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting skill details:', error);
@@ -506,9 +486,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get skill details'
+          message: 'Failed to get skill details',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -522,8 +502,6 @@ export class SkillsService {
     offset?: number
   ): Promise<ApiResponse<SearchResult<AgentSkill>>> {
     try {
-      console.log(`Getting skills for user: ${userId}`);
-
       const skills = await this.getSkillsByUserId(userId, limit, offset);
       const total = await this.countUserSkills(userId);
 
@@ -533,9 +511,9 @@ export class SkillsService {
           items: skills,
           total,
           page: Math.floor((offset || 0) / (limit || 20)) + 1,
-          pageSize: limit || 20
+          pageSize: limit || 20,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting user skills:', error);
@@ -543,9 +521,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get user skills'
+          message: 'Failed to get user skills',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -553,22 +531,17 @@ export class SkillsService {
   /**
    * Submit skill for review
    */
-  async submitSkillForReview(
-    userId: string,
-    skillId: string
-  ): Promise<ApiResponse<AgentSkill>> {
+  async submitSkillForReview(userId: string, skillId: string): Promise<ApiResponse<AgentSkill>> {
     try {
-      console.log(`Submitting skill for review: ${skillId} by user: ${userId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -578,9 +551,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Only skill owner can submit for review'
+            message: 'Only skill owner can submit for review',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -596,7 +569,7 @@ export class SkillsService {
       return {
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error submitting skill for review:', error);
@@ -604,9 +577,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to submit skill for review'
+          message: 'Failed to submit skill for review',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -614,22 +587,17 @@ export class SkillsService {
   /**
    * Approve skill (admin only)
    */
-  async approveSkill(
-    adminId: string,
-    skillId: string
-  ): Promise<ApiResponse<AgentSkill>> {
+  async approveSkill(adminId: string, skillId: string): Promise<ApiResponse<AgentSkill>> {
     try {
-      console.log(`Approving skill: ${skillId} by admin: ${adminId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -645,7 +613,7 @@ export class SkillsService {
       return {
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error approving skill:', error);
@@ -653,9 +621,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to approve skill'
+          message: 'Failed to approve skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -669,17 +637,15 @@ export class SkillsService {
     reason?: string
   ): Promise<ApiResponse<AgentSkill>> {
     try {
-      console.log(`Rejecting skill: ${skillId} by admin: ${adminId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -695,7 +661,7 @@ export class SkillsService {
       return {
         success: true,
         data: skill,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error rejecting skill:', error);
@@ -703,9 +669,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to reject skill'
+          message: 'Failed to reject skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -720,17 +686,15 @@ export class SkillsService {
     review?: string
   ): Promise<ApiResponse<SkillReview>> {
     try {
-      console.log(`Rating skill: ${skillId} by user: ${userId} with rating: ${rating}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -741,9 +705,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'You must install the skill before rating it'
+            message: 'You must install the skill before rating it',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -754,9 +718,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.CONFLICT,
-            message: 'You have already rated this skill'
+            message: 'You have already rated this skill',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -770,7 +734,7 @@ export class SkillsService {
         isVerified: false,
         helpfulCount: 0,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       await this.saveReview(newReview);
@@ -781,7 +745,7 @@ export class SkillsService {
       return {
         success: true,
         data: newReview,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error rating skill:', error);
@@ -789,9 +753,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to rate skill'
+          message: 'Failed to rate skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -805,17 +769,15 @@ export class SkillsService {
     version?: string
   ): Promise<ApiResponse<InstallSkillResponse>> {
     try {
-      console.log(`Purchasing skill: ${skillId} by user: ${userId}`);
-
       const skill = await this.getSkillById(skillId);
       if (!skill) {
         return {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill not found'
+            message: 'Skill not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -825,9 +787,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Skill is not available for purchase'
+            message: 'Skill is not available for purchase',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -838,9 +800,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.CONFLICT,
-            message: 'You already have this skill'
+            message: 'You already have this skill',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -854,9 +816,9 @@ export class SkillsService {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Skill version not found'
+            message: 'Skill version not found',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -870,7 +832,7 @@ export class SkillsService {
         userId,
         versionId: skillVersion.id,
         installedAt: new Date(),
-        usageCount: 0
+        usageCount: 0,
       };
 
       await this.saveInstallation(installation);
@@ -883,9 +845,9 @@ export class SkillsService {
         success: true,
         data: {
           installation,
-          downloadUrl: skillVersion.fileUrl
+          downloadUrl: skillVersion.fileUrl,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error purchasing skill:', error);
@@ -893,9 +855,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to purchase skill'
+          message: 'Failed to purchase skill',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -908,8 +870,6 @@ export class SkillsService {
     offset?: number
   ): Promise<ApiResponse<SearchResult<AgentSkill>>> {
     try {
-      console.log('Getting skills pending review');
-
       const skills = await this.getPendingSkills(limit, offset);
       const total = await this.countPendingSkills();
 
@@ -919,9 +879,9 @@ export class SkillsService {
           items: skills,
           total,
           page: Math.floor((offset || 0) / (limit || 20)) + 1,
-          pageSize: limit || 20
+          pageSize: limit || 20,
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting skills pending review:', error);
@@ -929,9 +889,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get skills pending review'
+          message: 'Failed to get skills pending review',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -941,14 +901,12 @@ export class SkillsService {
    */
   async getCategories(): Promise<ApiResponse<SkillCategory[]>> {
     try {
-      console.log('Getting skill categories');
-
       const categories = await this.getAllCategories();
 
       return {
         success: true,
         data: categories,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting categories:', error);
@@ -956,9 +914,9 @@ export class SkillsService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get categories'
+          message: 'Failed to get categories',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -1023,7 +981,11 @@ export class SkillsService {
     return null;
   }
 
-  private async getSkillsByUserId(userId: string, limit?: number, offset?: number): Promise<AgentSkill[]> {
+  private async getSkillsByUserId(
+    userId: string,
+    limit?: number,
+    offset?: number
+  ): Promise<AgentSkill[]> {
     // Implementation would query from database
     return [];
   }
@@ -1060,7 +1022,11 @@ export class SkillsService {
     return 0;
   }
 
-  private async notifySkillCreator(skillId: string, action: 'approved' | 'rejected', reason?: string): Promise<void> {
+  private async notifySkillCreator(
+    skillId: string,
+    action: 'approved' | 'rejected',
+    reason?: string
+  ): Promise<void> {
     // Implementation would notify skill creator
   }
 
@@ -1102,12 +1068,16 @@ export class SkillsService {
     return [];
   }
 
-  private async uploadSkillFile(skillId: string, version: string, file: Buffer): Promise<ApiResponse<string>> {
+  private async uploadSkillFile(
+    skillId: string,
+    version: string,
+    file: Buffer
+  ): Promise<ApiResponse<string>> {
     // Implementation would upload file to storage
     return {
       success: true,
       data: `https://storage.example.com/skills/${skillId}/${version}`,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 }

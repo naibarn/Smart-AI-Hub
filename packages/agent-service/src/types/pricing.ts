@@ -29,7 +29,7 @@ export enum ModelType {
   LLM = 'llm',
   EMBEDDING = 'embedding',
   VISION = 'vision',
-  AUDIO = 'audio'
+  AUDIO = 'audio',
 }
 
 export interface PricingRule {
@@ -57,14 +57,14 @@ export enum ComponentType {
   RAG_EMBEDDING = 'rag_embedding',
   RAG_SEARCH = 'rag_search',
   TOOL_CALL = 'tool_call',
-  STORAGE = 'storage'
+  STORAGE = 'storage',
 }
 
 export enum UnitType {
   TOKEN = 'token',
   REQUEST = 'request',
   GB = 'gb',
-  CALL = 'call'
+  CALL = 'call',
 }
 
 export interface AgentUsageLog {
@@ -76,7 +76,7 @@ export interface AgentUsageLog {
   sessionId?: string;
   parentCallId?: string;
   callDepth: number;
-  
+
   // Usage metrics
   inputTokens?: number;
   outputTokens?: number;
@@ -85,7 +85,7 @@ export interface AgentUsageLog {
   ragSearches: number;
   toolCalls: number;
   nestedAgentCalls: number;
-  
+
   // Cost breakdown
   llmInputCost: number;
   llmOutputCost: number;
@@ -93,21 +93,21 @@ export interface AgentUsageLog {
   toolCallCost: number;
   nestedAgentCost: number;
   totalCostUsd: number;
-  
+
   // Credits/Points charged
   creditsCharged: number;
   pointsCharged: number;
   currency: string;
-  
+
   // Status
   status: UsageStatus;
   errorMessage?: string;
-  
+
   // Timestamps
   startedAt: Date;
   completedAt?: Date;
   createdAt: Date;
-  
+
   // Metadata
   metadata: Record<string, any>;
 }
@@ -117,7 +117,7 @@ export enum UsageStatus {
   RUNNING = 'running',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 export interface CostEstimation {
@@ -125,21 +125,21 @@ export interface CostEstimation {
   userId: string;
   platformId: string;
   modelId: string;
-  
+
   // Estimated usage
   estimatedInputTokens?: number;
   estimatedOutputTokens?: number;
   estimatedRagOps: number;
   estimatedToolCalls: number;
-  
+
   // Estimated cost
   estimatedCostUsd: number;
   estimatedCredits: number;
-  
+
   // User balance check
   userBalance: number;
   hasEnoughBalance: boolean;
-  
+
   createdAt: Date;
   expiresAt: Date;
 }
@@ -160,7 +160,7 @@ export enum ReservationStatus {
   ACTIVE = 'active',
   CHARGED = 'charged',
   REFUNDED = 'refunded',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
 }
 
 // API Request/Response Types
@@ -199,7 +199,7 @@ export enum UserTier {
   FREE = 'free',
   BASIC = 'basic',
   PRO = 'pro',
-  ENTERPRISE = 'enterprise'
+  ENTERPRISE = 'enterprise',
 }
 
 export interface CostEstimationRequest {

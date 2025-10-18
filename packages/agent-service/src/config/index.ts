@@ -13,15 +13,15 @@ const config: ServiceConfig = {
     pool: {
       min: parseInt(process.env.DB_POOL_MIN || '2'),
       max: parseInt(process.env.DB_POOL_MAX || '10'),
-      idle: parseInt(process.env.DB_POOL_IDLE || '30000')
-    }
+      idle: parseInt(process.env.DB_POOL_IDLE || '30000'),
+    },
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD,
     db: parseInt(process.env.REDIS_DB || '0'),
-    keyPrefix: process.env.REDIS_KEY_PREFIX || 'agent_service:'
+    keyPrefix: process.env.REDIS_KEY_PREFIX || 'agent_service:',
   },
   cloudflare: {
     accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '',
@@ -29,29 +29,29 @@ const config: ServiceConfig = {
     r2: {
       endpoint: process.env.CLOUDFLARE_R2_ENDPOINT || '',
       accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '',
-      secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || ''
+      secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || '',
     },
     vectorize: {
       endpoint: process.env.CLOUDFLARE_VECTORIZER_ENDPOINT || '',
-      apiToken: process.env.CLOUDFLARE_VECTORIZER_API_TOKEN || ''
+      apiToken: process.env.CLOUDFLARE_VECTORIZER_API_TOKEN || '',
     },
     workersAi: {
       endpoint: process.env.CLOUDFLARE_WORKERS_AI_ENDPOINT || '',
-      apiToken: process.env.CLOUDFLARE_WORKERS_AI_API_TOKEN || ''
-    }
+      apiToken: process.env.CLOUDFLARE_WORKERS_AI_API_TOKEN || '',
+    },
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'your-secret-key',
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
   },
   cors: {
     origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
-    credentials: process.env.CORS_CREDENTIALS === 'true'
+    credentials: process.env.CORS_CREDENTIALS === 'true',
   },
   logging: {
     level: process.env.LOG_LEVEL || 'info',
-    format: process.env.LOG_FORMAT || 'json'
-  }
+    format: process.env.LOG_FORMAT || 'json',
+  },
 };
 
 export { config };

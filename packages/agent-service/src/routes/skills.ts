@@ -16,13 +16,13 @@ const createSkillSchema: ValidationSchema = {
     categoryId: { type: 'string', required: true },
     platformId: { type: 'string', required: true },
     visibility: { type: 'string', required: true, enum: ['public', 'organization', 'private'] },
-    tags: { type: 'array', required: false }
-  }
+    tags: { type: 'array', required: false },
+  },
 };
 
 const updateSkillSchema: ValidationSchema = {
   params: {
-    skillId: { type: 'string', required: true }
+    skillId: { type: 'string', required: true },
   },
   body: {
     name: { type: 'string', required: false, minLength: 1, maxLength: 100 },
@@ -32,36 +32,36 @@ const updateSkillSchema: ValidationSchema = {
     visibility: { type: 'string', required: false, enum: ['public', 'organization', 'private'] },
     tags: { type: 'array', required: false },
     iconUrl: { type: 'string', required: false },
-    screenshotUrls: { type: 'array', required: false }
-  }
+    screenshotUrls: { type: 'array', required: false },
+  },
 };
 
 const rateSkillSchema: ValidationSchema = {
   params: {
-    skillId: { type: 'string', required: true }
+    skillId: { type: 'string', required: true },
   },
   body: {
     rating: { type: 'number', required: true, min: 1, max: 5 },
-    review: { type: 'string', required: false, maxLength: 1000 }
-  }
+    review: { type: 'string', required: false, maxLength: 1000 },
+  },
 };
 
 const purchaseSkillSchema: ValidationSchema = {
   params: {
-    skillId: { type: 'string', required: true }
+    skillId: { type: 'string', required: true },
   },
   body: {
-    version: { type: 'string', required: false }
-  }
+    version: { type: 'string', required: false },
+  },
 };
 
 const rejectSkillSchema: ValidationSchema = {
   params: {
-    skillId: { type: 'string', required: true }
+    skillId: { type: 'string', required: true },
   },
   body: {
-    reason: { type: 'string', required: false, maxLength: 500 }
-  }
+    reason: { type: 'string', required: false, maxLength: 500 },
+  },
 };
 
 /**
@@ -69,40 +69,28 @@ const rejectSkillSchema: ValidationSchema = {
  * @desc Get all categories
  * @access Public
  */
-router.get(
-  '/categories',
-  skillsController.getCategories.bind(skillsController)
-);
+router.get('/categories', skillsController.getCategories.bind(skillsController));
 
 /**
  * @route GET /api/skills/category/:categoryId
  * @desc Get skills by category
  * @access Public
  */
-router.get(
-  '/category/:categoryId',
-  skillsController.getSkillsByCategory.bind(skillsController)
-);
+router.get('/category/:categoryId', skillsController.getSkillsByCategory.bind(skillsController));
 
 /**
  * @route GET /api/skills/search
  * @desc Search skills
  * @access Public
  */
-router.get(
-  '/search',
-  skillsController.searchSkills.bind(skillsController)
-);
+router.get('/search', skillsController.searchSkills.bind(skillsController));
 
 /**
  * @route GET /api/skills/:skillId
  * @desc Get skill details
  * @access Public
  */
-router.get(
-  '/:skillId',
-  skillsController.getSkillDetails.bind(skillsController)
-);
+router.get('/:skillId', skillsController.getSkillDetails.bind(skillsController));
 
 /**
  * @route POST /api/skills
@@ -195,11 +183,7 @@ router.post(
  * @desc Get user's skills
  * @access Private
  */
-router.get(
-  '/user/my-skills',
-  authenticate,
-  skillsController.getUserSkills.bind(skillsController)
-);
+router.get('/user/my-skills', authenticate, skillsController.getUserSkills.bind(skillsController));
 
 /**
  * @route GET /api/skills/admin/pending

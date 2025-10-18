@@ -46,7 +46,7 @@ class AgentSkillsService {
     sortOrder?: 'asc' | 'desc';
   }): Promise<{ data: AgentSkill[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -84,10 +84,7 @@ class AgentSkillsService {
    * @param request - Update request
    * @returns Updated skill
    */
-  async updateSkill(
-    id: string,
-    request: UpdateSkillInput
-  ): Promise<AgentSkill> {
+  async updateSkill(id: string, request: UpdateSkillInput): Promise<AgentSkill> {
     return apiService.patch<AgentSkill>(`/api/agent-skills/skills/${id}`, request);
   }
 
@@ -111,7 +108,7 @@ class AgentSkillsService {
     params?: { page?: number; limit?: number }
   ): Promise<{ data: SkillVersion[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -159,10 +156,7 @@ class AgentSkillsService {
    * @param versionId - Version ID (optional, defaults to latest)
    * @returns Installation response
    */
-  async installSkill(
-    skillId: string,
-    versionId?: string
-  ): Promise<InstallSkillResponse> {
+  async installSkill(skillId: string, versionId?: string): Promise<InstallSkillResponse> {
     const request = versionId ? { versionId } : {};
     return apiService.post<InstallSkillResponse>(
       `/api/agent-skills/skills/${skillId}/install`,
@@ -176,9 +170,7 @@ class AgentSkillsService {
    * @returns Success response
    */
   async uninstallSkill(skillId: string): Promise<{ success: boolean }> {
-    return apiService.delete<{ success: boolean }>(
-      `/api/agent-skills/skills/${skillId}/install`
-    );
+    return apiService.delete<{ success: boolean }>(`/api/agent-skills/skills/${skillId}/install`);
   }
 
   /**
@@ -241,7 +233,7 @@ class AgentSkillsService {
     params?: { page?: number; limit?: number; rating?: number }
   ): Promise<{ data: SkillReview[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -268,10 +260,7 @@ class AgentSkillsService {
       comment: string;
     }
   ): Promise<SkillReview> {
-    return apiService.post<SkillReview>(
-      `/api/agent-skills/skills/${skillId}/reviews`,
-      request
-    );
+    return apiService.post<SkillReview>(`/api/agent-skills/skills/${skillId}/reviews`, request);
   }
 
   /**
@@ -326,7 +315,7 @@ class AgentSkillsService {
     limit?: number;
   }): Promise<{ data: AgentSkill[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -378,7 +367,7 @@ class AgentSkillsService {
     status?: string;
   }): Promise<{ data: AgentSkill[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -402,7 +391,7 @@ class AgentSkillsService {
     limit?: number;
   }): Promise<{ data: AgentSkill[]; total: number }> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -422,10 +411,7 @@ class AgentSkillsService {
    * @returns Success response
    */
   async addToFavorites(skillId: string): Promise<{ success: boolean }> {
-    return apiService.post<{ success: boolean }>(
-      `/api/agent-skills/user/favorites`,
-      { skillId }
-    );
+    return apiService.post<{ success: boolean }>(`/api/agent-skills/user/favorites`, { skillId });
   }
 
   /**
@@ -434,9 +420,7 @@ class AgentSkillsService {
    * @returns Success response
    */
   async removeFromFavorites(skillId: string): Promise<{ success: boolean }> {
-    return apiService.delete<{ success: boolean }>(
-      `/api/agent-skills/user/favorites/${skillId}`
-    );
+    return apiService.delete<{ success: boolean }>(`/api/agent-skills/user/favorites/${skillId}`);
   }
 }
 

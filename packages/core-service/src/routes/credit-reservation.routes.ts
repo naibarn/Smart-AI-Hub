@@ -63,9 +63,6 @@ router.get('/reservations', getActiveReservations);
  * @desc Clean up expired reservations
  * @access Admin only
  */
-router.post('/cleanup-expired',
-  requireRoles(['administrator']),
-  cleanupExpiredReservations
-);
+router.post('/cleanup-expired', requireRoles(['administrator']), cleanupExpiredReservations);
 
 export default router;

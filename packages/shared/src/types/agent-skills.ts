@@ -29,30 +29,30 @@ export interface AgentSkill {
   creatorId: string;
   categoryId: string;
   platformId: string;
-  
+
   // Visibility
   visibility: SkillVisibility;
   organizationId?: string;
-  
+
   // Status
   status: SkillStatus;
   approvedBy?: string;
   approvedAt?: Date;
   rejectionReason?: string;
-  
+
   // Metrics
   installCount: number;
   averageRating: number;
   reviewCount: number;
-  
+
   // Media
   iconUrl?: string;
   screenshotUrls: string[];
-  
+
   // Metadata
   tags: string[];
   metadata: Record<string, any>;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -192,22 +192,11 @@ export interface SkillInstallationService {
 
 // Skill review service interfaces
 export interface SkillReviewService {
-  createReview(
-    userId: string,
-    skillId: string,
-    data: CreateReviewInput
-  ): Promise<SkillReview>;
-  updateReview(
-    reviewId: string,
-    userId: string,
-    data: UpdateReviewInput
-  ): Promise<SkillReview>;
+  createReview(userId: string, skillId: string, data: CreateReviewInput): Promise<SkillReview>;
+  updateReview(reviewId: string, userId: string, data: UpdateReviewInput): Promise<SkillReview>;
   deleteReview(reviewId: string, userId: string): Promise<void>;
   markHelpful(reviewId: string, userId: string): Promise<void>;
-  getSkillReviews(
-    skillId: string,
-    filters: ReviewFilters
-  ): Promise<SkillReview[]>;
+  getSkillReviews(skillId: string, filters: ReviewFilters): Promise<SkillReview[]>;
 }
 
 // Review filters
@@ -369,32 +358,32 @@ export const SKILLS_CONSTANTS = {
     MAX_SCREENSHOT_SIZE: 5 * 1024 * 1024, // 5MB
     MAX_SCREENSHOTS: 5,
   },
-  
+
   // Supported file types
   SUPPORTED_TYPES: {
     SKILL_FILE: ['application/zip', 'application/x-zip-compressed'],
     ICON: ['image/png', 'image/jpeg', 'image/webp'],
     SCREENSHOT: ['image/png', 'image/jpeg', 'image/webp'],
   },
-  
+
   // Rating constraints
   RATING: {
     MIN: 1,
     MAX: 5,
   },
-  
+
   // Pagination
   PAGINATION: {
     DEFAULT_LIMIT: 20,
     MAX_LIMIT: 100,
   },
-  
+
   // Search
   SEARCH: {
     MAX_QUERY_LENGTH: 100,
     MIN_QUERY_LENGTH: 2,
   },
-  
+
   // Version constraints
   VERSION: {
     PATTERN: /^\d+\.\d+\.\d+$/, // semver pattern

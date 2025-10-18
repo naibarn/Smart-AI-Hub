@@ -20,13 +20,8 @@ export class DocumentProcessorService {
   /**
    * Process document and create chunks
    */
-  async processDocument(
-    document: Document,
-    fileBuffer: Buffer
-  ): Promise<ProcessDocumentResult> {
+  async processDocument(document: Document, fileBuffer: Buffer): Promise<ProcessDocumentResult> {
     try {
-      console.log(`Processing document: ${document.id}, type: ${document.fileType}`);
-
       // Extract text from file
       const text = await this.extractText(fileBuffer, document.fileType!);
       if (!text || text.trim().length === 0) {
@@ -34,14 +29,13 @@ export class DocumentProcessorService {
           success: false,
           error: {
             code: ErrorCode.PROCESSING_FAILED,
-            message: 'No text could be extracted from document'
-          }
+            message: 'No text could be extracted from document',
+          },
         };
       }
 
       // Split text into chunks
       const chunks = this.splitTextIntoChunks(text);
-      console.log(`Created ${chunks.length} chunks from document`);
 
       // Create document chunk records
       const documentChunks: DocumentChunk[] = [];
@@ -54,7 +48,7 @@ export class DocumentProcessorService {
           chunkSize: chunks[i].length,
           vectorId: '', // Will be set after vector creation
           embeddingModel: 'bge-base-en-v1.5',
-          createdAt: new Date()
+          createdAt: new Date(),
         };
         documentChunks.push(chunk);
       }
@@ -73,12 +67,10 @@ export class DocumentProcessorService {
         }
       }
 
-      console.log(`Created ${vectorsCreated} vectors for document`);
-
       return {
         success: true,
         chunksCreated: chunks.length,
-        vectorsCreated
+        vectorsCreated,
       };
     } catch (error) {
       console.error('Error processing document:', error);
@@ -86,8 +78,8 @@ export class DocumentProcessorService {
         success: false,
         error: {
           code: ErrorCode.PROCESSING_FAILED,
-          message: error instanceof Error ? error.message : 'Unknown error'
-        }
+          message: error instanceof Error ? error.message : 'Unknown error',
+        },
       };
     }
   }
@@ -100,17 +92,17 @@ export class DocumentProcessorService {
       switch (fileType) {
         case 'application/pdf':
           return await this.extractTextFromPDF(fileBuffer);
-        
+
         case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
           return await this.extractTextFromDocx(fileBuffer);
-        
+
         case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
           return await this.extractTextFromXlsx(fileBuffer);
-        
+
         case 'text/plain':
         case 'text/markdown':
           return fileBuffer.toString('utf-8');
-        
+
         default:
           throw new Error(`Unsupported file type: ${fileType}`);
       }
@@ -153,13 +145,13 @@ export class DocumentProcessorService {
     try {
       const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
       let text = '';
-      
+
       workbook.SheetNames.forEach((sheetName: string) => {
         const worksheet = workbook.Sheets[sheetName];
         const sheetText = XLSX.utils.sheet_to_txt(worksheet);
         text += `Sheet: ${sheetName}\n${sheetText}\n\n`;
       });
-      
+
       return text;
     } catch (error) {
       console.error('Error extracting text from XLSX:', error);
@@ -173,32 +165,32 @@ export class DocumentProcessorService {
   private splitTextIntoChunks(text: string): string[] {
     const chunks: string[] = [];
     let start = 0;
-    
+
     while (start < text.length) {
       let end = start + this.chunkSize;
-      
+
       if (end >= text.length) {
         // Last chunk
         chunks.push(text.substring(start));
         break;
       }
-      
+
       // Try to break at word boundary
       let breakPoint = end;
       while (breakPoint > start && text[breakPoint] !== ' ' && text[breakPoint] !== '\n') {
         breakPoint--;
       }
-      
+
       if (breakPoint === start) {
         // No word boundary found, force break
         breakPoint = end;
       }
-      
+
       chunks.push(text.substring(start, breakPoint).trim());
       start = breakPoint + 1 - this.chunkOverlap;
     }
-    
-    return chunks.filter(chunk => chunk.length > 0);
+
+    return chunks.filter((chunk) => chunk.length > 0);
   }
 
   /**
@@ -212,10 +204,10 @@ export class DocumentProcessorService {
       // This would call the VectorizeService
       // For now, return a mock vector ID
       const vectorId = this.generateVectorId();
-      
+
       return {
         success: true,
-        data: vectorId
+        data: vectorId,
       };
     } catch (error) {
       console.error('Error creating vector for chunk:', error);
@@ -223,8 +215,8 @@ export class DocumentProcessorService {
         success: false,
         error: {
           code: ErrorCode.EMBEDDING_FAILED,
-          message: 'Failed to create vector for chunk'
-        }
+          message: 'Failed to create vector for chunk',
+        },
       };
     }
   }
@@ -232,13 +224,8 @@ export class DocumentProcessorService {
   /**
    * Re-process document (update chunks and vectors)
    */
-  async reprocessDocument(
-    document: Document,
-    fileBuffer: Buffer
-  ): Promise<ProcessDocumentResult> {
+  async reprocessDocument(document: Document, fileBuffer: Buffer): Promise<ProcessDocumentResult> {
     try {
-      console.log(`Re-processing document: ${document.id}`);
-
       // Delete existing chunks and vectors
       await this.deleteDocumentChunks(document.id);
       await this.deleteDocumentVectors(document.id);
@@ -251,8 +238,8 @@ export class DocumentProcessorService {
         success: false,
         error: {
           code: ErrorCode.PROCESSING_FAILED,
-          message: error instanceof Error ? error.message : 'Unknown error'
-        }
+          message: error instanceof Error ? error.message : 'Unknown error',
+        },
       };
     }
   }
@@ -263,7 +250,7 @@ export class DocumentProcessorService {
   async getDocumentChunks(documentId: string): Promise<DocumentChunk[]> {
     try {
       // Implementation would query from database
-      console.log(`Getting chunks for document: ${documentId}`);
+
       return [];
     } catch (error) {
       console.error('Error getting document chunks:', error);
@@ -277,7 +264,7 @@ export class DocumentProcessorService {
   async getChunkById(chunkId: string): Promise<DocumentChunk | null> {
     try {
       // Implementation would query from database
-      console.log(`Getting chunk: ${chunkId}`);
+
       return null;
     } catch (error) {
       console.error('Error getting chunk:', error);
@@ -293,8 +280,6 @@ export class DocumentProcessorService {
     newText: string
   ): Promise<{ success: boolean; error?: any }> {
     try {
-      console.log(`Updating chunk text: ${chunkId}`);
-      
       // Get existing chunk
       const chunk = await this.getChunkById(chunkId);
       if (!chunk) {
@@ -302,8 +287,8 @@ export class DocumentProcessorService {
           success: false,
           error: {
             code: ErrorCode.NOT_FOUND,
-            message: 'Chunk not found'
-          }
+            message: 'Chunk not found',
+          },
         };
       }
 
@@ -320,7 +305,7 @@ export class DocumentProcessorService {
       }
 
       return {
-        success: true
+        success: true,
       };
     } catch (error) {
       console.error('Error updating chunk text:', error);
@@ -328,8 +313,8 @@ export class DocumentProcessorService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to update chunk text'
-        }
+          message: 'Failed to update chunk text',
+        },
       };
     }
   }
@@ -346,21 +331,17 @@ export class DocumentProcessorService {
 
   private async saveDocumentChunks(chunks: DocumentChunk[]): Promise<void> {
     // Implementation would save to database
-    console.log(`Saving ${chunks.length} chunks to database`);
   }
 
   private async updateDocumentChunk(chunk: DocumentChunk): Promise<void> {
     // Implementation would update in database
-    console.log(`Updating chunk: ${chunk.id}`);
   }
 
   private async deleteDocumentChunks(documentId: string): Promise<void> {
     // Implementation would delete from database
-    console.log(`Deleting chunks for document: ${documentId}`);
   }
 
   private async deleteDocumentVectors(documentId: string): Promise<void> {
     // Implementation would delete vectors
-    console.log(`Deleting vectors for document: ${documentId}`);
   }
 }

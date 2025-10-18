@@ -58,20 +58,18 @@ export class CloudflareVectorizeService {
    */
   async generateEmbedding(text: string): Promise<VectorizeEmbeddingResponse> {
     try {
-      console.log(`Generating embedding for text: ${text.substring(0, 50)}...`);
-
       // Implementation would call Cloudflare Workers AI
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       // Return mock embedding (768 dimensions for bge-base-en-v1.5)
       const embedding = new Array(768).fill(0).map(() => Math.random() - 0.5);
 
       return {
         success: true,
-        data: embedding
+        data: embedding,
       };
     } catch (error) {
       console.error('Error generating embedding:', error);
@@ -79,8 +77,8 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.EMBEDDING_FAILED,
-          message: 'Failed to generate embedding'
-        }
+          message: 'Failed to generate embedding',
+        },
       };
     }
   }
@@ -95,20 +93,18 @@ export class CloudflareVectorizeService {
     filter?: Record<string, any>
   ): Promise<VectorizeSearchResponse> {
     try {
-      console.log(`Searching vectors in index: ${indexName}, topK: ${topK}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       // Return mock results
       const results: VectorizeSearchResult[] = [];
       for (let i = 0; i < Math.min(topK, 3); i++) {
         results.push({
           id: `vector_${i}`,
-          score: 0.9 - (i * 0.1),
+          score: 0.9 - i * 0.1,
           text: `Mock chunk text ${i}`,
           metadata: {
             documentId: `doc_${i}`,
@@ -117,14 +113,14 @@ export class CloudflareVectorizeService {
             agencyId: 'agency_123',
             agentId: 'agent_123',
             accessLevel: AccessLevel.PRIVATE,
-            chunkIndex: i
-          }
+            chunkIndex: i,
+          },
         });
       }
 
       return {
         success: true,
-        data: results
+        data: results,
       };
     } catch (error) {
       console.error('Error searching vectors:', error);
@@ -132,8 +128,8 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.SEARCH_FAILED,
-          message: 'Failed to search vectors'
-        }
+          message: 'Failed to search vectors',
+        },
       };
     }
   }
@@ -151,19 +147,17 @@ export class CloudflareVectorizeService {
     }>
   ): Promise<VectorizeUpsertResponse> {
     try {
-      console.log(`Upserting ${vectors.length} vectors to index: ${indexName}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
 
-      const ids = vectors.map(v => v.id);
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const ids = vectors.map((v) => v.id);
 
       return {
         success: true,
-        data: ids
+        data: ids,
       };
     } catch (error) {
       console.error('Error upserting vectors:', error);
@@ -171,8 +165,8 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to upsert vectors'
-        }
+          message: 'Failed to upsert vectors',
+        },
       };
     }
   }
@@ -186,16 +180,14 @@ export class CloudflareVectorizeService {
     ids?: string[]
   ): Promise<VectorizeDeleteResponse> {
     try {
-      console.log(`Deleting vectors from index: ${indexName}, namespace: ${namespace}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
-        success: true
+        success: true,
       };
     } catch (error) {
       console.error('Error deleting vectors:', error);
@@ -203,8 +195,8 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to delete vectors'
-        }
+          message: 'Failed to delete vectors',
+        },
       };
     }
   }
@@ -217,13 +209,11 @@ export class CloudflareVectorizeService {
     id: string
   ): Promise<ApiResponse<VectorizeSearchResult | null>> {
     try {
-      console.log(`Getting vector from index: ${indexName}, id: ${id}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       return {
         success: true,
@@ -238,10 +228,10 @@ export class CloudflareVectorizeService {
             agencyId: 'agency_123',
             agentId: 'agent_123',
             accessLevel: AccessLevel.PRIVATE,
-            chunkIndex: 0
-          }
+            chunkIndex: 0,
+          },
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting vector:', error);
@@ -249,9 +239,9 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.NOT_FOUND,
-          message: 'Vector not found'
+          message: 'Vector not found',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -265,18 +255,16 @@ export class CloudflareVectorizeService {
     metric: 'cosine' | 'euclidean' | 'dotproduct' = 'cosine'
   ): Promise<ApiResponse<{ indexName: string }>> {
     try {
-      console.log(`Creating vector index: ${indexName}, dimensions: ${dimensions}, metric: ${metric}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return {
         success: true,
         data: { indexName },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error creating index:', error);
@@ -284,9 +272,9 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to create index'
+          message: 'Failed to create index',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -296,17 +284,15 @@ export class CloudflareVectorizeService {
    */
   async deleteIndex(indexName: string): Promise<ApiResponse<void>> {
     try {
-      console.log(`Deleting vector index: ${indexName}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       return {
         success: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error deleting index:', error);
@@ -314,9 +300,9 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to delete index'
+          message: 'Failed to delete index',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -324,15 +310,15 @@ export class CloudflareVectorizeService {
   /**
    * List vector indexes
    */
-  async listIndexes(): Promise<ApiResponse<Array<{ name: string; dimensions: number; metric: string }>>> {
+  async listIndexes(): Promise<
+    ApiResponse<Array<{ name: string; dimensions: number; metric: string }>>
+  > {
     try {
-      console.log('Listing vector indexes');
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       return {
         success: true,
@@ -340,15 +326,15 @@ export class CloudflareVectorizeService {
           {
             name: 'documents-index',
             dimensions: 768,
-            metric: 'cosine'
+            metric: 'cosine',
           },
           {
             name: 'conversations-index',
             dimensions: 768,
-            metric: 'cosine'
-          }
+            metric: 'cosine',
+          },
         ],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error listing indexes:', error);
@@ -356,9 +342,9 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to list indexes'
+          message: 'Failed to list indexes',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -366,20 +352,20 @@ export class CloudflareVectorizeService {
   /**
    * Get index statistics
    */
-  async getIndexStats(indexName: string): Promise<ApiResponse<{
-    vectorCount: number;
-    dimensions: number;
-    metric: string;
-    created: Date;
-  }>> {
+  async getIndexStats(indexName: string): Promise<
+    ApiResponse<{
+      vectorCount: number;
+      dimensions: number;
+      metric: string;
+      created: Date;
+    }>
+  > {
     try {
-      console.log(`Getting index stats: ${indexName}`);
-
       // Implementation would call Cloudflare Vectorize API
       // This is a placeholder implementation
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
         success: true,
@@ -387,9 +373,9 @@ export class CloudflareVectorizeService {
           vectorCount: 1000,
           dimensions: 768,
           metric: 'cosine',
-          created: new Date()
+          created: new Date(),
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error getting index stats:', error);
@@ -397,9 +383,9 @@ export class CloudflareVectorizeService {
         success: false,
         error: {
           code: ErrorCode.NOT_FOUND,
-          message: 'Index not found'
+          message: 'Index not found',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }

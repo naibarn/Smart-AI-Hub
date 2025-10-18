@@ -12,21 +12,21 @@ export const authenticate = async (
   try {
     // Get authorization header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         error: {
           code: ErrorCode.UNAUTHORIZED,
-          message: 'Authorization token required'
+          message: 'Authorization token required',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
       return;
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    
+
     // In a real implementation, verify the JWT token
     // For now, we'll mock a user
     if (token === 'mock-valid-token') {
@@ -36,7 +36,7 @@ export const authenticate = async (
         name: 'Test User',
         role: 'user',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       next();
     } else {
@@ -44,9 +44,9 @@ export const authenticate = async (
         success: false,
         error: {
           code: ErrorCode.UNAUTHORIZED,
-          message: 'Invalid or expired token'
+          message: 'Invalid or expired token',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   } catch (error) {
@@ -55,9 +55,9 @@ export const authenticate = async (
       success: false,
       error: {
         code: ErrorCode.INTERNAL_SERVER_ERROR,
-        message: 'Authentication error'
+        message: 'Authentication error',
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     } as ApiResponse);
   }
 };
@@ -72,20 +72,20 @@ export const authenticateAdmin = async (
     // First authenticate the user
     await authenticate(req, res, (err) => {
       if (err) return next(err);
-      
+
       // Check if user is admin
       if (req.user?.role !== 'admin') {
         res.status(HttpStatus.FORBIDDEN).json({
           success: false,
           error: {
             code: ErrorCode.ACCESS_DENIED,
-            message: 'Admin access required'
+            message: 'Admin access required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
-      
+
       next();
     });
   } catch (error) {
@@ -94,9 +94,9 @@ export const authenticateAdmin = async (
       success: false,
       error: {
         code: ErrorCode.INTERNAL_SERVER_ERROR,
-        message: 'Authentication error'
+        message: 'Authentication error',
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     } as ApiResponse);
   }
 };

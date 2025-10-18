@@ -15,8 +15,8 @@ const estimateCostSchema: ValidationSchema = {
     estimatedInputTokens: { type: 'number', required: true, min: 0 },
     estimatedOutputTokens: { type: 'number', required: true, min: 0 },
     ragOperations: { type: 'object', required: false },
-    toolCalls: { type: 'object', required: false }
-  }
+    toolCalls: { type: 'object', required: false },
+  },
 };
 
 const executeAgentSchema: ValidationSchema = {
@@ -26,20 +26,20 @@ const executeAgentSchema: ValidationSchema = {
     agentId: { type: 'string', required: false },
     sessionId: { type: 'string', required: false },
     parentCallId: { type: 'string', required: false },
-    input: { type: 'string', required: true }
-  }
+    input: { type: 'string', required: true },
+  },
 };
 
 const updatePricingRuleSchema: ValidationSchema = {
   params: {
-    ruleId: { type: 'string', required: true }
+    ruleId: { type: 'string', required: true },
   },
   body: {
     componentType: { type: 'string', required: false },
     unitType: { type: 'string', required: false },
     unitPrice: { type: 'number', required: false, min: 0 },
-    isActive: { type: 'boolean', required: false }
-  }
+    isActive: { type: 'boolean', required: false },
+  },
 };
 
 /**
@@ -47,11 +47,7 @@ const updatePricingRuleSchema: ValidationSchema = {
  * @desc Get all platforms
  * @access Private
  */
-router.get(
-  '/platforms',
-  authenticate,
-  pricingController.getPlatforms.bind(pricingController)
-);
+router.get('/platforms', authenticate, pricingController.getPlatforms.bind(pricingController));
 
 /**
  * @route GET /api/pricing/platforms/:platformId/models
@@ -105,11 +101,7 @@ router.post(
  * @desc Get usage history
  * @access Private
  */
-router.get(
-  '/usage',
-  authenticate,
-  pricingController.getUsageHistory.bind(pricingController)
-);
+router.get('/usage', authenticate, pricingController.getUsageHistory.bind(pricingController));
 
 /**
  * @route PUT /api/pricing/rules/:ruleId

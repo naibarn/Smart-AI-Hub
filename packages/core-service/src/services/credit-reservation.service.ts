@@ -1,12 +1,16 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { createClient } from 'redis';
-import { 
-  CreditReservation, 
-  CreditReservationStatus, 
+import {
+  CreditReservation,
+  CreditReservationStatus,
   CreditService,
-  PRICING_CONSTANTS 
+  PRICING_CONSTANTS,
 } from '@smart-ai-hub/shared';
-import { createNotFoundError, createInternalServerError, createConflictError } from '@smart-ai-hub/shared';
+import {
+  createNotFoundError,
+  createInternalServerError,
+  createConflictError,
+} from '@smart-ai-hub/shared';
 
 const prisma = new PrismaClient();
 
@@ -150,14 +154,14 @@ export class CreditReservationService implements CreditService {
 
       // Deduct credits
       const newBalance = (creditAccount.balance || 0) - actualAmount;
-      
+
       await prisma.$transaction([
         // Update credit account
         prisma.creditAccount.update({
           where: { userId },
           data: { balance: newBalance },
         }),
-        
+
         // Create transaction
         prisma.creditTransaction.create({
           data: {
@@ -172,7 +176,7 @@ export class CreditReservationService implements CreditService {
             },
           },
         }),
-        
+
         // Update reservation
         prisma.creditReservation.update({
           where: { id: reservationId },
@@ -186,7 +190,11 @@ export class CreditReservationService implements CreditService {
       // Refund any unused credits
       const refundAmount = reservation.amount - actualAmount;
       if (refundAmount > 0) {
-        await this.refundCredits(userId, reservationId, `Unused reservation: ${refundAmount} credits`);
+        await this.refundCredits(
+          userId,
+          reservationId,
+          `Unused reservation: ${refundAmount} credits`
+        );
       }
 
       return {
@@ -242,14 +250,14 @@ export class CreditReservationService implements CreditService {
 
       // Refund credits
       const newBalance = (creditAccount.balance || 0) + reservation.amount;
-      
+
       await prisma.$transaction([
         // Update credit account
         prisma.creditAccount.update({
           where: { userId },
           data: { balance: newBalance },
         }),
-        
+
         // Create transaction
         prisma.creditTransaction.create({
           data: {
@@ -263,7 +271,7 @@ export class CreditReservationService implements CreditService {
             },
           },
         }),
-        
+
         // Update reservation
         prisma.creditReservation.update({
           where: { id: reservationId },
@@ -306,7 +314,7 @@ export class CreditReservationService implements CreditService {
    */
   async getAvailableBalance(userId: string): Promise<number> {
     const currentBalance = await this.getUserBalance(userId);
-    
+
     // Get total active reservations
     const activeReservations = await prisma.creditReservation.aggregate({
       where: {
@@ -339,11 +347,7 @@ export class CreditReservationService implements CreditService {
 
     for (const reservation of expiredReservations) {
       try {
-        await this.refundCredits(
-          reservation.userId,
-          reservation.id,
-          'Reservation expired'
-        );
+        await this.refundCredits(reservation.userId, reservation.id, 'Reservation expired');
         cleanedCount++;
       } catch (error) {
         console.error(`Failed to cleanup expired reservation ${reservation.id}:`, error);
@@ -386,7 +390,7 @@ export class CreditReservationService implements CreditService {
 
     if (!acquired) {
       // Wait and retry
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       return this.acquireLock(key);
     }
 
@@ -425,7 +429,7 @@ export const cleanupExpiredReservations = async (): Promise<void> => {
   try {
     const cleanedCount = await creditReservationService.cleanupExpiredReservations();
     if (cleanedCount > 0) {
-      console.log(`Cleaned up ${cleanedCount} expired credit reservations`);
+      // Log cleanup count if needed
     }
   } catch (error) {
     console.error('Error cleaning up expired reservations:', error);

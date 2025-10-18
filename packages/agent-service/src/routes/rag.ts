@@ -25,11 +25,7 @@ router.post(
  * @desc Get user's documents
  * @access Private
  */
-router.get(
-  '/documents',
-  authenticate,
-  ragController.getDocuments.bind(ragController)
-);
+router.get('/documents', authenticate, ragController.getDocuments.bind(ragController));
 
 /**
  * @route GET /api/rag/documents/:documentId
@@ -81,22 +77,14 @@ router.post(
  * @desc Get query details and results
  * @access Private
  */
-router.get(
-  '/query/:queryId',
-  authenticate,
-  ragController.getQueryDetails.bind(ragController)
-);
+router.get('/query/:queryId', authenticate, ragController.getQueryDetails.bind(ragController));
 
 /**
  * @route GET /apirag/knowledge-bases
  * @desc Get available knowledge bases
  * @access Private
  */
-router.get(
-  '/knowledge-bases',
-  authenticate,
-  ragController.getKnowledgeBases.bind(ragController)
-);
+router.get('/knowledge-bases', authenticate, ragController.getKnowledgeBases.bind(ragController));
 
 /**
  * @route POST /api/rag/knowledge-bases
@@ -147,10 +135,6 @@ router.delete(
  * @desc Get RAG usage analytics
  * @access Private
  */
-router.get(
-  '/analytics',
-  authenticate,
-  ragController.getRAGAnalytics.bind(ragController)
-);
+router.get('/analytics', authenticate, ragController.getRAGAnalytics.bind(ragController));
 
 export default router;

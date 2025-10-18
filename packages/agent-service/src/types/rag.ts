@@ -57,14 +57,14 @@ export enum AccessLevel {
   AGENT = 'AGENT',
   AGENCY = 'AGENCY',
   ORGANIZATION = 'ORGANIZATION',
-  PUBLIC = 'PUBLIC'
+  PUBLIC = 'PUBLIC',
 }
 
 export enum DocumentStatus {
   PENDING = 'pending',
   PROCESSING = 'processing',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 export interface UploadDocumentRequest {

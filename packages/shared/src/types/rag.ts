@@ -9,7 +9,7 @@ export enum DocumentAccessLevel {
   AGENT = 'AGENT',
   AGENCY = 'AGENCY',
   ORGANIZATION = 'ORGANIZATION',
-  PUBLIC = 'PUBLIC'
+  PUBLIC = 'PUBLIC',
 }
 
 // Document status
@@ -17,7 +17,7 @@ export enum DocumentStatus {
   PENDING = 'pending',
   PROCESSING = 'processing',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 // Document types
@@ -183,33 +183,39 @@ export const RAG_CONSTANTS = {
     CONVERSATIONS: 'conversations-index',
     SKILLS_KNOWLEDGE: 'skills-knowledge-index',
   },
-  
+
   // R2 buckets
   R2_BUCKETS: {
     DOCUMENTS: 'smart-ai-hub-documents',
     IMAGES: 'smart-ai-hub-images',
     VIDEOS: 'smart-ai-hub-videos',
   },
-  
+
   // File limits
   FILE_LIMITS: {
     MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-    SUPPORTED_TYPES: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain', 'text/markdown'],
+    SUPPORTED_TYPES: [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'text/markdown',
+    ],
   },
-  
+
   // Embedding settings
   EMBEDDING: {
     DEFAULT_MODEL: 'bge-base-en-v1.5',
     DEFAULT_DIMENSIONS: 768,
     MAX_BATCH_SIZE: 100,
   },
-  
+
   // Chunking settings
   CHUNKING: {
     DEFAULT_CHUNK_SIZE: 1000,
     DEFAULT_CHUNK_OVERLAP: 200,
   },
-  
+
   // Query settings
   QUERY: {
     DEFAULT_TOP_K: 5,

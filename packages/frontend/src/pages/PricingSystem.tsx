@@ -94,7 +94,7 @@ const PricingSystem: React.FC = () => {
     message: '',
     severity: 'success' as 'success' | 'error',
   });
-  
+
   // Form states
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
@@ -103,7 +103,7 @@ const PricingSystem: React.FC = () => {
   const [pricePerUnit, setPricePerUnit] = useState('');
   const [creditsPerUnit, setCreditsPerUnit] = useState('');
   const [isActive, setIsActive] = useState(true);
-  
+
   // Calculation states
   const [calcPlatform, setCalcPlatform] = useState('');
   const [calcModel, setCalcModel] = useState('');
@@ -330,16 +330,8 @@ const PricingSystem: React.FC = () => {
       {/* Pricing Rules Tab */}
       <TabPanel value={tabValue} index={0}>
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-          <TextField
-            label="Search rules"
-            variant="outlined"
-            sx={{ flexGrow: 1, mr: 2 }}
-          />
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setRuleDialogOpen(true)}
-          >
+          <TextField label="Search rules" variant="outlined" sx={{ flexGrow: 1, mr: 2 }} />
+          <Button variant="contained" startIcon={<Add />} onClick={() => setRuleDialogOpen(true)}>
             Add Rule
           </Button>
           <Button
@@ -400,11 +392,7 @@ const PricingSystem: React.FC = () => {
 
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(e, value) => setPage(value)}
-            />
+            <Pagination count={totalPages} page={page} onChange={(e, value) => setPage(value)} />
           </Box>
         )}
       </TabPanel>
@@ -420,10 +408,7 @@ const PricingSystem: React.FC = () => {
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth sx={{ mb: 2 }}>
                   <InputLabel>Platform</InputLabel>
-                  <Select
-                    value={calcPlatform}
-                    onChange={(e) => setCalcPlatform(e.target.value)}
-                  >
+                  <Select value={calcPlatform} onChange={(e) => setCalcPlatform(e.target.value)}>
                     <MenuItem value="openai">OpenAI</MenuItem>
                     <MenuItem value="anthropic">Anthropic</MenuItem>
                     <MenuItem value="google">Google</MenuItem>
@@ -433,10 +418,7 @@ const PricingSystem: React.FC = () => {
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth sx={{ mb: 2 }}>
                   <InputLabel>Model</InputLabel>
-                  <Select
-                    value={calcModel}
-                    onChange={(e) => setCalcModel(e.target.value)}
-                  >
+                  <Select value={calcModel} onChange={(e) => setCalcModel(e.target.value)}>
                     <MenuItem value="gpt-4">GPT-4</MenuItem>
                     <MenuItem value="gpt-3.5-turbo">GPT-3.5 Turbo</MenuItem>
                     <MenuItem value="claude-3">Claude 3</MenuItem>
@@ -520,7 +502,9 @@ const PricingSystem: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2">LLM Output Cost</Typography>
-                  <Typography variant="h6">${calculationResult.llmOutputCost.toFixed(4)}</Typography>
+                  <Typography variant="h6">
+                    ${calculationResult.llmOutputCost.toFixed(4)}
+                  </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2">RAG Cost</Typography>
@@ -535,7 +519,9 @@ const PricingSystem: React.FC = () => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2">Total Cost (USD)</Typography>
-                      <Typography variant="h5">${calculationResult.totalCostUsd.toFixed(4)}</Typography>
+                      <Typography variant="h5">
+                        ${calculationResult.totalCostUsd.toFixed(4)}
+                      </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2">Total Credits</Typography>
@@ -552,16 +538,8 @@ const PricingSystem: React.FC = () => {
       {/* Usage History Tab */}
       <TabPanel value={tabValue} index={2}>
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-          <TextField
-            label="Search usage"
-            variant="outlined"
-            sx={{ flexGrow: 1, mr: 2 }}
-          />
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={fetchUsageHistory}
-          >
+          <TextField label="Search usage" variant="outlined" sx={{ flexGrow: 1, mr: 2 }} />
+          <Button variant="outlined" startIcon={<Refresh />} onClick={fetchUsageHistory}>
             Refresh
           </Button>
         </Box>
@@ -607,17 +585,18 @@ const PricingSystem: React.FC = () => {
 
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(e, value) => setPage(value)}
-            />
+            <Pagination count={totalPages} page={page} onChange={(e, value) => setPage(value)} />
           </Box>
         )}
       </TabPanel>
 
       {/* Pricing Rule Dialog */}
-      <Dialog open={ruleDialogOpen} onClose={() => setRuleDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={ruleDialogOpen}
+        onClose={() => setRuleDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>{editingRule ? 'Edit Pricing Rule' : 'Add Pricing Rule'}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
@@ -634,10 +613,7 @@ const PricingSystem: React.FC = () => {
             </FormControl>
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Model</InputLabel>
-              <Select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-              >
+              <Select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
                 <MenuItem value="gpt-4">GPT-4</MenuItem>
                 <MenuItem value="gpt-3.5-turbo">GPT-3.5 Turbo</MenuItem>
                 <MenuItem value="claude-3">Claude 3</MenuItem>
@@ -675,10 +651,7 @@ const PricingSystem: React.FC = () => {
             />
             <FormControlLabel
               control={
-                <Switch
-                  checked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                />
+                <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
               }
               label="Active"
             />
@@ -686,11 +659,7 @@ const PricingSystem: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRuleDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleSaveRule}
-            variant="contained"
-            disabled={loading}
-          >
+          <Button onClick={handleSaveRule} variant="contained" disabled={loading}>
             {loading ? 'Saving...' : 'Save'}
           </Button>
         </DialogActions>

@@ -126,7 +126,7 @@ const AgentSkillsMarketplace: React.FC = () => {
       const params: any = { page, limit: 12, sortBy };
       if (searchQuery) params.search = searchQuery;
       if (selectedCategory) params.category = selectedCategory;
-      
+
       const response = await agentSkillsService.getSkills(params);
       setSkills(response.data);
       setTotalPages(Math.ceil(response.total / 12));
@@ -188,7 +188,10 @@ const AgentSkillsMarketplace: React.FC = () => {
         categoryId: skillCategory,
         platformId: skillPlatform,
         visibility: 'PUBLIC' as any, // Simplified for demo
-        tags: skillTags.split(',').map(tag => tag.trim()).filter(Boolean),
+        tags: skillTags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
       };
 
       await agentSkillsService.submitSkill(skillData);
@@ -296,11 +299,16 @@ const AgentSkillsMarketplace: React.FC = () => {
 
   const getSortLabel = (value: string) => {
     switch (value) {
-      case 'popular': return 'Most Popular';
-      case 'newest': return 'Newest';
-      case 'highest_rated': return 'Highest Rated';
-      case 'name': return 'Name';
-      default: return value;
+      case 'popular':
+        return 'Most Popular';
+      case 'newest':
+        return 'Newest';
+      case 'highest_rated':
+        return 'Highest Rated';
+      case 'name':
+        return 'Name';
+      default:
+        return value;
     }
   };
 
@@ -333,10 +341,7 @@ const AgentSkillsMarketplace: React.FC = () => {
           />
           <FormControl sx={{ minWidth: 150 }}>
             <InputLabel>Category</InputLabel>
-            <Select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
+            <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
               <MenuItem value="">All Categories</MenuItem>
               {categories.map((category) => (
                 <MenuItem key={category.id} value={category.id}>
@@ -347,21 +352,14 @@ const AgentSkillsMarketplace: React.FC = () => {
           </FormControl>
           <FormControl sx={{ minWidth: 150 }}>
             <InputLabel>Sort By</InputLabel>
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
+            <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <MenuItem value="popular">Most Popular</MenuItem>
               <MenuItem value="newest">Newest</MenuItem>
               <MenuItem value="highest_rated">Highest Rated</MenuItem>
               <MenuItem value="name">Name</MenuItem>
             </Select>
           </FormControl>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setSubmitDialogOpen(true)}
-          >
+          <Button variant="contained" startIcon={<Add />} onClick={() => setSubmitDialogOpen(true)}>
             Submit Skill
           </Button>
         </Box>
@@ -373,12 +371,7 @@ const AgentSkillsMarketplace: React.FC = () => {
             <Grid item xs={12} sm={6} md={4} lg={3} key={skill.id}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {skill.iconUrl && (
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image={skill.iconUrl}
-                    alt={skill.name}
-                  />
+                  <CardMedia component="img" height="140" image={skill.iconUrl} alt={skill.name} />
                 )}
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" gutterBottom>
@@ -395,9 +388,7 @@ const AgentSkillsMarketplace: React.FC = () => {
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Download fontSize="small" sx={{ mr: 0.5 }} />
-                    <Typography variant="body2">
-                      {skill.installCount} installs
-                    </Typography>
+                    <Typography variant="body2">{skill.installCount} installs</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
                     {skill.tags.slice(0, 3).map((tag) => (
@@ -430,11 +421,7 @@ const AgentSkillsMarketplace: React.FC = () => {
 
         {totalPages > 1 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(e, value) => setPage(value)}
-            />
+            <Pagination count={totalPages} page={page} onChange={(e, value) => setPage(value)} />
           </Box>
         )}
       </TabPanel>
@@ -442,14 +429,8 @@ const AgentSkillsMarketplace: React.FC = () => {
       {/* My Skills Tab */}
       <TabPanel value={tabValue} index={1}>
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="h6">
-            Your Submitted Skills
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setSubmitDialogOpen(true)}
-          >
+          <Typography variant="h6">Your Submitted Skills</Typography>
+          <Button variant="contained" startIcon={<Add />} onClick={() => setSubmitDialogOpen(true)}>
             Submit New Skill
           </Button>
         </Box>
@@ -471,9 +452,13 @@ const AgentSkillsMarketplace: React.FC = () => {
                     <Chip
                       label={skill.status}
                       color={
-                        skill.status === 'approved' ? 'success' :
-                        skill.status === 'pending' ? 'warning' :
-                        skill.status === 'rejected' ? 'error' : 'default'
+                        skill.status === 'approved'
+                          ? 'success'
+                          : skill.status === 'pending'
+                            ? 'warning'
+                            : skill.status === 'rejected'
+                              ? 'error'
+                              : 'default'
                       }
                       size="small"
                     />
@@ -493,19 +478,10 @@ const AgentSkillsMarketplace: React.FC = () => {
                     >
                       View
                     </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<Edit />}
-                    >
+                    <Button size="small" variant="outlined" startIcon={<Edit />}>
                       Edit
                     </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      startIcon={<Delete />}
-                    >
+                    <Button size="small" variant="outlined" color="error" startIcon={<Delete />}>
                       Delete
                     </Button>
                   </Box>
@@ -517,7 +493,12 @@ const AgentSkillsMarketplace: React.FC = () => {
       </TabPanel>
 
       {/* Submit Skill Dialog */}
-      <Dialog open={submitDialogOpen} onClose={() => setSubmitDialogOpen(false)} maxWidth="md" fullWidth>
+      <Dialog
+        open={submitDialogOpen}
+        onClose={() => setSubmitDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Submit New Skill</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
@@ -548,10 +529,7 @@ const AgentSkillsMarketplace: React.FC = () => {
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Category</InputLabel>
-              <Select
-                value={skillCategory}
-                onChange={(e) => setSkillCategory(e.target.value)}
-              >
+              <Select value={skillCategory} onChange={(e) => setSkillCategory(e.target.value)}>
                 {categories.map((category) => (
                   <MenuItem key={category.id} value={category.id}>
                     {category.name}
@@ -561,10 +539,7 @@ const AgentSkillsMarketplace: React.FC = () => {
             </FormControl>
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Platform</InputLabel>
-              <Select
-                value={skillPlatform}
-                onChange={(e) => setSkillPlatform(e.target.value)}
-              >
+              <Select value={skillPlatform} onChange={(e) => setSkillPlatform(e.target.value)}>
                 <MenuItem value="openai">OpenAI</MenuItem>
                 <MenuItem value="anthropic">Anthropic</MenuItem>
                 <MenuItem value="google">Google</MenuItem>
@@ -582,21 +557,20 @@ const AgentSkillsMarketplace: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSubmitDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleSubmitSkill}
-            variant="contained"
-            disabled={loading}
-          >
+          <Button onClick={handleSubmitSkill} variant="contained" disabled={loading}>
             {loading ? 'Submitting...' : 'Submit Skill'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Skill Detail Dialog */}
-      <Dialog open={skillDetailDialogOpen} onClose={() => setSkillDetailDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {selectedSkill?.name}
-        </DialogTitle>
+      <Dialog
+        open={skillDetailDialogOpen}
+        onClose={() => setSkillDetailDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>{selectedSkill?.name}</DialogTitle>
         <DialogContent>
           {selectedSkill && (
             <Box sx={{ pt: 1 }}>
@@ -616,9 +590,7 @@ const AgentSkillsMarketplace: React.FC = () => {
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Download fontSize="small" sx={{ mr: 0.5 }} />
-                <Typography variant="body2">
-                  {selectedSkill.installCount} installs
-                </Typography>
+                <Typography variant="body2">{selectedSkill.installCount} installs</Typography>
               </Box>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
                 {selectedSkill.tags.map((tag) => (
@@ -650,7 +622,11 @@ const AgentSkillsMarketplace: React.FC = () => {
                 ))}
               </List>
               {skillReviews.length === 0 && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ textAlign: 'center', py: 2 }}
+                >
                   No reviews yet. Be the first to review this skill!
                 </Typography>
               )}
@@ -682,7 +658,12 @@ const AgentSkillsMarketplace: React.FC = () => {
       </Dialog>
 
       {/* Review Dialog */}
-      <Dialog open={reviewDialogOpen} onClose={() => setReviewDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={reviewDialogOpen}
+        onClose={() => setReviewDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Write a Review</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
@@ -704,11 +685,7 @@ const AgentSkillsMarketplace: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setReviewDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleSubmitReview}
-            variant="contained"
-            disabled={loading}
-          >
+          <Button onClick={handleSubmitReview} variant="contained" disabled={loading}>
             {loading ? 'Submitting...' : 'Submit Review'}
           </Button>
         </DialogActions>

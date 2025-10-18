@@ -4,10 +4,7 @@ export class AccessControlService {
   /**
    * Check if user has access to a document
    */
-  async checkDocumentAccess(
-    userId: string,
-    document: Document
-  ): Promise<boolean> {
+  async checkDocumentAccess(userId: string, document: Document): Promise<boolean> {
     try {
       // Document owner always has access
       if (document.userId === userId) {
@@ -54,10 +51,7 @@ export class AccessControlService {
   /**
    * Build access filter for vector search
    */
-  async buildAccessFilter(
-    userId: string,
-    agentId?: string
-  ): Promise<Record<string, any>> {
+  async buildAccessFilter(userId: string, agentId?: string): Promise<Record<string, any>> {
     try {
       const userContext = await this.getUserContext(userId);
       if (!userContext) {
@@ -78,8 +72,8 @@ export class AccessControlService {
             AccessLevel.AGENT,
             AccessLevel.AGENCY,
             AccessLevel.ORGANIZATION,
-            AccessLevel.PUBLIC
-          ]
+            AccessLevel.PUBLIC,
+          ],
         };
       } else {
         filters.accessLevel = {
@@ -87,8 +81,8 @@ export class AccessControlService {
             AccessLevel.PRIVATE,
             AccessLevel.AGENCY,
             AccessLevel.ORGANIZATION,
-            AccessLevel.PUBLIC
-          ]
+            AccessLevel.PUBLIC,
+          ],
         };
       }
 
@@ -98,19 +92,16 @@ export class AccessControlService {
           { userId },
           { agencyId: userContext.agency.id, accessLevel: AccessLevel.AGENCY },
           { organizationId: userContext.organization?.id, accessLevel: AccessLevel.ORGANIZATION },
-          { accessLevel: AccessLevel.PUBLIC }
+          { accessLevel: AccessLevel.PUBLIC },
         ];
       } else if (userContext.organization) {
         filters.$or = [
           { userId },
           { organizationId: userContext.organization.id, accessLevel: AccessLevel.ORGANIZATION },
-          { accessLevel: AccessLevel.PUBLIC }
+          { accessLevel: AccessLevel.PUBLIC },
         ];
       } else {
-        filters.$or = [
-          { userId },
-          { accessLevel: AccessLevel.PUBLIC }
-        ];
+        filters.$or = [{ userId }, { accessLevel: AccessLevel.PUBLIC }];
       }
 
       return filters;
@@ -123,10 +114,7 @@ export class AccessControlService {
   /**
    * Get accessible documents for a user
    */
-  async getAccessibleDocuments(
-    userId: string,
-    agentId?: string
-  ): Promise<string[]> {
+  async getAccessibleDocuments(userId: string, agentId?: string): Promise<string[]> {
     try {
       const userContext = await this.getUserContext(userId);
       if (!userContext) {
@@ -172,10 +160,7 @@ export class AccessControlService {
   /**
    * Check if user can share documents at a specific level
    */
-  async canShareAtLevel(
-    userId: string,
-    accessLevel: AccessLevel
-  ): Promise<boolean> {
+  async canShareAtLevel(userId: string, accessLevel: AccessLevel): Promise<boolean> {
     try {
       const userContext = await this.getUserContext(userId);
       if (!userContext) {
@@ -212,10 +197,7 @@ export class AccessControlService {
   /**
    * Filter documents based on access level
    */
-  async filterDocumentsByAccess(
-    userId: string,
-    documents: Document[]
-  ): Promise<Document[]> {
+  async filterDocumentsByAccess(userId: string, documents: Document[]): Promise<Document[]> {
     try {
       const accessibleDocuments: Document[] = [];
 
@@ -248,18 +230,16 @@ export class AccessControlService {
         return null;
       }
 
-      const organization = user.organizationId 
+      const organization = user.organizationId
         ? await this.getOrganizationById(user.organizationId)
         : undefined;
 
-      const agency = user.agencyId
-        ? await this.getAgencyById(user.agencyId)
-        : undefined;
+      const agency = user.agencyId ? await this.getAgencyById(user.agencyId) : undefined;
 
       return {
         user,
         organization: organization || undefined,
-        agency: agency || undefined
+        agency: agency || undefined,
       };
     } catch (error) {
       console.error('Error getting user context:', error);

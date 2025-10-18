@@ -131,7 +131,7 @@ export interface AgentUsageLog {
   sessionId?: string;
   parentCallId?: string;
   callDepth: number;
-  
+
   // Usage metrics
   inputTokens?: number;
   outputTokens?: number;
@@ -140,7 +140,7 @@ export interface AgentUsageLog {
   ragSearches: number;
   toolCalls: number;
   nestedAgentCalls: number;
-  
+
   // Cost breakdown
   llmInputCost: number;
   llmOutputCost: number;
@@ -148,21 +148,21 @@ export interface AgentUsageLog {
   toolCallCost: number;
   nestedAgentCost: number;
   totalCostUsd: number;
-  
+
   // Credits/Points charged
   creditsCharged: number;
   pointsCharged: number;
   currency: string;
-  
+
   // Status
   status: string;
   errorMessage?: string;
-  
+
   // Timestamps
   startedAt: Date;
   completedAt?: Date;
   createdAt: Date;
-  
+
   // Metadata
   metadata: Record<string, any>;
 }
@@ -173,21 +173,21 @@ export interface CostEstimation {
   userId: string;
   platformId: string;
   modelId: string;
-  
+
   // Estimated usage
   estimatedInputTokens?: number;
   estimatedOutputTokens?: number;
   estimatedRagOps: number;
   estimatedToolCalls: number;
-  
+
   // Estimated cost
   estimatedCostUsd: number;
   estimatedCredits: number;
-  
+
   // User balance check
   userBalance: number;
   hasEnoughBalance: boolean;
-  
+
   createdAt: Date;
   expiresAt: Date;
 }
@@ -261,12 +261,9 @@ export interface UsageTrackingService {
     parentCallId?: string;
     usage: UsageMetrics;
   }): Promise<AgentUsageLog>;
-  
+
   getSessionCost(sessionId: string): Promise<SessionCostSummary>;
-  getUserUsageHistory(
-    userId: string,
-    filters: UsageFilters
-  ): Promise<UsageHistoryResult>;
+  getUserUsageHistory(userId: string, filters: UsageFilters): Promise<UsageHistoryResult>;
 }
 
 // Session cost summary
@@ -318,19 +315,19 @@ export const PRICING_CONSTANTS = {
     RAG_SEARCH_COST: 0.0005, // $0.0005 per search
     TOOL_CALL_COST: 0.01, // $0.01 per tool call
   },
-  
+
   // Default markup
   DEFAULT_MARKUP: 0.2, // 20%
-  
+
   // Credit conversion
   CREDIT_TO_USD_RATE: 0.01, // 1 credit = $0.01
-  
+
   // Reservation settings
   RESERVATION: {
     EXPIRY_MINUTES: 30, // 30 minutes
     MAX_RESERVATION_AMOUNT: 1000, // max 1000 credits
   },
-  
+
   // Tier multipliers
   TIER_MULTIPLIERS: {
     [UserTier.FREE]: 1.0,

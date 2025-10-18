@@ -11,7 +11,7 @@ router.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date(),
     service: 'agent-service',
-    version: '1.0.0'
+    version: '1.0.0',
   });
 });
 

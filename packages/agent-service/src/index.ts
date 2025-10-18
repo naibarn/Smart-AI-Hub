@@ -15,24 +15,28 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-}));
+  })
+);
 
 // CORS configuration
-app.use(cors({
-  origin: config.cors.origin,
-  credentials: config.cors.credentials,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
+app.use(
+  cors({
+    origin: config.cors.origin,
+    credentials: config.cors.credentials,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
 
 // Compression middleware
 app.use(compression());
@@ -46,7 +50,7 @@ app.use((req, res, next) => {
   logger.info(`${req.method} ${req.path}`, {
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
   next();
 });
@@ -63,23 +67,23 @@ app.use('*', (req, res) => {
     success: false,
     error: {
       code: ErrorCode.NOT_FOUND,
-      message: 'Endpoint not found'
+      message: 'Endpoint not found',
     },
-    timestamp: new Date()
+    timestamp: new Date(),
   } as ApiResponse);
 });
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error:', err);
-  
+
   res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
     success: false,
     error: {
       code: ErrorCode.INTERNAL_SERVER_ERROR,
-      message: 'An unexpected error occurred'
+      message: 'An unexpected error occurred',
     },
-    timestamp: new Date()
+    timestamp: new Date(),
   } as ApiResponse);
 });
 

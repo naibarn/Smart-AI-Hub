@@ -10,30 +10,30 @@ export interface AgentSkill {
   creatorId: string;
   categoryId: string;
   platformId: string;
-  
+
   // Visibility
   visibility: SkillVisibility;
   organizationId?: string;
-  
+
   // Status
   status: SkillStatus;
   approvedBy?: string;
   approvedAt?: Date;
   rejectionReason?: string;
-  
+
   // Metrics
   installCount: number;
   averageRating: number;
   reviewCount: number;
-  
+
   // Media
   iconUrl?: string;
   screenshotUrls: string[];
-  
+
   // Metadata
   tags: string[];
   metadata: Record<string, any>;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,7 +41,7 @@ export interface AgentSkill {
 export enum SkillVisibility {
   PUBLIC = 'public',
   ORGANIZATION = 'organization',
-  PRIVATE = 'private'
+  PRIVATE = 'private',
 }
 
 export enum SkillStatus {
@@ -49,7 +49,7 @@ export enum SkillStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  ARCHIVED = 'archived'
+  ARCHIVED = 'archived',
 }
 
 export interface SkillVersion {
@@ -154,7 +154,7 @@ export enum SkillSortOption {
   POPULAR = 'popular',
   NEWEST = 'newest',
   HIGHEST_RATED = 'highest_rated',
-  MOST_INSTALLED = 'most_installed'
+  MOST_INSTALLED = 'most_installed',
 }
 
 export interface SearchResult<T> {
@@ -190,7 +190,7 @@ export enum ReviewSortOption {
   OLDEST = 'oldest',
   HIGHEST_RATED = 'highest_rated',
   LOWEST_RATED = 'lowest_rated',
-  MOST_HELPFUL = 'most_helpful'
+  MOST_HELPFUL = 'most_helpful',
 }
 
 // Admin Types

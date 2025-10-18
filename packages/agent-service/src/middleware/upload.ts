@@ -18,13 +18,13 @@ export const uploadMiddleware = {
         buffer: Buffer.from('mock file content'),
         destination: '/tmp',
         filename: 'mock-file.pdf',
-        path: '/tmp/mock-file.pdf'
+        path: '/tmp/mock-file.pdf',
       } as any;
-      
+
       next();
     };
   },
-  
+
   array: (fieldName: string, maxCount?: number) => {
     return (req: Request, res: Response, next: NextFunction): void => {
       // Mock multiple file upload
@@ -38,13 +38,13 @@ export const uploadMiddleware = {
           buffer: Buffer.from('mock file content'),
           destination: '/tmp',
           filename: 'mock-file.pdf',
-          path: '/tmp/mock-file.pdf'
-        }
+          path: '/tmp/mock-file.pdf',
+        },
       ];
-      
+
       next();
     };
-  }
+  },
 };
 
 // Error handling middleware for file uploads
@@ -59,50 +59,50 @@ export const handleUploadError = (
       success: false,
       error: {
         code: ErrorCode.VALIDATION_ERROR,
-        message: 'File size too large. Maximum size is 10MB.'
+        message: 'File size too large. Maximum size is 10MB.',
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     } as ApiResponse);
     return;
   }
-  
+
   if (error.code === 'LIMIT_FILE_COUNT') {
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       error: {
         code: ErrorCode.VALIDATION_ERROR,
-        message: 'Too many files. Maximum is 5 files at once.'
+        message: 'Too many files. Maximum is 5 files at once.',
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     } as ApiResponse);
     return;
   }
-  
+
   if (error.code === 'LIMIT_UNEXPECTED_FILE') {
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       error: {
         code: ErrorCode.VALIDATION_ERROR,
-        message: 'Unexpected file field.'
+        message: 'Unexpected file field.',
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     } as ApiResponse);
     return;
   }
-  
+
   // Handle file type errors
   if (error.message && error.message.includes('File type')) {
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       error: {
         code: ErrorCode.VALIDATION_ERROR,
-        message: error.message
+        message: error.message,
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     } as ApiResponse);
     return;
   }
-  
+
   // Pass other errors to the next middleware
   next(error);
 };

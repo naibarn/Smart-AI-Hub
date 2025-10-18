@@ -30,32 +30,32 @@ export const rateLimit = (options: RateLimitOptions) => {
     try {
       // Get identifier for the request
       const identifier = getIdentifier(req);
-      
+
       // Get current time
       const now = Date.now();
-      
+
       // Get or create entry for this identifier
       let entry = store.get(identifier);
-      
+
       if (!entry || now > entry.resetTime) {
         // Create new entry
         entry = {
           count: 1,
-          resetTime: now + options.windowMs
+          resetTime: now + options.windowMs,
         };
         store.set(identifier, entry);
       } else {
         // Increment count
         entry.count++;
       }
-      
+
       // Set rate limit headers
       res.set({
         'X-RateLimit-Limit': options.max.toString(),
         'X-RateLimit-Remaining': Math.max(0, options.max - entry.count).toString(),
-        'X-RateLimit-Reset': new Date(entry.resetTime).toISOString()
+        'X-RateLimit-Reset': new Date(entry.resetTime).toISOString(),
       });
-      
+
       // Check if limit exceeded
       if (entry.count > options.max) {
         res.status(HttpStatus.TOO_MANY_REQUESTS).json({
@@ -66,14 +66,14 @@ export const rateLimit = (options: RateLimitOptions) => {
             details: {
               limit: options.max,
               windowMs: options.windowMs,
-              retryAfter: Math.ceil((entry.resetTime - now) / 1000)
-            }
+              retryAfter: Math.ceil((entry.resetTime - now) / 1000),
+            },
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
-      
+
       // If we get here, the request is allowed
       next();
     } catch (error) {
@@ -90,7 +90,7 @@ function getIdentifier(req: Request): string {
   if (req.user && req.user.id) {
     return `user:${req.user.id}`;
   }
-  
+
   // Fall back to IP address
   const forwarded = req.headers['x-forwarded-for'] as string;
   const ip = forwarded ? forwarded.split(',')[0] : req.connection.remoteAddress;
@@ -101,23 +101,23 @@ function getIdentifier(req: Request): string {
 export const defaultRateLimit = rateLimit({
   max: 100,
   windowMs: 15 * 60 * 1000, // 15 minutes
-  message: 'Too many requests from this IP, please try again after 15 minutes.'
+  message: 'Too many requests from this IP, please try again after 15 minutes.',
 });
 
 export const strictRateLimit = rateLimit({
   max: 10,
   windowMs: 15 * 60 * 1000, // 15 minutes
-  message: 'Too many requests, please try again after 15 minutes.'
+  message: 'Too many requests, please try again after 15 minutes.',
 });
 
 export const uploadRateLimit = rateLimit({
   max: 5,
   windowMs: 60 * 60 * 1000, // 1 hour
-  message: 'Too many file uploads, please try again after an hour.'
+  message: 'Too many file uploads, please try again after an hour.',
 });
 
 export const queryRateLimit = rateLimit({
   max: 1000,
   windowMs: 60 * 60 * 1000, // 1 hour
-  message: 'Too many queries, please try again after an hour.'
+  message: 'Too many queries, please try again after an hour.',
 });

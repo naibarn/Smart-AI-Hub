@@ -13,7 +13,7 @@ import {
   CostEstimationResponse,
   User,
   ApiResponse,
-  ErrorCode
+  ErrorCode,
 } from '@/types';
 
 export class PricingService {
@@ -22,8 +22,6 @@ export class PricingService {
    */
   async calculateCost(input: CostCalculationInput): Promise<CostBreakdown> {
     try {
-      console.log(`Calculating cost for platform: ${input.platformId}, model: ${input.modelId}`);
-
       // Get pricing rules for the model
       const pricingRules = await this.getPricingRules(input.platformId, input.modelId);
       if (!pricingRules || pricingRules.length === 0) {
@@ -40,7 +38,7 @@ export class PricingService {
 
       // LLM Input cost
       if (input.inputTokens && input.inputTokens > 0) {
-        const inputRule = pricingRules.find(r => r.componentType === ComponentType.LLM_INPUT);
+        const inputRule = pricingRules.find((r) => r.componentType === ComponentType.LLM_INPUT);
         if (inputRule) {
           const cost = this.calculateComponentCost(
             input.inputTokens,
@@ -52,15 +50,15 @@ export class PricingService {
             inputRule.creditsPerUnit,
             tierMultiplier
           );
-          
+
           breakdown.push({
             componentType: ComponentType.LLM_INPUT,
             units: input.inputTokens,
             costPerUnit: inputRule.pricePerUnit,
             totalCost: cost,
-            credits
+            credits,
           });
-          
+
           totalCostUsd += cost;
           totalCredits += credits;
         }
@@ -68,7 +66,7 @@ export class PricingService {
 
       // LLM Output cost
       if (input.outputTokens && input.outputTokens > 0) {
-        const outputRule = pricingRules.find(r => r.componentType === ComponentType.LLM_OUTPUT);
+        const outputRule = pricingRules.find((r) => r.componentType === ComponentType.LLM_OUTPUT);
         if (outputRule) {
           const cost = this.calculateComponentCost(
             input.outputTokens,
@@ -80,15 +78,15 @@ export class PricingService {
             outputRule.creditsPerUnit,
             tierMultiplier
           );
-          
+
           breakdown.push({
             componentType: ComponentType.LLM_OUTPUT,
             units: input.outputTokens,
             costPerUnit: outputRule.pricePerUnit,
             totalCost: cost,
-            credits
+            credits,
           });
-          
+
           totalCostUsd += cost;
           totalCredits += credits;
         }
@@ -96,7 +94,9 @@ export class PricingService {
 
       // RAG Embedding cost
       if (input.ragEmbeddings && input.ragEmbeddings > 0) {
-        const ragEmbedRule = pricingRules.find(r => r.componentType === ComponentType.RAG_EMBEDDING);
+        const ragEmbedRule = pricingRules.find(
+          (r) => r.componentType === ComponentType.RAG_EMBEDDING
+        );
         if (ragEmbedRule) {
           const cost = this.calculateComponentCost(
             input.ragEmbeddings,
@@ -108,15 +108,15 @@ export class PricingService {
             ragEmbedRule.creditsPerUnit,
             tierMultiplier
           );
-          
+
           breakdown.push({
             componentType: ComponentType.RAG_EMBEDDING,
             units: input.ragEmbeddings,
             costPerUnit: ragEmbedRule.pricePerUnit,
             totalCost: cost,
-            credits
+            credits,
           });
-          
+
           totalCostUsd += cost;
           totalCredits += credits;
         }
@@ -124,7 +124,9 @@ export class PricingService {
 
       // RAG Search cost
       if (input.ragSearches && input.ragSearches > 0) {
-        const ragSearchRule = pricingRules.find(r => r.componentType === ComponentType.RAG_SEARCH);
+        const ragSearchRule = pricingRules.find(
+          (r) => r.componentType === ComponentType.RAG_SEARCH
+        );
         if (ragSearchRule) {
           const cost = this.calculateComponentCost(
             input.ragSearches,
@@ -136,15 +138,15 @@ export class PricingService {
             ragSearchRule.creditsPerUnit,
             tierMultiplier
           );
-          
+
           breakdown.push({
             componentType: ComponentType.RAG_SEARCH,
             units: input.ragSearches,
             costPerUnit: ragSearchRule.pricePerUnit,
             totalCost: cost,
-            credits
+            credits,
           });
-          
+
           totalCostUsd += cost;
           totalCredits += credits;
         }
@@ -152,7 +154,7 @@ export class PricingService {
 
       // Tool Call cost
       if (input.toolCalls && input.toolCalls > 0) {
-        const toolCallRule = pricingRules.find(r => r.componentType === ComponentType.TOOL_CALL);
+        const toolCallRule = pricingRules.find((r) => r.componentType === ComponentType.TOOL_CALL);
         if (toolCallRule) {
           const cost = this.calculateComponentCost(
             input.toolCalls,
@@ -164,15 +166,15 @@ export class PricingService {
             toolCallRule.creditsPerUnit,
             tierMultiplier
           );
-          
+
           breakdown.push({
             componentType: ComponentType.TOOL_CALL,
             units: input.toolCalls,
             costPerUnit: toolCallRule.pricePerUnit,
             totalCost: cost,
-            credits
+            credits,
           });
-          
+
           totalCostUsd += cost;
           totalCredits += credits;
         }
@@ -180,7 +182,7 @@ export class PricingService {
 
       // Nested Agent cost
       if (input.nestedAgentCalls && input.nestedAgentCalls > 0) {
-        const nestedRule = pricingRules.find(r => r.componentType === ComponentType.STORAGE);
+        const nestedRule = pricingRules.find((r) => r.componentType === ComponentType.STORAGE);
         if (nestedRule) {
           const cost = this.calculateComponentCost(
             input.nestedAgentCalls,
@@ -192,30 +194,37 @@ export class PricingService {
             nestedRule.creditsPerUnit,
             tierMultiplier
           );
-          
+
           breakdown.push({
             componentType: ComponentType.STORAGE,
             units: input.nestedAgentCalls,
             costPerUnit: nestedRule.pricePerUnit,
             totalCost: cost,
-            credits
+            credits,
           });
-          
+
           totalCostUsd += cost;
           totalCredits += credits;
         }
       }
 
       return {
-        llmInputCost: breakdown.find(item => item.componentType === ComponentType.LLM_INPUT)?.totalCost || 0,
-        llmOutputCost: breakdown.find(item => item.componentType === ComponentType.LLM_OUTPUT)?.totalCost || 0,
-        ragCost: (breakdown.find(item => item.componentType === ComponentType.RAG_EMBEDDING)?.totalCost || 0) +
-                (breakdown.find(item => item.componentType === ComponentType.RAG_SEARCH)?.totalCost || 0),
-        toolCallCost: breakdown.find(item => item.componentType === ComponentType.TOOL_CALL)?.totalCost || 0,
-        nestedAgentCost: breakdown.find(item => item.componentType === ComponentType.STORAGE)?.totalCost || 0,
+        llmInputCost:
+          breakdown.find((item) => item.componentType === ComponentType.LLM_INPUT)?.totalCost || 0,
+        llmOutputCost:
+          breakdown.find((item) => item.componentType === ComponentType.LLM_OUTPUT)?.totalCost || 0,
+        ragCost:
+          (breakdown.find((item) => item.componentType === ComponentType.RAG_EMBEDDING)
+            ?.totalCost || 0) +
+          (breakdown.find((item) => item.componentType === ComponentType.RAG_SEARCH)?.totalCost ||
+            0),
+        toolCallCost:
+          breakdown.find((item) => item.componentType === ComponentType.TOOL_CALL)?.totalCost || 0,
+        nestedAgentCost:
+          breakdown.find((item) => item.componentType === ComponentType.STORAGE)?.totalCost || 0,
         totalCostUsd,
         totalCredits,
-        breakdown
+        breakdown,
       };
     } catch (error) {
       console.error('Error calculating cost:', error);
@@ -235,14 +244,14 @@ export class PricingService {
     try {
       // Get user balance
       const userBalance = await this.getUserBalance(userId);
-      
+
       // Calculate estimated cost
       const costBreakdown = await this.calculateCost({
         platformId,
         modelId,
         inputTokens: estimatedTokens.input,
         outputTokens: estimatedTokens.output,
-        userTier: await this.getUserTier(userId)
+        userTier: await this.getUserTier(userId),
       });
 
       const hasEnoughBalance = userBalance >= costBreakdown.totalCredits;
@@ -250,7 +259,7 @@ export class PricingService {
       return {
         estimatedCost: costBreakdown,
         userBalance,
-        hasEnoughBalance
+        hasEnoughBalance,
       };
     } catch (error) {
       console.error('Error estimating cost:', error);
@@ -264,8 +273,7 @@ export class PricingService {
   async getPricingRules(platformId: string, modelId: string): Promise<PricingRule[]> {
     try {
       // Implementation would query from database
-      console.log(`Getting pricing rules for platform: ${platformId}, model: ${modelId}`);
-      
+
       // Return mock pricing rules
       const mockRules: PricingRule[] = [
         {
@@ -282,7 +290,7 @@ export class PricingService {
           effectiveFrom: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
-          metadata: {}
+          metadata: {},
         },
         {
           id: 'rule_2',
@@ -298,7 +306,7 @@ export class PricingService {
           effectiveFrom: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
-          metadata: {}
+          metadata: {},
         },
         {
           id: 'rule_3',
@@ -314,7 +322,7 @@ export class PricingService {
           effectiveFrom: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
-          metadata: {}
+          metadata: {},
         },
         {
           id: 'rule_4',
@@ -330,8 +338,8 @@ export class PricingService {
           effectiveFrom: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
-          metadata: {}
-        }
+          metadata: {},
+        },
       ];
 
       return mockRules;
@@ -347,8 +355,7 @@ export class PricingService {
   async getPlatforms(): Promise<AgentPlatform[]> {
     try {
       // Implementation would query from database
-      console.log('Getting all platforms');
-      
+
       // Return mock platforms
       const mockPlatforms: AgentPlatform[] = [
         {
@@ -360,7 +367,7 @@ export class PricingService {
           description: 'Claude AI agents',
           metadata: {},
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           id: 'platform_2',
@@ -371,8 +378,8 @@ export class PricingService {
           description: 'OpenAI GPT agents',
           metadata: {},
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
 
       return mockPlatforms;
@@ -388,8 +395,7 @@ export class PricingService {
   async getModels(platformId: string): Promise<AgentModel[]> {
     try {
       // Implementation would query from database
-      console.log(`Getting models for platform: ${platformId}`);
-      
+
       // Return mock models
       const mockModels: AgentModel[] = [
         {
@@ -402,8 +408,8 @@ export class PricingService {
           capabilities: { rag: true, tools: true, vision: true },
           metadata: {},
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
 
       return mockModels;
@@ -421,8 +427,6 @@ export class PricingService {
     updates: Partial<PricingRule>
   ): Promise<ApiResponse<PricingRule>> {
     try {
-      console.log(`Updating pricing rule: ${ruleId}`);
-      
       // Implementation would update in database
       const updatedRule: PricingRule = {
         id: ruleId,
@@ -438,13 +442,13 @@ export class PricingService {
         effectiveFrom: updates.effectiveFrom || new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        metadata: updates.metadata || {}
+        metadata: updates.metadata || {},
       };
 
       return {
         success: true,
         data: updatedRule,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       console.error('Error updating pricing rule:', error);
@@ -452,9 +456,9 @@ export class PricingService {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to update pricing rule'
+          message: 'Failed to update pricing rule',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }

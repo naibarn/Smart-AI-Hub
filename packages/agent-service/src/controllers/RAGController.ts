@@ -17,9 +17,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -32,9 +32,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'File is required'
+            message: 'File is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -44,18 +44,18 @@ export class RAGController {
         title,
         accessLevel,
         sharedWithAgentIds,
-        agentId
+        agentId,
       });
 
       if (result.success) {
         res.status(HttpStatus.CREATED).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -64,9 +64,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to upload document'
+          message: 'Failed to upload document',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -82,9 +82,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -96,9 +96,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Query is required'
+            message: 'Query is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -106,18 +106,18 @@ export class RAGController {
       const result = await this.ragService.queryDocuments(userId, {
         query,
         agentId,
-        topK
+        topK,
       });
 
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -126,9 +126,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to query documents'
+          message: 'Failed to query documents',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -144,9 +144,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -162,12 +162,12 @@ export class RAGController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -176,9 +176,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get user documents'
+          message: 'Failed to get user documents',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -194,9 +194,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -208,9 +208,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Document ID is required'
+            message: 'Document ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -220,15 +220,16 @@ export class RAGController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
-        const statusCode = result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND 
-          ? HttpStatus.NOT_FOUND 
-          : HttpStatus.FORBIDDEN;
+        const statusCode =
+          result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND
+            ? HttpStatus.NOT_FOUND
+            : HttpStatus.FORBIDDEN;
         res.status(statusCode).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -237,9 +238,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get document'
+          message: 'Failed to get document',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -255,9 +256,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -270,30 +271,31 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Document ID is required'
+            message: 'Document ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
 
       const result = await this.ragService.updateDocumentAccess(userId, documentId, {
         accessLevel,
-        sharedWithAgentIds
+        sharedWithAgentIds,
       });
 
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
-        const statusCode = result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND 
-          ? HttpStatus.NOT_FOUND 
-          : HttpStatus.FORBIDDEN;
+        const statusCode =
+          result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND
+            ? HttpStatus.NOT_FOUND
+            : HttpStatus.FORBIDDEN;
         res.status(statusCode).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -302,9 +304,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to update document access'
+          message: 'Failed to update document access',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -320,9 +322,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -334,9 +336,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Document ID is required'
+            message: 'Document ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -346,15 +348,16 @@ export class RAGController {
       if (result.success) {
         res.status(HttpStatus.OK).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       } else {
-        const statusCode = result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND 
-          ? HttpStatus.NOT_FOUND 
-          : HttpStatus.FORBIDDEN;
+        const statusCode =
+          result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND
+            ? HttpStatus.NOT_FOUND
+            : HttpStatus.FORBIDDEN;
         res.status(statusCode).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -363,9 +366,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to delete document'
+          message: 'Failed to delete document',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -381,9 +384,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -395,9 +398,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Document ID is required'
+            message: 'Document ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -410,12 +413,13 @@ export class RAGController {
         res.setHeader('Content-Type', 'application/octet-stream');
         stream.pipe(res);
       } else {
-        const statusCode = result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND 
-          ? HttpStatus.NOT_FOUND 
-          : HttpStatus.FORBIDDEN;
+        const statusCode =
+          result.error?.code === ErrorCode.DOCUMENT_NOT_FOUND
+            ? HttpStatus.NOT_FOUND
+            : HttpStatus.FORBIDDEN;
         res.status(statusCode).json({
           ...result,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     } catch (error) {
@@ -424,9 +428,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to download document'
+          message: 'Failed to download document',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -470,9 +474,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -484,9 +488,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Query ID is required'
+            message: 'Query ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -498,13 +502,13 @@ export class RAGController {
         query: 'Sample query',
         results: [],
         createdAt: new Date(),
-        status: 'completed'
+        status: 'completed',
       };
 
       res.status(HttpStatus.OK).json({
         success: true,
         data: mockQueryDetails,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getQueryDetails controller:', error);
@@ -512,9 +516,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get query details'
+          message: 'Failed to get query details',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -530,9 +534,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -544,14 +548,14 @@ export class RAGController {
           name: 'Default Knowledge Base',
           description: 'Default knowledge base for user',
           userId,
-          createdAt: new Date()
-        }
+          createdAt: new Date(),
+        },
       ];
 
       res.status(HttpStatus.OK).json({
         success: true,
         data: mockKnowledgeBases,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getKnowledgeBases controller:', error);
@@ -559,9 +563,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get knowledge bases'
+          message: 'Failed to get knowledge bases',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -577,9 +581,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -591,9 +595,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Knowledge base name is required'
+            message: 'Knowledge base name is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -604,13 +608,13 @@ export class RAGController {
         name,
         description: description || '',
         userId,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       res.status(HttpStatus.CREATED).json({
         success: true,
         data: mockKnowledgeBase,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in createKnowledgeBase controller:', error);
@@ -618,9 +622,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to create knowledge base'
+          message: 'Failed to create knowledge base',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -636,9 +640,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -650,9 +654,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Knowledge base ID is required'
+            message: 'Knowledge base ID is required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -663,7 +667,7 @@ export class RAGController {
       res.status(HttpStatus.OK).json({
         success: true,
         data: mockDocuments,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getKnowledgeBaseDocuments controller:', error);
@@ -671,9 +675,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get knowledge base documents'
+          message: 'Failed to get knowledge base documents',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -689,9 +693,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -703,9 +707,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Knowledge base ID and document ID are required'
+            message: 'Knowledge base ID and document ID are required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -714,7 +718,7 @@ export class RAGController {
       res.status(HttpStatus.OK).json({
         success: true,
         data: { message: 'Document added to knowledge base successfully' },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in addDocumentToKnowledgeBase controller:', error);
@@ -722,9 +726,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to add document to knowledge base'
+          message: 'Failed to add document to knowledge base',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -740,9 +744,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -754,9 +758,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: 'Knowledge base ID and document ID are required'
+            message: 'Knowledge base ID and document ID are required',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -765,7 +769,7 @@ export class RAGController {
       res.status(HttpStatus.OK).json({
         success: true,
         data: { message: 'Document removed from knowledge base successfully' },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in removeDocumentFromKnowledgeBase controller:', error);
@@ -773,9 +777,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to remove document from knowledge base'
+          message: 'Failed to remove document from knowledge base',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }
@@ -791,9 +795,9 @@ export class RAGController {
           success: false,
           error: {
             code: ErrorCode.UNAUTHORIZED,
-            message: 'User not authenticated'
+            message: 'User not authenticated',
           },
-          timestamp: new Date()
+          timestamp: new Date(),
         } as ApiResponse);
         return;
       }
@@ -805,13 +809,13 @@ export class RAGController {
         totalChunks: 0,
         storageUsed: 0,
         queryCount: 0,
-        averageResponseTime: 0
+        averageResponseTime: 0,
       };
 
       res.status(HttpStatus.OK).json({
         success: true,
         data: mockAnalytics,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     } catch (error) {
       logger.error('Error in getRAGAnalytics controller:', error);
@@ -819,9 +823,9 @@ export class RAGController {
         success: false,
         error: {
           code: ErrorCode.INTERNAL_SERVER_ERROR,
-          message: 'Failed to get RAG analytics'
+          message: 'Failed to get RAG analytics',
         },
-        timestamp: new Date()
+        timestamp: new Date(),
       } as ApiResponse);
     }
   }

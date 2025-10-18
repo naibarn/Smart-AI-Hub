@@ -15,11 +15,7 @@ export const reserveCredits = async (req: Request, res: Response) => {
       throw createValidationError('Amount must be a positive number');
     }
 
-    const result = await creditReservationService.reserveCredits(
-      userId,
-      amount,
-      sessionId
-    );
+    const result = await creditReservationService.reserveCredits(userId, amount, sessionId);
 
     res.json({
       success: true,
@@ -89,11 +85,7 @@ export const refundCredits = async (req: Request, res: Response) => {
       throw createValidationError('Refund reason is required');
     }
 
-    const result = await creditReservationService.refundCredits(
-      userId,
-      reservationId,
-      reason
-    );
+    const result = await creditReservationService.refundCredits(userId, reservationId, reason);
 
     res.json({
       success: true,
